@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { rollDice, applyMove, getTile, calculateToll } from '../utils/gameEngine.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
 import { START_MONEY, MAX_CONSECUTIVE_DOUBLES, TILE_TYPES } from '../utils/boardConfig.js'
+import { useQuestionStore } from './questionStore.js'
 
 const COLORS = ['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500', 'bg-violet-500']
 
@@ -89,7 +90,8 @@ export const useGameStore = create((set, get) => ({
   // ─── 문제 흐름 ───
   _askQuestion(pendingAction) {
     const { usedQuestions } = get()
-    const q = pickQuestion(pendingAction.tile.difficulty || 1, usedQuestions)
+    const pool = useQuestionStore.getState().activeQuestions
+    const q = pickQuestion(pendingAction.tile.difficulty || 1, usedQuestions, pool)
     set({
       phase: 'question',
       currentQuestion: q,

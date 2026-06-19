@@ -10,6 +10,8 @@ import TileActionPanel from './components/game/TileActionPanel.jsx'
 import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
+import MainMenu from './components/game/MainMenu.jsx'
+import QuestionManager from './components/questions/QuestionManager.jsx'
 
 export default function App() {
   const players = useGameStore((s) => s.players)
@@ -34,10 +36,10 @@ export default function App() {
   const closeResult = useGameStore((s) => s.closeResult)
   const restart = useGameStore((s) => s.restart)
 
+  const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const lastAnnouncedTurn = useRef(-1)
 
-  // 턴 안내: currentTurn 변경 시에만 발동 (더블 재굴림 시 미발동)
   useEffect(() => {
     if (phase === 'setup' || phase === 'gameover') {
       lastAnnouncedTurn.current = -1
@@ -52,16 +54,33 @@ export default function App() {
     }
   }, [currentTurn, phase])
 
+  // 메뉴 단계 라우팅
   if (phase === 'setup') {
-    return (
-      <div className="min-h-screen bg-amber-50 flex items-center justify-center p-6">
-        <GameSetup onStart={initGame} />
-      </div>
-    )
+    if (view === 'menu') {
+      return (
+        <MainMenu
+          onNewGame={() => setView('setup')}
+          onManageQuestions={() => setView('questions')}
+        />
+      )
+    }
+    if (view === 'questions') {
+      return <QuestionManager onBack={() => setView('menu')} />
+    }
+    return <GameSetup onStart={initGame} onBack={() => setView('menu')} />
   }
 
   if (phase === 'gameover') {
-    return <GameOverScreen players={players} ownership={ownership} onRestart={restart} />
+    return (
+      <GameOverScreen
+        players={players}
+        ownership={ownership}
+        onRestart={() => {
+          restart()
+          setView('menu')
+        }}
+      />
+    )
   }
 
   const current = players[currentTurn]
@@ -109,12 +128,8 @@ export default function App() {
                 onAction={handleTileAction}
               />
             )}
-            {phase === 'question' && (
-              <div className="text-amber-700 text-sm">문제에 답해 주세요…</div>
-            )}
-            {phase === 'result' && (
-              <div className="text-amber-700 text-sm">결과 확인 중…</div>
-            )}
+            {phase === 'question' && <div className="text-amber-700 text-sm">문제에 답해 주세요…</div>}
+            {phase === 'result' && <div className="text-amber-700 text-sm">결과 확인 중…</div>}
           </div>
         </div>
 
