@@ -1,13 +1,13 @@
 import { create } from 'zustand'
 import { rollDice, applyMove, getTile } from '../utils/gameEngine.js'
-import { START_MONEY } from '../utils/boardConfig.js'
+import { START_MONEY, MAX_CONSECUTIVE_DOUBLES } from '../utils/boardConfig.js'
 
 const COLORS = ['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500', 'bg-violet-500']
 
 export const useGameStore = create((set, get) => ({
   players: [],
   currentTurn: 0,
-  phase: 'setup', // setup | rolling | moving | tile | question | gameover
+  phase: 'setup', // setup | rolling | tile | gameover
   lastRoll: null,
   ownership: {}, // { [tileId]: { ownerId, houses } }
 
@@ -24,6 +24,7 @@ export const useGameStore = create((set, get) => ({
       })),
       currentTurn: 0,
       phase: 'rolling',
+      lastRoll: null,
       ownership: {},
     })
   },
@@ -39,12 +40,24 @@ export const useGameStore = create((set, get) => ({
   },
 
   endTurn() {
-    const { players, currentTurn } = get()
+    const { players, currentTurn, lastRoll } = get()
+    const player = players[currentTurn]
+    const updated = [...players]
+
+    // 더블 주사위 → 한 번 더 (단, 누적 한도 미달 시)
+    if (lastRoll?.isDouble && player.consecutiveDoubles + 1 < MAX_CONSECUTIVE_DOUBLES) {
+      updated[currentTurn] = { ...player, consecutiveDoubles: player.consecutiveDoubles + 1 }
+      set({ players: updated, phase: 'rolling', lastRoll: null })
+      return
+    }
+
+    // 더블 카운트 리셋 후 다음 살아있는 플레이어로
+    updated[currentTurn] = { ...player, consecutiveDoubles: 0 }
     let next = (currentTurn + 1) % players.length
     let safety = players.length
-    while (!players[next].alive && safety-- > 0) {
+    while (!updated[next].alive && safety-- > 0) {
       next = (next + 1) % players.length
     }
-    set({ currentTurn: next, phase: 'rolling', lastRoll: null })
+    set({ players: updated, currentTurn: next, phase: 'rolling', lastRoll: null })
   },
 }))
