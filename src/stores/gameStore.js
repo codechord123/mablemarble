@@ -1,7 +1,14 @@
 import { create } from 'zustand'
 import { rollDice, applyMove, getTile, calculateToll } from '../utils/gameEngine.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
-import { START_MONEY, MAX_CONSECUTIVE_DOUBLES, TILE_TYPES } from '../utils/boardConfig.js'
+import { applyCardEffect } from '../utils/goldenKeyEngine.js'
+import { drawGoldenKeyCard } from '../data/goldenKeyCards.js'
+import {
+  START_MONEY,
+  MAX_CONSECUTIVE_DOUBLES,
+  TILE_TYPES,
+  ISLAND_TURNS,
+} from '../utils/boardConfig.js'
 import { useQuestionStore } from './questionStore.js'
 
 const COLORS = ['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500', 'bg-violet-500']
@@ -9,14 +16,15 @@ const COLORS = ['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500', '
 const initialState = {
   players: [],
   currentTurn: 0,
-  phase: 'setup', // setup | rolling | tile | question | result | gameover
+  phase: 'setup', // setup|rolling|tile|question|result|golden-key|space-pick|gameover
   lastRoll: null,
-  ownership: {}, // { [tileId]: { ownerId, houses } }
+  ownership: {},
   welfarePool: 0,
   usedQuestions: [],
   currentQuestion: null,
-  pendingAction: null, // { type: 'purchase' | 'skip-toll', tile, toll? }
-  lastResult: null, // { correct, message, explanation, question }
+  pendingAction: null,
+  lastResult: null,
+  currentCard: null,
 }
 
 export const useGameStore = create((set, get) => ({
@@ -33,6 +41,8 @@ export const useGameStore = create((set, get) => ({
         money: START_MONEY,
         alive: true,
         consecutiveDoubles: 0,
+        islandTurnsLeft: 0,
+        extraTurnGranted: false,
       })),
       phase: 'rolling',
     })
@@ -41,7 +51,10 @@ export const useGameStore = create((set, get) => ({
   rollAndMove() {
     const { players, currentTurn } = get()
     const roll = rollDice()
-    const moved = applyMove(players[currentTurn], roll.total)
+    let moved = applyMove(players[currentTurn], roll.total)
+    if (getTile(moved.position).type === TILE_TYPES.ISLAND) {
+      moved = { ...moved, islandTurnsLeft: ISLAND_TURNS }
+    }
     const updated = [...players]
     updated[currentTurn] = moved
     set({ players: updated, lastRoll: roll, phase: 'tile' })
@@ -87,11 +100,121 @@ export const useGameStore = create((set, get) => ({
     get()._resolveTurn()
   },
 
+  // ─── 황금열쇠 ───
+  drawCard() {
+    set({ phase: 'golden-key', currentCard: drawGoldenKeyCard() })
+  },
+
+  confirmCard() {
+    const card = get().currentCard
+    if (!card) return
+    const result = applyCardEffect(card, get())
+
+    // 보너스 문제: 문제 모달로
+    if (result.bonusQuestion) {
+      const { usedQuestions } = get()
+      const pool = useQuestionStore.getState().activeQuestions
+      const q = pickQuestion(2, usedQuestions, pool)
+      set({
+        phase: 'question',
+        currentQuestion: q,
+        pendingAction: {
+          type: 'bonus-question',
+          winAmount: result.bonusQuestion.winAmount,
+          loseAmount: result.bonusQuestion.loseAmount,
+        },
+        usedQuestions: [...usedQuestions, q.id],
+        currentCard: null,
+      })
+      return
+    }
+
+    // 추가 턴
+    if (result.extraTurn) {
+      const { players, currentTurn } = get()
+      const updated = [...players]
+      updated[currentTurn] = { ...updated[currentTurn], extraTurnGranted: true }
+      set({
+        players: updated,
+        currentCard: null,
+        phase: 'result',
+        lastResult: {
+          correct: true,
+          message: `${card.title} — 한 번 더 굴립니다!`,
+          explanation: card.description,
+          postAction: 'roll-again',
+        },
+      })
+      return
+    }
+
+    // 우주여행 카드 → 도시 선택 모달로
+    if (result.triggerSpace) {
+      set({
+        players: result.players,
+        currentCard: null,
+        phase: 'space-pick',
+      })
+      return
+    }
+
+    // 머니/이동 카드 — 결과만 보여주고 endTurn
+    set({
+      players: result.players,
+      currentCard: null,
+      phase: 'result',
+      lastResult: {
+        correct: true,
+        message: `${card.title}: ${result.message}`,
+        explanation: card.description,
+        postAction: 'end-turn',
+      },
+    })
+  },
+
+  // ─── 무인도 ───
+  attemptIslandEscape() {
+    const { usedQuestions } = get()
+    const pool = useQuestionStore.getState().activeQuestions
+    const q = pickQuestion(2, usedQuestions, pool)
+    set({
+      phase: 'question',
+      currentQuestion: q,
+      pendingAction: { type: 'escape-island' },
+      usedQuestions: [...usedQuestions, q.id],
+    })
+  },
+
+  skipIslandTurn() {
+    const { players, currentTurn } = get()
+    const updated = [...players]
+    const left = Math.max(0, (updated[currentTurn].islandTurnsLeft || 0) - 1)
+    updated[currentTurn] = { ...updated[currentTurn], islandTurnsLeft: left }
+    set({ players: updated })
+    get().endTurn()
+  },
+
+  // ─── 우주여행 ───
+  goToSpacePick() {
+    set({ phase: 'space-pick' })
+  },
+
+  pickSpaceDestination(tileId) {
+    const { players, currentTurn } = get()
+    const updated = [...players]
+    updated[currentTurn] = { ...updated[currentTurn], position: tileId }
+    set({ players: updated, phase: 'tile' })
+  },
+
+  cancelSpacePick() {
+    set({ phase: 'tile' })
+  },
+
   // ─── 문제 흐름 ───
   _askQuestion(pendingAction) {
     const { usedQuestions } = get()
     const pool = useQuestionStore.getState().activeQuestions
-    const q = pickQuestion(pendingAction.tile.difficulty || 1, usedQuestions, pool)
+    const q = pickQuestion(pendingAction.tile?.difficulty || 2, usedQuestions, pool)
     set({
       phase: 'question',
       currentQuestion: q,
@@ -104,6 +227,7 @@ export const useGameStore = create((set, get) => ({
     const { currentQuestion, pendingAction, players, currentTurn, ownership } = get()
     const correct = isCorrect(currentQuestion, answer)
     let message = ''
+    let postAction = 'end-turn'
     let updatedPlayers = [...players]
     let updatedOwnership = ownership
 
@@ -135,6 +259,25 @@ export const useGameStore = create((set, get) => ({
         }
         message = `오답 — 통행료 ${toll.toLocaleString()}원 지불`
       }
+    } else if (pendingAction.type === 'bonus-question') {
+      const delta = correct ? pendingAction.winAmount : -pendingAction.loseAmount
+      updatedPlayers[currentTurn] = {
+        ...updatedPlayers[currentTurn],
+        money: updatedPlayers[currentTurn].money + delta,
+      }
+      message = correct
+        ? `+${pendingAction.winAmount.toLocaleString()}원 보너스!`
+        : `-${pendingAction.loseAmount.toLocaleString()}원`
+    } else if (pendingAction.type === 'escape-island') {
+      if (correct) {
+        updatedPlayers[currentTurn] = { ...updatedPlayers[currentTurn], islandTurnsLeft: 0 }
+        message = '탈출 성공! 한 번 굴려보세요.'
+        postAction = 'roll-again'
+      } else {
+        const left = Math.max(0, (updatedPlayers[currentTurn].islandTurnsLeft || 0) - 1)
+        updatedPlayers[currentTurn] = { ...updatedPlayers[currentTurn], islandTurnsLeft: left }
+        message = left === 0 ? '탈출 실패… 하지만 갇힘 기간 종료!' : '탈출 실패…'
+      }
     }
 
     set({
@@ -148,25 +291,29 @@ export const useGameStore = create((set, get) => ({
         message,
         explanation: currentQuestion.explanation,
         question: currentQuestion,
+        postAction,
       },
     })
   },
 
   closeResult() {
+    const post = get().lastResult?.postAction
     set({ lastResult: null })
+    if (post === 'roll-again') {
+      set({ phase: 'rolling', lastRoll: null })
+      return
+    }
     get()._resolveTurn()
   },
 
-  // ─── 파산/승리 판정 후 턴 마감 ───
+  // ─── 파산/승리 판정 ───
   _resolveTurn() {
     const { players, currentTurn, ownership } = get()
     let updated = [...players]
     let updatedOwnership = ownership
 
-    // 현재 플레이어 파산 처리
     if (updated[currentTurn].money < 0 && updated[currentTurn].alive) {
       updated[currentTurn] = { ...updated[currentTurn], alive: false }
-      // 보유 도시 해제
       updatedOwnership = Object.fromEntries(
         Object.entries(ownership).filter(([, v]) => v.ownerId !== currentTurn),
       )
@@ -187,18 +334,21 @@ export const useGameStore = create((set, get) => ({
     const player = players[currentTurn]
     const updated = [...players]
 
-    // 더블 → 한 번 더 (단, 누적 한도 미달 시)
-    if (
-      player.alive &&
-      lastRoll?.isDouble &&
-      player.consecutiveDoubles + 1 < MAX_CONSECUTIVE_DOUBLES
-    ) {
-      updated[currentTurn] = { ...player, consecutiveDoubles: player.consecutiveDoubles + 1 }
+    const doubleAgain =
+      lastRoll?.isDouble && player.consecutiveDoubles + 1 < MAX_CONSECUTIVE_DOUBLES
+    const extra = player.extraTurnGranted
+
+    if (player.alive && (doubleAgain || extra)) {
+      updated[currentTurn] = {
+        ...player,
+        consecutiveDoubles: doubleAgain ? player.consecutiveDoubles + 1 : player.consecutiveDoubles,
+        extraTurnGranted: false,
+      }
       set({ players: updated, phase: 'rolling', lastRoll: null })
       return
     }
 
-    updated[currentTurn] = { ...player, consecutiveDoubles: 0 }
+    updated[currentTurn] = { ...player, consecutiveDoubles: 0, extraTurnGranted: false }
     let next = (currentTurn + 1) % players.length
     let safety = players.length
     while (!updated[next].alive && safety-- > 0) {
@@ -212,5 +362,4 @@ export const useGameStore = create((set, get) => ({
   },
 }))
 
-// Phase 3에서 활용할 수 있도록 외부에 노출
 export { TILE_TYPES, calculateToll }

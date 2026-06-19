@@ -18,6 +18,6 @@ npm test         # 단위 테스트 (Vitest)
 - ✅ Phase 1 · Step B — 보드 렌더링 + 턴 시스템 + 풀스크린 턴 안내
 - ✅ Phase 1 · Step C — 문제 모달 + 도시 구매/통행료/세금/파산/승리 (MVP 완성)
 - ✅ Phase 2 — HWPX/XLSX/DOCX 업로드 + 미리보기 + 로컬 저장 (IndexedDB)
-- ⏳ Phase 3 — 황금열쇠 카드 / 무인도 / 우주여행 / 랜드마크
+- ✅ Phase 3 — 황금열쇠 카드 12종 / 무인도 갇힘+탈출 / 우주여행 도시 선택
 - ⏳ Phase 4 — 효과음 / 컨페티 / 결과 통계 시각화
 - ⏳ Phase 5 — 배포 (Firebase Hosting + GitHub Actions)

@@ -12,6 +12,9 @@ import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
 import MainMenu from './components/game/MainMenu.jsx'
 import QuestionManager from './components/questions/QuestionManager.jsx'
+import GoldenKeyModal from './components/game/GoldenKeyModal.jsx'
+import IslandPanel from './components/game/IslandPanel.jsx'
+import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
 
 export default function App() {
   const players = useGameStore((s) => s.players)
@@ -23,6 +26,7 @@ export default function App() {
   const currentQuestion = useGameStore((s) => s.currentQuestion)
   const pendingAction = useGameStore((s) => s.pendingAction)
   const lastResult = useGameStore((s) => s.lastResult)
+  const currentCard = useGameStore((s) => s.currentCard)
 
   const initGame = useGameStore((s) => s.initGame)
   const rollAndMove = useGameStore((s) => s.rollAndMove)
@@ -35,6 +39,13 @@ export default function App() {
   const submitAnswer = useGameStore((s) => s.submitAnswer)
   const closeResult = useGameStore((s) => s.closeResult)
   const restart = useGameStore((s) => s.restart)
+  const drawCard = useGameStore((s) => s.drawCard)
+  const confirmCard = useGameStore((s) => s.confirmCard)
+  const goToSpacePick = useGameStore((s) => s.goToSpacePick)
+  const pickSpaceDestination = useGameStore((s) => s.pickSpaceDestination)
+  const cancelSpacePick = useGameStore((s) => s.cancelSpacePick)
+  const attemptIslandEscape = useGameStore((s) => s.attemptIslandEscape)
+  const skipIslandTurn = useGameStore((s) => s.skipIslandTurn)
 
   const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
   const [showAnnouncement, setShowAnnouncement] = useState(false)
@@ -92,8 +103,12 @@ export default function App() {
     if (action.type === 'pay-toll') return payToll(currentTile, action.toll)
     if (action.type === 'pay-tax') return payTax(action.amount)
     if (action.type === 'claim-welfare') return claimWelfare()
+    if (action.type === 'draw-card') return drawCard()
+    if (action.type === 'space-pick') return goToSpacePick()
     if (action.type === 'skip') return skipTile()
   }
+
+  const onIsland = phase === 'rolling' && current?.islandTurnsLeft > 0
 
   return (
     <div className="min-h-screen bg-amber-50 p-4 sm:p-6">
@@ -110,13 +125,28 @@ export default function App() {
 
       <ResultBanner result={lastResult} onClose={closeResult} />
 
+      {phase === 'golden-key' && currentCard && (
+        <GoldenKeyModal card={currentCard} onConfirm={confirmCard} />
+      )}
+
+      {phase === 'space-pick' && (
+        <SpaceTravelModal onPick={pickSpaceDestination} onCancel={cancelSpacePick} />
+      )}
+
       <div className="max-w-7xl mx-auto grid lg:grid-cols-[1fr_14rem] gap-6">
         <div className="flex flex-col items-center gap-4">
           <Board players={players} ownership={ownership} />
 
           <div className="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-md w-full max-w-2xl min-h-[160px] flex flex-col items-center justify-center gap-3">
-            {phase === 'rolling' && (
+            {phase === 'rolling' && !onIsland && (
               <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement} />
+            )}
+            {phase === 'rolling' && onIsland && (
+              <IslandPanel
+                player={current}
+                onEscapeAttempt={attemptIslandEscape}
+                onSkipTurn={skipIslandTurn}
+              />
             )}
             {phase === 'tile' && currentTile && (
               <TileActionPanel
@@ -130,6 +160,8 @@ export default function App() {
             )}
             {phase === 'question' && <div className="text-amber-700 text-sm">문제에 답해 주세요…</div>}
             {phase === 'result' && <div className="text-amber-700 text-sm">결과 확인 중…</div>}
+            {phase === 'golden-key' && <div className="text-amber-700 text-sm">카드 확인 중…</div>}
+            {phase === 'space-pick' && <div className="text-amber-700 text-sm">목적지 선택 중…</div>}
           </div>
         </div>
 

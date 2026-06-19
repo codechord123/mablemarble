@@ -122,16 +122,55 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 6. 나머지(출발/무인도/우주여행/황금열쇠) — Phase 3에서 확장
+  // 6. 황금열쇠 — 카드 뽑기
+  if (tile.type === TILE_TYPES.GOLDEN_KEY) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <Header player={player} tile={tile} lastRoll={lastRoll} />
+        <div className="text-yellow-700 font-semibold">🔑 카드를 뽑아 행운/불운을 확인하세요!</div>
+        <Btn
+          onClick={() => onAction({ type: 'draw-card' })}
+          color="bg-yellow-500 hover:bg-yellow-600"
+        >
+          카드 뽑기
+        </Btn>
+      </div>
+    )
+  }
+
+  // 7. 우주여행 — 도시 선택
+  if (tile.type === TILE_TYPES.SPACE) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <Header player={player} tile={tile} lastRoll={lastRoll} />
+        <div className="text-violet-700 font-semibold">🚀 원하는 도시로 이동할 수 있습니다.</div>
+        <Btn
+          onClick={() => onAction({ type: 'space-pick' })}
+          color="bg-violet-600 hover:bg-violet-700"
+        >
+          이동지 선택
+        </Btn>
+      </div>
+    )
+  }
+
+  // 8. 무인도 — 도착 직후 (이번 턴은 안내만)
+  if (tile.type === TILE_TYPES.ISLAND) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <Header player={player} tile={tile} lastRoll={lastRoll} />
+        <div className="text-sky-700 font-semibold">🏝️ 무인도에 갇혔습니다! (3턴)</div>
+        <div className="text-xs text-amber-700 text-center">다음 턴부터 탈출 시도 가능</div>
+        <Btn onClick={() => onAction({ type: 'skip' })}>{nextLabel}</Btn>
+      </div>
+    )
+  }
+
+  // 9. 출발
   return (
     <div className="flex flex-col items-center gap-3">
       <Header player={player} tile={tile} lastRoll={lastRoll} />
-      <div className="text-amber-700 text-sm text-center">
-        {tile.type === TILE_TYPES.START && '🏁 출발 — 통과 시 자동으로 200원 지급됨'}
-        {tile.type === TILE_TYPES.ISLAND && '🏝️ 무인도 — Phase 3에서 갇힘/탈출 구현 예정'}
-        {tile.type === TILE_TYPES.SPACE && '🚀 우주여행 — Phase 3에서 도시 선택 이동 구현 예정'}
-        {tile.type === TILE_TYPES.GOLDEN_KEY && '🔑 황금열쇠 — Phase 3에서 랜덤 이벤트 구현 예정'}
-      </div>
+      <div className="text-amber-700 text-sm">🏁 출발 — 통과 시 자동으로 200원 지급됨</div>
       <Btn onClick={() => onAction({ type: 'skip' })}>{nextLabel}</Btn>
     </div>
   )
