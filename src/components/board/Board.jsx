@@ -8,10 +8,11 @@ export default function Board({ players, ownership }) {
       <div className="grid grid-cols-7 grid-rows-7 gap-1 h-full w-full">
         {BOARD.map((tile) => {
           const { x, y } = getTileCoord(tile.id)
-          const owner = ownership[tile.id] ? players[ownership[tile.id].ownerId] : null
+          const ownerInfo = ownership[tile.id]
+          const owner = ownerInfo ? players[ownerInfo.ownerId] : null
           return (
             <div key={tile.id} style={{ gridColumn: x + 1, gridRow: y + 1 }}>
-              <Tile tile={tile} owner={owner} />
+              <Tile tile={tile} owner={owner} ownerInfo={ownerInfo} />
             </div>
           )
         })}

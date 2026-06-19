@@ -1,32 +1,86 @@
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
-function Die({ value, keyHint }) {
+// 주사위 눈 패턴 (3x3 그리드)
+const PIPS = {
+  1: [0, 0, 0, 0, 1, 0, 0, 0, 0],
+  2: [1, 0, 0, 0, 0, 0, 0, 0, 1],
+  3: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+  4: [1, 0, 1, 0, 0, 0, 1, 0, 1],
+  5: [1, 0, 1, 0, 1, 0, 1, 0, 1],
+  6: [1, 0, 1, 1, 0, 1, 1, 0, 1],
+}
+
+function DiceFace({ value }) {
+  const pattern = PIPS[value] || PIPS[1]
+  return (
+    <div className="h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-300 p-2 grid grid-cols-3 grid-rows-3 gap-1">
+      {pattern.map((on, i) => (
+        <div key={i} className="flex items-center justify-center">
+          {on ? (
+            <span className="block h-2.5 w-2.5 sm:h-3 sm:w-3 bg-amber-900 rounded-full shadow-inner" />
+          ) : null}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Die({ value, rolling }) {
+  const [shown, setShown] = useState(value || 1)
+
+  useEffect(() => {
+    if (!rolling) {
+      if (value) setShown(value)
+      return
+    }
+    const i = setInterval(() => setShown(Math.ceil(Math.random() * 6)), 70)
+    return () => clearInterval(i)
+  }, [rolling, value])
+
   return (
     <motion.div
-      key={keyHint}
-      initial={{ rotate: -180, scale: 0.4 }}
-      animate={{ rotate: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 250, damping: 14 }}
-      className="h-12 w-12 sm:h-14 sm:w-14 bg-white rounded-xl shadow-md flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-amber-900"
+      animate={rolling
+        ? { rotate: [0, 180, 360, 540, 720], scale: [1, 1.1, 1, 1.1, 1] }
+        : { rotate: 0, scale: [0.85, 1.1, 1] }
+      }
+      transition={{
+        duration: rolling ? 0.8 : 0.4,
+        ease: rolling ? 'linear' : [0.34, 1.56, 0.64, 1],
+      }}
     >
-      {value ?? '?'}
+      <DiceFace value={shown} />
     </motion.div>
   )
 }
 
-export default function DiceRoller({ lastRoll, onRoll, disabled, color }) {
+export default function DiceRoller({ lastRoll, onRoll, disabled }) {
+  const [rolling, setRolling] = useState(false)
+  const rollingRef = useRef(false)
+
+  const handleClick = () => {
+    if (rollingRef.current || disabled) return
+    rollingRef.current = true
+    setRolling(true)
+    setTimeout(() => {
+      rollingRef.current = false
+      setRolling(false)
+      onRoll()
+    }, 800)
+  }
+
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex gap-2">
-        <Die value={lastRoll?.d1} keyHint={`d1-${lastRoll?.d1 ?? 0}`} />
-        <Die value={lastRoll?.d2} keyHint={`d2-${lastRoll?.d2 ?? 0}`} />
+    <div className="flex items-center gap-4 sm:gap-6">
+      <div className="flex gap-3">
+        <Die value={lastRoll?.d1} rolling={rolling} />
+        <Die value={lastRoll?.d2} rolling={rolling} />
       </div>
       <button
-        onClick={onRoll}
-        disabled={disabled}
-        className={`px-6 py-3 text-white rounded-xl font-bold shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition hover:scale-105 ${color || 'bg-amber-600 hover:bg-amber-700'}`}
+        onClick={handleClick}
+        disabled={disabled || rolling}
+        className="px-6 py-3 bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl font-extrabold shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition hover:scale-105 active:scale-95"
       >
-        🎲 주사위 굴리기
+        🎲 굴리기
       </button>
     </div>
   )

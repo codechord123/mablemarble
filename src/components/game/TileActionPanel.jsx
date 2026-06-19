@@ -1,5 +1,5 @@
-import { TILE_TYPES } from '../../utils/boardConfig.js'
-import { calculateToll } from '../../utils/gameEngine.js'
+import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS, MAX_BUILDING_LEVEL } from '../../utils/boardConfig.js'
+import { calculateToll, nextUpgradeCost } from '../../utils/gameEngine.js'
 
 const TYPE_LABEL = {
   start: '출발', island: '무인도', space: '우주여행',
@@ -15,17 +15,19 @@ function Header({ player, tile, lastRoll }) {
       </div>
       <div className="text-amber-700">
         <strong className="text-amber-900">{player.name}</strong> →{' '}
+        {tile.country ? `${tile.country} ` : ''}
         {tile.name || TYPE_LABEL[tile.type] || tile.type}
       </div>
     </div>
   )
 }
 
-function Btn({ children, onClick, color = 'bg-amber-600 hover:bg-amber-700' }) {
+function Btn({ children, onClick, color = 'bg-amber-600 hover:bg-amber-700', disabled }) {
   return (
     <button
       onClick={onClick}
-      className={`px-5 py-2 ${color} text-white rounded-lg shadow font-bold transition`}
+      disabled={disabled}
+      className={`px-5 py-2 ${color} text-white rounded-lg shadow font-bold transition disabled:opacity-40`}
     >
       {children}
     </button>
@@ -61,17 +63,22 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 2. 남의 도시 — 통행료 / 면제 시도
+  // 2. 남의 도시 — 통행료 / 면제 시도 (건물 레벨 반영)
   if (purchasable && owner && owner.ownerId !== player.id) {
     const ownerPlayer = players[owner.ownerId]
     const toll = calculateToll(tile, owner.houses)
     return (
       <div className="flex flex-col items-center gap-3">
         <Header player={player} tile={tile} lastRoll={lastRoll} />
-        <div className="text-amber-800 flex items-center gap-2">
+        <div className="text-amber-800 flex items-center gap-2 text-center flex-wrap justify-center">
           <span className={`h-3 w-3 rounded-full ${ownerPlayer.color}`} />
-          <strong>{ownerPlayer.name}</strong>의 도시 · 통행료{' '}
-          <strong>{toll.toLocaleString()}원</strong>
+          <strong>{ownerPlayer.name}</strong>의 도시
+          {owner.houses > 0 && (
+            <span className="text-amber-700">
+              {BUILDING_ICONS[owner.houses]} {BUILDING_LABELS[owner.houses]}
+            </span>
+          )}
+          <span>· 통행료 <strong>{toll.toLocaleString()}원</strong></span>
         </div>
         <div className="flex gap-2">
           <Btn onClick={() => onAction({ type: 'pay-toll', toll })}>지불</Btn>
@@ -83,13 +90,39 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 3. 내 도시
+  // 3. 내 도시 — 업그레이드 옵션
   if (purchasable && owner && owner.ownerId === player.id) {
+    const lvl = owner.houses
+    const upgradeCost = nextUpgradeCost(tile, lvl)
+    const canUpgrade = upgradeCost != null && player.money >= upgradeCost
+    const nextLevelLabel = upgradeCost != null ? BUILDING_LABELS[lvl + 1] : null
+
     return (
       <div className="flex flex-col items-center gap-3">
         <Header player={player} tile={tile} lastRoll={lastRoll} />
-        <div className="text-emerald-700 font-semibold">🏠 내 도시</div>
-        <Btn onClick={() => onAction({ type: 'skip' })}>{nextLabel}</Btn>
+        <div className="text-emerald-700 font-semibold flex items-center gap-1">
+          {BUILDING_ICONS[lvl] || '🏠'} 내 도시 · {BUILDING_LABELS[lvl]}
+        </div>
+        {upgradeCost == null ? (
+          <div className="text-xs text-amber-600">🏨 최고 등급 호텔 완료!</div>
+        ) : (
+          <div className="text-sm text-amber-700">
+            {BUILDING_ICONS[lvl + 1]} {nextLevelLabel} 업그레이드 비용:{' '}
+            <strong>{upgradeCost.toLocaleString()}원</strong>
+          </div>
+        )}
+        <div className="flex gap-2">
+          {upgradeCost != null && (
+            <Btn
+              onClick={() => onAction({ type: 'upgrade' })}
+              color="bg-emerald-600 hover:bg-emerald-700"
+              disabled={!canUpgrade}
+            >
+              {BUILDING_ICONS[lvl + 1]} {nextLevelLabel} 짓기
+            </Btn>
+          )}
+          <Btn onClick={() => onAction({ type: 'skip' })}>{nextLabel}</Btn>
+        </div>
       </div>
     )
   }
@@ -109,7 +142,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 5. 사회복지 — 누적 세금 풀 지급
+  // 5. 사회복지
   if (tile.type === TILE_TYPES.WELFARE) {
     return (
       <div className="flex flex-col items-center gap-3">
@@ -122,7 +155,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 6. 황금열쇠 — 카드 뽑기
+  // 6. 황금열쇠
   if (tile.type === TILE_TYPES.GOLDEN_KEY) {
     return (
       <div className="flex flex-col items-center gap-3">
@@ -138,7 +171,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 7. 우주여행 — 도시 선택
+  // 7. 우주여행
   if (tile.type === TILE_TYPES.SPACE) {
     return (
       <div className="flex flex-col items-center gap-3">
@@ -154,7 +187,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 8. 무인도 — 도착 직후 (이번 턴은 안내만)
+  // 8. 무인도 — 도착
   if (tile.type === TILE_TYPES.ISLAND) {
     return (
       <div className="flex flex-col items-center gap-3">

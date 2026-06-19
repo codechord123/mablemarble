@@ -47,6 +47,7 @@ export default function App() {
   const cancelSpacePick = useGameStore((s) => s.cancelSpacePick)
   const attemptIslandEscape = useGameStore((s) => s.attemptIslandEscape)
   const skipIslandTurn = useGameStore((s) => s.skipIslandTurn)
+  const upgradeBuilding = useGameStore((s) => s.upgradeBuilding)
 
   const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
   const [showAnnouncement, setShowAnnouncement] = useState(false)
@@ -106,6 +107,7 @@ export default function App() {
     if (action.type === 'claim-welfare') return claimWelfare()
     if (action.type === 'draw-card') return drawCard()
     if (action.type === 'space-pick') return goToSpacePick()
+    if (action.type === 'upgrade') return upgradeBuilding(currentTile)
     if (action.type === 'skip') return skipTile()
   }
 

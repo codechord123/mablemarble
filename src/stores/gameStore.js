@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { rollDice, applyMove, getTile, calculateToll } from '../utils/gameEngine.js'
+import { rollDice, applyMove, getTile, calculateToll, nextUpgradeCost } from '../utils/gameEngine.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
 import { applyCardEffect } from '../utils/goldenKeyEngine.js'
 import { drawGoldenKeyCard } from '../data/goldenKeyCards.js'
@@ -115,6 +115,28 @@ export const useGameStore = create((set, get) => ({
   },
 
   skipTile() {
+    get()._resolveTurn()
+  },
+
+  // ─── 건물 업그레이드 ───
+  upgradeBuilding(tile) {
+    const { players, currentTurn, ownership } = get()
+    const owner = ownership[tile.id]
+    if (!owner || owner.ownerId !== currentTurn) return
+    const cost = nextUpgradeCost(tile, owner.houses)
+    if (cost == null) return
+    if (players[currentTurn].money < cost) return
+
+    const updated = [...players]
+    updated[currentTurn] = {
+      ...updated[currentTurn],
+      money: updated[currentTurn].money - cost,
+    }
+    sfx.coin()
+    set({
+      players: updated,
+      ownership: { ...ownership, [tile.id]: { ...owner, houses: owner.houses + 1 } },
+    })
     get()._resolveTurn()
   },
 

@@ -6,7 +6,9 @@ import {
   TILE_TYPES,
   SALARY,
   LANDMARK_TOLL_MULTIPLIER,
-  TOLL_RATE,
+  TOLL_MULTIPLIERS,
+  BUILDING_COSTS,
+  MAX_BUILDING_LEVEL,
 } from './boardConfig.js'
 
 export function rollDice(rng = Math.random) {
@@ -27,10 +29,19 @@ export function getTile(index) {
   return BOARD[index]
 }
 
-export function calculateToll(tile, houses = 0) {
+export function calculateToll(tile, level = 0) {
   if (!tile?.price) return 0
-  const base = Math.round(tile.price * TOLL_RATE) * (1 + houses)
-  return tile.type === TILE_TYPES.LANDMARK ? base * LANDMARK_TOLL_MULTIPLIER : base
+  const tier = Math.max(0, Math.min(level, MAX_BUILDING_LEVEL))
+  const base = Math.round(tile.price * TOLL_MULTIPLIERS[tier])
+  return tile.type === TILE_TYPES.LANDMARK
+    ? Math.round(base * LANDMARK_TOLL_MULTIPLIER)
+    : base
+}
+
+export function nextUpgradeCost(tile, currentLevel) {
+  const next = currentLevel + 1
+  if (next > MAX_BUILDING_LEVEL) return null
+  return Math.round(tile.price * BUILDING_COSTS[next])
 }
 
 export function canBuy(player, tile) {
