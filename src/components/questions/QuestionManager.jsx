@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQuestionStore } from '../../stores/questionStore.js'
+import { loadQuestions } from '../../db/dexie.js'
 import FileUpload from './FileUpload.jsx'
 import QuestionPreview from './QuestionPreview.jsx'
 
@@ -28,6 +29,20 @@ export default function QuestionManager({ onBack }) {
   const handleDelete = async (id, name) => {
     if (!confirm(`"${name}" 세트를 삭제할까요?`)) return
     await deleteSetFn(id)
+  }
+
+  const handleExport = async (set) => {
+    const questions = await loadQuestions(set.id)
+    const data = { name: set.name, subject: set.subject, questions }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${set.name}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -67,12 +82,21 @@ export default function QuestionManager({ onBack }) {
                       {s.count}문제 · {new Date(s.createdAt).toLocaleString('ko-KR')}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(s.id, s.name)}
-                    className="text-rose-500 hover:bg-rose-50 px-3 py-1 rounded font-semibold"
-                  >
-                    삭제
-                  </button>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleExport(s)}
+                      className="text-amber-700 hover:bg-amber-50 px-3 py-1 rounded font-semibold text-sm"
+                      title="JSON으로 내보내기"
+                    >
+                      내보내기
+                    </button>
+                    <button
+                      onClick={() => handleDelete(s.id, s.name)}
+                      className="text-rose-500 hover:bg-rose-50 px-3 py-1 rounded font-semibold text-sm"
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

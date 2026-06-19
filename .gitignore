@@ -8,3 +8,5 @@ dist-ssr
 .vscode
 .idea
 coverage
+.firebase
+firebase-debug.log

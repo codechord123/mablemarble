@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { parseHwpx } from '../../utils/parsers/hwpxParser.js'
 import { parseXlsx } from '../../utils/parsers/xlsxParser.js'
 import { parseDocx } from '../../utils/parsers/docxParser.js'
+import { parseJson } from '../../utils/parsers/jsonParser.js'
 
 const PARSERS = {
   hwpx: parseHwpx,
   xlsx: parseXlsx,
   docx: parseDocx,
+  json: parseJson,
 }
 
 export default function FileUpload({ onParsed }) {
@@ -21,7 +23,7 @@ export default function FileUpload({ onParsed }) {
     try {
       const ext = file.name.split('.').pop().toLowerCase()
       const parser = PARSERS[ext]
-      if (!parser) throw new Error(`지원하지 않는 형식: .${ext} (.hwpx · .xlsx · .docx 만 가능)`)
+      if (!parser) throw new Error(`지원하지 않는 형식: .${ext} (.hwpx · .xlsx · .docx · .json 만 가능)`)
       const result = await parser(file)
       onParsed(result, file.name)
     } catch (e) {
@@ -47,11 +49,11 @@ export default function FileUpload({ onParsed }) {
       <div className="text-5xl mb-2">📂</div>
       <p className="text-amber-900 font-bold mb-1">문제 파일을 끌어다 놓거나 선택하세요</p>
       <p className="text-sm text-gray-500 mb-4">
-        <strong className="text-amber-700">.hwpx</strong> (우선) · <strong>.xlsx</strong> · <strong>.docx</strong>
+        <strong className="text-amber-700">.hwpx</strong> (우선) · <strong>.xlsx</strong> · <strong>.docx</strong> · <strong>.json</strong> (공유 형식)
       </p>
       <input
         type="file"
-        accept=".hwpx,.xlsx,.docx"
+        accept=".hwpx,.xlsx,.docx,.json"
         onChange={(e) => handleFile(e.target.files[0])}
         disabled={busy}
         className="block mx-auto text-sm file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-amber-100 file:text-amber-700 file:font-bold hover:file:bg-amber-200"
