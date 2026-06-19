@@ -16,4 +16,5 @@ npm test         # 단위 테스트 (Vitest)
 
 - ✅ Phase 1 · Step A — 스캐폴딩 + 24칸 보드 정의 + 게임엔진 골격
 - ✅ Phase 1 · Step B — 보드 렌더링 + 턴 시스템 + 풀스크린 턴 안내
-- ⏳ Phase 1 · Step C — 문제 모달 + 도시 구매 로직
+- ✅ Phase 1 · Step C — 문제 모달 + 도시 구매/통행료/세금/파산/승리 (MVP 완성)
+- ⏳ Phase 2 — XLSX/HWPX 업로드 + 미리보기 + Firestore 연동

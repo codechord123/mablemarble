@@ -1,0 +1,153 @@
+[
+  { "id": "q01", "category": "사회",   "difficulty": 1, "type": "multiple_choice",
+    "question": "우리나라의 수도는 어디일까요?",
+    "choices": ["서울", "부산", "인천", "대구"], "answer": 0,
+    "explanation": "대한민국의 수도는 서울특별시입니다." },
+
+  { "id": "q02", "category": "사회",   "difficulty": 1, "type": "true_false",
+    "question": "태극기는 우리나라의 국기이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "태극기는 대한민국의 국기입니다." },
+
+  { "id": "q03", "category": "사회",   "difficulty": 1, "type": "multiple_choice",
+    "question": "우리나라의 화폐 단위는?",
+    "choices": ["엔", "위안", "원", "달러"], "answer": 2,
+    "explanation": "대한민국의 화폐 단위는 원(₩)입니다." },
+
+  { "id": "q04", "category": "수학",   "difficulty": 1, "type": "multiple_choice",
+    "question": "24 ÷ 6 = ?",
+    "choices": ["3", "4", "5", "6"], "answer": 1,
+    "explanation": "24를 6으로 나누면 4입니다." },
+
+  { "id": "q05", "category": "수학",   "difficulty": 1, "type": "short_answer",
+    "question": "7 × 8 = ? (숫자만)",
+    "choices": [], "answer": "56",
+    "explanation": "7 × 8 = 56." },
+
+  { "id": "q06", "category": "수학",   "difficulty": 1, "type": "true_false",
+    "question": "100은 10의 배수이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "100 = 10 × 10이므로 10의 배수입니다." },
+
+  { "id": "q07", "category": "과학",   "difficulty": 1, "type": "true_false",
+    "question": "식물은 햇빛을 받아 광합성을 한다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "식물은 잎의 엽록체에서 햇빛을 받아 광합성을 합니다." },
+
+  { "id": "q08", "category": "과학",   "difficulty": 1, "type": "multiple_choice",
+    "question": "물의 끓는점은 몇 도일까요?",
+    "choices": ["50도", "75도", "100도", "150도"], "answer": 2,
+    "explanation": "물은 1기압에서 100도에 끓습니다." },
+
+  { "id": "q09", "category": "국어",   "difficulty": 1, "type": "short_answer",
+    "question": "'크다'의 반대말은?",
+    "choices": [], "answer": "작다",
+    "explanation": "'크다'의 반대말은 '작다'입니다." },
+
+  { "id": "q10", "category": "국어",   "difficulty": 1, "type": "multiple_choice",
+    "question": "한글을 만든 임금은?",
+    "choices": ["태조", "세종대왕", "영조", "정조"], "answer": 1,
+    "explanation": "세종대왕이 1443년 한글(훈민정음)을 창제했습니다." },
+
+  { "id": "q11", "category": "사회",   "difficulty": 2, "type": "multiple_choice",
+    "question": "삼국시대에 해당하지 않는 나라는?",
+    "choices": ["고구려", "백제", "신라", "고려"], "answer": 3,
+    "explanation": "삼국시대는 고구려·백제·신라입니다. 고려는 그 이후입니다." },
+
+  { "id": "q12", "category": "수학",   "difficulty": 2, "type": "short_answer",
+    "question": "세 자리 수 중 가장 큰 수는?",
+    "choices": [], "answer": "999",
+    "explanation": "세 자리 수의 범위는 100~999입니다." },
+
+  { "id": "q13", "category": "과학",   "difficulty": 2, "type": "multiple_choice",
+    "question": "지구가 태양 주위를 한 바퀴 도는 데 걸리는 시간은?",
+    "choices": ["1일", "1주일", "1달", "1년"], "answer": 3,
+    "explanation": "지구의 공전 주기는 약 365일, 즉 1년입니다." },
+
+  { "id": "q14", "category": "과학",   "difficulty": 2, "type": "true_false",
+    "question": "고래는 물고기이다.",
+    "choices": ["O", "X"], "answer": 1,
+    "explanation": "고래는 새끼에게 젖을 먹이는 포유류입니다." },
+
+  { "id": "q15", "category": "국어",   "difficulty": 2, "type": "multiple_choice",
+    "question": "'금상첨화'의 뜻으로 알맞은 것은?",
+    "choices": ["좋은 일에 좋은 일이 더해짐", "나쁜 일이 겹침", "처음과 끝이 같음", "원인과 결과"],
+    "answer": 0,
+    "explanation": "비단 위에 꽃을 더한다는 뜻으로 좋은 것에 좋은 것이 더해짐을 의미합니다." },
+
+  { "id": "q16", "category": "사회",   "difficulty": 2, "type": "short_answer",
+    "question": "우리나라 동쪽 끝에 있는 섬의 이름은?",
+    "choices": [], "answer": "독도",
+    "explanation": "독도는 우리나라 동쪽 끝에 있는 섬입니다." },
+
+  { "id": "q17", "category": "수학",   "difficulty": 2, "type": "multiple_choice",
+    "question": "1/2 + 1/4 = ?",
+    "choices": ["1/4", "2/6", "3/4", "1/8"], "answer": 2,
+    "explanation": "통분하면 2/4 + 1/4 = 3/4입니다." },
+
+  { "id": "q18", "category": "과학",   "difficulty": 2, "type": "multiple_choice",
+    "question": "낮과 밤이 생기는 이유는?",
+    "choices": ["지구의 공전", "지구의 자전", "달의 운동", "태양의 운동"], "answer": 1,
+    "explanation": "지구의 자전 때문에 낮과 밤이 번갈아 나타납니다." },
+
+  { "id": "q19", "category": "국어",   "difficulty": 2, "type": "true_false",
+    "question": "'책'은 명사이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "'책'은 사물의 이름을 나타내는 명사입니다." },
+
+  { "id": "q20", "category": "사회",   "difficulty": 2, "type": "multiple_choice",
+    "question": "우리나라 국회의원의 임기는?",
+    "choices": ["2년", "4년", "5년", "6년"], "answer": 1,
+    "explanation": "국회의원의 임기는 4년입니다." },
+
+  { "id": "q21", "category": "수학",   "difficulty": 3, "type": "short_answer",
+    "question": "24와 36의 최대공약수는?",
+    "choices": [], "answer": "12",
+    "explanation": "24 = 2³×3, 36 = 2²×3², 최대공약수는 2²×3 = 12입니다." },
+
+  { "id": "q22", "category": "과학",   "difficulty": 3, "type": "multiple_choice",
+    "question": "태양계에서 가장 큰 행성은?",
+    "choices": ["지구", "화성", "목성", "토성"], "answer": 2,
+    "explanation": "목성은 태양계에서 가장 큰 행성입니다." },
+
+  { "id": "q23", "category": "사회",   "difficulty": 3, "type": "multiple_choice",
+    "question": "3·1 운동이 일어난 해는?",
+    "choices": ["1910년", "1919년", "1945년", "1950년"], "answer": 1,
+    "explanation": "3·1 운동은 1919년 3월 1일에 일어났습니다." },
+
+  { "id": "q24", "category": "국어",   "difficulty": 3, "type": "short_answer",
+    "question": "'아름답다'의 반대말은? (한 단어)",
+    "choices": [], "answer": "추하다,못생기다",
+    "explanation": "미적 가치의 반대 표현으로 '추하다' 또는 '못생기다'를 씁니다." },
+
+  { "id": "q25", "category": "수학",   "difficulty": 3, "type": "multiple_choice",
+    "question": "정육면체의 면·꼭짓점·모서리의 개수의 합은?",
+    "choices": ["20", "24", "26", "28"], "answer": 2,
+    "explanation": "면 6 + 꼭짓점 8 + 모서리 12 = 26입니다." },
+
+  { "id": "q26", "category": "과학",   "difficulty": 3, "type": "true_false",
+    "question": "소리는 진공에서도 전달된다.",
+    "choices": ["O", "X"], "answer": 1,
+    "explanation": "소리는 매질이 필요하므로 진공에서는 전달되지 않습니다." },
+
+  { "id": "q27", "category": "사회",   "difficulty": 3, "type": "short_answer",
+    "question": "훈민정음을 반포한 연도는? (숫자 4자리)",
+    "choices": [], "answer": "1446",
+    "explanation": "세종대왕은 1446년에 훈민정음을 반포했습니다." },
+
+  { "id": "q28", "category": "국어",   "difficulty": 3, "type": "multiple_choice",
+    "question": "'우공이산'의 뜻은?",
+    "choices": ["꾸준히 노력하면 큰 일도 이룬다", "우물 안 개구리", "말 한 마디로 천 냥 빚을 갚다", "가는 말이 고와야 오는 말이 곱다"],
+    "answer": 0,
+    "explanation": "우공이 산을 옮긴다는 뜻으로 꾸준한 노력의 중요성을 의미합니다." },
+
+  { "id": "q29", "category": "수학",   "difficulty": 3, "type": "short_answer",
+    "question": "한 변이 5cm인 정사각형의 둘레는? (숫자만, 단위 제외)",
+    "choices": [], "answer": "20",
+    "explanation": "정사각형의 둘레 = 한 변 × 4 = 5 × 4 = 20cm." },
+
+  { "id": "q30", "category": "과학",   "difficulty": 3, "type": "multiple_choice",
+    "question": "물질의 세 가지 상태가 아닌 것은?",
+    "choices": ["고체", "액체", "기체", "빛"], "answer": 3,
+    "explanation": "물질의 세 가지 상태는 고체·액체·기체입니다." }
+]
