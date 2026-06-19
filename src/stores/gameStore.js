@@ -10,6 +10,22 @@ import {
   ISLAND_TURNS,
 } from '../utils/boardConfig.js'
 import { useQuestionStore } from './questionStore.js'
+import { sfx } from '../utils/sounds.js'
+
+const emptyStats = () => ({ answered: 0, correct: 0, byCategory: {} })
+
+function recordAnswer(stats, category, correct) {
+  const cat = category || '기타'
+  const prev = stats.byCategory[cat] || { answered: 0, correct: 0 }
+  return {
+    answered: stats.answered + 1,
+    correct: stats.correct + (correct ? 1 : 0),
+    byCategory: {
+      ...stats.byCategory,
+      [cat]: { answered: prev.answered + 1, correct: prev.correct + (correct ? 1 : 0) },
+    },
+  }
+}
 
 const COLORS = ['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500', 'bg-violet-500']
 
@@ -43,12 +59,14 @@ export const useGameStore = create((set, get) => ({
         consecutiveDoubles: 0,
         islandTurnsLeft: 0,
         extraTurnGranted: false,
+        stats: emptyStats(),
       })),
       phase: 'rolling',
     })
   },
 
   rollAndMove() {
+    sfx.dice()
     const { players, currentTurn } = get()
     const roll = rollDice()
     let moved = applyMove(players[currentTurn], roll.total)
@@ -102,6 +120,7 @@ export const useGameStore = create((set, get) => ({
 
   // ─── 황금열쇠 ───
   drawCard() {
+    sfx.card()
     set({ phase: 'golden-key', currentCard: drawGoldenKeyCard() })
   },
 
@@ -226,10 +245,21 @@ export const useGameStore = create((set, get) => ({
   submitAnswer(answer) {
     const { currentQuestion, pendingAction, players, currentTurn, ownership } = get()
     const correct = isCorrect(currentQuestion, answer)
+    correct ? sfx.correct() : sfx.wrong()
     let message = ''
     let postAction = 'end-turn'
     let updatedPlayers = [...players]
     let updatedOwnership = ownership
+
+    // 통계 기록 (탈출/구매/통행료/보너스 모두 포함)
+    updatedPlayers[currentTurn] = {
+      ...updatedPlayers[currentTurn],
+      stats: recordAnswer(
+        updatedPlayers[currentTurn].stats || emptyStats(),
+        currentQuestion.category,
+        correct,
+      ),
+    }
 
     if (pendingAction.type === 'purchase') {
       if (correct) {
@@ -313,6 +343,7 @@ export const useGameStore = create((set, get) => ({
     let updatedOwnership = ownership
 
     if (updated[currentTurn].money < 0 && updated[currentTurn].alive) {
+      sfx.bankrupt()
       updated[currentTurn] = { ...updated[currentTurn], alive: false }
       updatedOwnership = Object.fromEntries(
         Object.entries(ownership).filter(([, v]) => v.ownerId !== currentTurn),
@@ -321,6 +352,7 @@ export const useGameStore = create((set, get) => ({
 
     const aliveCount = updated.filter((p) => p.alive).length
     if (aliveCount <= 1) {
+      sfx.victory()
       set({ players: updated, ownership: updatedOwnership, phase: 'gameover' })
       return
     }

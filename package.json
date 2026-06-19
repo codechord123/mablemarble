@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "canvas-confetti": "^1.9.3",
     "dexie": "^4.0.8",
     "framer-motion": "^11.3.0",
     "jszip": "^3.10.1",

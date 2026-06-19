@@ -15,6 +15,7 @@ import QuestionManager from './components/questions/QuestionManager.jsx'
 import GoldenKeyModal from './components/game/GoldenKeyModal.jsx'
 import IslandPanel from './components/game/IslandPanel.jsx'
 import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
+import MuteToggle from './components/ui/MuteToggle.jsx'
 
 export default function App() {
   const players = useGameStore((s) => s.players)
@@ -112,6 +113,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-amber-50 p-4 sm:p-6">
+      <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
 
       {phase === 'question' && currentQuestion && (
