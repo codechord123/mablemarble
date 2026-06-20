@@ -53,6 +53,7 @@ export default function FileUpload({ onParsed }) {
       </p>
       <p className="text-xs text-amber-700 mb-4">
         ⚠️ 표 헤더에서 셀 병합을 사용하지 마세요 (컬럼이 어긋날 수 있음)
+      </p>
       <input
         type="file"
         accept=".hwpx,.xlsx,.docx,.json"

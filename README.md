@@ -22,9 +22,22 @@ npm test         # 단위 테스트 (Vitest)
 - ✅ Phase 4 — Web Audio 효과음 / canvas-confetti / 정답률·과목별 통계
 - ✅ Phase 5 — Firebase Hosting 자동 배포 + JSON 문제 세트 공유
 
-## 배포 (Firebase Hosting)
+## 배포
 
-### 최초 설정
+### 방법 A: Vercel (가장 쉬움 — 권장)
+
+1. [vercel.com](https://vercel.com)에서 GitHub 저장소 import
+2. Framework Preset: **Vite** (자동 감지됨)
+3. Build Command: `npm run build` (자동)
+4. Output Directory: `dist` (자동)
+5. Deploy 클릭 — 끝!
+
+> `vercel.json`이 이미 포함되어 있어 SPA 라우팅(새로고침 404)도 자동 처리됨.
+> 기본 브랜치는 `main` — 다른 브랜치로 배포하려면 Vercel 프로젝트 설정에서 변경.
+
+### 방법 B: Firebase Hosting
+
+#### 최초 설정
 1. [Firebase Console](https://console.firebase.google.com/)에서 프로젝트 생성
 2. `.firebaserc`의 `boomarble-edu`를 본인 프로젝트 ID로 교체
 3. Firebase CLI 설치 후 로컬 테스트:
@@ -35,7 +48,7 @@ npm test         # 단위 테스트 (Vitest)
    npm run build && firebase deploy
    ```
 
-### GitHub Actions 자동 배포
+#### GitHub Actions 자동 배포
 1. Firebase Console → 프로젝트 설정 → 서비스 계정 → 새 비공개 키 생성
 2. 다운받은 JSON 전체를 GitHub Secret으로 추가:
    - 저장소 Settings → Secrets and variables → Actions

@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "test": "vitest"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "canvas-confetti": "^1.9.3",
     "dexie": "^4.0.8",

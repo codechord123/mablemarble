@@ -1,4 +1,5 @@
-import mammoth from 'mammoth'
+// 브라우저 빌드를 직접 import — 기본 'mammoth'는 Node용이라 Vite 빌드에서 fs 모듈 에러 발생
+import mammoth from 'mammoth/mammoth.browser.js'
 import { rowsToQuestions } from './templateSchema.js'
 
 export async function parseDocx(file) {

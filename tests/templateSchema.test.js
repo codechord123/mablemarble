@@ -59,7 +59,7 @@ describe('rowsToQuestions', () => {
   })
 
   it('헤더 없으면 오류 메시지', () => {
-    const rows = [['A', 'B', 'C']]
+    const rows = [['A', 'B', 'C'], ['D', 'E', 'F']]
     const { questions, errors } = rowsToQuestions(rows)
     expect(questions.length).toBe(0)
     expect(errors[0]).toMatch(/헤더/)
