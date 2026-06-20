@@ -396,19 +396,24 @@ export const useGameStore = create((set, get) => ({
     get()._resolveTurn()
   },
 
-  // ─── 파산/승리 판정 ───
+  // ─── 파산/승리 판정 — 전체 플레이어 스캔 ───
   _resolveTurn() {
     const { players, currentTurn, ownership } = get()
     let updated = [...players]
     let updatedOwnership = ownership
+    let anyBankrupt = false
 
-    if (updated[currentTurn].money < 0 && updated[currentTurn].alive) {
-      sfx.bankrupt()
-      updated[currentTurn] = { ...updated[currentTurn], alive: false }
-      updatedOwnership = Object.fromEntries(
-        Object.entries(ownership).filter(([, v]) => v.ownerId !== currentTurn),
-      )
+    for (let i = 0; i < updated.length; i++) {
+      if (updated[i].money < 0 && updated[i].alive) {
+        updated[i] = { ...updated[i], alive: false }
+        anyBankrupt = true
+        // 해당 플레이어의 도시 일괄 해제
+        updatedOwnership = Object.fromEntries(
+          Object.entries(updatedOwnership).filter(([, v]) => v.ownerId !== i),
+        )
+      }
     }
+    if (anyBankrupt) sfx.bankrupt()
 
     const aliveCount = updated.filter((p) => p.alive).length
     if (aliveCount <= 1) {

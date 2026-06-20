@@ -48,9 +48,11 @@ export default function FileUpload({ onParsed }) {
     >
       <div className="text-5xl mb-2">📂</div>
       <p className="text-amber-900 font-bold mb-1">문제 파일을 끌어다 놓거나 선택하세요</p>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-gray-500 mb-1">
         <strong className="text-amber-700">.hwpx</strong> (우선) · <strong>.xlsx</strong> · <strong>.docx</strong> · <strong>.json</strong> (공유 형식)
       </p>
+      <p className="text-xs text-amber-700 mb-4">
+        ⚠️ 표 헤더에서 셀 병합을 사용하지 마세요 (컬럼이 어긋날 수 있음)
       <input
         type="file"
         accept=".hwpx,.xlsx,.docx,.json"

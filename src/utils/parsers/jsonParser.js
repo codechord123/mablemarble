@@ -38,13 +38,40 @@ export async function parseJson(file) {
       return
     }
 
+    const type = VALID_TYPES.has(q.type) ? q.type : 'multiple_choice'
+    const choices = Array.isArray(q.choices) ? q.choices.map(String) : []
+
+    // 타입별 정답 검증
+    if (type === 'multiple_choice') {
+      if (choices.length < 2) {
+        errors.push(`항목 ${i + 1}: 객관식인데 보기가 2개 미만`)
+        return
+      }
+      const n = Number(q.answer)
+      if (!Number.isInteger(n) || n < 0 || n >= choices.length) {
+        errors.push(`항목 ${i + 1}: 정답 인덱스 ${q.answer}가 보기 범위(0~${choices.length - 1}) 밖`)
+        return
+      }
+    } else if (type === 'true_false') {
+      const n = Number(q.answer)
+      if (n !== 0 && n !== 1) {
+        errors.push(`항목 ${i + 1}: OX 정답은 0(O) 또는 1(X)이어야 합니다 (현재: ${q.answer})`)
+        return
+      }
+    } else if (type === 'short_answer') {
+      if (!String(q.answer).trim()) {
+        errors.push(`항목 ${i + 1}: 단답형 정답이 빈 문자열`)
+        return
+      }
+    }
+
     questions.push({
       id: q.id || `imp_${i}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       category: q.category || '기타',
       difficulty: clampDifficulty(q.difficulty),
-      type: VALID_TYPES.has(q.type) ? q.type : 'multiple_choice',
+      type,
       question: String(q.question),
-      choices: Array.isArray(q.choices) ? q.choices.map(String) : [],
+      choices: type === 'true_false' && choices.length === 0 ? ['O', 'X'] : choices,
       answer: q.answer,
       explanation: q.explanation || '',
     })
