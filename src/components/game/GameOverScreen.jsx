@@ -85,7 +85,9 @@ export default function GameOverScreen({ players, ownership, onRestart }) {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-500 w-6">{i + 1}위</span>
-                  <span className={`h-4 w-4 rounded-full ${p.color}`} />
+                  <span className={`h-8 w-8 rounded-full ${p.color} flex items-center justify-center text-base shadow`}>
+                    {p.avatar || '●'}
+                  </span>
                   <span className="font-bold text-amber-900">{p.name}</span>
                   {!p.alive && <span className="text-rose-500 text-xs">파산</span>}
                 </div>

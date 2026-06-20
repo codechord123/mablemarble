@@ -41,12 +41,12 @@ function Die({ value, rolling }) {
   return (
     <motion.div
       animate={rolling
-        ? { rotate: [0, 180, 360, 540, 720], scale: [1, 1.1, 1, 1.1, 1] }
-        : { rotate: 0, scale: [0.85, 1.1, 1] }
+        ? { rotate: [0, 180, 360, 540, 720, 900], scale: [1, 1.15, 1, 1.15, 1, 1] }
+        : { rotate: 0, scale: [0.85, 1.15, 1] }
       }
       transition={{
-        duration: rolling ? 0.8 : 0.4,
-        ease: rolling ? 'linear' : [0.34, 1.56, 0.64, 1],
+        duration: rolling ? 1.2 : 0.4,
+        ease: rolling ? 'easeOut' : [0.34, 1.56, 0.64, 1],
       }}
     >
       <DiceFace value={shown} />
@@ -66,7 +66,7 @@ export default function DiceRoller({ lastRoll, onRoll, disabled }) {
       rollingRef.current = false
       setRolling(false)
       onRoll()
-    }, 800)
+    }, 1200)
   }
 
   return (

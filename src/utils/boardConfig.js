@@ -50,7 +50,7 @@ export const MAX_CONSECUTIVE_DOUBLES = 3
 // ─── 건물 시스템 ───
 // 0=땅, 1=콘도, 2=빌딩, 3=호텔
 export const MAX_BUILDING_LEVEL = 3
-export const BUILDING_LABELS = ['땅', '콘도', '빌딩', '호텔']
+export const BUILDING_LABELS = ['땅', '콘도', '아파트', '호텔']
 export const BUILDING_ICONS = ['', '🏠', '🏢', '🏨']
 
 // 통행료 = price × TOLL_MULTIPLIERS[level]   (랜드마크는 추가 LANDMARK_TOLL_MULTIPLIER)

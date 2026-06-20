@@ -18,7 +18,9 @@ export default function TurnAnnouncement({ player, show }) {
             transition={{ type: 'spring', stiffness: 220, damping: 18 }}
             className="bg-white px-12 py-10 rounded-3xl shadow-2xl flex flex-col items-center gap-4"
           >
-            <div className={`h-20 w-20 rounded-full shadow-lg ${player.color}`} />
+            <div className={`h-24 w-24 rounded-full shadow-lg ${player.color} flex items-center justify-center text-5xl`}>
+              {player.avatar || '●'}
+            </div>
             <div className="text-4xl sm:text-5xl font-extrabold text-amber-900">{player.name}</div>
             <div className="text-xl sm:text-2xl text-amber-700">차례입니다!</div>
           </motion.div>

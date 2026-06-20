@@ -46,12 +46,17 @@ const initialState = {
 export const useGameStore = create((set, get) => ({
   ...initialState,
 
-  initGame(playerNames) {
+  initGame(playerConfigs) {
+    // playerConfigs: 문자열 배열(이름만) 또는 {name, avatar} 객체 배열
+    const normalized = playerConfigs.map((p) =>
+      typeof p === 'string' ? { name: p, avatar: null } : p,
+    )
     set({
       ...initialState,
-      players: playerNames.map((name, i) => ({
+      players: normalized.map((p, i) => ({
         id: i,
-        name,
+        name: p.name,
+        avatar: p.avatar || '●',
         color: COLORS[i % COLORS.length],
         position: 0,
         money: START_MONEY,
