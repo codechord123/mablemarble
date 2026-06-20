@@ -67,8 +67,21 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-        className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full"
+        className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full relative"
       >
+        {/* U2: 강제 닫기 (시간 초과 처리) */}
+        <button
+          onClick={() => {
+            if (submittedRef.current) return
+            submittedRef.current = true
+            onSubmit(TIMEOUT_SENTINEL)
+          }}
+          aria-label="문제 건너뛰기"
+          title="문제 건너뛰기 (시간 초과 처리)"
+          className="absolute top-3 right-3 h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold"
+        >
+          ✕
+        </button>
         <CountdownBar remaining={remaining} total={total} />
         <div className="flex items-center mt-2 text-sm">
           <div className="flex items-center gap-2">

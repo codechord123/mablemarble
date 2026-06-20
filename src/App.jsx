@@ -196,9 +196,15 @@ export default function App() {
 
         <aside className="space-y-3">
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 content-start">
-            {players.map((p, i) => (
-              <PlayerCard key={p.id} player={p} isCurrent={i === currentTurn} />
-            ))}
+            {players.map((p, i) => {
+              // U1: 모바일 2열 그리드에서 홀수 번째 마지막 카드는 풀너비로
+              const isOddLast = i === players.length - 1 && players.length % 2 === 1
+              return (
+                <div key={p.id} className={isOddLast ? 'col-span-2 lg:col-span-1' : ''}>
+                  <PlayerCard player={p} isCurrent={i === currentTurn} />
+                </div>
+              )
+            })}
           </div>
           {welfarePool > 0 && (
             <div className="p-3 bg-pink-100 rounded-xl border-2 border-pink-300 text-center">
@@ -208,6 +214,17 @@ export default function App() {
               </div>
             </div>
           )}
+          {/* U4: 게임 강제 종료 */}
+          <button
+            onClick={() => {
+              if (confirm('지금 게임을 종료할까요? 현재 자산 기준으로 우승자를 가립니다.')) {
+                useGameStore.setState({ phase: 'gameover' })
+              }
+            }}
+            className="w-full text-xs text-gray-500 hover:text-rose-500 hover:bg-rose-50 py-2 rounded-lg transition"
+          >
+            게임 종료
+          </button>
         </aside>
       </div>
     </div>

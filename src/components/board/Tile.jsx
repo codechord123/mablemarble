@@ -1,4 +1,5 @@
-import { TILE_TYPES, BUILDING_LABELS } from '../../utils/boardConfig.js'
+import { TILE_TYPES, BUILDING_LABELS, TOLL_MULTIPLIERS } from '../../utils/boardConfig.js'
+import { calculateToll } from '../../utils/gameEngine.js'
 import BuildingIcon from './BuildingIcon.jsx'
 
 const STYLE = {
@@ -12,15 +13,29 @@ const STYLE = {
   [TILE_TYPES.WELFARE]:    { bg: 'bg-pink-300',    label: '사회복지',  icon: '🎁' },
 }
 
+function buildTollTooltip(tile) {
+  const lines = [tile.name + (tile.country ? ' ' + tile.country : '')]
+  lines.push(`땅값: ${tile.price.toLocaleString()}원`)
+  lines.push('—— 통행료 ——')
+  TOLL_MULTIPLIERS.forEach((_, level) => {
+    const toll = calculateToll(tile, level)
+    lines.push(`${BUILDING_LABELS[level]}: ${toll.toLocaleString()}원`)
+  })
+  return lines.join('\n')
+}
+
 export default function Tile({ tile, owner, ownerInfo }) {
   const s = STYLE[tile.type] || {}
   const isCity = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   const level = ownerInfo?.houses ?? 0
+  const isHotel = isCity && level === 3 // U3: 호텔 칸 강조
 
   return (
     <div
-      className={`relative h-full w-full rounded border border-amber-800/30 ${s.bg} flex flex-col items-center justify-center text-[9px] sm:text-[11px] leading-tight overflow-hidden`}
-      title={isCity && level > 0 ? `${tile.name} · ${BUILDING_LABELS[level]}` : tile.name}
+      className={`relative h-full w-full rounded border ${
+        isHotel ? 'border-rose-500 ring-1 ring-rose-400' : 'border-amber-800/30'
+      } ${s.bg} flex flex-col items-center justify-center text-[9px] sm:text-[11px] leading-tight overflow-hidden`}
+      title={isCity ? buildTollTooltip(tile) : tile.name || s.label}
     >
       {/* 소유주 컬러 띠 (상단) */}
       {owner && (
@@ -38,7 +53,7 @@ export default function Tile({ tile, owner, ownerInfo }) {
           <div className="text-base sm:text-lg">{tile.country}</div>
         ) : null}
 
-        <div className="font-bold text-amber-900 text-center px-1 truncate w-full">
+        <div className={`font-bold text-center px-1 truncate w-full ${isHotel ? 'text-rose-700' : 'text-amber-900'}`}>
           {tile.name || s.label}
         </div>
 
