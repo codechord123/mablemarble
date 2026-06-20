@@ -6,17 +6,18 @@ export function pickQuestion(difficulty = 1, usedIds = [], pool = sampleQuestion
   const used = new Set(usedIds)
 
   const exact = pool.filter((q) => q.difficulty === difficulty && !used.has(q.id))
-  if (exact.length > 0) return random(exact)
+  if (exact.length > 0) return { question: random(exact), poolReset: false }
 
   const adjacent = pool.filter(
     (q) => Math.abs(q.difficulty - difficulty) <= 1 && !used.has(q.id),
   )
-  if (adjacent.length > 0) return random(adjacent)
+  if (adjacent.length > 0) return { question: random(adjacent), poolReset: false }
 
   const anyUnused = pool.filter((q) => !used.has(q.id))
-  if (anyUnused.length > 0) return random(anyUnused)
+  if (anyUnused.length > 0) return { question: random(anyUnused), poolReset: false }
 
-  return random(pool)
+  // 풀 완전 소진 → 리셋
+  return { question: random(pool), poolReset: true }
 }
 
 export function isCorrect(question, answer) {

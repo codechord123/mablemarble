@@ -3,15 +3,24 @@ import { pickQuestion, isCorrect } from '../src/utils/questionPicker.js'
 
 describe('pickQuestion', () => {
   it('해당 난이도에서 미사용 문제를 뽑는다', () => {
-    const q = pickQuestion(1, [])
-    expect(q).toBeDefined()
-    expect(q.difficulty).toBe(1)
+    const { question, poolReset } = pickQuestion(1, [])
+    expect(question).toBeDefined()
+    expect(question.difficulty).toBe(1)
+    expect(poolReset).toBe(false)
   })
   it('해당 난이도가 모두 소진되면 인접 난이도로 폴백', () => {
-    // 모든 난이도 1 문제를 사용 처리
     const allD1 = ['q01','q02','q03','q04','q05','q06','q07','q08','q09','q10']
-    const q = pickQuestion(1, allD1)
-    expect(allD1).not.toContain(q.id)
+    const { question, poolReset } = pickQuestion(1, allD1)
+    expect(allD1).not.toContain(question.id)
+    expect(poolReset).toBe(false)
+  })
+  it('풀이 완전 소진되면 poolReset=true 반환', () => {
+    const allIds = ['q01','q02','q03','q04','q05','q06','q07','q08','q09','q10',
+                    'q11','q12','q13','q14','q15','q16','q17','q18','q19','q20',
+                    'q21','q22','q23','q24','q25','q26','q27','q28','q29','q30']
+    const { question, poolReset } = pickQuestion(1, allIds)
+    expect(question).toBeDefined()
+    expect(poolReset).toBe(true)
   })
 })
 

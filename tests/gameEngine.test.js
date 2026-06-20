@@ -39,9 +39,9 @@ describe('calculateToll', () => {
     const tile = { type: TILE_TYPES.CITY, price: 200 }
     expect(calculateToll(tile, 0)).toBe(40)
   })
-  it('레벨 3 호텔 — 가격의 250% 통행료', () => {
+  it('레벨 3 호텔 — 가격의 200% 통행료', () => {
     const tile = { type: TILE_TYPES.CITY, price: 200 }
-    expect(calculateToll(tile, 3)).toBe(500)
+    expect(calculateToll(tile, 3)).toBe(400)
   })
   it('랜드마크는 추가 1.5배 통행료 (땅 + 1.5)', () => {
     const tile = { type: TILE_TYPES.LANDMARK, price: 300 }

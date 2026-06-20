@@ -54,10 +54,15 @@ export const BUILDING_LABELS = ['땅', '콘도', '아파트', '호텔']
 export const BUILDING_ICONS = ['', '🏠', '🏢', '🏨']
 
 // 통행료 = price × TOLL_MULTIPLIERS[level]   (랜드마크는 추가 LANDMARK_TOLL_MULTIPLIER)
-// 부르마블 클래식 느낌으로 강화 — 호텔은 가격의 2.5배(랜드마크는 3.75배) 부담
-export const TOLL_MULTIPLIERS = [0.2, 0.6, 1.3, 2.5]
+// G1 밸런스 완화: 호텔 2.5 → 2.0 (서울 랜드마크 호텔 1500원 — 시작자금과 같은 수준으로 조정)
+export const TOLL_MULTIPLIERS = [0.2, 0.6, 1.3, 2.0]
 // 다음 레벨 업그레이드 비용 = price × BUILDING_COSTS[targetLevel]
 export const BUILDING_COSTS = [null, 0.4, 0.7, 1.0]
+
+// 사회복지 초기 시드 자금 (G2)
+export const INITIAL_WELFARE_POOL = 100
+// 무인도 탈출 실패 패널티 (G4)
+export const ISLAND_ESCAPE_FAIL_PENALTY = 50
 
 // ─── 문제 시간 제한(초) ───
 export const QUESTION_TIME_BY_DIFFICULTY = { 1: 20, 2: 30, 3: 45 }

@@ -8,6 +8,8 @@ import {
   MAX_CONSECUTIVE_DOUBLES,
   TILE_TYPES,
   ISLAND_TURNS,
+  INITIAL_WELFARE_POOL,
+  ISLAND_ESCAPE_FAIL_PENALTY,
 } from '../utils/boardConfig.js'
 import { useQuestionStore } from './questionStore.js'
 import { sfx } from '../utils/sounds.js'
@@ -35,12 +37,14 @@ const initialState = {
   phase: 'setup', // setup|rolling|tile|question|result|golden-key|space-pick|gameover
   lastRoll: null,
   ownership: {},
-  welfarePool: 0,
+  welfarePool: INITIAL_WELFARE_POOL,  // G2: 시드 자금
   usedQuestions: [],
   currentQuestion: null,
   pendingAction: null,
   lastResult: null,
   currentCard: null,
+  extraTurnReason: null,  // G3: 'double' | 'card' — 추가 턴 토스트용
+  poolJustReset: false,   // G6: 문제 풀 리셋 알림
 }
 
 export const useGameStore = create((set, get) => ({
@@ -187,7 +191,7 @@ export const useGameStore = create((set, get) => ({
     if (result.bonusQuestion) {
       const { usedQuestions } = get()
       const pool = useQuestionStore.getState().activeQuestions
-      const q = pickQuestion(2, usedQuestions, pool)
+      const { question: q, poolReset } = pickQuestion(2, usedQuestions, pool)
       set({
         phase: 'question',
         currentQuestion: q,
@@ -196,8 +200,9 @@ export const useGameStore = create((set, get) => ({
           winAmount: result.bonusQuestion.winAmount,
           loseAmount: result.bonusQuestion.loseAmount,
         },
-        usedQuestions: [...usedQuestions, q.id],
+        usedQuestions: poolReset ? [q.id] : [...usedQuestions, q.id],
         currentCard: null,
+        poolJustReset: poolReset || get().poolJustReset,
       })
       return
     }
@@ -249,12 +254,13 @@ export const useGameStore = create((set, get) => ({
   attemptIslandEscape() {
     const { usedQuestions } = get()
     const pool = useQuestionStore.getState().activeQuestions
-    const q = pickQuestion(2, usedQuestions, pool)
+    const { question: q, poolReset } = pickQuestion(2, usedQuestions, pool)
     set({
       phase: 'question',
       currentQuestion: q,
       pendingAction: { type: 'escape-island' },
-      usedQuestions: [...usedQuestions, q.id],
+      usedQuestions: poolReset ? [q.id] : [...usedQuestions, q.id],
+      poolJustReset: poolReset || get().poolJustReset,
     })
   },
 
@@ -287,12 +293,17 @@ export const useGameStore = create((set, get) => ({
   _askQuestion(pendingAction) {
     const { usedQuestions } = get()
     const pool = useQuestionStore.getState().activeQuestions
-    const q = pickQuestion(pendingAction.tile?.difficulty || 2, usedQuestions, pool)
+    const { question: q, poolReset } = pickQuestion(
+      pendingAction.tile?.difficulty || 2,
+      usedQuestions,
+      pool,
+    )
     set({
       phase: 'question',
       currentQuestion: q,
       pendingAction,
-      usedQuestions: [...usedQuestions, q.id],
+      usedQuestions: poolReset ? [q.id] : [...usedQuestions, q.id],
+      poolJustReset: poolReset || get().poolJustReset,
     })
   },
 
@@ -364,9 +375,16 @@ export const useGameStore = create((set, get) => ({
         message = '탈출 성공! 한 번 굴려보세요.'
         postAction = 'roll-again'
       } else {
+        // G4: 탈출 실패 패널티 추가
         const left = Math.max(0, (updatedPlayers[currentTurn].islandTurnsLeft || 0) - 1)
-        updatedPlayers[currentTurn] = { ...updatedPlayers[currentTurn], islandTurnsLeft: left }
-        message = left === 0 ? '탈출 실패… 하지만 갇힘 기간 종료!' : '탈출 실패…'
+        updatedPlayers[currentTurn] = {
+          ...updatedPlayers[currentTurn],
+          islandTurnsLeft: left,
+          money: updatedPlayers[currentTurn].money - ISLAND_ESCAPE_FAIL_PENALTY,
+        }
+        message = left === 0
+          ? `탈출 실패 -${ISLAND_ESCAPE_FAIL_PENALTY}원… 그래도 갇힘 기간 종료!`
+          : `탈출 실패 -${ISLAND_ESCAPE_FAIL_PENALTY}원… 다음에 다시!`
       }
     }
 
@@ -441,7 +459,12 @@ export const useGameStore = create((set, get) => ({
         consecutiveDoubles: doubleAgain ? player.consecutiveDoubles + 1 : player.consecutiveDoubles,
         extraTurnGranted: false,
       }
-      set({ players: updated, phase: 'rolling', lastRoll: null })
+      set({
+        players: updated,
+        phase: 'rolling',
+        lastRoll: null,
+        extraTurnReason: doubleAgain ? 'double' : 'card',  // G3
+      })
       return
     }
 
@@ -451,7 +474,21 @@ export const useGameStore = create((set, get) => ({
     while (!updated[next].alive && safety-- > 0) {
       next = (next + 1) % players.length
     }
-    set({ players: updated, currentTurn: next, phase: 'rolling', lastRoll: null })
+    set({
+      players: updated,
+      currentTurn: next,
+      phase: 'rolling',
+      lastRoll: null,
+      extraTurnReason: null,
+    })
+  },
+
+  clearExtraTurnToast() {
+    set({ extraTurnReason: null })
+  },
+
+  clearPoolResetToast() {
+    set({ poolJustReset: false })
   },
 
   restart() {

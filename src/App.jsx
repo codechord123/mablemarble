@@ -16,6 +16,7 @@ import GoldenKeyModal from './components/game/GoldenKeyModal.jsx'
 import IslandPanel from './components/game/IslandPanel.jsx'
 import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
 import MuteToggle from './components/ui/MuteToggle.jsx'
+import Toast from './components/ui/Toast.jsx'
 
 export default function App() {
   const players = useGameStore((s) => s.players)
@@ -48,10 +49,28 @@ export default function App() {
   const attemptIslandEscape = useGameStore((s) => s.attemptIslandEscape)
   const skipIslandTurn = useGameStore((s) => s.skipIslandTurn)
   const upgradeBuilding = useGameStore((s) => s.upgradeBuilding)
+  const extraTurnReason = useGameStore((s) => s.extraTurnReason)
+  const poolJustReset = useGameStore((s) => s.poolJustReset)
+  const clearExtraTurnToast = useGameStore((s) => s.clearExtraTurnToast)
+  const clearPoolResetToast = useGameStore((s) => s.clearPoolResetToast)
 
   const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const lastAnnouncedTurn = useRef(-1)
+
+  // G3: 추가 턴 토스트
+  useEffect(() => {
+    if (!extraTurnReason) return
+    const t = setTimeout(clearExtraTurnToast, 1500)
+    return () => clearTimeout(t)
+  }, [extraTurnReason, clearExtraTurnToast])
+
+  // G6: 문제 풀 리셋 토스트
+  useEffect(() => {
+    if (!poolJustReset) return
+    const t = setTimeout(clearPoolResetToast, 2500)
+    return () => clearTimeout(t)
+  }, [poolJustReset, clearPoolResetToast])
 
   useEffect(() => {
     if (phase === 'setup' || phase === 'gameover') {
@@ -117,6 +136,12 @@ export default function App() {
     <div className="min-h-screen bg-amber-50 p-4 sm:p-6">
       <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
+      <Toast show={!!extraTurnReason} color="bg-rose-500">
+        {extraTurnReason === 'double' ? '🎲 더블! 한 번 더 굴리기' : '⚡ 카드 효과 — 한 번 더!'}
+      </Toast>
+      <Toast show={poolJustReset} color="bg-sky-500" position="bottom">
+        🔁 문제 풀이 다시 시작됩니다 (모든 문제 출제 완료)
+      </Toast>
 
       {phase === 'question' && currentQuestion && (
         <QuestionModal
