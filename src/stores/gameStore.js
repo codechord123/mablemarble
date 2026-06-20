@@ -151,9 +151,36 @@ export const useGameStore = create((set, get) => ({
     set({ phase: 'golden-key', currentCard: drawGoldenKeyCard() })
   },
 
-  confirmCard() {
+  confirmCard(success) {
     const card = get().currentCard
     if (!card) return
+
+    // 미션 카드 — 사용자가 성공/포기를 직접 선언
+    if (card.effect?.type === 'mission') {
+      const { players, currentTurn } = get()
+      const updated = [...players]
+      const delta = success ? card.effect.winAmount : -card.effect.loseAmount
+      updated[currentTurn] = {
+        ...updated[currentTurn],
+        money: updated[currentTurn].money + delta,
+      }
+      success ? sfx.correct() : sfx.wrong()
+      set({
+        players: updated,
+        currentCard: null,
+        phase: 'result',
+        lastResult: {
+          correct: !!success,
+          message: success
+            ? `${card.title}: 성공! +${card.effect.winAmount.toLocaleString()}원`
+            : `${card.title}: 포기 -${card.effect.loseAmount.toLocaleString()}원`,
+          explanation: card.description,
+          postAction: 'end-turn',
+        },
+      })
+      return
+    }
+
     const result = applyCardEffect(card, get())
 
     // 보너스 문제: 문제 모달로

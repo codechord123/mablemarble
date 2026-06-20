@@ -35,16 +35,16 @@ describe('applyMove', () => {
 })
 
 describe('calculateToll', () => {
-  it('레벨 0 도시 — 가격의 10% 통행료', () => {
+  it('레벨 0 도시 — 가격의 20% 통행료', () => {
     const tile = { type: TILE_TYPES.CITY, price: 200 }
-    expect(calculateToll(tile, 0)).toBe(20)
+    expect(calculateToll(tile, 0)).toBe(40)
   })
-  it('레벨 3 호텔 — 가격의 150% 통행료', () => {
+  it('레벨 3 호텔 — 가격의 250% 통행료', () => {
     const tile = { type: TILE_TYPES.CITY, price: 200 }
-    expect(calculateToll(tile, 3)).toBe(300)
+    expect(calculateToll(tile, 3)).toBe(500)
   })
-  it('랜드마크는 추가 1.5배 통행료', () => {
+  it('랜드마크는 추가 1.5배 통행료 (땅 + 1.5)', () => {
     const tile = { type: TILE_TYPES.LANDMARK, price: 300 }
-    expect(calculateToll(tile, 0)).toBe(45) // 30 * 1.5
+    expect(calculateToll(tile, 0)).toBe(90) // 60 * 1.5
   })
 })

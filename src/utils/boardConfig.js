@@ -54,7 +54,8 @@ export const BUILDING_LABELS = ['땅', '콘도', '아파트', '호텔']
 export const BUILDING_ICONS = ['', '🏠', '🏢', '🏨']
 
 // 통행료 = price × TOLL_MULTIPLIERS[level]   (랜드마크는 추가 LANDMARK_TOLL_MULTIPLIER)
-export const TOLL_MULTIPLIERS = [0.1, 0.3, 0.7, 1.5]
+// 부르마블 클래식 느낌으로 강화 — 호텔은 가격의 2.5배(랜드마크는 3.75배) 부담
+export const TOLL_MULTIPLIERS = [0.2, 0.6, 1.3, 2.5]
 // 다음 레벨 업그레이드 비용 = price × BUILDING_COSTS[targetLevel]
 export const BUILDING_COSTS = [null, 0.4, 0.7, 1.0]
 
