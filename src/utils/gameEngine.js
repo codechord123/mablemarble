@@ -44,6 +44,16 @@ export function nextUpgradeCost(tile, currentLevel) {
   return Math.round(tile.price * BUILDING_COSTS[next])
 }
 
+// 빈 도시 구매 시 즉시 level까지 짓는 총 비용 (땅값 + 각 단계 업그레이드 비용 합).
+export function totalPurchaseCost(tile, level = 0) {
+  if (!tile?.price) return 0
+  let cost = tile.price
+  for (let i = 1; i <= level; i++) {
+    cost += Math.round(tile.price * BUILDING_COSTS[i])
+  }
+  return cost
+}
+
 export function canBuy(player, tile) {
   const purchasable = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   return purchasable && player.money >= tile.price

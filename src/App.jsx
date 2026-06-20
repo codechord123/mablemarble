@@ -100,7 +100,7 @@ export default function App() {
   const currentTile = current ? getTile(current.position) : null
 
   const handleTileAction = (action) => {
-    if (action.type === 'attempt-purchase') return attemptPurchase(currentTile)
+    if (action.type === 'attempt-purchase') return attemptPurchase(currentTile, action.buildLevel || 0)
     if (action.type === 'attempt-skip-toll') return attemptSkipToll(currentTile, action.toll)
     if (action.type === 'pay-toll') return payToll(currentTile, action.toll)
     if (action.type === 'pay-tax') return payTax(action.amount)

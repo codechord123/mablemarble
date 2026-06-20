@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { rollDice, applyMove, getTile, calculateToll, nextUpgradeCost } from '../utils/gameEngine.js'
+import { rollDice, applyMove, getTile, calculateToll, nextUpgradeCost, totalPurchaseCost } from '../utils/gameEngine.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
 import { applyCardEffect } from '../utils/goldenKeyEngine.js'
 import { drawGoldenKeyCard } from '../data/goldenKeyCards.js'
@@ -85,8 +85,8 @@ export const useGameStore = create((set, get) => ({
   },
 
   // ─── 칸 액션 진입점 ───
-  attemptPurchase(tile) {
-    get()._askQuestion({ type: 'purchase', tile })
+  attemptPurchase(tile, buildLevel = 0) {
+    get()._askQuestion({ type: 'purchase', tile, buildLevel })
   },
 
   attemptSkipToll(tile, toll) {
@@ -291,12 +291,18 @@ export const useGameStore = create((set, get) => ({
     if (pendingAction.type === 'purchase') {
       if (correct) {
         const tile = pendingAction.tile
+        const level = pendingAction.buildLevel || 0
+        const cost = totalPurchaseCost(tile, level)
         updatedPlayers[currentTurn] = {
           ...updatedPlayers[currentTurn],
-          money: updatedPlayers[currentTurn].money - tile.price,
+          money: updatedPlayers[currentTurn].money - cost,
         }
-        updatedOwnership = { ...ownership, [tile.id]: { ownerId: currentTurn, houses: 0 } }
-        message = `${tile.name} 구매 성공! (-${tile.price.toLocaleString()}원)`
+        updatedOwnership = {
+          ...ownership,
+          [tile.id]: { ownerId: currentTurn, houses: level },
+        }
+        const buildLabel = level > 0 ? ` (콘도/아파트/호텔 단계 ${level})` : ''
+        message = `${tile.name}${buildLabel} 구매 성공! (-${cost.toLocaleString()}원)`
       } else {
         message = '구매 실패 — 다음 기회에!'
       }

@@ -1,5 +1,6 @@
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS, MAX_BUILDING_LEVEL } from '../../utils/boardConfig.js'
-import { calculateToll, nextUpgradeCost } from '../../utils/gameEngine.js'
+import { calculateToll, nextUpgradeCost, totalPurchaseCost } from '../../utils/gameEngine.js'
+import BuildingIcon from '../board/BuildingIcon.jsx'
 
 const TYPE_LABEL = {
   start: '출발', island: '무인도', space: '우주여행',
@@ -39,26 +40,54 @@ export default function TileActionPanel({ tile, player, players, ownership, last
   const purchasable = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   const nextLabel = lastRoll?.isDouble ? '계속' : '다음 턴'
 
-  // 1. 빈 도시/랜드마크 — 구매 시도
+  // 1. 빈 도시/랜드마크 — 짓고 살 건물 등급 선택
   if (purchasable && !owner) {
-    const canAfford = player.money >= tile.price
+    const tiers = [0, 1, 2, 3]
+    const cheapest = totalPurchaseCost(tile, 0)
+    const anyAffordable = player.money >= cheapest
+
     return (
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-3 w-full">
         <Header player={player} tile={tile} lastRoll={lastRoll} />
-        <div className="text-amber-800">
-          💰 가격 {tile.price.toLocaleString()}원
-          {!canAfford && <span className="text-rose-600 ml-2">(자금 부족)</span>}
+        <div className="text-amber-800 text-sm">
+          💰 땅값 {tile.price.toLocaleString()}원 · 짓고 살 건물을 선택하세요
         </div>
-        <div className="flex gap-2">
-          {canAfford && (
-            <Btn onClick={() => onAction({ type: 'attempt-purchase' })} color="bg-emerald-600 hover:bg-emerald-700">
-              문제 풀고 구매
-            </Btn>
-          )}
-          <Btn onClick={() => onAction({ type: 'skip' })} color="bg-gray-400 hover:bg-gray-500">
-            건너뛰기
-          </Btn>
+        <div className="grid grid-cols-4 gap-2 w-full max-w-md">
+          {tiers.map((level) => {
+            const cost = totalPurchaseCost(tile, level)
+            const afford = player.money >= cost
+            const label = level === 0 ? '땅만' : BUILDING_LABELS[level]
+            return (
+              <button
+                key={level}
+                disabled={!afford}
+                onClick={() => onAction({ type: 'attempt-purchase', buildLevel: level })}
+                className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition ${
+                  afford
+                    ? 'border-emerald-300 bg-white hover:border-emerald-500 hover:bg-emerald-50 hover:scale-105'
+                    : 'border-gray-200 bg-gray-100 opacity-40 cursor-not-allowed'
+                }`}
+                title={!afford ? '자금 부족' : `문제 풀고 ${label} 구매`}
+              >
+                <div className="h-7 flex items-center justify-center">
+                  {level === 0 ? (
+                    <div className="text-2xl">🟫</div>
+                  ) : (
+                    <BuildingIcon level={level} size={26} />
+                  )}
+                </div>
+                <div className="text-xs font-bold text-amber-900">{label}</div>
+                <div className="text-[10px] text-amber-700">{cost.toLocaleString()}원</div>
+              </button>
+            )
+          })}
         </div>
+        {!anyAffordable && (
+          <div className="text-rose-600 text-xs">가장 저렴한 옵션도 자금이 부족합니다.</div>
+        )}
+        <Btn onClick={() => onAction({ type: 'skip' })} color="bg-gray-400 hover:bg-gray-500">
+          건너뛰기
+        </Btn>
       </div>
     )
   }
