@@ -1,4 +1,4 @@
-import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS, MAX_BUILDING_LEVEL } from '../../utils/boardConfig.js'
+import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS } from '../../utils/boardConfig.js'
 import { calculateToll, nextUpgradeCost, totalPurchaseCost } from '../../utils/gameEngine.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
 

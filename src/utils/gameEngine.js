@@ -54,11 +54,6 @@ export function totalPurchaseCost(tile, level = 0) {
   return cost
 }
 
-export function canBuy(player, tile) {
-  const purchasable = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
-  return purchasable && player.money >= tile.price
-}
-
 export function applyMove(player, steps) {
   const { to, passedStart } = nextPosition(player.position, steps)
   return {
