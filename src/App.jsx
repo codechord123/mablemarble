@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useGameStore } from './stores/gameStore.js'
 import { getTile } from './utils/gameEngine.js'
 import Board from './components/board/Board.jsx'
@@ -11,12 +11,22 @@ import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
 import MainMenu from './components/game/MainMenu.jsx'
-import QuestionManager from './components/questions/QuestionManager.jsx'
 import GoldenKeyModal from './components/game/GoldenKeyModal.jsx'
 import IslandPanel from './components/game/IslandPanel.jsx'
 import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
 import MuteToggle from './components/ui/MuteToggle.jsx'
 import Toast from './components/ui/Toast.jsx'
+
+// #2 lazy load — 파서(mammoth/xlsx/jszip) 청크 분리. 게임만 할 때는 받지 않음.
+const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
+
+function FullScreenSpinner({ label = '불러오는 중…' }) {
+  return (
+    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+      <div className="text-amber-700 font-bold animate-pulse">{label}</div>
+    </div>
+  )
+}
 
 export default function App() {
   const players = useGameStore((s) => s.players)
@@ -53,6 +63,9 @@ export default function App() {
   const poolJustReset = useGameStore((s) => s.poolJustReset)
   const clearExtraTurnToast = useGameStore((s) => s.clearExtraTurnToast)
   const clearPoolResetToast = useGameStore((s) => s.clearPoolResetToast)
+  const currentRound = useGameStore((s) => s.currentRound)
+  const turnLimit = useGameStore((s) => s.turnLimit)
+  const resumeGame = useGameStore((s) => s.resumeGame)
 
   const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
   const [showAnnouncement, setShowAnnouncement] = useState(false)
@@ -93,11 +106,16 @@ export default function App() {
         <MainMenu
           onNewGame={() => setView('setup')}
           onManageQuestions={() => setView('questions')}
+          onResume={() => { resumeGame() }}
         />
       )
     }
     if (view === 'questions') {
-      return <QuestionManager onBack={() => setView('menu')} />
+      return (
+        <Suspense fallback={<FullScreenSpinner label="문제 관리 페이지 불러오는 중…" />}>
+          <QuestionManager onBack={() => setView('menu')} />
+        </Suspense>
+      )
     }
     return <GameSetup onStart={initGame} onBack={() => setView('menu')} />
   }
@@ -195,6 +213,14 @@ export default function App() {
         </div>
 
         <aside className="space-y-3">
+          {/* 라운드 카운터 */}
+          <div className="text-center bg-amber-100 rounded-xl py-2 px-3">
+            <div className="text-xs text-amber-700 font-bold">라운드</div>
+            <div className="text-lg font-extrabold text-amber-900">
+              {currentRound}
+              {turnLimit && <span className="text-sm text-amber-700"> / {turnLimit}</span>}
+            </div>
+          </div>
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 content-start">
             {players.map((p, i) => {
               // U1: 모바일 2열 그리드에서 홀수 번째 마지막 카드는 풀너비로

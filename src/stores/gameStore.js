@@ -11,8 +11,10 @@ import {
   INITIAL_WELFARE_POOL,
   ISLAND_ESCAPE_FAIL_PENALTY,
 } from '../utils/boardConfig.js'
+import { GAME_MODES, DEFAULT_MODE } from '../data/gameModes.js'
 import { useQuestionStore } from './questionStore.js'
 import { sfx } from '../utils/sounds.js'
+import { persistSnapshot, loadSnapshot, clearSnapshot } from '../utils/persistence.js'
 
 const emptyStats = () => ({ answered: 0, correct: 0, byCategory: {} })
 
@@ -45,25 +47,34 @@ const initialState = {
   currentCard: null,
   extraTurnReason: null,  // G3: 'double' | 'card' — 추가 턴 토스트용
   poolJustReset: false,   // G6: 문제 풀 리셋 알림
+  currentRound: 1,        // 턴 제한용 라운드 카운터
+  turnLimit: null,        // null = 무제한
+  startMoney: START_MONEY,
+  modeId: DEFAULT_MODE,
 }
 
 export const useGameStore = create((set, get) => ({
   ...initialState,
 
-  initGame(playerConfigs) {
+  initGame(playerConfigs, modeId = DEFAULT_MODE) {
     // playerConfigs: 문자열 배열(이름만) 또는 {name, avatar} 객체 배열
     const normalized = playerConfigs.map((p) =>
       typeof p === 'string' ? { name: p, avatar: null } : p,
     )
+    const mode = GAME_MODES[modeId] || GAME_MODES[DEFAULT_MODE]
+    clearSnapshot()
     set({
       ...initialState,
+      modeId: mode.id,
+      startMoney: mode.startMoney,
+      turnLimit: mode.turnLimit,
       players: normalized.map((p, i) => ({
         id: i,
         name: p.name,
         avatar: p.avatar || '●',
         color: COLORS[i % COLORS.length],
         position: 0,
-        money: START_MONEY,
+        money: mode.startMoney,
         alive: true,
         consecutiveDoubles: 0,
         islandTurnsLeft: 0,
@@ -436,6 +447,7 @@ export const useGameStore = create((set, get) => ({
     const aliveCount = updated.filter((p) => p.alive).length
     if (aliveCount <= 1) {
       sfx.victory()
+      clearSnapshot()
       set({ players: updated, ownership: updatedOwnership, phase: 'gameover' })
       return
     }
@@ -445,7 +457,7 @@ export const useGameStore = create((set, get) => ({
   },
 
   endTurn() {
-    const { players, currentTurn, lastRoll } = get()
+    const { players, currentTurn, lastRoll, currentRound, turnLimit } = get()
     const player = players[currentTurn]
     const updated = [...players]
 
@@ -463,8 +475,9 @@ export const useGameStore = create((set, get) => ({
         players: updated,
         phase: 'rolling',
         lastRoll: null,
-        extraTurnReason: doubleAgain ? 'double' : 'card',  // G3
+        extraTurnReason: doubleAgain ? 'double' : 'card',
       })
+      persistSnapshot(get())
       return
     }
 
@@ -474,13 +487,35 @@ export const useGameStore = create((set, get) => ({
     while (!updated[next].alive && safety-- > 0) {
       next = (next + 1) % players.length
     }
+
+    // 라운드 wrap 감지 — next가 currentTurn보다 같거나 작으면 한 바퀴 돈 것
+    const wrapped = next <= currentTurn
+    const newRound = wrapped ? currentRound + 1 : currentRound
+
+    // 턴 제한 도달 시 게임 종료
+    if (turnLimit && newRound > turnLimit) {
+      sfx.victory()
+      clearSnapshot()
+      set({
+        players: updated,
+        currentTurn: next,
+        currentRound: newRound,
+        phase: 'gameover',
+        lastRoll: null,
+        extraTurnReason: null,
+      })
+      return
+    }
+
     set({
       players: updated,
       currentTurn: next,
+      currentRound: newRound,
       phase: 'rolling',
       lastRoll: null,
       extraTurnReason: null,
     })
+    persistSnapshot(get())
   },
 
   clearExtraTurnToast() {
@@ -491,7 +526,28 @@ export const useGameStore = create((set, get) => ({
     set({ poolJustReset: false })
   },
 
+  // 이어하기 — localStorage에서 스냅샷 복구
+  resumeGame() {
+    const snap = loadSnapshot()
+    if (!snap) return false
+    set({
+      ...initialState,
+      players: snap.players,
+      currentTurn: snap.currentTurn,
+      ownership: snap.ownership || {},
+      welfarePool: snap.welfarePool ?? INITIAL_WELFARE_POOL,
+      usedQuestions: snap.usedQuestions || [],
+      currentRound: snap.currentRound || 1,
+      turnLimit: snap.turnLimit ?? null,
+      startMoney: snap.startMoney ?? START_MONEY,
+      modeId: snap.modeId || DEFAULT_MODE,
+      phase: 'rolling',
+    })
+    return true
+  },
+
   restart() {
+    clearSnapshot()
     set({ ...initialState })
   },
 }))

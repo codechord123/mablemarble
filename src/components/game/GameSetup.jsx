@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQuestionStore, SAMPLE_SET_ID } from '../../stores/questionStore.js'
 import { AVATARS, DEFAULT_AVATAR, nextAvailableAvatar } from '../../data/avatars.js'
+import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
 
 const initialPlayers = () => [
   { name: '플레이어1', avatar: AVATARS[0] },
@@ -9,6 +10,7 @@ const initialPlayers = () => [
 
 export default function GameSetup({ onStart, onBack }) {
   const [players, setPlayers] = useState(initialPlayers)
+  const [modeId, setModeId] = useState(DEFAULT_MODE)
 
   const sets = useQuestionStore((s) => s.sets)
   const selectedSetId = useQuestionStore((s) => s.selectedSetId)
@@ -69,6 +71,28 @@ export default function GameSetup({ onStart, onBack }) {
         )}
         <h2 className="text-2xl font-bold text-amber-900 mb-1">게임 설정</h2>
         <p className="text-sm text-amber-700 mb-4">2~5명, 캐릭터·이름 선택 후 시작!</p>
+
+        <div className="mb-5">
+          <label className="block text-sm font-bold text-amber-900 mb-2">게임 모드</label>
+          <div className="grid grid-cols-3 gap-2">
+            {Object.values(GAME_MODES).map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => setModeId(mode.id)}
+                className={`p-2 rounded-xl border-2 text-left transition ${
+                  modeId === mode.id
+                    ? 'border-amber-500 bg-amber-50 shadow'
+                    : 'border-gray-200 hover:border-amber-300 bg-white'
+                }`}
+              >
+                <div className="font-bold text-amber-900 text-sm">{mode.label}</div>
+                <div className="text-[10px] text-amber-700 mt-0.5 leading-snug">
+                  {mode.description}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="mb-5">
           <label className="block text-sm font-bold text-amber-900 mb-1">문제 세트</label>
@@ -149,7 +173,7 @@ export default function GameSetup({ onStart, onBack }) {
         )}
 
         <button
-          onClick={() => onStart(players.filter((p) => p.name.trim()))}
+          onClick={() => onStart(players.filter((p) => p.name.trim()), modeId)}
           disabled={!canStart}
           className="mt-6 w-full py-3 bg-amber-600 text-white rounded-xl font-bold shadow hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
