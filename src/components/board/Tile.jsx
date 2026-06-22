@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { TILE_TYPES, BUILDING_LABELS } from '../../utils/boardConfig.js'
 import BuildingIcon from './BuildingIcon.jsx'
+import FlagIcon from './FlagIcon.jsx'
 
 const STYLE = {
   [TILE_TYPES.START]:      { bg: 'bg-emerald-300', label: '출발',     icon: '🏁' },
@@ -37,10 +38,18 @@ function Tile({ tile, owner, ownerInfo }) {
       )}
 
       <div className="mt-2 flex flex-col items-center justify-center gap-0.5 w-full px-0.5">
-        {/* 국기 (있으면 항상 표시) + 빌딩 아이콘 (있으면 옆에 fluid 크기) */}
+        {/* 국기 SVG (Windows에서도 안정적으로 표시) + 빌딩 아이콘 */}
         {isCity && tile.country && (
           <div className="flex items-center gap-1 leading-none">
-            <span className="tile-icon">{tile.country}</span>
+            <span
+              className="inline-flex items-center"
+              style={{
+                width: 'clamp(16px, 5cqi, 36px)',
+                height: 'clamp(11px, 3.4cqi, 24px)',
+              }}
+            >
+              <FlagIcon code={tile.country} />
+            </span>
             {level > 0 && (
               <span
                 className="inline-flex items-center"

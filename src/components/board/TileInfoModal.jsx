@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS, TOLL_MULTIPLIERS } from '../../utils/boardConfig.js'
 import { calculateToll } from '../../utils/gameEngine.js'
 import BuildingIcon from './BuildingIcon.jsx'
+import FlagIcon from './FlagIcon.jsx'
 
 const TYPE_LABEL = {
   start: '🏁 출발', island: '🏝️ 무인도', space: '🚀 우주여행',
@@ -30,17 +31,20 @@ export default function TileInfoModal({ tile, owner, ownerInfo, onClose }) {
           className="bg-white rounded-3xl shadow-2xl p-5 max-w-sm w-full"
         >
           <div className="text-center">
-            <div className="text-3xl">
+            <div className="flex items-center justify-center" style={{ height: '48px' }}>
               {isCity ? (
-                level > 0 ? <BuildingIcon level={level} size={42} /> : (tile.country || '🏘️')
-              ) : '✨'}
+                level > 0 ? (
+                  <BuildingIcon level={level} size={48} />
+                ) : tile.country ? (
+                  <span style={{ width: 56, height: 38 }}>
+                    <FlagIcon code={tile.country} />
+                  </span>
+                ) : <span className="text-3xl">🏘️</span>
+              ) : <span className="text-3xl">✨</span>}
             </div>
             <div className="text-2xl font-extrabold text-amber-900 mt-2">
               {tile.name || TYPE_LABEL[tile.type] || tile.type}
             </div>
-            {tile.country && isCity && (
-              <div className="text-amber-700 text-sm">{tile.country}</div>
-            )}
           </div>
 
           {isCity && (

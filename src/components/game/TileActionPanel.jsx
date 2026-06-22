@@ -1,6 +1,7 @@
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS } from '../../utils/boardConfig.js'
 import { calculateToll, nextUpgradeCost, totalPurchaseCost } from '../../utils/gameEngine.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
+import FlagIcon from '../board/FlagIcon.jsx'
 
 const TYPE_LABEL = {
   start: '출발', island: '무인도', space: '우주여행',
@@ -14,9 +15,13 @@ function Header({ player, tile, lastRoll }) {
         🎲 {lastRoll?.d1} + {lastRoll?.d2} = {lastRoll?.total}
         {lastRoll?.isDouble && <span className="ml-2 text-rose-600">더블!</span>}
       </div>
-      <div className="text-amber-700">
-        <strong className="text-amber-900">{player.name}</strong> →{' '}
-        {tile.country ? `${tile.country} ` : ''}
+      <div className="text-amber-700 flex items-center justify-center gap-1 flex-wrap">
+        <strong className="text-amber-900">{player.name}</strong> →
+        {tile.country && (
+          <span className="inline-block" style={{ width: 22, height: 14 }}>
+            <FlagIcon code={tile.country} />
+          </span>
+        )}
         {tile.name || TYPE_LABEL[tile.type] || tile.type}
       </div>
     </div>
