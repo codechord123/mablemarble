@@ -22,11 +22,13 @@ export function pickQuestion(difficulty = 1, usedIds = [], pool = sampleQuestion
 
 export function isCorrect(question, answer) {
   if (question.type === 'short_answer') {
+    // 공백·대소문자 차이는 모두 무시. 분수 표기 통일.
+    const normalize = (s) => String(s).replace(/\s+/g, '').toLowerCase()
     const allowed = String(question.answer)
       .split(/[,，]/)
-      .map((s) => s.trim().toLowerCase())
+      .map(normalize)
       .filter(Boolean)
-    return allowed.includes(String(answer).trim().toLowerCase())
+    return allowed.includes(normalize(answer))
   }
   return Number(answer) === Number(question.answer)
 }

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { QUESTION_TIME_BY_DIFFICULTY } from '../../utils/boardConfig.js'
 import MathText from '../ui/MathText.jsx'
+import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
 
 const PROMPT_LABEL = {
   purchase: '💰 구매를 위해 풀어주세요',
@@ -32,13 +33,21 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
   const [remaining, setRemaining] = useState(total)
   const [selected, setSelected] = useState(null)
   const [text, setText] = useState('')
+  const [fractionValue, setFractionValue] = useState({ str: '', valid: false })
   const submittedRef = useRef(false)
+
+  // 단답형 입력 모드 자동 감지 (정수/분수/대분수/일반 텍스트)
+  const inputMode = useMemo(() => {
+    if (question.type !== 'short_answer') return null
+    return question.inputMode || detectInputMode(question.answer)
+  }, [question.id, question.type, question.answer, question.inputMode])
 
   useEffect(() => {
     submittedRef.current = false
     setRemaining(total)
     setSelected(null)
     setText('')
+    setFractionValue({ str: '', valid: false })
   }, [question.id, total])
 
   useEffect(() => {
@@ -53,13 +62,22 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
     return () => clearTimeout(t)
   }, [remaining, onSubmit])
 
-  const canSubmit =
-    question.type === 'short_answer' ? text.trim().length > 0 : selected !== null
+  const canSubmit = (() => {
+    if (question.type === 'short_answer') {
+      if (inputMode === 'text') return text.trim().length > 0
+      return fractionValue.valid
+    }
+    return selected !== null
+  })()
 
   const submit = () => {
     if (!canSubmit || submittedRef.current) return
     submittedRef.current = true
-    onSubmit(question.type === 'short_answer' ? text : selected)
+    if (question.type === 'short_answer') {
+      onSubmit(inputMode === 'text' ? text : fractionValue.str)
+    } else {
+      onSubmit(selected)
+    }
   }
 
   return (
@@ -70,7 +88,6 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
         className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full relative"
       >
-        {/* U2: 강제 닫기 (시간 초과 처리) */}
         <button
           onClick={() => {
             if (submittedRef.current) return
@@ -141,7 +158,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           </div>
         )}
 
-        {question.type === 'short_answer' && (
+        {question.type === 'short_answer' && inputMode === 'text' && (
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -149,6 +166,15 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
             autoFocus
             placeholder="답을 입력하세요"
             className="w-full p-3 border-2 border-amber-200 rounded-xl focus:border-amber-500 outline-none text-lg"
+          />
+        )}
+
+        {question.type === 'short_answer' && inputMode !== 'text' && (
+          <FractionInput
+            key={question.id}
+            mode={inputMode}
+            onValueChange={(str, valid) => setFractionValue({ str, valid })}
+            onEnter={submit}
           />
         )}
 
