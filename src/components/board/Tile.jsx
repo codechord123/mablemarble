@@ -1,5 +1,5 @@
-import { TILE_TYPES, BUILDING_LABELS, TOLL_MULTIPLIERS } from '../../utils/boardConfig.js'
-import { calculateToll } from '../../utils/gameEngine.js'
+import { memo } from 'react'
+import { TILE_TYPES, BUILDING_LABELS } from '../../utils/boardConfig.js'
 import BuildingIcon from './BuildingIcon.jsx'
 
 const STYLE = {
@@ -13,54 +13,75 @@ const STYLE = {
   [TILE_TYPES.WELFARE]:    { bg: 'bg-pink-300',    label: '사회복지',  icon: '🎁' },
 }
 
-function buildTollTooltip(tile) {
-  const lines = [tile.name + (tile.country ? ' ' + tile.country : '')]
-  lines.push(`땅값: ${tile.price.toLocaleString()}원`)
-  lines.push('—— 통행료 ——')
-  TOLL_MULTIPLIERS.forEach((_, level) => {
-    const toll = calculateToll(tile, level)
-    lines.push(`${BUILDING_LABELS[level]}: ${toll.toLocaleString()}원`)
-  })
-  return lines.join('\n')
-}
-
-export default function Tile({ tile, owner, ownerInfo }) {
+function Tile({ tile, owner, ownerInfo }) {
   const s = STYLE[tile.type] || {}
   const isCity = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   const level = ownerInfo?.houses ?? 0
-  const isHotel = isCity && level === 3 // U3: 호텔 칸 강조
+  const isHotel = isCity && level === 3
 
   return (
     <div
-      className={`relative h-full w-full rounded border ${
-        isHotel ? 'border-rose-500 ring-1 ring-rose-400' : 'border-amber-800/30'
-      } ${s.bg} flex flex-col items-center justify-center text-[9px] sm:text-[11px] leading-tight overflow-hidden`}
-      title={isCity ? buildTollTooltip(tile) : tile.name || s.label}
+      className={`relative h-full w-full rounded-md border ${
+        isHotel
+          ? 'border-rose-500 ring-2 ring-rose-400 bg-stripes-rose'
+          : 'border-amber-800/30'
+      } ${s.bg} flex flex-col items-center justify-center leading-tight overflow-hidden`}
+      aria-label={tile.name || s.label}
     >
       {/* 소유주 컬러 띠 (상단) */}
       {owner && (
-        <div className={`absolute top-0 left-0 right-0 h-2 ${owner.color}`} />
+        <div
+          className={`absolute top-0 left-0 right-0 h-1.5 ${owner.color}`}
+          title={owner.name}
+        />
       )}
 
-      <div className="mt-2 flex flex-col items-center justify-center gap-0.5">
-        {isCity && level > 0 ? (
-          <div className="my-0.5">
-            <BuildingIcon level={level} />
+      <div className="mt-2 flex flex-col items-center justify-center gap-0.5 w-full px-0.5">
+        {/* 국기 (있으면 항상 표시) + 빌딩 아이콘 (있으면 옆에 작게) */}
+        {isCity && tile.country && (
+          <div className="flex items-center gap-1 leading-none">
+            <span className="tile-icon">{tile.country}</span>
+            {level > 0 && (
+              <span className="inline-flex items-center" style={{ transform: 'scale(0.7)', transformOrigin: 'left center' }}>
+                <BuildingIcon level={level} />
+              </span>
+            )}
           </div>
-        ) : s.icon ? (
-          <div className="text-base sm:text-xl">{s.icon}</div>
-        ) : tile.country ? (
-          <div className="text-base sm:text-lg">{tile.country}</div>
-        ) : null}
+        )}
+        {/* 도시가 아닌 칸: 기본 아이콘 */}
+        {!isCity && s.icon && (
+          <div className="tile-icon">{s.icon}</div>
+        )}
 
-        <div className={`font-bold text-center px-1 truncate w-full ${isHotel ? 'text-rose-700' : 'text-amber-900'}`}>
+        <div
+          className={`font-bold text-center w-full truncate tile-text-name ${
+            isHotel ? 'text-rose-700' : 'text-amber-900'
+          }`}
+        >
           {tile.name || s.label}
         </div>
 
         {tile.price && (
-          <div className="text-[8px] sm:text-[10px] text-amber-700">{tile.price}원</div>
+          <div className="text-amber-700 tile-text-meta">
+            💰{tile.price}
+          </div>
+        )}
+
+        {/* 호텔 표시 — 색맹 친화: 색+패턴+텍스트 */}
+        {isHotel && (
+          <div className="text-rose-700 font-extrabold tile-text-meta">⚠ HOTEL</div>
         )}
       </div>
     </div>
   )
 }
+
+// 24개 칸이 매 상태 변화마다 리렌더되지 않도록 메모이제이션
+export default memo(Tile, (prev, next) => {
+  return (
+    prev.tile === next.tile &&
+    prev.owner?.id === next.owner?.id &&
+    prev.owner?.color === next.owner?.color &&
+    prev.ownerInfo?.houses === next.ownerInfo?.houses
+  )
+})

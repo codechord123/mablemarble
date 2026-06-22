@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useGameStore } from './stores/gameStore.js'
 import { getTile } from './utils/gameEngine.js'
+import useViewport from './hooks/useViewport.js'
 import Board from './components/board/Board.jsx'
 import PlayerCard from './components/game/PlayerCard.jsx'
 import DiceRoller from './components/game/DiceRoller.jsx'
@@ -16,8 +17,8 @@ import IslandPanel from './components/game/IslandPanel.jsx'
 import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
 import MuteToggle from './components/ui/MuteToggle.jsx'
 import Toast from './components/ui/Toast.jsx'
+import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
 
-// #2 lazy load — 파서(mammoth/xlsx/jszip) 청크 분리. 게임만 할 때는 받지 않음.
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 
 function FullScreenSpinner({ label = '불러오는 중…' }) {
@@ -69,25 +70,24 @@ export default function App() {
   const persistError = useGameStore((s) => s.persistError)
   const clearPersistError = useGameStore((s) => s.clearPersistError)
 
-  const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
+  const { isLandscape } = useViewport()
+  const [view, setView] = useState('menu')
   const [showAnnouncement, setShowAnnouncement] = useState(false)
+  const [confirmEnd, setConfirmEnd] = useState(false)
   const lastAnnouncedTurn = useRef(-1)
 
-  // G3: 추가 턴 토스트
   useEffect(() => {
     if (!extraTurnReason) return
     const t = setTimeout(clearExtraTurnToast, 1500)
     return () => clearTimeout(t)
   }, [extraTurnReason, clearExtraTurnToast])
 
-  // G6: 문제 풀 리셋 토스트
   useEffect(() => {
     if (!poolJustReset) return
     const t = setTimeout(clearPoolResetToast, 2500)
     return () => clearTimeout(t)
   }, [poolJustReset, clearPoolResetToast])
 
-  // localStorage 저장 실패 토스트 (시크릿 모드 등)
   useEffect(() => {
     if (!persistError) return
     const t = setTimeout(clearPersistError, 4000)
@@ -108,7 +108,7 @@ export default function App() {
     }
   }, [currentTurn, phase])
 
-  // 메뉴 단계 라우팅
+  // 메뉴 라우팅
   if (phase === 'setup') {
     if (view === 'menu') {
       return (
@@ -134,10 +134,7 @@ export default function App() {
       <GameOverScreen
         players={players}
         ownership={ownership}
-        onRestart={() => {
-          restart()
-          setView('menu')
-        }}
+        onRestart={() => { restart(); setView('menu') }}
       />
     )
   }
@@ -160,7 +157,7 @@ export default function App() {
   const onIsland = phase === 'rolling' && current?.islandTurnsLeft > 0
 
   return (
-    <div className="min-h-screen bg-amber-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-amber-50 safe-padded">
       <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
       <Toast show={!!extraTurnReason} color="bg-rose-500">
@@ -170,7 +167,7 @@ export default function App() {
         🔁 문제 풀이 다시 시작됩니다 (모든 문제 출제 완료)
       </Toast>
       <Toast show={persistError} color="bg-rose-500" position="bottom">
-        ⚠️ 게임 자동 저장 실패 — 새로고침하면 진행 상황이 사라집니다
+        ⚠️ 자동 저장 실패 — 새로고침 시 진행 상황이 사라집니다
       </Toast>
 
       {phase === 'question' && currentQuestion && (
@@ -192,11 +189,40 @@ export default function App() {
         <SpaceTravelModal onPick={pickSpaceDestination} onCancel={cancelSpacePick} />
       )}
 
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-[1fr_14rem] gap-6">
-        <div className="flex flex-col items-center gap-4">
-          <Board players={players} ownership={ownership} />
+      <ConfirmDialog
+        open={confirmEnd}
+        title="게임 종료"
+        description="지금 게임을 종료하면 현재 자산 기준으로 우승자를 가립니다."
+        confirmLabel="종료"
+        variant="danger"
+        onConfirm={() => {
+          setConfirmEnd(false)
+          useGameStore.setState({ phase: 'gameover' })
+        }}
+        onCancel={() => setConfirmEnd(false)}
+      />
 
-          <div className="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-md w-full max-w-2xl min-h-[160px] flex flex-col items-center justify-center gap-3">
+      {/* 가로 모드: 보드(좌) + 사이드바(우) — 사이드바 폭은 화면 크기에 비례
+          세로 모드: 보드(상) + 사이드바(하) */}
+      <div
+        className={`mx-auto p-2 sm:p-4 ${
+          isLandscape
+            ? 'flex flex-row gap-3 sm:gap-4 max-w-[120rem] items-start'
+            : 'flex flex-col gap-3 sm:gap-4 max-w-3xl items-center'
+        }`}
+      >
+        <div className={`flex flex-col items-center gap-3 ${isLandscape ? 'flex-1 min-w-0' : 'w-full'}`}>
+          <Board
+            players={players}
+            ownership={ownership}
+            currentPlayer={current}
+            lastRoll={lastRoll}
+            currentRound={currentRound}
+            turnLimit={turnLimit}
+            isLandscape={isLandscape}
+          />
+
+          <div className="bg-white/85 backdrop-blur rounded-2xl p-3 sm:p-4 shadow-md w-full max-w-2xl min-h-[140px] flex flex-col items-center justify-center gap-2">
             {phase === 'rolling' && !onIsland && (
               <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement} />
             )}
@@ -224,44 +250,59 @@ export default function App() {
           </div>
         </div>
 
-        <aside className="space-y-3">
-          {/* 라운드 카운터 */}
-          <div className="text-center bg-amber-100 rounded-xl py-2 px-3">
-            <div className="text-xs text-amber-700 font-bold">라운드</div>
-            <div className="text-lg font-extrabold text-amber-900">
-              {currentRound}
-              {turnLimit && <span className="text-sm text-amber-700"> / {turnLimit}</span>}
+        <aside
+          className={`space-y-2 sm:space-y-3 ${
+            isLandscape ? 'w-56 lg:w-64 xl:w-72 flex-shrink-0' : 'w-full max-w-2xl'
+          }`}
+        >
+          {/* 라운드 카운터 — 진행률 바 포함 */}
+          <div className="bg-white rounded-xl p-3 shadow-sm">
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs text-amber-700 font-bold">라운드</div>
+              <div className="text-base font-extrabold text-amber-900">
+                {currentRound}
+                {turnLimit && <span className="text-xs text-amber-700"> / {turnLimit}</span>}
+              </div>
             </div>
+            {turnLimit && (
+              <div className="mt-1.5 h-1.5 bg-amber-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-amber-500 transition-all"
+                  style={{ width: `${Math.min(100, (currentRound / turnLimit) * 100)}%` }}
+                />
+              </div>
+            )}
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 content-start">
+
+          <div
+            className={`grid gap-2 sm:gap-3 content-start ${
+              isLandscape ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+            }`}
+          >
             {players.map((p, i) => {
-              // U1: 모바일 2열 그리드에서 홀수 번째 마지막 카드는 풀너비로
-              const isOddLast = i === players.length - 1 && players.length % 2 === 1
+              const isOddLast = !isLandscape && i === players.length - 1 && players.length % 2 === 1
               return (
-                <div key={p.id} className={isOddLast ? 'col-span-2 lg:col-span-1' : ''}>
+                <div key={p.id} className={isOddLast ? 'col-span-2 sm:col-span-1' : ''}>
                   <PlayerCard player={p} isCurrent={i === currentTurn} />
                 </div>
               )
             })}
           </div>
+
           {welfarePool > 0 && (
             <div className="p-3 bg-pink-100 rounded-xl border-2 border-pink-300 text-center">
               <div className="text-xs text-pink-700 font-bold">사회복지 풀</div>
-              <div className="text-lg font-extrabold text-pink-800">
+              <div className="text-base font-extrabold text-pink-800">
                 💰 {welfarePool.toLocaleString()}원
               </div>
             </div>
           )}
-          {/* U4: 게임 강제 종료 */}
+
           <button
-            onClick={() => {
-              if (confirm('지금 게임을 종료할까요? 현재 자산 기준으로 우승자를 가립니다.')) {
-                useGameStore.setState({ phase: 'gameover' })
-              }
-            }}
-            className="w-full text-xs text-gray-500 hover:text-rose-500 hover:bg-rose-50 py-2 rounded-lg transition"
+            onClick={() => setConfirmEnd(true)}
+            className="w-full py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 rounded-lg transition"
           >
-            게임 종료
+            🏁 게임 종료
           </button>
         </aside>
       </div>

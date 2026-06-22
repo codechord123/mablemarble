@@ -5,3 +5,53 @@
 html, body, #root {
   height: 100%;
 }
+
+body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS 안전 영역 대응 */
+.safe-padded {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 보드 컨테이너 — 컨테이너 쿼리 활성화 */
+.board-container {
+  container-type: inline-size;
+  container-name: board;
+}
+
+/* 타일 텍스트: 보드 너비 기준 fluid sizing */
+.tile-text-name {
+  font-size: clamp(0.5rem, 2.3cqi, 1rem);
+  line-height: 1.05;
+}
+.tile-text-meta {
+  font-size: clamp(0.45rem, 1.7cqi, 0.75rem);
+  line-height: 1;
+}
+.tile-icon {
+  font-size: clamp(0.75rem, 3.5cqi, 1.5rem);
+}
+
+/* 비스듬한 줄무늬 — 색맹 친화 호텔 강조 */
+.bg-stripes-rose {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(244, 63, 94, 0.12) 0,
+    rgba(244, 63, 94, 0.12) 4px,
+    transparent 4px,
+    transparent 10px
+  );
+}
+
+/* 부드러운 그림자 */
+.glow-amber {
+  box-shadow:
+    0 0 0 2px rgba(245, 158, 11, 0.3),
+    0 4px 12px rgba(245, 158, 11, 0.2);
+}
