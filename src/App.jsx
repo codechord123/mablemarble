@@ -238,27 +238,10 @@ export default function App() {
         onCancel={() => setConfirmEnd(false)}
       />
 
-      {/* 가로 모드: 보드(좌) + 사이드바(우) — 사이드바 폭은 화면 크기에 비례
-          세로 모드: 보드(상) + 사이드바(하) */}
-      <div
-        className={`mx-auto p-2 sm:p-4 ${
-          isLandscape
-            ? 'flex flex-row gap-3 sm:gap-4 max-w-[120rem] items-start'
-            : 'flex flex-col gap-3 sm:gap-4 max-w-3xl items-center'
-        }`}
-      >
-        <div className={`flex flex-col items-center gap-3 ${isLandscape ? 'flex-1 min-w-0' : 'w-full'}`}>
-          <Board
-            players={players}
-            ownership={ownership}
-            currentPlayer={current}
-            lastRoll={lastRoll}
-            currentRound={currentRound}
-            turnLimit={turnLimit}
-            isLandscape={isLandscape}
-          />
-
-          <div className="bg-white/85 backdrop-blur rounded-2xl p-3 sm:p-4 shadow-md w-full max-w-2xl min-h-[140px] flex flex-col items-center justify-center gap-2">
+      {/* 액션 패널 콘텐츠 (보드 옆 또는 아래에 렌더) */}
+      {(() => {
+        const actionPanel = (
+          <div className="bg-white/90 backdrop-blur rounded-2xl p-3 sm:p-4 shadow-md w-full min-h-[140px] flex flex-col items-center justify-center gap-2 flex-shrink-0">
             {phase === 'rolling' && !onIsland && (
               <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement} />
             )}
@@ -284,66 +267,105 @@ export default function App() {
             {phase === 'golden-key' && <div className="text-amber-700 text-sm">카드 확인 중…</div>}
             {phase === 'space-pick' && <div className="text-amber-700 text-sm">목적지 선택 중…</div>}
           </div>
-        </div>
+        )
 
-        <aside
-          className={`space-y-2 sm:space-y-3 ${
-            isLandscape
-              ? 'w-56 lg:w-64 xl:w-72 flex-shrink-0 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1'
-              : 'w-full max-w-2xl'
-          }`}
-        >
-          {/* 라운드 카운터 — 진행률 바 포함 */}
-          <div className="bg-white rounded-xl p-3 shadow-sm">
-            <div className="flex items-baseline justify-between">
-              <div className="text-xs text-amber-700 font-bold">라운드</div>
-              <div className="text-base font-extrabold text-amber-900">
-                {currentRound}
-                {turnLimit && <span className="text-xs text-amber-700"> / {turnLimit}</span>}
+        const sidebarInfo = (
+          <>
+            {/* 라운드 카운터 — 진행률 바 포함 */}
+            <div className="bg-white rounded-xl p-3 shadow-sm">
+              <div className="flex items-baseline justify-between">
+                <div className="text-xs text-amber-700 font-bold">라운드</div>
+                <div className="text-base font-extrabold text-amber-900">
+                  {currentRound}
+                  {turnLimit && <span className="text-xs text-amber-700"> / {turnLimit}</span>}
+                </div>
               </div>
+              {turnLimit && (
+                <div className="mt-1.5 h-1.5 bg-amber-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-500 transition-all"
+                    style={{ width: `${Math.min(100, (currentRound / turnLimit) * 100)}%` }}
+                  />
+                </div>
+              )}
             </div>
-            {turnLimit && (
-              <div className="mt-1.5 h-1.5 bg-amber-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-amber-500 transition-all"
-                  style={{ width: `${Math.min(100, (currentRound / turnLimit) * 100)}%` }}
-                />
+
+            <div
+              className={`grid gap-2 sm:gap-3 content-start ${
+                isLandscape ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+              }`}
+            >
+              {players.map((p, i) => {
+                const isOddLast = !isLandscape && i === players.length - 1 && players.length % 2 === 1
+                return (
+                  <div key={p.id} className={isOddLast ? 'col-span-2 sm:col-span-1' : ''}>
+                    <PlayerCard player={p} isCurrent={i === currentTurn} />
+                  </div>
+                )
+              })}
+            </div>
+
+            {welfarePool > 0 && (
+              <div className="p-3 bg-pink-100 rounded-xl border-2 border-pink-300 text-center">
+                <div className="text-xs text-pink-700 font-bold">사회복지 풀</div>
+                <div className="text-base font-extrabold text-pink-800">
+                  💰 {welfarePool.toLocaleString()}원
+                </div>
               </div>
             )}
-          </div>
 
-          <div
-            className={`grid gap-2 sm:gap-3 content-start ${
-              isLandscape ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
-            }`}
-          >
-            {players.map((p, i) => {
-              const isOddLast = !isLandscape && i === players.length - 1 && players.length % 2 === 1
-              return (
-                <div key={p.id} className={isOddLast ? 'col-span-2 sm:col-span-1' : ''}>
-                  <PlayerCard player={p} isCurrent={i === currentTurn} />
-                </div>
-              )
-            })}
-          </div>
+            <button
+              onClick={() => setConfirmEnd(true)}
+              className="w-full py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 rounded-lg transition"
+            >
+              🏁 게임 종료
+            </button>
+          </>
+        )
 
-          {welfarePool > 0 && (
-            <div className="p-3 bg-pink-100 rounded-xl border-2 border-pink-300 text-center">
-              <div className="text-xs text-pink-700 font-bold">사회복지 풀</div>
-              <div className="text-base font-extrabold text-pink-800">
-                💰 {welfarePool.toLocaleString()}원
+        const boardEl = (
+          <Board
+            players={players}
+            ownership={ownership}
+            currentPlayer={current}
+            lastRoll={lastRoll}
+            currentRound={currentRound}
+            turnLimit={turnLimit}
+            isLandscape={isLandscape}
+          />
+        )
+
+        if (isLandscape) {
+          // 가로: 보드(좌) | 액션+사이드(우) — 액션 패널이 위에 고정, 나머지는 스크롤
+          return (
+            <div className="flex flex-row gap-3 sm:gap-4 mx-auto p-2 sm:p-3 max-w-[120rem] items-start">
+              <div className="flex-1 min-w-0 flex flex-col items-center">
+                {boardEl}
               </div>
+              <aside
+                className="w-72 lg:w-80 xl:w-96 flex-shrink-0 flex flex-col gap-2 sm:gap-3"
+                style={{ maxHeight: 'calc(100vh - 1rem)' }}
+              >
+                {actionPanel}
+                <div className="flex-1 overflow-y-auto pr-1 space-y-2 sm:space-y-3 min-h-0">
+                  {sidebarInfo}
+                </div>
+              </aside>
             </div>
-          )}
+          )
+        }
 
-          <button
-            onClick={() => setConfirmEnd(true)}
-            className="w-full py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 rounded-lg transition"
-          >
-            🏁 게임 종료
-          </button>
-        </aside>
-      </div>
+        // 세로: 보드(상) → 액션 → 사이드
+        return (
+          <div className="flex flex-col gap-3 sm:gap-4 mx-auto p-2 sm:p-4 max-w-3xl items-center">
+            {boardEl}
+            <div className="w-full max-w-2xl">{actionPanel}</div>
+            <aside className="w-full max-w-2xl space-y-2 sm:space-y-3">
+              {sidebarInfo}
+            </aside>
+          </div>
+        )
+      })()}
     </div>
   )
 }

@@ -17,12 +17,11 @@ export default function Board({
   const [selectedTile, setSelectedTile] = useState(null)
 
   // 디바이스 적응:
-  // - 가로 모드: 화면 높이 기준 (컨트롤 자리 빼고)
-  // - 세로 모드: 화면 너비 기준
-  // - 절대 최대: 56rem (= 896px)
+  // - 가로 모드: 화면 높이 기준 (액션 패널이 사이드로 가서 보드가 전체 높이 사용 가능)
+  // - 세로 모드: 화면 너비 기준 (액션 패널이 보드 아래에 있음)
   const sizeStyle = isLandscape
-    ? { maxWidth: 'min(calc(100vh - 11rem), 100%, 56rem)' }
-    : { maxWidth: 'min(95vw, calc(100vh - 24rem), 56rem)' }
+    ? { maxWidth: 'min(calc(100vh - 2rem), 100%, 56rem)' }
+    : { maxWidth: 'min(95vw, calc(100vh - 28rem), 56rem)' }
 
   const ownerOf = (tileId) => {
     const info = ownership[tileId]
