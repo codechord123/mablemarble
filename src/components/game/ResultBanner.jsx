@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import MathText from '../ui/MathText.jsx'
 
 export default function ResultBanner({ result, onClose }) {
   return (
@@ -24,11 +25,13 @@ export default function ResultBanner({ result, onClose }) {
               {result.correct ? '정답!' : '오답!'}
             </div>
             {result.message && (
-              <div className="text-amber-700 mt-2 font-semibold">{result.message}</div>
+              <div className="text-amber-700 mt-2 font-semibold">
+                <MathText>{result.message}</MathText>
+              </div>
             )}
             {result.explanation && (
               <div className="text-sm text-gray-700 mt-3 p-3 bg-amber-50 rounded-lg text-left">
-                💡 {result.explanation}
+                💡 <MathText>{result.explanation}</MathText>
               </div>
             )}
             <button

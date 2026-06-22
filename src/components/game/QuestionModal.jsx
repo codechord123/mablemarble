@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { QUESTION_TIME_BY_DIFFICULTY } from '../../utils/boardConfig.js'
+import MathText from '../ui/MathText.jsx'
 
 const PROMPT_LABEL = {
   purchase: '💰 구매를 위해 풀어주세요',
@@ -100,7 +101,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         </div>
 
         <div className="text-xl sm:text-2xl font-bold text-amber-900 mt-3 mb-5">
-          {question.question}
+          <MathText>{question.question}</MathText>
         </div>
 
         {question.type === 'multiple_choice' && (
@@ -116,7 +117,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
                 }`}
               >
                 <span className="font-bold mr-2 text-amber-700">{i + 1}.</span>
-                {c}
+                <MathText>{c}</MathText>
               </button>
             ))}
           </div>
