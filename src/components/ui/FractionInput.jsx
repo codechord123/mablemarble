@@ -7,12 +7,13 @@
 import { useEffect, useRef, useState } from 'react'
 
 // 정답 문자열에서 입력 모드 자동 추론
+// 모든 숫자형 답안은 'fraction' 모드(자연수+분자/분모 3박스) 사용 — 학생이
+// 정수/분수/대분수 중 어떤 형태로든 입력 가능. 텍스트만 별도 모드.
 export function detectInputMode(answer) {
   const first = String(answer).split(/[,，]/)[0].trim()
-  // 분수가 들어 있으면 항상 3박스 모드 (자연수 포함, 학생이 형식 선택 가능)
   if (/^\d+\s*과\s*\d+\/\d+$/.test(first)) return 'fraction'
   if (/^\d+\/\d+$/.test(first)) return 'fraction'
-  if (/^\d+$/.test(first)) return 'integer'
+  if (/^\d+$/.test(first)) return 'fraction'  // 정수 답도 3박스 UI로 통일
   return 'text'
 }
 
