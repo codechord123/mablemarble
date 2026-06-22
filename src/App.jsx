@@ -18,6 +18,7 @@ import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
 import MuteToggle from './components/ui/MuteToggle.jsx'
 import Toast from './components/ui/Toast.jsx'
 import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
+import { loadLastSetup } from './utils/persistence.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 
@@ -69,11 +70,14 @@ export default function App() {
   const resumeGame = useGameStore((s) => s.resumeGame)
   const persistError = useGameStore((s) => s.persistError)
   const clearPersistError = useGameStore((s) => s.clearPersistError)
+  const hotelFirstBuilt = useGameStore((s) => s.hotelFirstBuilt)
+  const clearHotelHint = useGameStore((s) => s.clearHotelHint)
 
   const { isLandscape } = useViewport()
   const [view, setView] = useState('menu')
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
+  const [showBoardHint, setShowBoardHint] = useState(false)
   const lastAnnouncedTurn = useRef(-1)
 
   useEffect(() => {
@@ -94,6 +98,13 @@ export default function App() {
     return () => clearTimeout(t)
   }, [persistError, clearPersistError])
 
+  // T17: 첫 호텔 건설 안내 (게임당 1회)
+  useEffect(() => {
+    if (!hotelFirstBuilt) return
+    const t = setTimeout(clearHotelHint, 4000)
+    return () => clearTimeout(t)
+  }, [hotelFirstBuilt, clearHotelHint])
+
   useEffect(() => {
     if (phase === 'setup' || phase === 'gameover') {
       lastAnnouncedTurn.current = -1
@@ -103,10 +114,24 @@ export default function App() {
     if (lastAnnouncedTurn.current !== currentTurn) {
       lastAnnouncedTurn.current = currentTurn
       setShowAnnouncement(true)
-      const t = setTimeout(() => setShowAnnouncement(false), 1500)
+      const t = setTimeout(() => setShowAnnouncement(false), 1000) // T2: 1.5s → 1.0s
       return () => clearTimeout(t)
     }
   }, [currentTurn, phase])
+
+  // T10: 첫 게임에서 보드 클릭 안내 (한 번만)
+  useEffect(() => {
+    if (phase !== 'rolling') return
+    if (currentRound !== 1) return
+    if (currentTurn !== 0) return
+    try {
+      if (localStorage.getItem('boomarble_seen_board_hint')) return
+      setShowBoardHint(true)
+      localStorage.setItem('boomarble_seen_board_hint', '1')
+      const t = setTimeout(() => setShowBoardHint(false), 5000)
+      return () => clearTimeout(t)
+    } catch { /* ignore */ }
+  }, [phase, currentRound, currentTurn])
 
   // 메뉴 라우팅
   if (phase === 'setup') {
@@ -130,11 +155,16 @@ export default function App() {
   }
 
   if (phase === 'gameover') {
+    const lastSetup = loadLastSetup()
+    const handleRematch = lastSetup
+      ? () => initGame(lastSetup.players, lastSetup.modeId)
+      : null
     return (
       <GameOverScreen
         players={players}
         ownership={ownership}
         onRestart={() => { restart(); setView('menu') }}
+        onRematch={handleRematch}
       />
     )
   }
@@ -168,6 +198,12 @@ export default function App() {
       </Toast>
       <Toast show={persistError} color="bg-rose-500" position="bottom">
         ⚠️ 자동 저장 실패 — 새로고침 시 진행 상황이 사라집니다
+      </Toast>
+      <Toast show={showBoardHint} color="bg-indigo-500" position="bottom">
+        💡 보드의 칸을 탭하면 통행료와 정보를 볼 수 있어요!
+      </Toast>
+      <Toast show={hotelFirstBuilt} color="bg-rose-600" position="bottom">
+        🏨 호텔(빨간 줄무늬)이 가장 비싼 도시! 통행료가 매우 비쌉니다
       </Toast>
 
       {phase === 'question' && currentQuestion && (
@@ -252,7 +288,9 @@ export default function App() {
 
         <aside
           className={`space-y-2 sm:space-y-3 ${
-            isLandscape ? 'w-56 lg:w-64 xl:w-72 flex-shrink-0' : 'w-full max-w-2xl'
+            isLandscape
+              ? 'w-56 lg:w-64 xl:w-72 flex-shrink-0 max-h-[calc(100vh-2rem)] overflow-y-auto pr-1'
+              : 'w-full max-w-2xl'
           }`}
         >
           {/* 라운드 카운터 — 진행률 바 포함 */}

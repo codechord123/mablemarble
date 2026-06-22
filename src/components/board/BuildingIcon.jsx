@@ -1,9 +1,9 @@
 // 부르마블 클래식 스타일 건물 SVG. 레벨에 따라 크기/디테일이 커진다.
-// 1=콘도 (작은 빨간 지붕집), 2=아파트 (다층 빌딩), 3=호텔 (금색 럭셔리)
+// size를 안 주면 부모 컨테이너에 100% 채움 (fluid 사이즈).
 
-function Condo({ size = 22 }) {
+function Condo({ size = '100%' }) {
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size} className="drop-shadow">
+    <svg viewBox="0 0 32 32" width={size} height={size} className="drop-shadow" preserveAspectRatio="xMidYMid meet">
       <polygon points="2,14 16,3 30,14" fill="#dc2626" stroke="#7f1d1d" strokeWidth="0.6" />
       <rect x="5" y="14" width="22" height="15" fill="#fef3c7" stroke="#92400e" strokeWidth="0.6" />
       <rect x="14" y="20" width="4" height="9" fill="#92400e" />
@@ -13,9 +13,9 @@ function Condo({ size = 22 }) {
   )
 }
 
-function Apartment({ size = 26 }) {
+function Apartment({ size = '100%' }) {
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size} className="drop-shadow">
+    <svg viewBox="0 0 32 32" width={size} height={size} className="drop-shadow" preserveAspectRatio="xMidYMid meet">
       <rect x="3" y="11" width="6" height="18" fill="#fde68a" stroke="#92400e" strokeWidth="0.6" />
       <rect x="10" y="4" width="12" height="25" fill="#fef3c7" stroke="#92400e" strokeWidth="0.6" />
       <rect x="23" y="11" width="6" height="18" fill="#fde68a" stroke="#92400e" strokeWidth="0.6" />
@@ -30,9 +30,9 @@ function Apartment({ size = 26 }) {
   )
 }
 
-function Hotel({ size = 30 }) {
+function Hotel({ size = '100%' }) {
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size} className="drop-shadow-md">
+    <svg viewBox="0 0 32 32" width={size} height={size} className="drop-shadow-md" preserveAspectRatio="xMidYMid meet">
       <polygon points="1,11 16,1 31,11" fill="#dc2626" stroke="#7f1d1d" strokeWidth="0.6" />
       <polygon points="14,3 16,1 18,3 17,5 15,5" fill="#facc15" />
       <rect x="2" y="11" width="28" height="19" fill="#fbbf24" stroke="#92400e" strokeWidth="0.8" />

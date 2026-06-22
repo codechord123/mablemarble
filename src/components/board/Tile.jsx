@@ -37,12 +37,18 @@ function Tile({ tile, owner, ownerInfo }) {
       )}
 
       <div className="mt-2 flex flex-col items-center justify-center gap-0.5 w-full px-0.5">
-        {/* 국기 (있으면 항상 표시) + 빌딩 아이콘 (있으면 옆에 작게) */}
+        {/* 국기 (있으면 항상 표시) + 빌딩 아이콘 (있으면 옆에 fluid 크기) */}
         {isCity && tile.country && (
           <div className="flex items-center gap-1 leading-none">
             <span className="tile-icon">{tile.country}</span>
             {level > 0 && (
-              <span className="inline-flex items-center" style={{ transform: 'scale(0.7)', transformOrigin: 'left center' }}>
+              <span
+                className="inline-flex items-center"
+                style={{
+                  width: 'clamp(14px, 4.5cqi, 32px)',
+                  height: 'clamp(14px, 4.5cqi, 32px)',
+                }}
+              >
                 <BuildingIcon level={level} />
               </span>
             )}

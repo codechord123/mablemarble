@@ -14,7 +14,7 @@ import {
 import { GAME_MODES, DEFAULT_MODE } from '../data/gameModes.js'
 import { useQuestionStore } from './questionStore.js'
 import { sfx } from '../utils/sounds.js'
-import { persistSnapshot, loadSnapshot, clearSnapshot } from '../utils/persistence.js'
+import { persistSnapshot, loadSnapshot, clearSnapshot, persistLastSetup } from '../utils/persistence.js'
 
 const emptyStats = () => ({ answered: 0, correct: 0, byCategory: {} })
 
@@ -53,6 +53,7 @@ const initialState = {
   modeId: DEFAULT_MODE,
   recentCardIds: [],      // 황금열쇠 최근 3장 — 연속 중복 방지
   persistError: false,    // localStorage 저장 실패 토스트용
+  hotelFirstBuilt: false, // T17: 첫 호텔 건설 안내 (한 게임에 한 번)
 }
 
 export const useGameStore = create((set, get) => ({
@@ -65,6 +66,8 @@ export const useGameStore = create((set, get) => ({
     )
     const mode = GAME_MODES[modeId] || GAME_MODES[DEFAULT_MODE]
     clearSnapshot()
+    // T23: 마지막 설정 저장 — 같은 친구들로 다시 시작 기능
+    persistLastSetup({ players: normalized, modeId: mode.id })
     set({
       ...initialState,
       modeId: mode.id,
@@ -155,11 +158,17 @@ export const useGameStore = create((set, get) => ({
       money: updated[currentTurn].money - cost,
     }
     sfx.coin()
+    const newLevel = owner.houses + 1
     set({
       players: updated,
-      ownership: { ...ownership, [tile.id]: { ...owner, houses: owner.houses + 1 } },
+      ownership: { ...ownership, [tile.id]: { ...owner, houses: newLevel } },
+      hotelFirstBuilt: newLevel === 3 && !get().hotelFirstBuilt ? true : get().hotelFirstBuilt,
     })
     get()._resolveTurn()
+  },
+
+  clearHotelHint() {
+    set({ hotelFirstBuilt: false })
   },
 
   // ─── 황금열쇠 ───
@@ -408,6 +417,15 @@ export const useGameStore = create((set, get) => ({
     // 시간 초과 시 메시지 앞에 명시 (학생 혼동 방지)
     const finalMessage = isTimeout ? `⏰ 시간 초과! ${message}` : message
 
+    // T17: 정답 구매로 호텔(Lv3) 첫 건설 시 안내 플래그
+    const builtHotel =
+      pendingAction.type === 'purchase' &&
+      correct &&
+      (pendingAction.buildLevel || 0) === 3
+    const hotelFirstBuilt = builtHotel && !get().hotelFirstBuilt
+      ? true
+      : get().hotelFirstBuilt
+
     set({
       players: updatedPlayers,
       ownership: updatedOwnership,
@@ -422,6 +440,7 @@ export const useGameStore = create((set, get) => ({
         question: currentQuestion,
         postAction,
       },
+      hotelFirstBuilt,
     })
   },
 

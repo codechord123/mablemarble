@@ -30,7 +30,7 @@ function NumBox({ value, onChange, onEnter, placeholder, autoFocus, refEl, ariaL
       aria-label={ariaLabel}
       onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 3))}
       onKeyDown={(e) => { if (e.key === 'Enter') onEnter?.() }}
-      className="w-12 sm:w-14 h-11 sm:h-12 text-center text-xl sm:text-2xl font-bold border-2 border-amber-300 rounded-lg focus:border-amber-500 outline-none bg-white"
+      className="w-14 sm:w-16 h-14 sm:h-16 text-center text-2xl sm:text-3xl font-extrabold border-2 border-amber-300 rounded-xl focus:border-amber-500 outline-none bg-white"
     />
   )
 }
@@ -39,7 +39,7 @@ function LabeledBox({ children, label }) {
   return (
     <div className="flex flex-col items-center">
       {children}
-      <span className="text-[10px] sm:text-xs text-gray-500 mt-1">{label}</span>
+      <span className="text-xs sm:text-sm text-gray-600 mt-1.5 font-semibold">{label}</span>
     </div>
   )
 }
@@ -92,14 +92,14 @@ export default function FractionInput({ mode, onValueChange, onEnter, autoFocus 
       <span className="text-amber-800 font-bold pb-7 text-lg">과</span>
 
       <div className="flex flex-col items-center">
-        <div className="inline-flex flex-col items-center gap-1">
+        <div className="inline-flex flex-col items-center gap-1.5">
           <NumBox value={num} onChange={setNum} onEnter={onEnter}
             placeholder="" ariaLabel="분자" />
-          <div className="w-14 sm:w-16 h-0.5 bg-amber-700 rounded" />
+          <div className="w-16 sm:w-20 h-1 bg-amber-700 rounded" />
           <NumBox value={den} onChange={setDen} onEnter={onEnter}
             placeholder="" ariaLabel="분모" />
         </div>
-        <span className="text-[10px] sm:text-xs text-gray-500 mt-1">분자 / 분모</span>
+        <span className="text-xs sm:text-sm text-gray-600 mt-1.5 font-semibold">분자 / 분모</span>
       </div>
     </div>
   )

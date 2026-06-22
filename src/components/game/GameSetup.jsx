@@ -2,15 +2,31 @@ import { useEffect, useState } from 'react'
 import { useQuestionStore } from '../../stores/questionStore.js'
 import { AVATARS, DEFAULT_AVATAR, nextAvailableAvatar } from '../../data/avatars.js'
 import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
+import { loadLastSetup } from '../../utils/persistence.js'
 
-const initialPlayers = () => [
-  { name: '플레이어1', avatar: AVATARS[0] },
-  { name: '플레이어2', avatar: AVATARS[1] },
-]
+// 마지막 설정이 있으면 자동 로드 (T23 — 같은 친구들로 다시)
+function initialPlayers() {
+  const last = loadLastSetup()
+  if (last?.players?.length >= 2) {
+    return last.players.map((p) => ({
+      name: p.name || '플레이어',
+      avatar: p.avatar || AVATARS[0],
+    }))
+  }
+  return [
+    { name: '플레이어1', avatar: AVATARS[0] },
+    { name: '플레이어2', avatar: AVATARS[1] },
+  ]
+}
+
+function initialMode() {
+  const last = loadLastSetup()
+  return last?.modeId || DEFAULT_MODE
+}
 
 export default function GameSetup({ onStart, onBack }) {
   const [players, setPlayers] = useState(initialPlayers)
-  const [modeId, setModeId] = useState(DEFAULT_MODE)
+  const [modeId, setModeId] = useState(initialMode)
 
   const bundledSets = useQuestionStore((s) => s.bundledSets)
   const sets = useQuestionStore((s) => s.sets)

@@ -41,7 +41,7 @@ function shootConfetti() {
   })()
 }
 
-export default function GameOverScreen({ players, ownership, onRestart }) {
+export default function GameOverScreen({ players, ownership, onRestart, onRematch }) {
   useEffect(() => { shootConfetti() }, [])
 
   const tilesByOwner = {}
@@ -100,12 +100,26 @@ export default function GameOverScreen({ players, ownership, onRestart }) {
           ))}
         </div>
 
-        <button
-          onClick={onRestart}
-          className="mt-6 w-full py-3 bg-amber-600 text-white rounded-xl font-bold hover:bg-amber-700 shadow transition"
-        >
-          다시 시작
-        </button>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {onRematch && (
+            <button
+              onClick={onRematch}
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 shadow transition"
+            >
+              🔁 같은 친구들로 다시
+            </button>
+          )}
+          <button
+            onClick={onRestart}
+            className={`w-full py-3 rounded-xl font-bold shadow transition ${
+              onRematch
+                ? 'bg-amber-600 text-white hover:bg-amber-700'
+                : 'bg-amber-600 text-white hover:bg-amber-700'
+            }`}
+          >
+            🏠 메인 메뉴
+          </button>
+        </div>
       </motion.div>
     </div>
   )

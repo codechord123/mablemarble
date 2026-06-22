@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { QUESTION_TIME_BY_DIFFICULTY } from '../../utils/boardConfig.js'
 import MathText from '../ui/MathText.jsx'
 import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
+import ConfirmDialog from '../ui/ConfirmDialog.jsx'
 
 const PROMPT_LABEL = {
   purchase: '💰 구매를 위해 풀어주세요',
@@ -34,6 +35,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
   const [selected, setSelected] = useState(null)
   const [text, setText] = useState('')
   const [fractionValue, setFractionValue] = useState({ str: '', valid: false })
+  const [confirmSkip, setConfirmSkip] = useState(false)
   const submittedRef = useRef(false)
 
   // 단답형 입력 모드 자동 감지 (정수/분수/대분수/일반 텍스트)
@@ -86,20 +88,30 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-        className="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full relative"
+        className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative max-h-[95vh] overflow-y-auto"
       >
         <button
-          onClick={() => {
+          onClick={() => setConfirmSkip(true)}
+          aria-label="문제 건너뛰기"
+          title="문제 건너뛰기"
+          className="absolute top-3 right-3 h-9 w-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-lg"
+        >
+          ✕
+        </button>
+        <ConfirmDialog
+          open={confirmSkip}
+          title="문제 건너뛰기"
+          description="이 문제를 건너뛰면 오답으로 처리됩니다. 정말 건너뛸까요?"
+          confirmLabel="건너뛰기"
+          variant="danger"
+          onConfirm={() => {
+            setConfirmSkip(false)
             if (submittedRef.current) return
             submittedRef.current = true
             onSubmit(TIMEOUT_SENTINEL)
           }}
-          aria-label="문제 건너뛰기"
-          title="문제 건너뛰기 (시간 초과 처리)"
-          className="absolute top-3 right-3 h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold"
-        >
-          ✕
-        </button>
+          onCancel={() => setConfirmSkip(false)}
+        />
         <CountdownBar remaining={remaining} total={total} />
         <div className="flex items-center mt-2 text-sm">
           <div className="flex items-center gap-2">
@@ -117,23 +129,23 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           </div>
         </div>
 
-        <div className="text-xl sm:text-2xl font-bold text-amber-900 mt-3 mb-5">
+        <div className="text-2xl sm:text-3xl font-bold text-amber-900 mt-4 mb-6 leading-relaxed">
           <MathText>{question.question}</MathText>
         </div>
 
         {question.type === 'multiple_choice' && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {question.choices.map((c, i) => (
               <button
                 key={i}
                 onClick={() => setSelected(i)}
-                className={`w-full p-3 rounded-xl border-2 text-left transition ${
+                className={`w-full p-4 sm:p-5 rounded-xl border-2 text-left transition text-lg sm:text-xl ${
                   selected === i
                     ? 'border-amber-500 bg-amber-50'
                     : 'border-gray-200 hover:border-amber-300'
                 }`}
               >
-                <span className="font-bold mr-2 text-amber-700">{i + 1}.</span>
+                <span className="font-bold mr-3 text-amber-700">{i + 1}.</span>
                 <MathText>{c}</MathText>
               </button>
             ))}
@@ -141,12 +153,12 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         )}
 
         {question.type === 'true_false' && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {['O', 'X'].map((c, i) => (
               <button
                 key={i}
                 onClick={() => setSelected(i)}
-                className={`p-6 rounded-xl border-2 text-4xl font-extrabold transition ${
+                className={`p-8 sm:p-10 rounded-xl border-2 text-5xl sm:text-6xl font-extrabold transition ${
                   selected === i
                     ? 'border-amber-500 bg-amber-50'
                     : 'border-gray-200 hover:border-amber-300'
