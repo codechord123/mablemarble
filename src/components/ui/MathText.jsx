@@ -14,8 +14,9 @@ function Fraction({ num, den }) {
   )
 }
 
-// 매치 우선순위: 대분수 (NUM과 NUM/NUM) → 단순 분수 (NUM/NUM)
-const REGEX = /(\d+)과\s*(\d+)\/(\d+)|(\d+)\/(\d+)/g
+// 매치 우선순위: 대분수 (NUM과 NUM/NUM 또는 NUM와 NUM/NUM) → 단순 분수 (NUM/NUM)
+// '과'(표준)와 '와'(잘못 입력) 모두 인식
+const REGEX = /(\d+)[과와]\s*(\d+)\/(\d+)|(\d+)\/(\d+)/g
 
 export default function MathText({ children, className }) {
   if (children == null) return null

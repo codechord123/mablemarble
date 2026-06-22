@@ -7,13 +7,15 @@
 import { useEffect, useRef, useState } from 'react'
 
 // 정답 문자열에서 입력 모드 자동 추론
-// 모든 숫자형 답안은 'fraction' 모드(자연수+분자/분모 3박스) 사용 — 학생이
-// 정수/분수/대분수 중 어떤 형태로든 입력 가능. 텍스트만 별도 모드.
+// 모든 숫자형 답안은 'fraction' 모드(자연수+분자/분모 3박스) 사용.
+// 대분수 구분자: 표준 한국어 수학 표기는 '과'(gwa)이지만, '와'(wa) 잘못 쓴 데이터도 모두 인식.
+export const MIXED_SEPARATOR = /[과와]/
+
 export function detectInputMode(answer) {
   const first = String(answer).split(/[,，]/)[0].trim()
-  if (/^\d+\s*과\s*\d+\/\d+$/.test(first)) return 'fraction'
+  if (/^\d+\s*[과와]\s*\d+\/\d+$/.test(first)) return 'fraction'
   if (/^\d+\/\d+$/.test(first)) return 'fraction'
-  if (/^\d+$/.test(first)) return 'fraction'  // 정수 답도 3박스 UI로 통일
+  if (/^\d+$/.test(first)) return 'fraction'
   return 'text'
 }
 

@@ -21,8 +21,11 @@ export function pickQuestion(difficulty = 1, usedIds = [], pool = sampleQuestion
 }
 
 // 답안 한 개를 정규화하고 동등한 다른 표현(가분수↔대분수)도 함께 반환
+// '과'/'와' 모두 인식하고 내부적으로 '과'로 통일
 function expandForms(raw) {
   let str = String(raw).replace(/\s+/g, '').toLowerCase()
+  // '와' → '과' 통일 (학생이 어느 쪽으로 입력해도 OK)
+  str = str.replace(/와/g, '과')
   // "0과5/12" → "5/12" (자연수에 0 입력한 경우)
   str = str.replace(/^0과/, '')
   // 숫자 앞 0 정리 ("01/02" → "1/2", "1과07/10" → "1과7/10")
