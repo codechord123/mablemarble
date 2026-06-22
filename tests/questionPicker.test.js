@@ -39,4 +39,23 @@ describe('isCorrect', () => {
   it('단답형 쉼표 구분 복수 정답 허용', () => {
     expect(isCorrect({ type: 'short_answer', answer: '추하다,못생기다' }, '못생기다')).toBe(true)
   })
+  it('대분수 답을 가분수로 입력해도 정답', () => {
+    expect(isCorrect({ type: 'short_answer', answer: '1과7/10' }, '17/10')).toBe(true)
+    expect(isCorrect({ type: 'short_answer', answer: '2과5/8' }, '21/8')).toBe(true)
+  })
+  it('가분수 답을 대분수로 입력해도 정답', () => {
+    expect(isCorrect({ type: 'short_answer', answer: '17/10' }, '1과7/10')).toBe(true)
+    expect(isCorrect({ type: 'short_answer', answer: '21/8' }, '2과5/8')).toBe(true)
+  })
+  it('자연수 0을 포함한 대분수 입력도 정상 처리', () => {
+    expect(isCorrect({ type: 'short_answer', answer: '5/12' }, '0과5/12')).toBe(true)
+  })
+  it('자연수 답을 분수/대분수 박스로 입력해도 정답', () => {
+    expect(isCorrect({ type: 'short_answer', answer: '2' }, '2')).toBe(true)
+    expect(isCorrect({ type: 'short_answer', answer: '2' }, '10/5')).toBe(true)
+  })
+  it('약분되지 않은 분수는 오답 (학습 효과 보존)', () => {
+    expect(isCorrect({ type: 'short_answer', answer: '1/3' }, '3/9')).toBe(false)
+    expect(isCorrect({ type: 'short_answer', answer: '5/12' }, '10/24')).toBe(false)
+  })
 })
