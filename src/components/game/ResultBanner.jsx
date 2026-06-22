@@ -1,6 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import MathText from '../ui/MathText.jsx'
 
+function formatAnswer(q) {
+  if (!q) return ''
+  if (q.type === 'multiple_choice') return q.choices[q.answer] ?? ''
+  if (q.type === 'true_false') return q.answer === 0 ? 'O' : 'X'
+  // short_answer: 첫 번째 형식만 노출 (대분수↔가분수 같은 다중 답안의 대표값)
+  return String(q.answer).split(/[,，]/)[0].trim()
+}
+
 export default function ResultBanner({ result, onClose }) {
   return (
     <AnimatePresence>
@@ -18,15 +26,25 @@ export default function ResultBanner({ result, onClose }) {
             transition={{ type: 'spring', stiffness: 220, damping: 18 }}
             className="bg-white rounded-3xl p-6 max-w-md w-full text-center"
           >
-            <div className={`text-6xl mb-2 ${result.correct ? 'text-emerald-500' : 'text-rose-500'}`}>
-              {result.correct ? '⭕' : '❌'}
+            <div className={`text-6xl mb-2 ${
+              result.timeout ? 'text-orange-500' : result.correct ? 'text-emerald-500' : 'text-rose-500'
+            }`}>
+              {result.timeout ? '⏰' : result.correct ? '⭕' : '❌'}
             </div>
             <div className="text-3xl font-extrabold text-amber-900">
-              {result.correct ? '정답!' : '오답!'}
+              {result.timeout ? '시간 초과!' : result.correct ? '정답!' : '오답!'}
             </div>
             {result.message && (
               <div className="text-amber-700 mt-2 font-semibold">
                 <MathText>{result.message}</MathText>
+              </div>
+            )}
+            {!result.correct && result.question && (
+              <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <span className="text-sm text-emerald-700 font-semibold">정답: </span>
+                <span className="text-lg font-bold text-emerald-800">
+                  <MathText>{formatAnswer(result.question)}</MathText>
+                </span>
               </div>
             )}
             {result.explanation && (

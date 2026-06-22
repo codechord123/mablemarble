@@ -16,14 +16,16 @@ const SNAPSHOT_KEYS = [
 ]
 
 export function persistSnapshot(state) {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return true
   try {
     const data = {}
     for (const k of SNAPSHOT_KEYS) data[k] = state[k]
     data.savedAt = Date.now()
     localStorage.setItem(KEY, JSON.stringify(data))
+    return true
   } catch {
-    /* quota or serialization error — 무시 */
+    // 시크릿 모드 / quota 초과 / disabled storage
+    return false
   }
 }
 

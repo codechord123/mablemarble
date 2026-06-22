@@ -66,6 +66,8 @@ export default function App() {
   const currentRound = useGameStore((s) => s.currentRound)
   const turnLimit = useGameStore((s) => s.turnLimit)
   const resumeGame = useGameStore((s) => s.resumeGame)
+  const persistError = useGameStore((s) => s.persistError)
+  const clearPersistError = useGameStore((s) => s.clearPersistError)
 
   const [view, setView] = useState('menu') // 'menu' | 'setup' | 'questions'
   const [showAnnouncement, setShowAnnouncement] = useState(false)
@@ -84,6 +86,13 @@ export default function App() {
     const t = setTimeout(clearPoolResetToast, 2500)
     return () => clearTimeout(t)
   }, [poolJustReset, clearPoolResetToast])
+
+  // localStorage 저장 실패 토스트 (시크릿 모드 등)
+  useEffect(() => {
+    if (!persistError) return
+    const t = setTimeout(clearPersistError, 4000)
+    return () => clearTimeout(t)
+  }, [persistError, clearPersistError])
 
   useEffect(() => {
     if (phase === 'setup' || phase === 'gameover') {
@@ -159,6 +168,9 @@ export default function App() {
       </Toast>
       <Toast show={poolJustReset} color="bg-sky-500" position="bottom">
         🔁 문제 풀이 다시 시작됩니다 (모든 문제 출제 완료)
+      </Toast>
+      <Toast show={persistError} color="bg-rose-500" position="bottom">
+        ⚠️ 게임 자동 저장 실패 — 새로고침하면 진행 상황이 사라집니다
       </Toast>
 
       {phase === 'question' && currentQuestion && (

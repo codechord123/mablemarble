@@ -72,6 +72,10 @@ export const GOLDEN_KEY_CARDS = [
     effect: { type: 'mission', winAmount: 250, loseAmount: 50 } },
 ]
 
-export function drawGoldenKeyCard() {
-  return GOLDEN_KEY_CARDS[Math.floor(Math.random() * GOLDEN_KEY_CARDS.length)]
+// excludeIds: 최근 뽑은 카드 ID 목록. 같은 카드 연속 출현 방지.
+export function drawGoldenKeyCard(excludeIds = []) {
+  const excluded = new Set(excludeIds)
+  const pool = GOLDEN_KEY_CARDS.filter((c) => !excluded.has(c.id))
+  const actualPool = pool.length > 0 ? pool : GOLDEN_KEY_CARDS
+  return actualPool[Math.floor(Math.random() * actualPool.length)]
 }

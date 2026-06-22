@@ -51,6 +51,8 @@ const initialState = {
   turnLimit: null,        // null = 무제한
   startMoney: START_MONEY,
   modeId: DEFAULT_MODE,
+  recentCardIds: [],      // 황금열쇠 최근 3장 — 연속 중복 방지
+  persistError: false,    // localStorage 저장 실패 토스트용
 }
 
 export const useGameStore = create((set, get) => ({
@@ -163,7 +165,10 @@ export const useGameStore = create((set, get) => ({
   // ─── 황금열쇠 ───
   drawCard() {
     sfx.card()
-    set({ phase: 'golden-key', currentCard: drawGoldenKeyCard() })
+    const { recentCardIds } = get()
+    const card = drawGoldenKeyCard(recentCardIds)
+    const nextRecent = [...recentCardIds, card.id].slice(-3)
+    set({ phase: 'golden-key', currentCard: card, recentCardIds: nextRecent })
   },
 
   confirmCard(success) {
@@ -320,6 +325,7 @@ export const useGameStore = create((set, get) => ({
 
   submitAnswer(answer) {
     const { currentQuestion, pendingAction, players, currentTurn, ownership } = get()
+    const isTimeout = answer === '__TIMEOUT__'
     const correct = isCorrect(currentQuestion, answer)
     correct ? sfx.correct() : sfx.wrong()
     let message = ''
@@ -399,6 +405,9 @@ export const useGameStore = create((set, get) => ({
       }
     }
 
+    // 시간 초과 시 메시지 앞에 명시 (학생 혼동 방지)
+    const finalMessage = isTimeout ? `⏰ 시간 초과! ${message}` : message
+
     set({
       players: updatedPlayers,
       ownership: updatedOwnership,
@@ -407,7 +416,8 @@ export const useGameStore = create((set, get) => ({
       pendingAction: null,
       lastResult: {
         correct,
-        message,
+        timeout: isTimeout,
+        message: finalMessage,
         explanation: currentQuestion.explanation,
         question: currentQuestion,
         postAction,
@@ -477,7 +487,9 @@ export const useGameStore = create((set, get) => ({
         lastRoll: null,
         extraTurnReason: doubleAgain ? 'double' : 'card',
       })
-      persistSnapshot(get())
+      if (!persistSnapshot(get()) && !get().persistError) {
+      set({ persistError: true })
+    }
       return
     }
 
@@ -515,7 +527,9 @@ export const useGameStore = create((set, get) => ({
       lastRoll: null,
       extraTurnReason: null,
     })
-    persistSnapshot(get())
+    if (!persistSnapshot(get()) && !get().persistError) {
+      set({ persistError: true })
+    }
   },
 
   clearExtraTurnToast() {
@@ -524,6 +538,10 @@ export const useGameStore = create((set, get) => ({
 
   clearPoolResetToast() {
     set({ poolJustReset: false })
+  },
+
+  clearPersistError() {
+    set({ persistError: false })
   },
 
   // 이어하기 — localStorage에서 스냅샷 복구
