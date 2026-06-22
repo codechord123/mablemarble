@@ -1,0 +1,151 @@
+[
+  { "id": "f01", "category": "약분", "difficulty": 1, "type": "multiple_choice",
+    "question": "2/4 와 크기가 같은 분수는?",
+    "choices": ["1/2", "1/3", "2/3", "3/4"], "answer": 0,
+    "explanation": "2/4 = (2÷2)/(4÷2) = 1/2" },
+
+  { "id": "f02", "category": "약분", "difficulty": 1, "type": "multiple_choice",
+    "question": "3/9 를 약분한 기약분수는?",
+    "choices": ["1/2", "1/3", "2/3", "3/9"], "answer": 1,
+    "explanation": "3과 9의 최대공약수는 3. 3/9 = 1/3" },
+
+  { "id": "f03", "category": "통분", "difficulty": 1, "type": "true_false",
+    "question": "1/2 와 2/4 는 크기가 같은 분수이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "2/4 = 1/2 이므로 크기가 같습니다." },
+
+  { "id": "f04", "category": "분수", "difficulty": 1, "type": "true_false",
+    "question": "2/3 와 4/6 은 크기가 같은 분수이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "4/6 = (4÷2)/(6÷2) = 2/3" },
+
+  { "id": "f05", "category": "약분", "difficulty": 1, "type": "short_answer",
+    "question": "6/8 을 약분한 기약분수는? (예: 1/2 형식)",
+    "choices": [], "answer": "3/4",
+    "explanation": "6과 8의 최대공약수는 2. 6/8 = 3/4" },
+
+  { "id": "f06", "category": "약분", "difficulty": 1, "type": "multiple_choice",
+    "question": "9/12 의 기약분수는?",
+    "choices": ["1/2", "2/3", "3/4", "4/6"], "answer": 2,
+    "explanation": "9와 12의 최대공약수는 3. 9/12 = 3/4" },
+
+  { "id": "f07", "category": "분수", "difficulty": 1, "type": "short_answer",
+    "question": "4와 6의 최대공약수는? (숫자만)",
+    "choices": [], "answer": "2",
+    "explanation": "4의 약수: 1,2,4 / 6의 약수: 1,2,3,6 → 공약수 중 가장 큰 수는 2" },
+
+  { "id": "f08", "category": "분수", "difficulty": 1, "type": "multiple_choice",
+    "question": "기약분수가 아닌 것은?",
+    "choices": ["1/2", "2/3", "4/6", "3/5"], "answer": 2,
+    "explanation": "4/6은 약분 가능(2/3)하므로 기약분수가 아닙니다." },
+
+  { "id": "f09", "category": "통분", "difficulty": 1, "type": "true_false",
+    "question": "1/4 와 2/8 은 크기가 같다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "2/8 = (2÷2)/(8÷2) = 1/4" },
+
+  { "id": "f10", "category": "약분", "difficulty": 1, "type": "short_answer",
+    "question": "10/15 을 기약분수로 나타내면? (예: 1/2)",
+    "choices": [], "answer": "2/3",
+    "explanation": "10과 15의 최대공약수는 5. 10/15 = 2/3" },
+
+  { "id": "f11", "category": "약분", "difficulty": 2, "type": "multiple_choice",
+    "question": "8/12 의 기약분수는?",
+    "choices": ["2/3", "3/4", "4/6", "2/4"], "answer": 0,
+    "explanation": "8과 12의 최대공약수는 4. 8/12 = 2/3" },
+
+  { "id": "f12", "category": "통분", "difficulty": 2, "type": "short_answer",
+    "question": "3/4 = ?/12 일 때, ? 에 들어갈 수는? (숫자만)",
+    "choices": [], "answer": "9",
+    "explanation": "분모 4가 12로 3배 되었으므로 분자도 3배: 3×3 = 9" },
+
+  { "id": "f13", "category": "통분", "difficulty": 2, "type": "multiple_choice",
+    "question": "1/2 와 1/3 의 최소공통분모는?",
+    "choices": ["5", "6", "12", "2"], "answer": 1,
+    "explanation": "2와 3의 최소공배수는 6입니다." },
+
+  { "id": "f14", "category": "통분", "difficulty": 2, "type": "short_answer",
+    "question": "12와 18의 최소공배수는? (숫자만)",
+    "choices": [], "answer": "36",
+    "explanation": "12 = 2²×3, 18 = 2×3². 최소공배수 = 2²×3² = 36" },
+
+  { "id": "f15", "category": "약분", "difficulty": 2, "type": "short_answer",
+    "question": "27/36 의 기약분수는? (예: 1/2)",
+    "choices": [], "answer": "3/4",
+    "explanation": "27과 36의 최대공약수는 9. 27/36 = 3/4" },
+
+  { "id": "f16", "category": "분수비교", "difficulty": 2, "type": "true_false",
+    "question": "2/3 < 3/4 이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "통분하면 8/12 < 9/12 이므로 참." },
+
+  { "id": "f17", "category": "분수비교", "difficulty": 2, "type": "multiple_choice",
+    "question": "1/2, 1/3, 1/4 중 가장 큰 분수는?",
+    "choices": ["1/2", "1/3", "1/4", "모두 같음"], "answer": 0,
+    "explanation": "분자가 같을 때는 분모가 작을수록 큰 분수. 1/2 > 1/3 > 1/4" },
+
+  { "id": "f18", "category": "통분", "difficulty": 2, "type": "multiple_choice",
+    "question": "2/3 과 3/4 를 통분하면?",
+    "choices": ["8/12, 9/12", "4/6, 6/8", "6/9, 9/12", "2/4, 3/4"], "answer": 0,
+    "explanation": "최소공배수 12로 통분: 2/3 = 8/12, 3/4 = 9/12" },
+
+  { "id": "f19", "category": "약분", "difficulty": 2, "type": "multiple_choice",
+    "question": "12/16 의 기약분수는?",
+    "choices": ["3/4", "2/3", "6/8", "1/2"], "answer": 0,
+    "explanation": "12와 16의 최대공약수는 4. 12/16 = 3/4" },
+
+  { "id": "f20", "category": "분수", "difficulty": 2, "type": "true_false",
+    "question": "분수 4/8, 2/4, 1/2 는 모두 크기가 같은 분수이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "모두 1/2와 같습니다." },
+
+  { "id": "f21", "category": "약분", "difficulty": 3, "type": "short_answer",
+    "question": "어떤 분수를 약분하여 3/5 가 되었습니다. 분모와 분자를 4로 약분했다면 원래 분수는? (예: 12/20)",
+    "choices": [], "answer": "12/20",
+    "explanation": "분모 5×4 = 20, 분자 3×4 = 12. 원래 분수는 12/20" },
+
+  { "id": "f22", "category": "응용", "difficulty": 3, "type": "short_answer",
+    "question": "도서관 책 90권 중 위인전이 36권입니다. 위인전 비율을 기약분수로 나타내면? (예: 1/2)",
+    "choices": [], "answer": "2/5",
+    "explanation": "36/90의 최대공약수는 18. 36/90 = 2/5" },
+
+  { "id": "f23", "category": "응용", "difficulty": 3, "type": "short_answer",
+    "question": "학생 24명 중 14명이 놀이동산, 나머지 10명이 고궁을 골랐습니다. 고궁을 고른 학생의 비율을 기약분수로? (예: 1/2)",
+    "choices": [], "answer": "5/12",
+    "explanation": "10/24의 최대공약수는 2. 10/24 = 5/12" },
+
+  { "id": "f24", "category": "분수비교", "difficulty": 3, "type": "multiple_choice",
+    "question": "0.7 과 7/10 의 크기 비교는?",
+    "choices": ["0.7 > 7/10", "0.7 < 7/10", "0.7 = 7/10", "비교 불가"], "answer": 2,
+    "explanation": "0.7 = 7/10 이므로 같습니다." },
+
+  { "id": "f25", "category": "분수비교", "difficulty": 3, "type": "multiple_choice",
+    "question": "3/4 와 0.7 중 더 큰 수는?",
+    "choices": ["3/4", "0.7", "같음", "비교 불가"], "answer": 0,
+    "explanation": "3/4 = 0.75. 0.75 > 0.7 이므로 3/4가 큼." },
+
+  { "id": "f26", "category": "통분", "difficulty": 3, "type": "short_answer",
+    "question": "1/3 + 1/2 를 통분하여 더한 결과는? (예: 5/6)",
+    "choices": [], "answer": "5/6",
+    "explanation": "통분: 1/3 = 2/6, 1/2 = 3/6. 합: 2/6 + 3/6 = 5/6" },
+
+  { "id": "f27", "category": "응용", "difficulty": 3, "type": "multiple_choice",
+    "question": "세 사람이 피자를 1판씩 먹고 남긴 양: 지은 1/4, 정호 1/3, 하진 2/5. 가장 많이 남긴 사람은?",
+    "choices": ["지은", "정호", "하진", "모두 같음"], "answer": 2,
+    "explanation": "통분(분모 60): 지은 15/60, 정호 20/60, 하진 24/60 → 하진이 가장 많음" },
+
+  { "id": "f28", "category": "약분", "difficulty": 3, "type": "short_answer",
+    "question": "20/30 을 기약분수로 나타내면? (예: 1/2)",
+    "choices": [], "answer": "2/3",
+    "explanation": "20과 30의 최대공약수는 10. 20/30 = 2/3" },
+
+  { "id": "f29", "category": "통분", "difficulty": 3, "type": "multiple_choice",
+    "question": "2/5 와 3/7 를 통분하면?",
+    "choices": ["14/35, 15/35", "10/35, 21/35", "4/10, 6/14", "2/35, 3/35"], "answer": 0,
+    "explanation": "최소공배수 35로 통분: 2/5 = 14/35, 3/7 = 15/35" },
+
+  { "id": "f30", "category": "분수비교", "difficulty": 3, "type": "multiple_choice",
+    "question": "다음 중 가장 작은 분수는?",
+    "choices": ["1/2", "2/5", "3/8", "3/7"], "answer": 2,
+    "explanation": "통분(56분의): 28/56, 22.4/56, 21/56, 24/56 → 3/8 = 21/56이 최소" }
+]

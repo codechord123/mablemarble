@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useQuestionStore, SAMPLE_SET_ID } from '../../stores/questionStore.js'
+import { useQuestionStore } from '../../stores/questionStore.js'
 import { AVATARS, DEFAULT_AVATAR, nextAvailableAvatar } from '../../data/avatars.js'
 import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
 
@@ -12,6 +12,7 @@ export default function GameSetup({ onStart, onBack }) {
   const [players, setPlayers] = useState(initialPlayers)
   const [modeId, setModeId] = useState(DEFAULT_MODE)
 
+  const bundledSets = useQuestionStore((s) => s.bundledSets)
   const sets = useQuestionStore((s) => s.sets)
   const selectedSetId = useQuestionStore((s) => s.selectedSetId)
   const activeQuestions = useQuestionStore((s) => s.activeQuestions)
@@ -58,7 +59,8 @@ export default function GameSetup({ onStart, onBack }) {
 
   const handleSetChange = (e) => {
     const raw = e.target.value
-    selectSet(raw === SAMPLE_SET_ID ? SAMPLE_SET_ID : Number(raw))
+    // bundled:* 는 문자열 그대로, 그 외는 숫자 변환
+    selectSet(raw.startsWith('bundled:') ? raw : Number(raw))
   }
 
   return (
@@ -101,12 +103,22 @@ export default function GameSetup({ onStart, onBack }) {
             onChange={handleSetChange}
             className="w-full p-2 border-2 border-amber-200 rounded-lg focus:border-amber-500 outline-none bg-white"
           >
-            <option value={SAMPLE_SET_ID}>기본 샘플 (30문제 · 사회/수학/과학/국어)</option>
-            {sets.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.count}문제)
-              </option>
-            ))}
+            <optgroup label="기본 내장">
+              {bundledSets.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.questions.length}문제)
+                </option>
+              ))}
+            </optgroup>
+            {sets.length > 0 && (
+              <optgroup label="내가 업로드한 세트">
+                {sets.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} ({s.count}문제)
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
           <div className="text-xs text-gray-500 mt-1">현재 활성: {activeQuestions.length}문제</div>
         </div>

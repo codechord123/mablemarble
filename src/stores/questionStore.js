@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import sampleQuestions from '../data/sampleQuestions.json'
+import { BUNDLED_SETS, DEFAULT_BUNDLED_ID, getBundledSet } from '../data/bundledSets.js'
 import {
   listQuestionSets,
   loadQuestions,
@@ -7,12 +7,11 @@ import {
   deleteQuestionSet,
 } from '../db/dexie.js'
 
-const SAMPLE_ID = 'sample'
-
 export const useQuestionStore = create((set, get) => ({
+  bundledSets: BUNDLED_SETS,
   sets: [],
-  selectedSetId: SAMPLE_ID,
-  activeQuestions: sampleQuestions,
+  selectedSetId: DEFAULT_BUNDLED_ID,
+  activeQuestions: getBundledSet(DEFAULT_BUNDLED_ID).questions,
 
   async refresh() {
     try {
@@ -30,8 +29,20 @@ export const useQuestionStore = create((set, get) => ({
   },
 
   async selectSet(id) {
-    if (id === SAMPLE_ID || id == null) {
-      set({ selectedSetId: SAMPLE_ID, activeQuestions: sampleQuestions })
+    // 번들 세트 (문자열 id로 시작하는 'bundled:*')
+    if (typeof id === 'string' && id.startsWith('bundled:')) {
+      const bundled = getBundledSet(id)
+      if (bundled) {
+        set({ selectedSetId: id, activeQuestions: bundled.questions })
+        return
+      }
+    }
+    // 사용자 업로드 세트 (숫자 id)
+    if (id == null) {
+      set({
+        selectedSetId: DEFAULT_BUNDLED_ID,
+        activeQuestions: getBundledSet(DEFAULT_BUNDLED_ID).questions,
+      })
       return
     }
     const questions = await loadQuestions(id)
@@ -41,10 +52,13 @@ export const useQuestionStore = create((set, get) => ({
   async deleteSet(id) {
     await deleteQuestionSet(id)
     if (get().selectedSetId === id) {
-      set({ selectedSetId: SAMPLE_ID, activeQuestions: sampleQuestions })
+      set({
+        selectedSetId: DEFAULT_BUNDLED_ID,
+        activeQuestions: getBundledSet(DEFAULT_BUNDLED_ID).questions,
+      })
     }
     await get().refresh()
   },
 }))
 
-export const SAMPLE_SET_ID = SAMPLE_ID
+export const SAMPLE_SET_ID = DEFAULT_BUNDLED_ID
