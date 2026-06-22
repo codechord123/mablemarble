@@ -1,0 +1,151 @@
+[
+  { "id": "as01", "category": "같은분모덧셈", "difficulty": 1, "type": "short_answer",
+    "question": "1/4 + 2/4 = ? (예: 3/4)",
+    "choices": [], "answer": "3/4",
+    "explanation": "분모가 같으므로 분자끼리 더한다: (1+2)/4 = 3/4" },
+
+  { "id": "as02", "category": "같은분모덧셈", "difficulty": 1, "type": "short_answer",
+    "question": "3/5 + 1/5 = ? (예: 1/2)",
+    "choices": [], "answer": "4/5",
+    "explanation": "분모 같음: (3+1)/5 = 4/5" },
+
+  { "id": "as03", "category": "같은분모뺄셈", "difficulty": 1, "type": "short_answer",
+    "question": "5/7 - 2/7 = ? (예: 1/2)",
+    "choices": [], "answer": "3/7",
+    "explanation": "(5-2)/7 = 3/7" },
+
+  { "id": "as04", "category": "같은분모뺄셈", "difficulty": 1, "type": "multiple_choice",
+    "question": "7/8 - 3/8 = ?",
+    "choices": ["1/2", "3/8", "4/16", "5/8"], "answer": 0,
+    "explanation": "(7-3)/8 = 4/8 = 1/2" },
+
+  { "id": "as05", "category": "분수계산규칙", "difficulty": 1, "type": "true_false",
+    "question": "분모가 같은 분수의 덧셈은 분모는 그대로 두고 분자만 더한다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "분모가 같으면 분자끼리만 계산합니다." },
+
+  { "id": "as06", "category": "분수계산규칙", "difficulty": 1, "type": "true_false",
+    "question": "1/3 + 1/3 = 2/6 이다.",
+    "choices": ["O", "X"], "answer": 1,
+    "explanation": "분모가 같으면 분자만 더함: 1/3 + 1/3 = 2/3 (분모를 더하면 X)" },
+
+  { "id": "as07", "category": "1과의관계", "difficulty": 1, "type": "short_answer",
+    "question": "2/3 + 1/3 = ? (정수면 숫자만)",
+    "choices": [], "answer": "1",
+    "explanation": "(2+1)/3 = 3/3 = 1" },
+
+  { "id": "as08", "category": "1과의관계", "difficulty": 1, "type": "short_answer",
+    "question": "1 - 1/3 = ? (예: 1/2)",
+    "choices": [], "answer": "2/3",
+    "explanation": "1 = 3/3 이므로 3/3 - 1/3 = 2/3" },
+
+  { "id": "as09", "category": "1과의관계", "difficulty": 1, "type": "multiple_choice",
+    "question": "1 - 2/5 = ?",
+    "choices": ["3/5", "2/5", "1/5", "4/5"], "answer": 0,
+    "explanation": "1 = 5/5 이므로 5/5 - 2/5 = 3/5" },
+
+  { "id": "as10", "category": "같은분모덧셈", "difficulty": 1, "type": "true_false",
+    "question": "1/2 + 1/2 = 1 이다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "(1+1)/2 = 2/2 = 1" },
+
+  { "id": "as11", "category": "다른분모덧셈", "difficulty": 2, "type": "short_answer",
+    "question": "1/2 + 1/3 = ? (기약분수, 예: 5/6)",
+    "choices": [], "answer": "5/6",
+    "explanation": "통분(분모 6): 3/6 + 2/6 = 5/6" },
+
+  { "id": "as12", "category": "다른분모덧셈", "difficulty": 2, "type": "multiple_choice",
+    "question": "1/2 + 1/4 = ?",
+    "choices": ["2/6", "2/8", "3/4", "1/4"], "answer": 2,
+    "explanation": "통분: 2/4 + 1/4 = 3/4" },
+
+  { "id": "as13", "category": "다른분모뺄셈", "difficulty": 2, "type": "short_answer",
+    "question": "3/4 - 1/2 = ? (기약분수, 예: 1/4)",
+    "choices": [], "answer": "1/4",
+    "explanation": "통분: 3/4 - 2/4 = 1/4" },
+
+  { "id": "as14", "category": "다른분모뺄셈", "difficulty": 2, "type": "short_answer",
+    "question": "5/6 - 1/3 = ? (기약분수, 예: 1/2)",
+    "choices": [], "answer": "1/2",
+    "explanation": "통분: 5/6 - 2/6 = 3/6 = 1/2" },
+
+  { "id": "as15", "category": "분수계산규칙", "difficulty": 2, "type": "true_false",
+    "question": "분모가 다른 분수의 덧셈은 통분을 먼저 해야 한다.",
+    "choices": ["O", "X"], "answer": 0,
+    "explanation": "분모가 다르면 통분으로 분모를 같게 만든 후 더합니다." },
+
+  { "id": "as16", "category": "다른분모덧셈", "difficulty": 2, "type": "multiple_choice",
+    "question": "2/3 + 1/4 = ?",
+    "choices": ["3/7", "11/12", "8/12", "1/2"], "answer": 1,
+    "explanation": "통분(분모 12): 8/12 + 3/12 = 11/12" },
+
+  { "id": "as17", "category": "공통분모", "difficulty": 2, "type": "short_answer",
+    "question": "2/3 + 1/2 를 통분할 때 가장 작은 공통분모는? (숫자만)",
+    "choices": [], "answer": "6",
+    "explanation": "2와 3의 최소공배수는 6" },
+
+  { "id": "as18", "category": "다른분모뺄셈", "difficulty": 2, "type": "multiple_choice",
+    "question": "7/8 - 1/4 = ?",
+    "choices": ["6/4", "5/8", "3/4", "6/8"], "answer": 1,
+    "explanation": "통분: 7/8 - 2/8 = 5/8" },
+
+  { "id": "as19", "category": "다른분모덧셈", "difficulty": 2, "type": "short_answer",
+    "question": "1/2 + 1/6 = ? (기약분수, 예: 2/3)",
+    "choices": [], "answer": "2/3",
+    "explanation": "통분: 3/6 + 1/6 = 4/6 = 2/3" },
+
+  { "id": "as20", "category": "다른분모덧셈", "difficulty": 2, "type": "multiple_choice",
+    "question": "다음 중 합이 1보다 큰 것은?",
+    "choices": ["1/4 + 1/2", "2/5 + 1/3", "3/4 + 1/2", "1/6 + 1/3"], "answer": 2,
+    "explanation": "3/4 + 1/2 = 3/4 + 2/4 = 5/4 > 1" },
+
+  { "id": "as21", "category": "대분수계산", "difficulty": 3, "type": "short_answer",
+    "question": "1과 1/3 + 2/3 = ? (자연수면 숫자만, 분수면 예: 1과1/2)",
+    "choices": [], "answer": "2",
+    "explanation": "1/3 + 2/3 = 1 → 1 + 1 = 2" },
+
+  { "id": "as22", "category": "대분수계산", "difficulty": 3, "type": "multiple_choice",
+    "question": "2와 1/4 + 1과 3/4 = ?",
+    "choices": ["3", "4", "3과 4/8", "3과 1/2"], "answer": 1,
+    "explanation": "정수: 2+1=3, 분수: 1/4 + 3/4 = 1. 합 4" },
+
+  { "id": "as23", "category": "대분수계산", "difficulty": 3, "type": "multiple_choice",
+    "question": "3 - 1과 1/4 = ?",
+    "choices": ["1과 3/4", "2와 1/4", "1과 1/4", "2과 3/4"], "answer": 0,
+    "explanation": "3 = 2와 4/4 이므로 2와 4/4 - 1과 1/4 = 1과 3/4" },
+
+  { "id": "as24", "category": "응용", "difficulty": 3, "type": "short_answer",
+    "question": "토마토를 민규는 1/3 kg, 재석이는 민규보다 2/3 kg 더 땄습니다. 둘이 딴 토마토는 모두 몇 kg? (예: 4/3 또는 1과1/3)",
+    "choices": [], "answer": "4/3,1과1/3",
+    "explanation": "재석 = 민규 + 2/3 = 1/3 + 2/3 = 1 kg. 합 = 민규 1/3 + 재석 1 = 4/3 kg (= 1과 1/3)" },
+
+  { "id": "as25", "category": "응용", "difficulty": 3, "type": "multiple_choice",
+    "question": "예준이가 빵을 만들 때 우유 1/4컵, 밀가루 3/4컵을 사용했습니다. 두 재료의 합은?",
+    "choices": ["1컵", "1/2컵", "4/8컵", "2컵"], "answer": 0,
+    "explanation": "1/4 + 3/4 = 4/4 = 1컵" },
+
+  { "id": "as26", "category": "응용", "difficulty": 3, "type": "short_answer",
+    "question": "쿠키를 만드는 데 밀가루 1/2컵과 버터 1/4컵을 사용했습니다. 모두 몇 컵? (기약분수, 예: 3/4)",
+    "choices": [], "answer": "3/4",
+    "explanation": "통분: 2/4 + 1/4 = 3/4 컵" },
+
+  { "id": "as27", "category": "역연산", "difficulty": 3, "type": "short_answer",
+    "question": "어떤 수에 1/3을 더했더니 5/6이 되었습니다. 어떤 수는? (기약분수, 예: 1/2)",
+    "choices": [], "answer": "1/2",
+    "explanation": "5/6 - 1/3 = 5/6 - 2/6 = 3/6 = 1/2" },
+
+  { "id": "as28", "category": "역연산", "difficulty": 3, "type": "short_answer",
+    "question": "1/2 + ☐ = 5/6 일 때, ☐는? (기약분수, 예: 1/3)",
+    "choices": [], "answer": "1/3",
+    "explanation": "5/6 - 1/2 = 5/6 - 3/6 = 2/6 = 1/3" },
+
+  { "id": "as29", "category": "응용", "difficulty": 3, "type": "short_answer",
+    "question": "민지는 지난 주에 1/2 km를, 이번 주에는 지난 주보다 1/4 km 더 달렸습니다. 이번 주에 달린 거리는? (기약분수, 예: 3/4)",
+    "choices": [], "answer": "3/4",
+    "explanation": "1/2 + 1/4 = 2/4 + 1/4 = 3/4 km" },
+
+  { "id": "as30", "category": "비교", "difficulty": 3, "type": "true_false",
+    "question": "1/2 + 1/3 < 1/2 + 1/4 이다.",
+    "choices": ["O", "X"], "answer": 1,
+    "explanation": "1/3 > 1/4 이므로 1/2 + 1/3 > 1/2 + 1/4. 부등호 반대." }
+]
