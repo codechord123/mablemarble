@@ -6,7 +6,8 @@ import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
 
 const PROMPT_LABEL = {
-  purchase: '💰 구매를 위해 풀어주세요',
+  purchase: '💰 땅 구매를 위해 풀어주세요',
+  upgrade: '🏗️ 건물 짓기 — 한 단계 업그레이드',
   'skip-toll': '🎯 통행료 면제 도전!',
   'bonus-question': '⭐ 보너스 문제',
   'escape-island': '🏝️ 무인도 탈출 시도',

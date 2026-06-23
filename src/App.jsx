@@ -60,7 +60,9 @@ export default function App() {
   const cancelSpacePick = useGameStore((s) => s.cancelSpacePick)
   const attemptIslandEscape = useGameStore((s) => s.attemptIslandEscape)
   const skipIslandTurn = useGameStore((s) => s.skipIslandTurn)
-  const upgradeBuilding = useGameStore((s) => s.upgradeBuilding)
+  const attemptUpgrade = useGameStore((s) => s.attemptUpgrade)
+  const salaryReceived = useGameStore((s) => s.salaryReceived)
+  const clearSalaryToast = useGameStore((s) => s.clearSalaryToast)
   const extraTurnReason = useGameStore((s) => s.extraTurnReason)
   const poolJustReset = useGameStore((s) => s.poolJustReset)
   const clearExtraTurnToast = useGameStore((s) => s.clearExtraTurnToast)
@@ -85,6 +87,12 @@ export default function App() {
     const t = setTimeout(clearExtraTurnToast, 1500)
     return () => clearTimeout(t)
   }, [extraTurnReason, clearExtraTurnToast])
+
+  useEffect(() => {
+    if (!salaryReceived) return
+    const t = setTimeout(clearSalaryToast, 2200)
+    return () => clearTimeout(t)
+  }, [salaryReceived, clearSalaryToast])
 
   useEffect(() => {
     if (!poolJustReset) return
@@ -173,14 +181,14 @@ export default function App() {
   const currentTile = current ? getTile(current.position) : null
 
   const handleTileAction = (action) => {
-    if (action.type === 'attempt-purchase') return attemptPurchase(currentTile, action.buildLevel || 0)
+    if (action.type === 'attempt-purchase') return attemptPurchase(currentTile)
     if (action.type === 'attempt-skip-toll') return attemptSkipToll(currentTile, action.toll)
     if (action.type === 'pay-toll') return payToll(currentTile, action.toll)
     if (action.type === 'pay-tax') return payTax(action.amount)
     if (action.type === 'claim-welfare') return claimWelfare()
     if (action.type === 'draw-card') return drawCard()
     if (action.type === 'space-pick') return goToSpacePick()
-    if (action.type === 'upgrade') return upgradeBuilding(currentTile)
+    if (action.type === 'upgrade') return attemptUpgrade(currentTile)
     if (action.type === 'skip') return skipTile()
   }
 
@@ -192,6 +200,9 @@ export default function App() {
       <TurnAnnouncement player={current} show={showAnnouncement} />
       <Toast show={!!extraTurnReason} color="bg-rose-500">
         {extraTurnReason === 'double' ? '🎲 더블! 한 번 더 굴리기' : '⚡ 카드 효과 — 한 번 더!'}
+      </Toast>
+      <Toast show={salaryReceived > 0} color="bg-emerald-600">
+        🏁 출발 통과! +{salaryReceived.toLocaleString()}원 월급
       </Toast>
       <Toast show={poolJustReset} color="bg-sky-500" position="bottom">
         🔁 문제 풀이 다시 시작됩니다 (모든 문제 출제 완료)

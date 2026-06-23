@@ -1,10 +1,11 @@
 import { create } from 'zustand'
-import { rollDice, applyMove, getTile, calculateToll, nextUpgradeCost, totalPurchaseCost } from '../utils/gameEngine.js'
+import { rollDice, applyMove, nextPosition, getTile, calculateToll, nextUpgradeCost, totalPurchaseCost } from '../utils/gameEngine.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
 import { applyCardEffect } from '../utils/goldenKeyEngine.js'
 import { drawGoldenKeyCard } from '../data/goldenKeyCards.js'
 import {
   START_MONEY,
+  SALARY,
   MAX_CONSECUTIVE_DOUBLES,
   TILE_TYPES,
   ISLAND_TURNS,
@@ -54,6 +55,7 @@ const initialState = {
   recentCardIds: [],      // 황금열쇠 최근 3장 — 연속 중복 방지
   persistError: false,    // localStorage 저장 실패 토스트용
   hotelFirstBuilt: false, // T17: 첫 호텔 건설 안내 (한 게임에 한 번)
+  salaryReceived: 0,      // 출발 통과 시 받은 월급 — 토스트 알림용
 }
 
 export const useGameStore = create((set, get) => ({
@@ -94,19 +96,29 @@ export const useGameStore = create((set, get) => ({
     sfx.dice()
     const { players, currentTurn } = get()
     const roll = rollDice()
+    const { passedStart } = nextPosition(players[currentTurn].position, roll.total)
     let moved = applyMove(players[currentTurn], roll.total)
     if (getTile(moved.position).type === TILE_TYPES.ISLAND) {
       moved = { ...moved, islandTurnsLeft: ISLAND_TURNS }
     }
     const updated = [...players]
     updated[currentTurn] = moved
-    set({ players: updated, lastRoll: roll, phase: 'tile' })
+    set({
+      players: updated,
+      lastRoll: roll,
+      phase: 'tile',
+      salaryReceived: passedStart ? SALARY : 0,
+    })
     return { roll, tile: getTile(moved.position) }
   },
 
+  clearSalaryToast() {
+    set({ salaryReceived: 0 })
+  },
+
   // ─── 칸 액션 진입점 ───
-  attemptPurchase(tile, buildLevel = 0) {
-    get()._askQuestion({ type: 'purchase', tile, buildLevel })
+  attemptPurchase(tile) {
+    get()._askQuestion({ type: 'purchase', tile })
   },
 
   attemptSkipToll(tile, toll) {
@@ -143,28 +155,15 @@ export const useGameStore = create((set, get) => ({
     get()._resolveTurn()
   },
 
-  // ─── 건물 업그레이드 ───
-  upgradeBuilding(tile) {
+  // ─── 건물 업그레이드 — 문제 풀이 후 한 단계만 짓기 ───
+  attemptUpgrade(tile) {
     const { players, currentTurn, ownership } = get()
     const owner = ownership[tile.id]
     if (!owner || owner.ownerId !== currentTurn) return
     const cost = nextUpgradeCost(tile, owner.houses)
     if (cost == null) return
     if (players[currentTurn].money < cost) return
-
-    const updated = [...players]
-    updated[currentTurn] = {
-      ...updated[currentTurn],
-      money: updated[currentTurn].money - cost,
-    }
-    sfx.coin()
-    const newLevel = owner.houses + 1
-    set({
-      players: updated,
-      ownership: { ...ownership, [tile.id]: { ...owner, houses: newLevel } },
-      hotelFirstBuilt: newLevel === 3 && !get().hotelFirstBuilt ? true : get().hotelFirstBuilt,
-    })
-    get()._resolveTurn()
+    get()._askQuestion({ type: 'upgrade', tile })
   },
 
   clearHotelHint() {
@@ -355,20 +354,38 @@ export const useGameStore = create((set, get) => ({
     if (pendingAction.type === 'purchase') {
       if (correct) {
         const tile = pendingAction.tile
-        const level = pendingAction.buildLevel || 0
-        const cost = totalPurchaseCost(tile, level)
+        const cost = totalPurchaseCost(tile, 0)
         updatedPlayers[currentTurn] = {
           ...updatedPlayers[currentTurn],
           money: updatedPlayers[currentTurn].money - cost,
         }
         updatedOwnership = {
           ...ownership,
-          [tile.id]: { ownerId: currentTurn, houses: level },
+          [tile.id]: { ownerId: currentTurn, houses: 0 },
         }
-        const buildLabel = level > 0 ? ` (콘도/아파트/호텔 단계 ${level})` : ''
-        message = `${tile.name}${buildLabel} 구매 성공! (-${cost.toLocaleString()}원)`
+        message = `${tile.name} 땅 구매 성공! (-${cost.toLocaleString()}원)`
       } else {
         message = '구매 실패 — 다음 기회에!'
+      }
+    } else if (pendingAction.type === 'upgrade') {
+      if (correct) {
+        const tile = pendingAction.tile
+        const owner = ownership[tile.id]
+        const cost = nextUpgradeCost(tile, owner.houses)
+        const newLevel = owner.houses + 1
+        updatedPlayers[currentTurn] = {
+          ...updatedPlayers[currentTurn],
+          money: updatedPlayers[currentTurn].money - cost,
+        }
+        updatedOwnership = {
+          ...ownership,
+          [tile.id]: { ...owner, houses: newLevel },
+        }
+        sfx.coin()
+        const labels = ['땅', '콘도', '아파트', '호텔']
+        message = `${tile.name} ${labels[newLevel]} 건설 성공! (-${cost.toLocaleString()}원)`
+      } else {
+        message = '건설 실패 — 다음 기회에!'
       }
     } else if (pendingAction.type === 'skip-toll') {
       if (correct) {
@@ -417,11 +434,11 @@ export const useGameStore = create((set, get) => ({
     // 시간 초과 시 메시지 앞에 명시 (학생 혼동 방지)
     const finalMessage = isTimeout ? `⏰ 시간 초과! ${message}` : message
 
-    // T17: 정답 구매로 호텔(Lv3) 첫 건설 시 안내 플래그
+    // T17: 정답 업그레이드로 호텔(Lv3) 첫 건설 시 안내 플래그
     const builtHotel =
-      pendingAction.type === 'purchase' &&
+      pendingAction.type === 'upgrade' &&
       correct &&
-      (pendingAction.buildLevel || 0) === 3
+      (ownership[pendingAction.tile.id]?.houses ?? 0) === 2
     const hotelFirstBuilt = builtHotel && !get().hotelFirstBuilt
       ? true
       : get().hotelFirstBuilt
