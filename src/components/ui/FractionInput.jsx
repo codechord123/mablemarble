@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { sfx } from '../../utils/sounds.js'
+import { popEl } from '../../utils/juice.js'
 
 // 정답 문자열에서 입력 모드 자동 추론
 // 모든 숫자형 답안은 'fraction' 모드(자연수+분자/분모 3박스) 사용.
@@ -22,7 +23,7 @@ export function detectInputMode(answer) {
 
 function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
   const [focused, setFocused] = useState(false)
-  const [pop, setPop] = useState(false)
+  const inputRef = useRef(null)
   const filled = value.length > 0
 
   const handleChange = (e) => {
@@ -30,8 +31,7 @@ function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
     if (next !== value) {
       if (next.length > value.length) {
         sfx.tick()
-        setPop(true)
-        setTimeout(() => setPop(false), 280)
+        popEl(inputRef.current) // WAAPI — 리렌더에 안 잘리고 매번 재생
       }
       onChange(next)
     }
@@ -39,6 +39,7 @@ function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
 
   return (
     <input
+      ref={inputRef}
       type="text"
       inputMode="numeric"
       pattern="[0-9]*"
@@ -53,7 +54,7 @@ function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
         filled
           ? 'bg-amber-50 border-amber-500 text-amber-900'
           : 'bg-white border-amber-300 text-amber-900'
-      } ${focused ? 'focus-ring border-amber-500' : ''} ${pop ? 'juice-pop' : ''}`}
+      } ${focused ? 'focus-ring border-amber-500' : ''}`}
     />
   )
 }

@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import MathText from '../ui/MathText.jsx'
+import { shakeEl } from '../../utils/juice.js'
 
 function formatAnswer(q) {
   if (!q) return ''
@@ -20,14 +21,19 @@ function fireCheerConfetti() {
 }
 
 export default function ResultBanner({ result, onClose }) {
-  useEffect(() => {
-    if (result?.correct && !result?.timeout) {
-      fireCheerConfetti()
-    }
-  }, [result])
-
-  const wrong = result && !result.correct
+  const cardRef = useRef(null)
   const win = result && result.correct && !result.timeout
+
+  useEffect(() => {
+    if (!result) return
+    if (win) {
+      fireCheerConfetti()
+    } else {
+      // 진입 스프링이 자리잡은 뒤 흔들어 transform 충돌 없이 매끈하게
+      const t = setTimeout(() => shakeEl(cardRef.current), 260)
+      return () => clearTimeout(t)
+    }
+  }, [result, win])
 
   return (
     <AnimatePresence>
@@ -45,13 +51,12 @@ export default function ResultBanner({ result, onClose }) {
             }`}
           />
           <motion.div
+            ref={cardRef}
             initial={{ scale: 0.6, y: 30 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.6, y: 30 }}
             transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-            className={`relative bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto ${
-              wrong ? 'juice-shake' : ''
-            }`}
+            className="relative bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto"
           >
             <div className={`text-7xl sm:text-8xl mb-2 inline-block ${
               win ? 'juice-stamp' : ''
