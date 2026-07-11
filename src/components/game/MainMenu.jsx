@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { hasSnapshot, loadSnapshot } from '../../utils/persistence.js'
+import Emblem from '../ui/Emblem.jsx'
 
 export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
   const [savedInfo, setSavedInfo] = useState(null)
@@ -21,7 +22,9 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
   return (
     <div className="min-h-screen app-bg flex items-center justify-center p-6">
       <div className="max-w-md w-full mx-auto bg-white/90 backdrop-blur rounded-[1.75rem] card-soft ring-1 ring-amber-900/5 p-8 text-center">
-        <div className="text-6xl mb-3 float-soft inline-block drop-shadow-sm">🎲</div>
+        <div className="float-soft inline-block drop-shadow-md mb-1">
+          <Emblem size={104} />
+        </div>
         <h1 className="text-5xl font-black tracking-tight bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 bg-clip-text text-transparent">
           부르마블
         </h1>

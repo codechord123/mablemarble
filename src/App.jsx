@@ -16,6 +16,7 @@ import GoldenKeyModal from './components/game/GoldenKeyModal.jsx'
 import IslandPanel from './components/game/IslandPanel.jsx'
 import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
 import MuteToggle from './components/ui/MuteToggle.jsx'
+import CoinIcon from './components/ui/CoinIcon.jsx'
 import Toast from './components/ui/Toast.jsx'
 import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
 import { loadLastSetup } from './utils/persistence.js'
@@ -319,8 +320,8 @@ export default function App() {
             {welfarePool > 0 && (
               <div className="p-3 bg-pink-100 rounded-xl border-2 border-pink-300 text-center">
                 <div className="text-xs text-pink-700 font-bold">사회복지 풀</div>
-                <div className="text-base font-extrabold text-pink-800">
-                  💰 {welfarePool.toLocaleString()}원
+                <div className="text-base font-extrabold text-pink-800 flex items-center justify-center gap-1">
+                  <CoinIcon size={16} /> {welfarePool.toLocaleString()}원
                 </div>
               </div>
             )}

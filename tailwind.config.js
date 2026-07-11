@@ -4,7 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        game: ['"Noto Sans KR"', 'system-ui', 'sans-serif'],
+        game: ['Pretendard Variable', 'Pretendard', '"Noto Sans KR"', 'system-ui', 'sans-serif'],
+        sans: ['Pretendard Variable', 'Pretendard', '"Noto Sans KR"', 'system-ui', 'sans-serif'],
       },
     },
   },

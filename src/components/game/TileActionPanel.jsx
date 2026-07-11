@@ -1,7 +1,8 @@
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS } from '../../utils/boardConfig.js'
-import { calculateToll, nextUpgradeCost, totalPurchaseCost } from '../../utils/gameEngine.js'
+import { calculateToll, nextUpgradeCost } from '../../utils/gameEngine.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
 import FlagIcon from '../board/FlagIcon.jsx'
+import CoinIcon from '../ui/CoinIcon.jsx'
 
 const TYPE_LABEL = {
   start: '출발', island: '무인도', space: '우주여행',
@@ -53,8 +54,8 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     return (
       <div className="flex flex-col items-center gap-3 w-full">
         <Header player={player} tile={tile} lastRoll={lastRoll} />
-        <div className="text-amber-800 text-sm text-center">
-          💰 땅값 <strong>{landCost.toLocaleString()}원</strong> · 문제를 풀면 땅을 살 수 있어요
+        <div className="text-amber-800 text-sm text-center flex items-center justify-center gap-1 flex-wrap">
+          <CoinIcon size={15} /> 땅값 <strong>{landCost.toLocaleString()}원</strong> · 문제를 풀면 땅을 살 수 있어요
         </div>
         <div className="text-[11px] text-amber-600 text-center">
           다시 방문할 때마다 콘도 → 아파트 → 호텔 순으로 한 단계씩 업그레이드할 수 있어요

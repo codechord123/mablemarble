@@ -1,4 +1,5 @@
 import AnimatedNumber from '../ui/AnimatedNumber.jsx'
+import CoinIcon from '../ui/CoinIcon.jsx'
 
 export default function PlayerCard({ player, isCurrent }) {
   const stats = player.stats || { answered: 0, correct: 0 }
@@ -18,8 +19,8 @@ export default function PlayerCard({ player, isCurrent }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-amber-900 truncate text-sm sm:text-base leading-tight">{player.name}</div>
-          <div className="text-amber-700 text-xs sm:text-sm leading-tight font-semibold tabular-nums">
-            💰 <AnimatedNumber value={player.money} />원
+          <div className="text-amber-700 text-xs sm:text-sm leading-tight font-semibold tabular-nums flex items-center gap-1">
+            <CoinIcon size={15} /> <AnimatedNumber value={player.money} />원
           </div>
         </div>
       </div>
