@@ -137,7 +137,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           </div>
         </div>
 
-        <div className="text-2xl sm:text-3xl font-bold text-amber-900 mt-4 mb-6 leading-relaxed">
+        <div className="text-2xl sm:text-3xl font-bold text-amber-900 mt-4 mb-6 leading-relaxed break-keep tabular-nums">
           <MathText>{question.question}</MathText>
         </div>
 
@@ -163,7 +163,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
                   }`}>
                     {i + 1}
                   </span>
-                  <span className="flex-1"><MathText>{c}</MathText></span>
+                  <span className="flex-1 break-keep tabular-nums"><MathText>{c}</MathText></span>
                   {active && (
                     <motion.span
                       initial={{ scale: 0, opacity: 0 }}

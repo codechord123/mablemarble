@@ -4,12 +4,27 @@
 function Fraction({ num, den }) {
   return (
     <span
-      className="inline-flex flex-col items-center text-center align-middle mx-0.5 leading-none"
-      style={{ verticalAlign: '-0.4em', fontSize: '0.95em' }}
+      className="inline-flex flex-col items-center justify-center text-center align-middle tabular-nums leading-[1.05]"
+      style={{ fontSize: '0.82em', verticalAlign: '-0.28em', margin: '0 0.12em' }}
     >
-      <span className="px-1.5">{num}</span>
-      <span className="border-t border-current w-full" />
-      <span className="px-1.5">{den}</span>
+      <span className="px-[0.35em]">{num}</span>
+      <span
+        className="block w-full bg-current rounded-full"
+        style={{ height: '0.09em', margin: '0.06em 0' }}
+      />
+      <span className="px-[0.35em]">{den}</span>
+    </span>
+  )
+}
+
+// 대분수: 정수부를 살짝 크게, 분수부를 바로 옆에 붙여 교과서에 가까운 표기.
+// 읽기 보조용 '과'는 작고 옅게 표시.
+function Mixed({ int, num, den }) {
+  return (
+    <span className="inline-flex items-center whitespace-nowrap align-middle">
+      <span>{int}</span>
+      <span className="text-[0.72em] opacity-60 mx-[0.1em] font-semibold">과</span>
+      <Fraction num={num} den={den} />
     </span>
   )
 }
@@ -42,12 +57,7 @@ export default function MathText({ children, className }) {
       {tokens.map((t, idx) => {
         if (t.type === 'text') return <span key={idx}>{t.value}</span>
         if (t.type === 'frac') return <Fraction key={idx} num={t.num} den={t.den} />
-        return (
-          <span key={idx} className="inline-flex items-center whitespace-nowrap">
-            <span>{t.int}과</span>
-            <Fraction num={t.num} den={t.den} />
-          </span>
-        )
+        return <Mixed key={idx} int={t.int} num={t.num} den={t.den} />
       })}
     </span>
   )
