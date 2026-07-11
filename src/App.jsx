@@ -24,7 +24,7 @@ const QuestionManager = lazy(() => import('./components/questions/QuestionManage
 
 function FullScreenSpinner({ label = '불러오는 중…' }) {
   return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+    <div className="min-h-screen app-bg flex items-center justify-center">
       <div className="text-amber-700 font-bold animate-pulse">{label}</div>
     </div>
   )
@@ -195,7 +195,7 @@ export default function App() {
   const onIsland = phase === 'rolling' && current?.islandTurnsLeft > 0
 
   return (
-    <div className="min-h-screen bg-amber-50 safe-padded">
+    <div className="min-h-screen app-bg safe-padded">
       <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
       <Toast show={!!extraTurnReason} color="bg-rose-500">

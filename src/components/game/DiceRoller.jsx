@@ -72,13 +72,22 @@ export default function DiceRoller({ lastRoll, onRoll, disabled }) {
   return (
     <div className="flex items-center gap-4 sm:gap-6">
       <div className="flex gap-3">
-        <Die value={lastRoll?.d1} rolling={rolling} />
-        <Die value={lastRoll?.d2} rolling={rolling} />
+        {[lastRoll?.d1, lastRoll?.d2].map((v, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <Die value={v} rolling={rolling} />
+            {/* 바닥 그림자 — 주사위가 떠 있는 느낌을 주어 입체감 강조 */}
+            <div
+              className={`h-1.5 rounded-full bg-amber-900/15 blur-[2px] mt-1 transition-all ${
+                rolling ? 'w-8 opacity-40' : 'w-12 opacity-70'
+              }`}
+            />
+          </div>
+        ))}
       </div>
       <button
         onClick={handleClick}
         disabled={disabled || rolling}
-        className="px-6 py-3 bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl font-extrabold shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition hover:scale-105 active:scale-95"
+        className="px-5 py-3 whitespace-nowrap bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl font-extrabold shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition hover:scale-105 active:scale-95 hover:shadow-amber-500/30"
       >
         🎲 굴리기
       </button>

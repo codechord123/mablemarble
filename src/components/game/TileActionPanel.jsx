@@ -33,7 +33,7 @@ function Btn({ children, onClick, color = 'bg-amber-600 hover:bg-amber-700', dis
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-5 py-2 ${color} text-white rounded-lg shadow font-bold transition disabled:opacity-40`}
+      className={`px-4 py-2 whitespace-nowrap ${color} text-white rounded-lg shadow font-bold transition disabled:opacity-40`}
     >
       {children}
     </button>
@@ -59,7 +59,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
         <div className="text-[11px] text-amber-600 text-center">
           다시 방문할 때마다 콘도 → 아파트 → 호텔 순으로 한 단계씩 업그레이드할 수 있어요
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-center">
           <Btn
             onClick={() => onAction({ type: 'attempt-purchase' })}
             color="bg-emerald-600 hover:bg-emerald-700"

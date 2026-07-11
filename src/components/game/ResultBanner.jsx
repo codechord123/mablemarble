@@ -35,14 +35,14 @@ export default function ResultBanner({ result, onClose }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
         >
           <motion.div
             initial={{ scale: 0.6, y: 30 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.6, y: 30 }}
             transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-            className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto"
+            className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto"
           >
             <div className={`text-7xl sm:text-8xl mb-2 ${
               result.timeout ? 'text-orange-500' : result.correct ? 'text-emerald-500' : 'text-rose-500'
@@ -72,7 +72,7 @@ export default function ResultBanner({ result, onClose }) {
             )}
             <button
               onClick={onClose}
-              className="mt-5 w-full py-3 sm:py-4 bg-amber-600 text-white rounded-xl font-bold text-lg sm:text-xl hover:bg-amber-700 transition"
+              className="mt-5 w-full py-3 sm:py-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-2xl font-bold text-lg sm:text-xl hover:from-amber-600 hover:to-amber-700 shadow-md hover:shadow-lg transition-all"
             >
               확인
             </button>

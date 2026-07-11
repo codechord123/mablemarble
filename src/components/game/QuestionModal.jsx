@@ -84,12 +84,12 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-        className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative max-h-[95vh] overflow-y-auto"
+        className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-2xl w-full relative max-h-[95vh] overflow-y-auto"
       >
         <button
           onClick={() => setConfirmSkip(true)}
