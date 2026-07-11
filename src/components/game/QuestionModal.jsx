@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { QUESTION_TIME_BY_DIFFICULTY } from '../../utils/boardConfig.js'
+import { sfx } from '../../utils/sounds.js'
 import MathText from '../ui/MathText.jsx'
 import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
@@ -61,9 +62,13 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
       }
       return
     }
+    // 남은 시간 5초 이하 — 매초 긴박한 틱 (아직 제출 전일 때만)
+    if (remaining <= 5 && !submittedRef.current) sfx.tickUrgent()
     const t = setTimeout(() => setRemaining((r) => r - 1), 1000)
     return () => clearTimeout(t)
   }, [remaining, onSubmit])
+
+  const urgent = remaining <= 5
 
   const canSubmit = (() => {
     if (question.type === 'short_answer') {
@@ -89,7 +94,9 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-        className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-2xl w-full relative max-h-[95vh] overflow-y-auto"
+        className={`bg-white rounded-[1.75rem] shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative max-h-[95vh] overflow-y-auto transition-shadow ${
+          urgent ? 'ring-4 ring-rose-400/70' : 'ring-1 ring-amber-900/5'
+        }`}
       >
         <button
           onClick={() => setConfirmSkip(true)}
@@ -125,7 +132,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
         </div>
         <div className="flex justify-between items-center mt-1">
           <div className="text-amber-700 text-sm">{PROMPT_LABEL[intent] || ''}</div>
-          <div className={`text-sm font-extrabold ${remaining <= 5 ? 'text-rose-600 animate-pulse' : 'text-amber-700'}`}>
+          <div className={`text-sm font-extrabold inline-flex items-center ${urgent ? 'text-rose-600 tick-urgent' : 'text-amber-700'}`}>
             ⏱ {remaining}초
           </div>
         </div>
@@ -136,20 +143,40 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
 
         {question.type === 'multiple_choice' && (
           <div className="space-y-3">
-            {question.choices.map((c, i) => (
-              <button
-                key={i}
-                onClick={() => setSelected(i)}
-                className={`w-full p-4 sm:p-5 rounded-xl border-2 text-left transition text-lg sm:text-xl ${
-                  selected === i
-                    ? 'border-amber-500 bg-amber-50'
-                    : 'border-gray-200 hover:border-amber-300'
-                }`}
-              >
-                <span className="font-bold mr-3 text-amber-700">{i + 1}.</span>
-                <MathText>{c}</MathText>
-              </button>
-            ))}
+            {question.choices.map((c, i) => {
+              const active = selected === i
+              return (
+                <motion.button
+                  key={i}
+                  onClick={() => { if (!active) sfx.select(); setSelected(i) }}
+                  whileTap={{ scale: 0.97 }}
+                  animate={active ? { scale: [1, 1.03, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.25 }}
+                  className={`w-full p-4 sm:p-5 rounded-xl border-2 text-left transition-colors text-lg sm:text-xl flex items-center ${
+                    active
+                      ? 'border-amber-500 bg-amber-50 shadow-md'
+                      : 'border-gray-200 hover:border-amber-300 hover:bg-amber-50/40'
+                  }`}
+                >
+                  <span className={`inline-flex items-center justify-center h-7 w-7 rounded-full mr-3 font-bold text-sm flex-shrink-0 transition-colors ${
+                    active ? 'bg-amber-500 text-white' : 'bg-gray-100 text-amber-700'
+                  }`}>
+                    {i + 1}
+                  </span>
+                  <span className="flex-1"><MathText>{c}</MathText></span>
+                  {active && (
+                    <motion.span
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                      className="ml-2 text-amber-500 text-xl"
+                    >
+                      ✓
+                    </motion.span>
+                  )}
+                </motion.button>
+              )
+            })}
           </div>
         )}
 
@@ -191,13 +218,18 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           />
         )}
 
-        <button
+        <motion.button
           onClick={submit}
           disabled={!canSubmit}
-          className="mt-6 w-full py-3 bg-amber-600 text-white rounded-xl font-bold shadow hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          whileTap={canSubmit ? { scale: 0.96 } : {}}
+          className={`mt-6 w-full py-3.5 rounded-2xl font-bold text-lg text-white transition-all ${
+            canSubmit
+              ? 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 attention-pulse'
+              : 'bg-gray-300 cursor-not-allowed'
+          }`}
         >
           정답 제출
-        </button>
+        </motion.button>
       </motion.div>
     </div>
   )

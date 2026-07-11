@@ -10,15 +10,13 @@ function formatAnswer(q) {
   return String(q.answer).split(/[,，]/)[0].trim()
 }
 
+const CONFETTI_COLORS = ['#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#3b82f6']
+
 function fireCheerConfetti() {
-  // T5 응원 컨페티 — 정답 시 가벼운 축하 (모든 학생에게 시각적 보상)
-  confetti({
-    particleCount: 60,
-    spread: 80,
-    origin: { y: 0.4 },
-    colors: ['#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#3b82f6'],
-    scalar: 0.9,
-  })
+  // T5 응원 컨페티 — 정답 시 축하 (양쪽 대포 + 중앙 버스트로 더 풍성하게)
+  confetti({ particleCount: 70, spread: 80, origin: { y: 0.4 }, colors: CONFETTI_COLORS, scalar: 0.95 })
+  confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: CONFETTI_COLORS })
+  confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: CONFETTI_COLORS })
 }
 
 export default function ResultBanner({ result, onClose }) {
@@ -27,6 +25,9 @@ export default function ResultBanner({ result, onClose }) {
       fireCheerConfetti()
     }
   }, [result])
+
+  const wrong = result && !result.correct
+  const win = result && result.correct && !result.timeout
 
   return (
     <AnimatePresence>
@@ -37,14 +38,24 @@ export default function ResultBanner({ result, onClose }) {
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
         >
+          {/* 화면 색 플래시 — 정답 초록 / 오답·시간초과 빨강 */}
+          <div
+            className={`absolute inset-0 pointer-events-none juice-flash ${
+              win ? 'bg-emerald-400' : 'bg-rose-500'
+            }`}
+          />
           <motion.div
             initial={{ scale: 0.6, y: 30 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.6, y: 30 }}
             transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-            className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto"
+            className={`relative bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto ${
+              wrong ? 'juice-shake' : ''
+            }`}
           >
-            <div className={`text-7xl sm:text-8xl mb-2 ${
+            <div className={`text-7xl sm:text-8xl mb-2 inline-block ${
+              win ? 'juice-stamp' : ''
+            } ${
               result.timeout ? 'text-orange-500' : result.correct ? 'text-emerald-500' : 'text-rose-500'
             }`}>
               {result.timeout ? '⏰' : result.correct ? '⭕' : '❌'}

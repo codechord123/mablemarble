@@ -5,6 +5,7 @@
 //   - text: 자유 입력
 
 import { useEffect, useRef, useState } from 'react'
+import { sfx } from '../../utils/sounds.js'
 
 // 정답 문자열에서 입력 모드 자동 추론
 // 모든 숫자형 답안은 'fraction' 모드(자연수+분자/분모 3박스) 사용.
@@ -19,20 +20,40 @@ export function detectInputMode(answer) {
   return 'text'
 }
 
-function NumBox({ value, onChange, onEnter, placeholder, autoFocus, refEl, ariaLabel }) {
+function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
+  const [focused, setFocused] = useState(false)
+  const [pop, setPop] = useState(false)
+  const filled = value.length > 0
+
+  const handleChange = (e) => {
+    const next = e.target.value.replace(/\D/g, '').slice(0, 3)
+    if (next !== value) {
+      if (next.length > value.length) {
+        sfx.tick()
+        setPop(true)
+        setTimeout(() => setPop(false), 280)
+      }
+      onChange(next)
+    }
+  }
+
   return (
     <input
-      ref={refEl}
       type="text"
       inputMode="numeric"
       pattern="[0-9]*"
       value={value}
       autoFocus={autoFocus}
-      placeholder={placeholder}
       aria-label={ariaLabel}
-      onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 3))}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onChange={handleChange}
       onKeyDown={(e) => { if (e.key === 'Enter') onEnter?.() }}
-      className="w-14 sm:w-16 h-14 sm:h-16 text-center text-2xl sm:text-3xl font-extrabold border-2 border-amber-300 rounded-xl focus:border-amber-500 outline-none bg-white"
+      className={`w-14 sm:w-16 h-14 sm:h-16 text-center text-2xl sm:text-3xl font-extrabold rounded-xl outline-none transition-colors duration-150 border-2 ${
+        filled
+          ? 'bg-amber-50 border-amber-500 text-amber-900'
+          : 'bg-white border-amber-300 text-amber-900'
+      } ${focused ? 'focus-ring border-amber-500' : ''} ${pop ? 'juice-pop' : ''}`}
     />
   )
 }
@@ -41,7 +62,7 @@ function LabeledBox({ children, label }) {
   return (
     <div className="flex flex-col items-center">
       {children}
-      <span className="text-xs sm:text-sm text-gray-600 mt-1.5 font-semibold">{label}</span>
+      <span className="text-xs sm:text-sm text-gray-500 mt-1.5 font-semibold">{label}</span>
     </div>
   )
 }
@@ -77,7 +98,7 @@ export default function FractionInput({ mode, onValueChange, onEnter, autoFocus 
       <div className="flex items-center justify-center">
         <LabeledBox label="답">
           <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
-            placeholder="" autoFocus={autoFocus} ariaLabel="정수 답" />
+            autoFocus={autoFocus} ariaLabel="정수 답" />
         </LabeledBox>
       </div>
     )
@@ -85,23 +106,26 @@ export default function FractionInput({ mode, onValueChange, onEnter, autoFocus 
 
   // fraction 모드: 자연수 + 분자/분모 (3박스)
   return (
-    <div className="flex items-end justify-center gap-2 sm:gap-3 py-2">
-      <LabeledBox label="자연수">
-        <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
-          placeholder="" autoFocus={autoFocus} ariaLabel="대분수의 자연수 부분" />
-      </LabeledBox>
+    <div className="flex flex-col items-center gap-1">
+      <div className="text-xs font-bold text-amber-500 tracking-wide">여기에 답을 입력하세요</div>
+      <div className="flex items-end justify-center gap-2 sm:gap-3 py-1">
+        <LabeledBox label="자연수">
+          <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
+            autoFocus={autoFocus} ariaLabel="대분수의 자연수 부분" />
+        </LabeledBox>
 
-      <span className="text-amber-800 font-bold pb-7 text-lg">과</span>
+        <span className="text-amber-800 font-bold pb-8 text-lg">과</span>
 
-      <div className="flex flex-col items-center">
-        <div className="inline-flex flex-col items-center gap-1.5">
-          <NumBox value={num} onChange={setNum} onEnter={onEnter}
-            placeholder="" ariaLabel="분자" />
-          <div className="w-16 sm:w-20 h-1 bg-amber-700 rounded" />
-          <NumBox value={den} onChange={setDen} onEnter={onEnter}
-            placeholder="" ariaLabel="분모" />
+        <div className="flex flex-col items-center">
+          <div className="inline-flex flex-col items-center gap-1.5">
+            <NumBox value={num} onChange={setNum} onEnter={onEnter}
+              ariaLabel="분자" />
+            <div className="w-16 sm:w-20 h-1 bg-amber-700 rounded" />
+            <NumBox value={den} onChange={setDen} onEnter={onEnter}
+              ariaLabel="분모" />
+          </div>
+          <span className="text-xs sm:text-sm text-gray-500 mt-1.5 font-semibold">분자 / 분모</span>
         </div>
-        <span className="text-xs sm:text-sm text-gray-600 mt-1.5 font-semibold">분자 / 분모</span>
       </div>
     </div>
   )

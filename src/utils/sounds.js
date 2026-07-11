@@ -54,6 +54,19 @@ export const sfx = {
     tone(660, 120, 'triangle', 0.07)
     tone(880, 120, 'triangle', 0.07, 120)
   },
+  // 입력 박스에 숫자 입력 — 가볍고 짧은 클릭
+  tick() {
+    tone(1200, 35, 'sine', 0.05)
+  },
+  // 객관식 보기 선택 — 부드러운 딩
+  select() {
+    tone(880, 60, 'triangle', 0.06)
+    tone(1180, 90, 'triangle', 0.05, 55)
+  },
+  // 정답 제출 직전 카운트다운 임박 경고 틱
+  tickUrgent() {
+    tone(440, 60, 'square', 0.05)
+  },
   victory() {
     const notes = [523, 659, 784, 1047, 1319]
     notes.forEach((f, i) => tone(f, 200, 'triangle', 0.1, i * 130))

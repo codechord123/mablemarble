@@ -106,9 +106,70 @@ body {
   animation: value-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* ─── Game Juice ─── */
+
+/* 입력 박스에 숫자가 들어올 때 톡 튀는 효과 */
+@keyframes juice-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+.juice-pop { animation: juice-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* 오답 시 흔들기 */
+@keyframes juice-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-10px) rotate(-1deg); }
+  30% { transform: translateX(9px) rotate(1deg); }
+  45% { transform: translateX(-7px) rotate(-0.6deg); }
+  60% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+.juice-shake { animation: juice-shake 0.5s ease-in-out; }
+
+/* 정답 도장 — 크게 찍히며 안정화 */
+@keyframes juice-stamp {
+  0%   { transform: scale(0) rotate(-18deg); opacity: 0; }
+  55%  { transform: scale(1.35) rotate(8deg); opacity: 1; }
+  75%  { transform: scale(0.9) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.juice-stamp { animation: juice-stamp 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+
+/* 화면 색 플래시 (정답 초록 / 오답 빨강) */
+@keyframes juice-flash {
+  0%   { opacity: 0; }
+  20%  { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+.juice-flash { animation: juice-flash 0.55s ease-out forwards; }
+
+/* 제출 가능 시 버튼이 은은하게 숨쉬며 시선 유도 */
+@keyframes attention-pulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35); }
+  50%      { box-shadow: 0 6px 22px rgba(245, 158, 11, 0.6); }
+}
+.attention-pulse { animation: attention-pulse 1.6s ease-in-out infinite; }
+
+/* 활성 입력 박스 — 부드러운 강조 링 */
+@keyframes focus-ring {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28); }
+  50%      { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.14); }
+}
+.focus-ring { animation: focus-ring 1.8s ease-in-out infinite; }
+
+/* 타이머 임박 시 숫자 흔들림 */
+@keyframes tick-urgent {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.18); }
+}
+.tick-urgent { animation: tick-urgent 0.6s ease-in-out infinite; }
+
 /* 접근성 — 모션 축소 선호 시 장식용 애니메이션 정지 */
 @media (prefers-reduced-motion: reduce) {
-  .breathe-ring, .float-soft, .value-pop {
+  .breathe-ring, .float-soft, .value-pop,
+  .juice-pop, .juice-shake, .juice-stamp, .juice-flash,
+  .attention-pulse, .focus-ring, .tick-urgent {
     animation: none;
   }
 }
