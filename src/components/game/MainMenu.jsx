@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { hasSnapshot, loadSnapshot } from '../../utils/persistence.js'
-import Emblem from '../ui/Emblem.jsx'
+import Logo from '../ui/Logo.jsx'
+import GameButton from '../ui/GameButton.jsx'
 
 export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
   const [savedInfo, setSavedInfo] = useState(null)
@@ -21,43 +22,28 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
 
   return (
     <div className="min-h-screen app-bg flex items-center justify-center p-6">
-      <div className="max-w-md w-full mx-auto bg-white/90 backdrop-blur rounded-[1.75rem] card-soft ring-1 ring-amber-900/5 p-8 text-center">
-        <div className="float-soft inline-block drop-shadow-md mb-1">
-          <Emblem size={104} />
-        </div>
-        <h1 className="text-5xl font-black tracking-tight bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 bg-clip-text text-transparent">
-          부르마블
-        </h1>
-        <p className="text-amber-700/90 mt-2 font-medium">5학년 교실용 학습 보드게임</p>
+      <div className="max-w-md w-full mx-auto bg-white/85 backdrop-blur rounded-[2rem] card-soft ring-1 ring-amber-900/5 px-8 pt-7 pb-9 text-center">
+        <Logo globeSize={130} className="mb-2" />
 
-        <div className="mt-8 space-y-3">
+        <div className="mt-7 space-y-5">
           {savedInfo && (
-            <button
-              onClick={onResume}
-              className="w-full py-4 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-2xl font-bold text-lg hover:from-emerald-600 hover:to-emerald-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all"
-            >
+            <GameButton color="green" onClick={onResume} className="w-full py-4 text-lg">
               ▶️ 이어하기
-              <div className="text-xs font-normal opacity-80 mt-1">
+              <div className="text-xs font-semibold opacity-90 mt-0.5">
                 {savedInfo.playerCount}인 · 라운드 {savedInfo.round}
                 {savedInfo.turnLimit ? `/${savedInfo.turnLimit}` : ''}
-                {savedInfo.savedAt &&
-                  ` · ${new Date(savedInfo.savedAt).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}`}
               </div>
-            </button>
+            </GameButton>
           )}
-          <button
-            onClick={onNewGame}
-            className="w-full py-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-2xl font-bold text-lg hover:from-amber-600 hover:to-amber-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all"
-          >
+          <GameButton color="orange" onClick={onNewGame} className="w-full py-4 text-xl">
             🎮 새 게임 시작
-          </button>
-          <button
-            onClick={onManageQuestions}
-            className="w-full py-4 bg-white border-2 border-amber-500/60 text-amber-700 rounded-2xl font-bold text-lg hover:bg-amber-50 hover:border-amber-500 transition-all"
-          >
+          </GameButton>
+          <GameButton color="blue" onClick={onManageQuestions} className="w-full py-4 text-lg">
             📚 문제 관리
-          </button>
+          </GameButton>
         </div>
+
+        <p className="text-amber-700/70 mt-7 text-sm font-medium">5학년 교실용 학습 보드게임</p>
       </div>
     </div>
   )
