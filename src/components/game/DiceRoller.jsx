@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import GameButton from '../ui/GameButton.jsx'
 
 // 주사위 눈 패턴 (3x3 그리드)
 const PIPS = {
@@ -84,13 +85,14 @@ export default function DiceRoller({ lastRoll, onRoll, disabled }) {
           </div>
         ))}
       </div>
-      <button
+      <GameButton
+        color="orange"
         onClick={handleClick}
         disabled={disabled || rolling}
-        className="px-5 py-3 whitespace-nowrap bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl font-extrabold shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition hover:scale-105 active:scale-95 hover:shadow-amber-500/30"
+        className="px-6 py-3 text-lg whitespace-nowrap"
       >
         🎲 굴리기
-      </button>
+      </GameButton>
     </div>
   )
 }

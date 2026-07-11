@@ -3,6 +3,7 @@ import { calculateToll, nextUpgradeCost } from '../../utils/gameEngine.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
 import FlagIcon from '../board/FlagIcon.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
+import GameButton from '../ui/GameButton.jsx'
 
 const TYPE_LABEL = {
   start: '출발', island: '무인도', space: '우주여행',
@@ -29,15 +30,23 @@ function Header({ player, tile, lastRoll }) {
   )
 }
 
-function Btn({ children, onClick, color = 'bg-amber-600 hover:bg-amber-700', disabled }) {
+// 기존 호출부(색상을 Tailwind 문자열로 전달)와 호환되도록 색 이름을 GameButton 팔레트로 매핑
+const HUE_TO_PALETTE = {
+  emerald: 'green', green: 'green', violet: 'violet', rose: 'red',
+  red: 'red', yellow: 'yellow', amber: 'amber', gray: 'gray', blue: 'blue',
+}
+function Btn({ children, onClick, color, disabled }) {
+  const hue = color?.match(/bg-(\w+)-/)?.[1]
+  const palette = (hue && HUE_TO_PALETTE[hue]) || 'amber'
   return (
-    <button
+    <GameButton
+      color={palette}
       onClick={onClick}
       disabled={disabled}
-      className={`px-4 py-2 whitespace-nowrap ${color} text-white rounded-lg shadow font-bold transition disabled:opacity-40`}
+      className="px-4 py-2.5 text-sm whitespace-nowrap"
     >
       {children}
-    </button>
+    </GameButton>
   )
 }
 

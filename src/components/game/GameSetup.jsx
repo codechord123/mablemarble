@@ -3,6 +3,7 @@ import { useQuestionStore } from '../../stores/questionStore.js'
 import { AVATARS, DEFAULT_AVATAR, nextAvailableAvatar } from '../../data/avatars.js'
 import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
 import { loadLastSetup } from '../../utils/persistence.js'
+import GameButton from '../ui/GameButton.jsx'
 
 // 마지막 설정이 있으면 자동 로드 (T23 — 같은 친구들로 다시)
 function initialPlayers() {
@@ -80,8 +81,8 @@ export default function GameSetup({ onStart, onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center p-6">
-      <div className="max-w-lg w-full mx-auto bg-white rounded-2xl shadow-xl p-6">
+    <div className="min-h-screen app-bg flex items-center justify-center p-6">
+      <div className="max-w-lg w-full mx-auto bg-white rounded-[1.75rem] card-soft ring-1 ring-amber-900/5 p-6">
         {onBack && (
           <button onClick={onBack} className="text-amber-700 hover:underline mb-3 text-sm font-semibold">
             ← 메인 메뉴
@@ -200,13 +201,14 @@ export default function GameSetup({ onStart, onBack }) {
           </button>
         )}
 
-        <button
+        <GameButton
+          color="orange"
           onClick={() => onStart(players.filter((p) => p.name.trim()), modeId)}
           disabled={!canStart}
-          className="mt-6 w-full py-3 bg-amber-600 text-white rounded-xl font-bold shadow hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className="mt-6 w-full py-3.5 text-lg"
         >
           게임 시작!
-        </button>
+        </GameButton>
       </div>
     </div>
   )

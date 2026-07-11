@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { BOARD, TILE_TYPES } from '../../utils/boardConfig.js'
+import GameButton from '../ui/GameButton.jsx'
 
 export default function SpaceTravelModal({ onPick, onCancel }) {
   const cities = BOARD.filter(
@@ -7,12 +8,12 @@ export default function SpaceTravelModal({ onPick, onCancel }) {
   )
 
   return (
-    <div className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-        className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full"
+        className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 max-w-md w-full"
       >
         <div className="text-center">
           <div className="text-5xl">🚀</div>
@@ -38,12 +39,9 @@ export default function SpaceTravelModal({ onPick, onCancel }) {
           ))}
         </div>
 
-        <button
-          onClick={onCancel}
-          className="mt-4 w-full py-2 bg-gray-300 rounded-lg hover:bg-gray-400 font-semibold"
-        >
+        <GameButton color="gray" onClick={onCancel} className="mt-4 w-full py-2.5">
           이동 안 함 (제자리)
-        </button>
+        </GameButton>
       </motion.div>
     </div>
   )

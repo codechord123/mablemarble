@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import MathText from '../ui/MathText.jsx'
 import { shakeEl } from '../../utils/juice.js'
+import GameButton from '../ui/GameButton.jsx'
 
 function formatAnswer(q) {
   if (!q) return ''
@@ -86,12 +87,13 @@ export default function ResultBanner({ result, onClose }) {
                 💡 <MathText>{result.explanation}</MathText>
               </div>
             )}
-            <button
+            <GameButton
+              color={win ? 'green' : 'amber'}
               onClick={onClose}
-              className="mt-5 w-full py-3 sm:py-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-2xl font-bold text-lg sm:text-xl hover:from-amber-600 hover:to-amber-700 shadow-md hover:shadow-lg transition-all"
+              className="mt-5 w-full py-3.5 sm:py-4 text-lg sm:text-xl"
             >
               확인
-            </button>
+            </GameButton>
           </motion.div>
         </motion.div>
       )}

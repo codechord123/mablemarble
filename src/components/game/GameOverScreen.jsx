@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
+import GameButton from '../ui/GameButton.jsx'
 
 function StatBar({ stats }) {
   if (!stats || stats.answered === 0) {
@@ -56,12 +57,12 @@ export default function GameOverScreen({ players, ownership, onRestart, onRematc
   const winner = ranked[0]
 
   return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center p-6">
+    <div className="min-h-screen app-bg flex items-center justify-center p-6">
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-        className="bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full"
+        className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-8 max-w-lg w-full"
       >
         <div className="text-center">
           <div className="text-7xl">🏆</div>
@@ -102,23 +103,13 @@ export default function GameOverScreen({ players, ownership, onRestart, onRematc
 
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {onRematch && (
-            <button
-              onClick={onRematch}
-              className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 shadow transition"
-            >
+            <GameButton color="green" onClick={onRematch} className="w-full py-3">
               🔁 같은 친구들로 다시
-            </button>
+            </GameButton>
           )}
-          <button
-            onClick={onRestart}
-            className={`w-full py-3 rounded-xl font-bold shadow transition ${
-              onRematch
-                ? 'bg-amber-600 text-white hover:bg-amber-700'
-                : 'bg-amber-600 text-white hover:bg-amber-700'
-            }`}
-          >
+          <GameButton color="amber" onClick={onRestart} className="w-full py-3">
             🏠 메인 메뉴
-          </button>
+          </GameButton>
         </div>
       </motion.div>
     </div>

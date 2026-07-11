@@ -7,6 +7,7 @@ const PALETTE = {
   blue: ['#60a5fa', '#2563eb', '#1e40af'],
   yellow: ['#fcd34d', '#f59e0b', '#b45309'],
   red: ['#f87171', '#dc2626', '#991b1b'],
+  violet: ['#a78bfa', '#7c3aed', '#5b21b6'],
   gray: ['#d1d5db', '#9ca3af', '#6b7280'],
 }
 

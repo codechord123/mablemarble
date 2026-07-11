@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import GameButton from '../ui/GameButton.jsx'
 
 export default function GoldenKeyModal({ card, onConfirm }) {
   const isMission = card?.effect?.type === 'mission'
@@ -32,26 +33,17 @@ export default function GoldenKeyModal({ card, onConfirm }) {
 
               {isMission ? (
                 <div className="mt-6 flex gap-2">
-                  <button
-                    onClick={() => onConfirm(true)}
-                    className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold shadow hover:bg-emerald-700 transition"
-                  >
+                  <GameButton color="green" onClick={() => onConfirm(true)} className="flex-1 py-3">
                     ✅ 성공!
-                  </button>
-                  <button
-                    onClick={() => onConfirm(false)}
-                    className="flex-1 py-3 bg-gray-400 text-white rounded-xl font-bold shadow hover:bg-gray-500 transition"
-                  >
+                  </GameButton>
+                  <GameButton color="gray" onClick={() => onConfirm(false)} className="flex-1 py-3">
                     😅 포기
-                  </button>
+                  </GameButton>
                 </div>
               ) : (
-                <button
-                  onClick={() => onConfirm()}
-                  className="mt-6 w-full py-3 bg-amber-600 text-white rounded-xl font-bold shadow hover:bg-amber-700 transition"
-                >
+                <GameButton color="yellow" onClick={() => onConfirm()} className="mt-6 w-full py-3">
                   효과 적용
-                </button>
+                </GameButton>
               )}
             </div>
           </motion.div>

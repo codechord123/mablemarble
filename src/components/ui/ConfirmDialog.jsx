@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import GameButton from './GameButton.jsx'
 
 export default function ConfirmDialog({
   open,
@@ -10,11 +11,6 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }) {
-  const confirmColor =
-    variant === 'danger'
-      ? 'bg-rose-600 hover:bg-rose-700'
-      : 'bg-amber-600 hover:bg-amber-700'
-
   return (
     <AnimatePresence>
       {open && (
@@ -22,7 +18,7 @@ export default function ConfirmDialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={onCancel}
         >
           <motion.div
@@ -31,7 +27,7 @@ export default function ConfirmDialog({
             exit={{ scale: 0.7, y: 20, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 240, damping: 22 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm w-full"
+            className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 max-w-sm w-full"
           >
             {title && (
               <div className="text-xl font-extrabold text-amber-900 text-center">
@@ -42,18 +38,12 @@ export default function ConfirmDialog({
               <div className="text-sm text-amber-800 mt-2 text-center">{description}</div>
             )}
             <div className="mt-6 grid grid-cols-2 gap-2">
-              <button
-                onClick={onCancel}
-                className="py-3 bg-gray-200 text-gray-800 rounded-xl font-bold hover:bg-gray-300 transition"
-              >
+              <GameButton color="gray" onClick={onCancel} className="py-3">
                 {cancelLabel}
-              </button>
-              <button
-                onClick={onConfirm}
-                className={`py-3 text-white rounded-xl font-bold shadow transition ${confirmColor}`}
-              >
+              </GameButton>
+              <GameButton color={variant === 'danger' ? 'red' : 'amber'} onClick={onConfirm} className="py-3">
                 {confirmLabel}
-              </button>
+              </GameButton>
             </div>
           </motion.div>
         </motion.div>

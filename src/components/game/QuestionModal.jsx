@@ -5,6 +5,7 @@ import { sfx } from '../../utils/sounds.js'
 import MathText from '../ui/MathText.jsx'
 import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
+import GameButton from '../ui/GameButton.jsx'
 
 const PROMPT_LABEL = {
   purchase: '💰 땅 구매를 위해 풀어주세요',
@@ -218,18 +219,14 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           />
         )}
 
-        <motion.button
+        <GameButton
+          color={canSubmit ? 'orange' : 'gray'}
           onClick={submit}
           disabled={!canSubmit}
-          whileTap={canSubmit ? { scale: 0.96 } : {}}
-          className={`mt-6 w-full py-3.5 rounded-2xl font-bold text-lg text-white transition-all ${
-            canSubmit
-              ? 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 attention-pulse'
-              : 'bg-gray-300 cursor-not-allowed'
-          }`}
+          className="mt-6 w-full py-3.5 text-lg"
         >
           정답 제출
-        </motion.button>
+        </GameButton>
       </motion.div>
     </div>
   )
