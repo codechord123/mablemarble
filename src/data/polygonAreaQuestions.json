@@ -873,5 +873,276 @@
       "pHeight": 5,
       "tHeight": 3
     }
+  },
+  {
+    "id": "b01",
+    "category": "넓이비교",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "넓이가 가장 넓은 직사각형은 어느 것인가요?",
+    "choices": [
+      "가로 8 cm, 세로 10 cm",
+      "가로 5 cm, 세로 11 cm",
+      "가로 9 cm, 세로 8 cm",
+      "가로 10 cm, 세로 6 cm",
+      "가로 12 cm, 세로 4 cm"
+    ],
+    "answer": 0,
+    "explanation": "각각 80, 55, 72, 60, 48 cm². 가장 넓은 것은 80 cm²인 ①."
+  },
+  {
+    "id": "b02",
+    "category": "넓이비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "넓이가 가장 넓은 평행사변형은 어느 것인가요?",
+    "choices": [
+      "밑변 7 cm, 높이 12 cm",
+      "밑변 9 cm, 높이 9 cm",
+      "밑변 10 cm, 높이 8 cm",
+      "밑변 6 cm, 높이 15 cm",
+      "밑변 11 cm, 높이 7 cm"
+    ],
+    "answer": 3,
+    "explanation": "각각 84, 81, 80, 90, 77 cm². 가장 넓은 것은 90 cm²인 ④."
+  },
+  {
+    "id": "b03",
+    "category": "넓이비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "넓이가 가장 넓은 삼각형은 어느 것인가요?",
+    "choices": [
+      "밑변 12 cm, 높이 10 cm",
+      "밑변 8 cm, 높이 16 cm",
+      "밑변 14 cm, 높이 8 cm",
+      "밑변 10 cm, 높이 13 cm",
+      "밑변 20 cm, 높이 6 cm"
+    ],
+    "answer": 3,
+    "explanation": "각각 60, 64, 56, 65, 60 cm². 가장 넓은 것은 65 cm²인 ④."
+  },
+  {
+    "id": "b04",
+    "category": "넓이비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "넓이가 가장 좁은 마름모는 어느 것인가요? (두 대각선의 길이)",
+    "choices": [
+      "10 cm, 8 cm",
+      "14 cm, 4 cm",
+      "12 cm, 6 cm",
+      "16 cm, 5 cm",
+      "9 cm, 6 cm"
+    ],
+    "answer": 4,
+    "explanation": "각각 40, 28, 36, 40, 27 cm². 가장 좁은 것은 27 cm²인 ⑤."
+  },
+  {
+    "id": "b05",
+    "category": "넓이비교",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "두 평행사변형 중 넓이가 더 넓은 것은? · ㉠ 밑변 7 cm, 높이 13 cm · ㉡ 밑변 8 cm, 높이 11 cm",
+    "choices": [
+      "㉠이 더 넓다",
+      "㉡이 더 넓다",
+      "두 넓이가 같다"
+    ],
+    "answer": 0,
+    "explanation": "㉠ = 7 × 13 = 91, ㉡ = 8 × 11 = 88. ㉠이 더 넓다."
+  },
+  {
+    "id": "b06",
+    "category": "넓이비교",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "두 삼각형의 넓이를 비교하세요. · ㉠ 밑변 16 cm, 높이 9 cm · ㉡ 밑변 12 cm, 높이 12 cm",
+    "choices": [
+      "㉠이 더 넓다",
+      "㉡이 더 넓다",
+      "두 넓이가 같다"
+    ],
+    "answer": 2,
+    "explanation": "㉠ = 16 × 9 ÷ 2 = 72, ㉡ = 12 × 12 ÷ 2 = 72. 두 넓이가 같다."
+  },
+  {
+    "id": "b07",
+    "category": "넓이비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 두 도형 중 넓이가 더 넓은 것은? · ㉠ 가로 8 cm, 세로 9 cm인 직사각형 · ㉡ 두 대각선이 18 cm, 10 cm인 마름모",
+    "choices": [
+      "㉠이 더 넓다",
+      "㉡이 더 넓다",
+      "두 넓이가 같다"
+    ],
+    "answer": 1,
+    "explanation": "㉠ = 8 × 9 = 72, ㉡ = 18 × 10 ÷ 2 = 90. ㉡이 더 넓다."
+  },
+  {
+    "id": "b13",
+    "category": "넓이비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 중 넓이가 24 cm²인 도형은 어느 것인가요?",
+    "choices": [
+      "밑변 6 cm, 높이 4 cm인 평행사변형",
+      "밑변 8 cm, 높이 4 cm인 삼각형",
+      "두 대각선이 10 cm, 4 cm인 마름모",
+      "가로 5 cm, 세로 4 cm인 직사각형",
+      "밑변 5 cm, 높이 6 cm인 삼각형"
+    ],
+    "answer": 0,
+    "explanation": "① 6 × 4 = 24 ✓. ② 16, ③ 20, ④ 20, ⑤ 15 cm²."
+  },
+  {
+    "id": "b08",
+    "category": "넓이차합",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "두 마름모의 넓이의 차는 몇 cm²일까요? · ㉠ 두 대각선 12 cm, 8 cm · ㉡ 두 대각선 10 cm, 6 cm",
+    "choices": [],
+    "answer": "18",
+    "explanation": "㉠ = 12 × 8 ÷ 2 = 48, ㉡ = 10 × 6 ÷ 2 = 30. 차 = 48 − 30 = 18 (cm²)."
+  },
+  {
+    "id": "b09",
+    "category": "넓이차합",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "두 직사각형의 넓이의 차는 몇 cm²일까요? · ㉠ 가로 10 cm, 세로 7 cm · ㉡ 가로 8 cm, 세로 6 cm",
+    "choices": [],
+    "answer": "22",
+    "explanation": "㉠ = 70, ㉡ = 48. 차 = 70 − 48 = 22 (cm²)."
+  },
+  {
+    "id": "b10",
+    "category": "넓이차합",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "삼각형(밑변 14 cm, 높이 10 cm)과 평행사변형(밑변 8 cm, 높이 5 cm)의 넓이의 차는?",
+    "choices": [
+      "20 cm²",
+      "30 cm²",
+      "110 cm²",
+      "40 cm²",
+      "25 cm²"
+    ],
+    "answer": 1,
+    "explanation": "삼각형 = 14 × 10 ÷ 2 = 70, 평행사변형 = 8 × 5 = 40. 차 = 30 (cm²)."
+  },
+  {
+    "id": "b11",
+    "category": "넓이차합",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "두 삼각형의 넓이의 합은 몇 cm²일까요? · ㉠ 밑변 8 cm, 높이 6 cm · ㉡ 밑변 10 cm, 높이 4 cm",
+    "choices": [],
+    "answer": "44",
+    "explanation": "㉠ = 24, ㉡ = 20. 합 = 24 + 20 = 44 (cm²)."
+  },
+  {
+    "id": "b12",
+    "category": "넓이차합",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "평행사변형(밑변 9 cm, 높이 6 cm)과 마름모(두 대각선 8 cm, 5 cm)의 넓이의 합은 몇 cm²일까요?",
+    "choices": [],
+    "answer": "74",
+    "explanation": "평행사변형 = 54, 마름모 = 8 × 5 ÷ 2 = 20. 합 = 74 (cm²)."
+  },
+  {
+    "id": "b14",
+    "category": "모눈넓이",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "모눈종이 위 도형의 넓이는 몇 cm²인가요? (한 칸은 1 cm²)",
+    "choices": [
+      "10 cm²",
+      "12 cm²",
+      "14 cm²",
+      "16 cm²",
+      "9 cm²"
+    ],
+    "answer": 1,
+    "explanation": "전체 4 × 4 = 16칸에서 오른쪽 위 2 × 2 = 4칸을 뺀 12칸. 넓이 12 cm².",
+    "figure": {
+      "shape": "grid",
+      "gw": 4,
+      "gh": 4,
+      "poly": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    }
+  },
+  {
+    "id": "b15",
+    "category": "모눈넓이",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "모눈종이 위 계단 모양 도형의 넓이는 몇 cm²일까요? (한 칸은 1 cm²)",
+    "choices": [],
+    "answer": "11",
+    "explanation": "전체 4 × 3 = 12칸에서 오른쪽 위 1칸을 뺀 11칸. 넓이 11 cm².",
+    "figure": {
+      "shape": "grid",
+      "gw": 4,
+      "gh": 3,
+      "poly": [
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          0,
+          3
+        ]
+      ]
+    }
   }
 ]

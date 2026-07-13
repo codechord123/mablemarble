@@ -180,6 +180,28 @@ function ParaTri({ base, pHeight, tHeight, unit }) {
   )
 }
 
+// 모눈종이(1 cm²) 위의 직각다각형. poly는 격자 좌표(오른쪽·아래로 증가) 꼭짓점.
+function Grid({ gw, gh, poly, unit }) {
+  const cell = Math.min(122 / gw, 104 / gh)
+  const w = cell * gw, h = cell * gh
+  const x0 = (200 - w) / 2, y0 = (150 - h) / 2 - 4
+  const pts = poly.map(([gx, gy]) => `${x0 + gx * cell},${y0 + gy * cell}`).join(' ')
+  const lines = []
+  for (let i = 0; i <= gw; i++) lines.push(<line key={'v' + i} x1={x0 + i * cell} y1={y0} x2={x0 + i * cell} y2={y0 + h} stroke="#cbd5e1" strokeWidth="1" />)
+  for (let j = 0; j <= gh; j++) lines.push(<line key={'h' + j} x1={x0} y1={y0 + j * cell} x2={x0 + w} y2={y0 + j * cell} stroke="#cbd5e1" strokeWidth="1" />)
+  return (
+    <>
+      {lines}
+      <polygon points={pts} fill="#93c5fd" fillOpacity="0.55" stroke="#1d4ed8" strokeWidth="2.5" strokeLinejoin="round" />
+      {/* 단위 칸 표시 */}
+      <rect x={x0} y={y0 - 0} width={cell} height={cell} fill="none" />
+      <text x={x0 + w / 2} y={y0 + h + 16} textAnchor="middle" fontSize="11" fontWeight="700" fill={LABEL}>
+        (한 칸 = 1 {unit}²)
+      </text>
+    </>
+  )
+}
+
 export default function ShapeDiagram({ figure, className = '' }) {
   if (!figure) return null
   const unit = figure.unit || 'cm'
@@ -191,6 +213,7 @@ export default function ShapeDiagram({ figure, className = '' }) {
     case 'rhombus': body = <Rhombus d1={figure.d1} d2={figure.d2} unit={unit} />; break
     case 'house': body = <House w={figure.w} h={figure.h} roofH={figure.roofH} unit={unit} />; break
     case 'paratri': body = <ParaTri base={figure.base} pHeight={figure.pHeight} tHeight={figure.tHeight} unit={unit} />; break
+    case 'grid': body = <Grid gw={figure.gw} gh={figure.gh} poly={figure.poly} unit={unit} />; break
     default: return null
   }
   return (
