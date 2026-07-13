@@ -37,14 +37,14 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "직사각형 모양의 태극기가 가로 90 cm, 세로 60 cm입니다. 이 태극기의 넓이는 몇 cm²일까요?",
+    "question": "미술 시간에 쓰는 스케치북이 가로 30 cm, 세로 20 cm입니다. 스케치북의 넓이는 몇 cm²일까요?",
     "choices": [],
-    "answer": "5400",
-    "explanation": "가로 × 세로 = 90 × 60 = 5400 (cm²).",
+    "answer": "600",
+    "explanation": "가로 × 세로 = 30 × 20 = 600 (cm²).",
     "figure": {
       "shape": "rectangle",
-      "w": 90,
-      "h": 60
+      "w": 30,
+      "h": 20
     }
   },
   {
@@ -52,7 +52,7 @@
     "category": "직사각형넓이",
     "difficulty": 1,
     "type": "multiple_choice",
-    "question": "가로 9 cm, 세로 6 cm인 직사각형의 넓이는?",
+    "question": "가로 9 cm, 세로 6 cm인 직사각형 사진의 넓이는?",
     "choices": [
       "45 cm²",
       "54 cm²",
@@ -145,14 +145,14 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "직사각형 모양 창문의 유리가 가로 60 cm, 세로 45 cm입니다. 유리의 넓이는 몇 cm²일까요?",
+    "question": "욕실 벽에 붙일 직사각형 타일이 가로 25 cm, 세로 20 cm입니다. 타일 한 장의 넓이는 몇 cm²일까요?",
     "choices": [],
-    "answer": "2700",
-    "explanation": "가로 × 세로 = 60 × 45 = 2700 (cm²).",
+    "answer": "500",
+    "explanation": "가로 × 세로 = 25 × 20 = 500 (cm²).",
     "figure": {
       "shape": "rectangle",
-      "w": 60,
-      "h": 45
+      "w": 25,
+      "h": 20
     }
   },
   {
@@ -215,7 +215,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 9 cm, 높이 4 cm인 평행사변형의 넓이는 몇 cm²일까요?",
+    "question": "미술 시간에 평행사변형 모양 종이 카드를 만들었습니다. 밑변 9 cm, 높이 4 cm일 때 카드의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "36",
     "explanation": "평행사변형의 넓이 = 밑변 × 높이 = 9 × 4 = 36 (cm²).",
@@ -231,7 +231,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 7 cm, 높이 6 cm인 평행사변형의 넓이는 몇 cm²일까요?",
+    "question": "평행사변형 모양 쿠키가 밑변 7 cm, 높이 6 cm입니다. 쿠키의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "42",
     "explanation": "밑변 × 높이 = 7 × 6 = 42 (cm²).",
@@ -246,7 +246,7 @@
     "category": "평행사변형넓이",
     "difficulty": 1,
     "type": "multiple_choice",
-    "question": "밑변 10 cm, 높이 5 cm인 평행사변형의 넓이는?",
+    "question": "평행사변형 모양 책갈피가 밑변 10 cm, 높이 5 cm입니다. 책갈피의 넓이는?",
     "choices": [
       "15 cm²",
       "50 cm²",
@@ -301,7 +301,7 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 14 cm, 높이 9 cm인 평행사변형의 넓이는 몇 cm²일까요?",
+    "question": "평행사변형 모양 부직포 조각이 밑변 14 cm, 높이 9 cm입니다. 부직포의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "126",
     "explanation": "밑변 × 높이 = 14 × 9 = 126 (cm²).",
@@ -355,7 +355,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 6 cm, 높이 6 cm인 평행사변형의 넓이는 몇 cm²일까요?",
+    "question": "평행사변형 모양으로 자른 색종이 조각이 밑변 6 cm, 높이 6 cm입니다. 색종이의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "36",
     "explanation": "밑변 × 높이 = 6 × 6 = 36 (cm²).",
@@ -370,7 +370,7 @@
     "category": "평행사변형넓이",
     "difficulty": 3,
     "type": "multiple_choice",
-    "question": "밑변 18 cm, 높이 7 cm인 평행사변형의 넓이는?",
+    "question": "평행사변형 모양 리본 장식이 밑변 18 cm, 높이 7 cm입니다. 리본 장식의 넓이는?",
     "choices": [
       "126 cm²",
       "125 cm²",
@@ -408,7 +408,7 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 13 cm, 높이 8 cm인 평행사변형의 넓이는 몇 cm²일까요?",
+    "question": "평행사변형 모양 안내판이 밑변 13 cm, 높이 8 cm입니다. 안내판의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "104",
     "explanation": "밑변 × 높이 = 13 × 8 = 104 (cm²).",
@@ -424,7 +424,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 8 cm, 높이 5 cm인 삼각형의 넓이는 몇 cm²일까요?",
+    "question": "식빵을 반으로 잘라 만든 삼각형 샌드위치가 밑변 8 cm, 높이 5 cm입니다. 샌드위치 단면의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "20",
     "explanation": "삼각형의 넓이 = 밑변 × 높이 ÷ 2 = 8 × 5 ÷ 2 = 20 (cm²).",
@@ -440,7 +440,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 10 cm, 높이 6 cm인 삼각형의 넓이는 몇 cm²일까요?",
+    "question": "삼각형 모양 수박 조각의 단면이 밑변 10 cm, 높이 6 cm입니다. 단면의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "30",
     "explanation": "밑변 × 높이 ÷ 2 = 10 × 6 ÷ 2 = 30 (cm²).",
@@ -455,7 +455,7 @@
     "category": "삼각형넓이",
     "difficulty": 1,
     "type": "multiple_choice",
-    "question": "밑변 12 cm, 높이 4 cm인 삼각형의 넓이는?",
+    "question": "삼각형 모양 피자 한 조각이 밑변 12 cm, 높이 4 cm입니다. 피자 조각의 넓이는?",
     "choices": [
       "48 cm²",
       "24 cm²",
@@ -509,7 +509,7 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 16 cm, 높이 5 cm인 삼각형의 넓이는 몇 cm²일까요?",
+    "question": "색종이를 접어 만든 삼각형이 밑변 16 cm, 높이 5 cm입니다. 삼각형의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "40",
     "explanation": "밑변 × 높이 ÷ 2 = 16 × 5 ÷ 2 = 40 (cm²).",
@@ -564,7 +564,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 9 cm, 높이 4 cm인 삼각형의 넓이는 몇 cm²일까요?",
+    "question": "삼각형 모양 응원 깃발이 밑변 9 cm, 높이 4 cm입니다. 깃발의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "18",
     "explanation": "밑변 × 높이 ÷ 2 = 9 × 4 ÷ 2 = 18 (cm²).",
@@ -617,7 +617,7 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "밑변 7 cm, 높이 6 cm인 삼각형의 넓이는 몇 cm²일까요?",
+    "question": "삼각형 모양 치즈 조각이 밑변 7 cm, 높이 6 cm입니다. 치즈의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "21",
     "explanation": "밑변 × 높이 ÷ 2 = 7 × 6 ÷ 2 = 21 (cm²).",
@@ -650,7 +650,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "두 대각선의 길이가 각각 8 cm, 6 cm인 마름모의 넓이는 몇 cm²일까요?",
+    "question": "마름모 모양 색종이 장식의 두 대각선이 각각 8 cm, 6 cm입니다. 장식의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "24",
     "explanation": "마름모의 넓이 = 한 대각선 × 다른 대각선 ÷ 2 = 8 × 6 ÷ 2 = 24 (cm²).",
@@ -666,7 +666,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "두 대각선의 길이가 각각 10 cm, 4 cm인 마름모의 넓이는 몇 cm²일까요?",
+    "question": "마름모 모양 열쇠고리의 두 대각선이 각각 10 cm, 4 cm입니다. 열쇠고리의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "20",
     "explanation": "대각선 × 대각선 ÷ 2 = 10 × 4 ÷ 2 = 20 (cm²).",
@@ -681,7 +681,7 @@
     "category": "마름모넓이",
     "difficulty": 1,
     "type": "multiple_choice",
-    "question": "두 대각선이 각각 12 cm, 6 cm인 마름모의 넓이는?",
+    "question": "마름모 모양 손거울의 두 대각선이 각각 12 cm, 6 cm입니다. 손거울의 넓이는?",
     "choices": [
       "72 cm²",
       "36 cm²",
@@ -735,7 +735,7 @@
     "difficulty": 2,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "두 대각선의 길이가 각각 16 cm, 9 cm인 마름모의 넓이는 몇 cm²일까요?",
+    "question": "마름모 모양 벽걸이 장식의 두 대각선이 각각 16 cm, 9 cm입니다. 장식의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "72",
     "explanation": "대각선 × 대각선 ÷ 2 = 16 × 9 ÷ 2 = 72 (cm²).",
@@ -788,7 +788,7 @@
     "difficulty": 1,
     "type": "short_answer",
     "inputMode": "integer",
-    "question": "두 대각선의 길이가 모두 6 cm인 마름모의 넓이는 몇 cm²일까요?",
+    "question": "마름모 모양 초콜릿의 두 대각선이 모두 6 cm입니다. 초콜릿의 넓이는 몇 cm²일까요?",
     "choices": [],
     "answer": "18",
     "explanation": "대각선 × 대각선 ÷ 2 = 6 × 6 ÷ 2 = 18 (cm²).",
@@ -1143,6 +1143,452 @@
           3
         ]
       ]
+    }
+  },
+  {
+    "id": "c01",
+    "category": "직사각형넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "스마트폰 화면이 가로 14 cm, 세로 7 cm인 직사각형입니다. 화면의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "98",
+    "explanation": "가로 × 세로 = 14 × 7 = 98 (cm²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 14,
+      "h": 7
+    }
+  },
+  {
+    "id": "c02",
+    "category": "직사각형넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "카드놀이에 쓰는 카드가 가로 8 cm, 세로 6 cm입니다. 카드 한 장의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "48",
+    "explanation": "가로 × 세로 = 8 × 6 = 48 (cm²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 8,
+      "h": 6
+    }
+  },
+  {
+    "id": "c03",
+    "category": "직사각형넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "태블릿 화면이 가로 24 cm, 세로 16 cm인 직사각형입니다. 화면의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "384",
+    "explanation": "가로 × 세로 = 24 × 16 = 384 (cm²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 24,
+      "h": 16
+    }
+  },
+  {
+    "id": "c04",
+    "category": "평행사변형넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "미술 작품 속 평행사변형 무늬가 밑변 16 cm, 높이 7 cm입니다. 무늬 하나의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "112",
+    "explanation": "밑변 × 높이 = 16 × 7 = 112 (cm²).",
+    "figure": {
+      "shape": "parallelogram",
+      "base": 16,
+      "height": 7
+    }
+  },
+  {
+    "id": "c05",
+    "category": "평행사변형넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "평행사변형 모양 지우개가 밑변 6 cm, 높이 3 cm입니다. 지우개 윗면의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "18",
+    "explanation": "밑변 × 높이 = 6 × 3 = 18 (cm²).",
+    "figure": {
+      "shape": "parallelogram",
+      "base": 6,
+      "height": 3
+    }
+  },
+  {
+    "id": "c06",
+    "category": "삼각형넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "식빵을 대각선으로 잘라 만든 삼각형 토스트가 밑변 10 cm, 높이 8 cm입니다. 토스트의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "40",
+    "explanation": "밑변 × 높이 ÷ 2 = 10 × 8 ÷ 2 = 40 (cm²).",
+    "figure": {
+      "shape": "triangle",
+      "base": 10,
+      "height": 8
+    }
+  },
+  {
+    "id": "c07",
+    "category": "삼각형넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "생일 케이크를 잘라 만든 삼각형 조각의 윗면이 밑변 9 cm, 높이 6 cm입니다. 윗면의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "27",
+    "explanation": "밑변 × 높이 ÷ 2 = 9 × 6 ÷ 2 = 27 (cm²).",
+    "figure": {
+      "shape": "triangle",
+      "base": 9,
+      "height": 6
+    }
+  },
+  {
+    "id": "c08",
+    "category": "마름모넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "가오리연의 몸통이 마름모 모양입니다. 두 대각선이 각각 24 cm, 20 cm일 때 몸통의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "240",
+    "explanation": "대각선 × 대각선 ÷ 2 = 24 × 20 ÷ 2 = 240 (cm²).",
+    "figure": {
+      "shape": "rhombus",
+      "d1": 20,
+      "d2": 24
+    }
+  },
+  {
+    "id": "c09",
+    "category": "마름모넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "마름모 모양 쿠키의 두 대각선이 각각 8 cm, 5 cm입니다. 쿠키의 넓이는 몇 cm²일까요?",
+    "choices": [],
+    "answer": "20",
+    "explanation": "대각선 × 대각선 ÷ 2 = 8 × 5 ÷ 2 = 20 (cm²).",
+    "figure": {
+      "shape": "rhombus",
+      "d1": 8,
+      "d2": 5
+    }
+  },
+  {
+    "id": "c10",
+    "category": "직사각형넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "우리 교실 바닥이 가로 9 m, 세로 7 m인 직사각형입니다. 교실 바닥의 넓이는 몇 m²일까요?",
+    "choices": [],
+    "answer": "63",
+    "explanation": "가로 × 세로 = 9 × 7 = 63 (m²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 9,
+      "h": 7,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c11",
+    "category": "직사각형넓이",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "배드민턴 코트가 가로 13 m, 세로 6 m입니다. 코트의 넓이는 몇 m²일까요?",
+    "choices": [],
+    "answer": "78",
+    "explanation": "가로 × 세로 = 13 × 6 = 78 (m²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 13,
+      "h": 6,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c12",
+    "category": "직사각형넓이",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "농구장이 가로 28 m, 세로 15 m인 직사각형입니다. 농구장의 넓이는?",
+    "choices": [
+      "43 m²",
+      "210 m²",
+      "420 m²",
+      "840 m²",
+      "420 cm²"
+    ],
+    "answer": 2,
+    "explanation": "가로 × 세로 = 28 × 15 = 420 (m²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 28,
+      "h": 15,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c13",
+    "category": "직사각형넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "학교 수영장이 가로 25 m, 세로 12 m입니다. 수영장 수면의 넓이는 몇 m²일까요?",
+    "choices": [],
+    "answer": "300",
+    "explanation": "가로 × 세로 = 25 × 12 = 300 (m²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 25,
+      "h": 12,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c14",
+    "category": "평행사변형넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "공원의 평행사변형 모양 잔디밭이 밑변 14 m, 높이 6 m입니다. 잔디밭의 넓이는 몇 m²일까요?",
+    "choices": [],
+    "answer": "84",
+    "explanation": "밑변 × 높이 = 14 × 6 = 84 (m²).",
+    "figure": {
+      "shape": "parallelogram",
+      "base": 14,
+      "height": 6,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c15",
+    "category": "평행사변형넓이",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "평행사변형 모양 주차 구역이 밑변 18 m, 높이 5 m입니다. 주차 구역의 넓이는?",
+    "choices": [
+      "23 m²",
+      "45 m²",
+      "90 m²",
+      "180 m²",
+      "95 m²"
+    ],
+    "answer": 2,
+    "explanation": "밑변 × 높이 = 18 × 5 = 90 (m²).",
+    "figure": {
+      "shape": "parallelogram",
+      "base": 18,
+      "height": 5,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c16",
+    "category": "삼각형넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "공원의 삼각형 모양 화단이 밑변 8 m, 높이 5 m입니다. 화단의 넓이는 몇 m²일까요?",
+    "choices": [],
+    "answer": "20",
+    "explanation": "밑변 × 높이 ÷ 2 = 8 × 5 ÷ 2 = 20 (m²).",
+    "figure": {
+      "shape": "triangle",
+      "base": 8,
+      "height": 5,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c17",
+    "category": "삼각형넓이",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "도로 한가운데 삼각형 모양 교통섬이 있습니다. 밑변 12 m, 높이 9 m일 때 교통섬의 넓이는?",
+    "choices": [
+      "108 m²",
+      "54 m²",
+      "21 m²",
+      "27 m²",
+      "63 m²"
+    ],
+    "answer": 1,
+    "explanation": "밑변 × 높이 ÷ 2 = 12 × 9 ÷ 2 = 54 (m²).",
+    "figure": {
+      "shape": "triangle",
+      "base": 12,
+      "height": 9,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c18",
+    "category": "삼각형넓이",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "캠핑 텐트의 앞면이 삼각형 모양입니다. 밑변 3 m, 높이 2 m일 때 앞면의 넓이는?",
+    "choices": [
+      "6 m²",
+      "5 m²",
+      "3 m²",
+      "2 m²",
+      "12 m²"
+    ],
+    "answer": 2,
+    "explanation": "밑변 × 높이 ÷ 2 = 3 × 2 ÷ 2 = 3 (m²).",
+    "figure": {
+      "shape": "triangle",
+      "base": 3,
+      "height": 2,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c19",
+    "category": "마름모넓이",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "마름모 모양 광장의 두 대각선이 각각 30 m, 16 m입니다. 광장의 넓이는?",
+    "choices": [
+      "480 m²",
+      "240 m²",
+      "46 m²",
+      "120 m²",
+      "240 km²"
+    ],
+    "answer": 1,
+    "explanation": "대각선 × 대각선 ÷ 2 = 30 × 16 ÷ 2 = 240 (m²).",
+    "figure": {
+      "shape": "rhombus",
+      "d1": 30,
+      "d2": 16,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c20",
+    "category": "마름모넓이",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "놀이터의 마름모 모양 모래밭이 두 대각선 12 m, 9 m입니다. 모래밭의 넓이는 몇 m²일까요?",
+    "choices": [],
+    "answer": "54",
+    "explanation": "대각선 × 대각선 ÷ 2 = 12 × 9 ÷ 2 = 54 (m²).",
+    "figure": {
+      "shape": "rhombus",
+      "d1": 12,
+      "d2": 9,
+      "unit": "m"
+    }
+  },
+  {
+    "id": "c21",
+    "category": "직사각형넓이",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "직사각형 모양 도시 공원이 가로 3 km, 세로 2 km입니다. 공원의 넓이는 몇 km²일까요?",
+    "choices": [],
+    "answer": "6",
+    "explanation": "가로 × 세로 = 3 × 2 = 6 (km²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 3,
+      "h": 2,
+      "unit": "km"
+    }
+  },
+  {
+    "id": "c22",
+    "category": "직사각형넓이",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "새로 만드는 신도시 구역이 가로 5 km, 세로 4 km인 직사각형입니다. 구역의 넓이는?",
+    "choices": [
+      "9 km²",
+      "10 km²",
+      "20 km²",
+      "40 km²",
+      "20 m²"
+    ],
+    "answer": 2,
+    "explanation": "가로 × 세로 = 5 × 4 = 20 (km²).",
+    "figure": {
+      "shape": "rectangle",
+      "w": 5,
+      "h": 4,
+      "unit": "km"
+    }
+  },
+  {
+    "id": "c23",
+    "category": "평행사변형넓이",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "평행사변형 모양 농경지가 밑변 4 km, 높이 3 km입니다. 농경지의 넓이는 몇 km²일까요?",
+    "choices": [],
+    "answer": "12",
+    "explanation": "밑변 × 높이 = 4 × 3 = 12 (km²).",
+    "figure": {
+      "shape": "parallelogram",
+      "base": 4,
+      "height": 3,
+      "unit": "km"
+    }
+  },
+  {
+    "id": "c24",
+    "category": "삼각형넓이",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "삼각형 모양 섬이 밑변 6 km, 높이 4 km입니다. 섬의 넓이는 몇 km²일까요?",
+    "choices": [],
+    "answer": "12",
+    "explanation": "밑변 × 높이 ÷ 2 = 6 × 4 ÷ 2 = 12 (km²).",
+    "figure": {
+      "shape": "triangle",
+      "base": 6,
+      "height": 4,
+      "unit": "km"
+    }
+  },
+  {
+    "id": "c25",
+    "category": "마름모넓이",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "마름모 모양 호수의 두 대각선이 각각 5 km, 4 km입니다. 호수의 넓이는 몇 km²일까요?",
+    "choices": [],
+    "answer": "10",
+    "explanation": "대각선 × 대각선 ÷ 2 = 5 × 4 ÷ 2 = 10 (km²).",
+    "figure": {
+      "shape": "rhombus",
+      "d1": 5,
+      "d2": 4,
+      "unit": "km"
     }
   }
 ]
