@@ -21,13 +21,20 @@ export function detectInputMode(answer) {
   return 'text'
 }
 
-function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
+// maxDigits: 분수 부품(분자/분모/자연수)은 3자리면 충분하지만
+// 정수 답안(넓이 등)은 5400 같은 네 자리 이상이 나오므로 모드별로 달리 준다.
+function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel, maxDigits = 3 }) {
   const [focused, setFocused] = useState(false)
   const inputRef = useRef(null)
   const filled = value.length > 0
+  // 4자리 이상 입력 중이면 박스를 넓혀 숫자가 잘려 보이지 않게
+  const wide = maxDigits > 3
+  const widthClass = wide
+    ? (value.length > 3 ? 'w-24 sm:w-28' : 'w-16 sm:w-20')
+    : 'w-14 sm:w-16'
 
   const handleChange = (e) => {
-    const next = e.target.value.replace(/\D/g, '').slice(0, 3)
+    const next = e.target.value.replace(/\D/g, '').slice(0, maxDigits)
     if (next !== value) {
       if (next.length > value.length) {
         sfx.tick()
@@ -50,7 +57,7 @@ function NumBox({ value, onChange, onEnter, autoFocus, ariaLabel }) {
       onBlur={() => setFocused(false)}
       onChange={handleChange}
       onKeyDown={(e) => { if (e.key === 'Enter') onEnter?.() }}
-      className={`w-14 sm:w-16 h-14 sm:h-16 text-center text-2xl sm:text-3xl font-extrabold rounded-xl outline-none transition-colors duration-150 border-2 ${
+      className={`${widthClass} h-14 sm:h-16 text-center text-2xl sm:text-3xl font-extrabold rounded-xl outline-none transition-all duration-150 border-2 tabular-nums ${
         filled
           ? 'bg-amber-50 border-amber-500 text-amber-900'
           : 'bg-white border-amber-300 text-amber-900'
@@ -99,7 +106,7 @@ export default function FractionInput({ mode, onValueChange, onEnter, autoFocus 
       <div className="flex items-center justify-center">
         <LabeledBox label="답">
           <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
-            autoFocus={autoFocus} ariaLabel="정수 답" />
+            autoFocus={autoFocus} ariaLabel="정수 답" maxDigits={6} />
         </LabeledBox>
       </div>
     )
@@ -111,8 +118,9 @@ export default function FractionInput({ mode, onValueChange, onEnter, autoFocus 
       <div className="text-xs font-bold text-amber-500 tracking-wide">여기에 답을 입력하세요</div>
       <div className="flex items-end justify-center gap-2 sm:gap-3 py-1">
         <LabeledBox label="자연수">
+          {/* 자연수만 답하는 문제(연도 등)가 이 UI로 올 수 있으므로 큰 수도 허용 */}
           <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
-            autoFocus={autoFocus} ariaLabel="대분수의 자연수 부분" />
+            autoFocus={autoFocus} ariaLabel="대분수의 자연수 부분" maxDigits={6} />
         </LabeledBox>
 
         <span className="text-amber-800 font-bold pb-8 text-lg">과</span>

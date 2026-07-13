@@ -130,7 +130,7 @@
     "choices": ["O", "X"], "answer": 1,
     "explanation": "소리는 매질이 필요하므로 진공에서는 전달되지 않습니다." },
 
-  { "id": "q27", "category": "사회",   "difficulty": 3, "type": "short_answer",
+  { "id": "q27", "category": "사회",   "difficulty": 3, "type": "short_answer", "inputMode": "integer",
     "question": "훈민정음을 반포한 연도는? (숫자 4자리)",
     "choices": [], "answer": "1446",
     "explanation": "세종대왕은 1446년에 훈민정음을 반포했습니다." },
