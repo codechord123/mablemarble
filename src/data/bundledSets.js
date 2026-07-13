@@ -3,8 +3,15 @@
 import sampleQuestions from './sampleQuestions.json'
 import fractionsAddSubQuestions from './fractionsAddSubQuestions.json'
 import fractionsQuestions from './fractionsQuestions.json'
+import polygonAreaQuestions from './polygonAreaQuestions.json'
 
 export const BUNDLED_SETS = [
+  {
+    id: 'bundled:polygon-area-5-1-ch6',
+    name: '📏 수학 5-1 · 6단원 다각형의 넓이 (넓이 구하기)',
+    subject: '수학',
+    questions: polygonAreaQuestions,
+  },
   {
     id: 'bundled:fractions-5-1-ch5',
     name: '➕ 수학 5-1 · 5단원 분수의 덧셈과 뺄셈',
