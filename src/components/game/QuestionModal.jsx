@@ -6,6 +6,7 @@ import MathText from '../ui/MathText.jsx'
 import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
 import GameButton from '../ui/GameButton.jsx'
+import ShapeDiagram from '../ui/ShapeDiagram.jsx'
 
 const PROMPT_LABEL = {
   purchase: '💰 땅 구매를 위해 풀어주세요',
@@ -138,9 +139,17 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           </div>
         </div>
 
-        <div className="text-2xl sm:text-3xl font-bold text-amber-900 mt-4 mb-6 leading-relaxed break-keep tabular-nums">
+        <div className="text-2xl sm:text-3xl font-bold text-amber-900 mt-4 mb-3 leading-relaxed break-keep tabular-nums">
           <MathText>{question.question}</MathText>
         </div>
+
+        {question.figure && (
+          <div className="mb-5 flex justify-center">
+            <div className="bg-amber-50/70 rounded-2xl px-3 py-2 ring-1 ring-amber-200">
+              <ShapeDiagram figure={question.figure} />
+            </div>
+          </div>
+        )}
 
         {question.type === 'multiple_choice' && (
           <div className="space-y-3">
