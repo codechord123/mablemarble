@@ -1,6 +1,6 @@
 // 24칸 보드 정의 (시계방향, index 0 = 출발). 모두의 마블 클래식 세계도시 구성.
 // 코너 4개(출발/무인도/우주여행/사회복지)는 매 6칸. 가장자리 20칸 = 13 도시 + 2 랜드마크 + 4 황금열쇠 + 1 세금.
-// country는 ISO 국가 코드 (FlagIcon에서 SVG 렌더링)
+// country는 ISO 국가 코드 (LandmarkIcon에서 도시 랜드마크 SVG로 렌더링)
 
 export const TILE_TYPES = {
   START: 'start',

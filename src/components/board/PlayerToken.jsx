@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { motion, useAnimation } from 'framer-motion'
 import { getTileCoord, BOARD_SIZE } from '../../utils/boardConfig.js'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
 const CELL = 100 / 7
 const HALF = CELL / 2
@@ -101,7 +102,7 @@ export default function PlayerToken({ player, index }) {
           <div
             className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-white shadow-lg ring-1 ring-amber-900/40 ${player.color} flex items-center justify-center text-sm sm:text-base`}
           >
-            {player.avatar || '●'}
+            <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
           </div>
         </motion.div>
       </div>

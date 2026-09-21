@@ -1,5 +1,6 @@
 import AnimatedNumber from '../ui/AnimatedNumber.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
 export default function PlayerCard({ player, isCurrent }) {
   const stats = player.stats || { answered: 0, correct: 0 }
@@ -15,7 +16,7 @@ export default function PlayerCard({ player, isCurrent }) {
     >
       <div className="flex items-center gap-2">
         <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full ${player.color} flex items-center justify-center text-base sm:text-lg shadow-sm ring-2 ring-white flex-shrink-0`}>
-          {player.avatar || '●'}
+          <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-amber-900 truncate text-sm sm:text-base leading-tight">{player.name}</div>

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import GameButton from '../ui/GameButton.jsx'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
 function StatBar({ stats }) {
   if (!stats || stats.answered === 0) {
@@ -87,7 +88,7 @@ export default function GameOverScreen({ players, ownership, onRestart, onRematc
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-500 w-6">{i + 1}위</span>
                   <span className={`h-8 w-8 rounded-full ${p.color} flex items-center justify-center text-base shadow`}>
-                    {p.avatar || '●'}
+                    <AnimalFace emoji={p.avatar} className="w-[86%] h-[86%]" />
                   </span>
                   <span className="font-bold text-amber-900">{p.name}</span>
                   {!p.alive && <span className="text-rose-500 text-xs">파산</span>}

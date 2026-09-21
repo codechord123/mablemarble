@@ -1,6 +1,7 @@
 // 보드 가운데 5x5 영역. 현재 플레이어/주사위/라운드를 한눈에 보여줌.
 
 import { motion } from 'framer-motion'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
 export default function BoardCenter({ player, lastRoll, currentRound, turnLimit }) {
   return (
@@ -15,7 +16,7 @@ export default function BoardCenter({ player, lastRoll, currentRound, turnLimit 
           className="mt-2 flex flex-col items-center gap-1"
         >
           <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full ${player.color} flex items-center justify-center text-xl sm:text-2xl shadow-lg border-2 border-white`}>
-            {player.avatar || '●'}
+            <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
           </div>
           <div className="text-amber-900 font-bold tile-text-name">{player.name}</div>
           <div className="text-amber-700 tile-text-meta">차례</div>

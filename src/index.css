@@ -50,7 +50,9 @@ body {
   line-height: 1;
 }
 .tile-icon {
-  font-size: clamp(0.75rem, 3.5cqi, 1.5rem);
+  /* SVG 아이콘 상자. 칸 크기에 따라 커지되 이름표 자리를 뺏지 않을 만큼만. */
+  width: clamp(18px, 5.4cqi, 38px);
+  height: clamp(18px, 5.4cqi, 38px);
 }
 
 /* 비스듬한 줄무늬 — 색맹 친화 호텔 강조 */

@@ -1,7 +1,7 @@
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS } from '../../utils/boardConfig.js'
 import { calculateToll, nextUpgradeCost } from '../../utils/gameEngine.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
-import FlagIcon from '../board/FlagIcon.jsx'
+import LandmarkIcon from '../board/LandmarkIcon.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
 import GameButton from '../ui/GameButton.jsx'
 
@@ -20,8 +20,8 @@ function Header({ player, tile, lastRoll }) {
       <div className="text-amber-700 flex items-center justify-center gap-1 flex-wrap">
         <strong className="text-amber-900">{player.name}</strong> →
         {tile.country && (
-          <span className="inline-block" style={{ width: 22, height: 14 }}>
-            <FlagIcon code={tile.country} />
+          <span className="inline-block align-middle" style={{ width: 20, height: 20 }}>
+            <LandmarkIcon code={tile.country} />
           </span>
         )}
         {tile.name || TYPE_LABEL[tile.type] || tile.type}

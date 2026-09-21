@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
 export default function TurnAnnouncement({ player, show }) {
   return (
@@ -25,7 +26,7 @@ export default function TurnAnnouncement({ player, show }) {
                 transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
               />
               <div className={`relative h-24 w-24 rounded-full shadow-lg ring-4 ring-white ${player.color} flex items-center justify-center text-5xl`}>
-                {player.avatar || '●'}
+                <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
               </div>
             </div>
             <div className="text-4xl sm:text-5xl font-extrabold text-amber-900">{player.name}</div>

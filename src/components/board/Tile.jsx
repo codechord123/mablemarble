@@ -1,7 +1,8 @@
 import { memo } from 'react'
 import { TILE_TYPES, BUILDING_LABELS } from '../../utils/boardConfig.js'
 import BuildingIcon from './BuildingIcon.jsx'
-import FlagIcon from './FlagIcon.jsx'
+import LandmarkIcon from './LandmarkIcon.jsx'
+import SpecialIcon from './SpecialIcon.jsx'
 
 const STYLE = {
   [TILE_TYPES.START]:      { bg: 'bg-emerald-300', label: '출발',     icon: '🏁' },
@@ -38,17 +39,17 @@ function Tile({ tile, owner, ownerInfo }) {
       )}
 
       <div className="mt-2 flex flex-col items-center justify-center gap-0.5 w-full px-0.5">
-        {/* 국기 SVG (Windows에서도 안정적으로 표시) + 빌딩 아이콘 */}
+        {/* 도시 랜드마크 + 빌딩 아이콘 */}
         {isCity && tile.country && (
           <div className="flex items-center gap-1 leading-none">
             <span
               className="inline-flex items-center"
               style={{
-                width: 'clamp(16px, 5cqi, 36px)',
-                height: 'clamp(11px, 3.4cqi, 24px)',
+                width: 'clamp(18px, 5.4cqi, 38px)',
+                height: 'clamp(18px, 5.4cqi, 38px)',
               }}
             >
-              <FlagIcon code={tile.country} />
+              <LandmarkIcon code={tile.country} />
             </span>
             {level > 0 && (
               <span
@@ -64,8 +65,10 @@ function Tile({ tile, owner, ownerInfo }) {
           </div>
         )}
         {/* 도시가 아닌 칸: 기본 아이콘 */}
-        {!isCity && s.icon && (
-          <div className="tile-icon">{s.icon}</div>
+        {!isCity && (
+          <div className="tile-icon flex items-center justify-center">
+            <SpecialIcon type={tile.type} />
+          </div>
         )}
 
         <div

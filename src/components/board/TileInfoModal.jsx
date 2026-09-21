@@ -2,7 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS, TOLL_MULTIPLIERS } from '../../utils/boardConfig.js'
 import { calculateToll } from '../../utils/gameEngine.js'
 import BuildingIcon from './BuildingIcon.jsx'
-import FlagIcon from './FlagIcon.jsx'
+import LandmarkIcon from './LandmarkIcon.jsx'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
 const TYPE_LABEL = {
   start: '🏁 출발', island: '🏝️ 무인도', space: '🚀 우주여행',
@@ -36,8 +37,8 @@ export default function TileInfoModal({ tile, owner, ownerInfo, onClose }) {
                 level > 0 ? (
                   <BuildingIcon level={level} size={48} />
                 ) : tile.country ? (
-                  <span style={{ width: 56, height: 38 }}>
-                    <FlagIcon code={tile.country} />
+                  <span style={{ width: 52, height: 52 }}>
+                    <LandmarkIcon code={tile.country} />
                   </span>
                 ) : <span className="text-3xl">🏘️</span>
               ) : <span className="text-3xl">✨</span>}
@@ -60,7 +61,7 @@ export default function TileInfoModal({ tile, owner, ownerInfo, onClose }) {
                 <div className="mt-2 p-3 rounded-xl border-2" style={{ borderColor: 'currentColor' }}>
                   <div className="flex items-center gap-2">
                     <div className={`h-6 w-6 rounded-full ${owner.color} flex items-center justify-center text-sm border border-white shadow`}>
-                      {owner.avatar || '●'}
+                      <AnimalFace emoji={owner.avatar} className="w-[86%] h-[86%]" />
                     </div>
                     <div>
                       <div className="font-bold text-amber-900">{owner.name}</div>

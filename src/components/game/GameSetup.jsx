@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQuestionStore } from '../../stores/questionStore.js'
 import { AVATARS, DEFAULT_AVATAR, nextAvailableAvatar } from '../../data/avatars.js'
+import AnimalFace, { animalLabel } from '../ui/AnimalFace.jsx'
 import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
 import { loadLastSetup } from '../../utils/persistence.js'
 import GameButton from '../ui/GameButton.jsx'
@@ -147,10 +148,10 @@ export default function GameSetup({ onStart, onBack }) {
               <div className="flex gap-2 items-center">
                 <button
                   onClick={() => cycleAvatar(i)}
-                  className="h-12 w-12 rounded-full bg-white shadow border-2 border-amber-300 flex items-center justify-center text-2xl hover:scale-110 active:scale-95 transition"
+                  className="h-12 w-12 rounded-full bg-white shadow border-2 border-amber-300 flex items-center justify-center hover:scale-110 active:scale-95 transition"
                   title="클릭하여 다른 캐릭터로 변경"
                 >
-                  {p.avatar}
+                  <AnimalFace emoji={p.avatar} className="w-[86%] h-[86%]" />
                 </button>
                 <input
                   value={p.name}
@@ -178,7 +179,8 @@ export default function GameSetup({ onStart, onBack }) {
                       key={a}
                       onClick={() => pickAvatar(i, a)}
                       disabled={taken}
-                      className={`h-8 w-8 rounded-full text-lg transition ${
+                      title={animalLabel(a)}
+                      className={`h-8 w-8 rounded-full flex items-center justify-center transition ${
                         selected
                           ? 'bg-amber-500 ring-2 ring-amber-700 scale-110'
                           : taken
@@ -186,7 +188,7 @@ export default function GameSetup({ onStart, onBack }) {
                             : 'bg-white hover:bg-amber-100'
                       }`}
                     >
-                      {a}
+                      <AnimalFace emoji={a} className="w-[88%] h-[88%]" />
                     </button>
                   )
                 })}
