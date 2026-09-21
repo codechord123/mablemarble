@@ -142,6 +142,16 @@ export default function App() {
     } catch { /* ignore */ }
   }, [phase, currentRound, currentTurn])
 
+  // 설정 화면은 세로로 길어서 '게임 시작!'을 누르려면 아래로 스크롤해야 한다.
+  // 그 스크롤 위치가 그대로 남아 게임에 들어오면 보드 윗줄(출발 칸 — 시작 시
+  // 말 전원이 모여 있는 곳)이 화면 위로 잘린다. 진입 시 맨 위로 되돌린다.
+  useEffect(() => {
+    if (phase === 'setup' || phase === 'gameover') return
+    window.scrollTo({ top: 0, behavior: 'auto' })
+    // 게임에 들어올 때 한 번만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase === 'setup'])
+
   // 메뉴 라우팅
   if (phase === 'setup') {
     if (view === 'menu') {
@@ -211,9 +221,6 @@ export default function App() {
       <Toast show={persistError} color="bg-rose-500" position="bottom">
         ⚠️ 자동 저장 실패 — 새로고침 시 진행 상황이 사라집니다
       </Toast>
-      <Toast show={showBoardHint} color="bg-indigo-500" position="bottom">
-        💡 보드의 칸을 탭하면 통행료와 정보를 볼 수 있어요!
-      </Toast>
       <Toast show={hotelFirstBuilt} color="bg-rose-600" position="bottom">
         🏨 호텔(빨간 줄무늬)이 가장 비싼 도시! 통행료가 매우 비쌉니다
       </Toast>
@@ -252,8 +259,8 @@ export default function App() {
 
       {/* 액션 패널 콘텐츠 (보드 옆 또는 아래에 렌더) */}
       {(() => {
-        const actionPanel = (
-          <div className="bg-white/90 backdrop-blur rounded-2xl p-3 sm:p-4 shadow-md w-full min-h-[140px] flex flex-col items-center justify-center gap-2 flex-shrink-0">
+        const actionContent = (
+          <>
             {phase === 'rolling' && !onIsland && (
               <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement} />
             )}
@@ -278,33 +285,26 @@ export default function App() {
             {phase === 'result' && <div className="text-amber-700 text-sm">결과 확인 중…</div>}
             {phase === 'golden-key' && <div className="text-amber-700 text-sm">카드 확인 중…</div>}
             {phase === 'space-pick' && <div className="text-amber-700 text-sm">목적지 선택 중…</div>}
-          </div>
+          </>
         )
+
 
         const sidebarInfo = (
           <>
-            {/* 라운드 카운터 — 진행률 바 포함 */}
-            <div className="bg-white rounded-xl p-3 shadow-sm">
-              <div className="flex items-baseline justify-between">
-                <div className="text-xs text-amber-700 font-bold">라운드</div>
-                <div className="text-base font-extrabold text-amber-900">
-                  {currentRound}
-                  {turnLimit && <span className="text-xs text-amber-700"> / {turnLimit}</span>}
-                </div>
+            {/* 떠 있는 토스트였을 때는 '사회복지 풀' 금액을 336x48px 덮었다 */}
+            {showBoardHint && (
+              <div className="surface-quiet px-3 py-2 t-body text-amber-800 text-center">
+                💡 보드의 칸을 탭하면 통행료와 정보를 볼 수 있어요
               </div>
-              {turnLimit && (
-                <div className="mt-1.5 h-1.5 bg-amber-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-amber-500 transition-all"
-                    style={{ width: `${Math.min(100, (currentRound / turnLimit) * 100)}%` }}
-                  />
-                </div>
-              )}
-            </div>
+            )}
 
             <div
               className={`grid gap-2 sm:gap-3 content-start ${
-                isLandscape ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+                isLandscape
+                  ? 'grid-cols-1'
+                  : players.length >= 4
+                    ? 'grid-cols-2 sm:grid-cols-5'
+                    : 'grid-cols-2 sm:grid-cols-3'
               }`}
             >
               {players.map((p, i) => {
@@ -318,24 +318,24 @@ export default function App() {
             </div>
 
             {welfarePool > 0 && (
-              <div className="p-3 bg-pink-100 rounded-xl border-2 border-pink-300 text-center">
-                <div className="text-xs text-pink-700 font-bold">사회복지 풀</div>
-                <div className="text-base font-extrabold text-pink-800 flex items-center justify-center gap-1">
-                  <CoinIcon size={16} /> {welfarePool.toLocaleString()}원
+              <div className="surface-quiet px-3 py-2.5 flex items-baseline justify-between">
+                <div className="t-label">사회복지 풀</div>
+                <div className="t-title text-amber-900 flex items-center gap-1">
+                  <CoinIcon size={15} /> {welfarePool.toLocaleString()}원
                 </div>
               </div>
             )}
 
             <button
               onClick={() => setConfirmEnd(true)}
-              className="w-full py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 rounded-lg transition"
+              className="w-full py-2 t-body font-semibold text-amber-900/45 hover:text-rose-600 hover:bg-rose-50/70 rounded-lg transition"
             >
-              🏁 게임 종료
+              게임 종료
             </button>
           </>
         )
 
-        const boardEl = (
+        const makeBoard = (centerStage) => (
           <Board
             players={players}
             ownership={ownership}
@@ -344,6 +344,7 @@ export default function App() {
             currentRound={currentRound}
             turnLimit={turnLimit}
             isLandscape={isLandscape}
+            centerStage={centerStage}
           />
         )
 
@@ -352,13 +353,12 @@ export default function App() {
           return (
             <div className="flex flex-row gap-3 sm:gap-4 mx-auto p-2 sm:p-3 max-w-[120rem] items-start">
               <div className="flex-1 min-w-0 flex flex-col items-center">
-                {boardEl}
+                {makeBoard(actionContent)}
               </div>
               <aside
                 className="w-72 lg:w-80 xl:w-96 flex-shrink-0 flex flex-col gap-2 sm:gap-3"
                 style={{ maxHeight: 'calc(100vh - 1rem)' }}
               >
-                {actionPanel}
                 <div className="flex-1 overflow-y-auto pr-1 space-y-2 sm:space-y-3 min-h-0">
                   {sidebarInfo}
                 </div>
@@ -367,11 +367,11 @@ export default function App() {
           )
         }
 
-        // 세로: 보드(상) → 액션 → 사이드
+        // 세로: 주사위·액션이 보드 중앙 무대 안으로 들어간다.
+        // 별도 액션 패널이 사라져 보드가 커지고, 굴리기→말 이동을 한자리에서 본다.
         return (
-          <div className="flex flex-col gap-3 sm:gap-4 mx-auto p-2 sm:p-4 max-w-3xl items-center">
-            {boardEl}
-            <div className="w-full max-w-2xl">{actionPanel}</div>
+          <div className="flex flex-col gap-3 sm:gap-4 mx-auto p-2 sm:p-4 pb-20 max-w-3xl items-center">
+            {makeBoard(actionContent)}
             <aside className="w-full max-w-2xl space-y-2 sm:space-y-3">
               {sidebarInfo}
             </aside>

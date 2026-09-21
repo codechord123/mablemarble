@@ -55,6 +55,81 @@ body {
   height: clamp(18px, 5.4cqi, 38px);
 }
 
+/* ─── 디자인 토큰 ─────────────────────────────────────────────
+   문제: 모든 UI가 같은 크기·같은 흰 카드라 무엇이 중요한지 형태로 구분되지
+   않고 오직 색으로만 구분됐다. 타이포 4단·표면 3단을 정해 위계를 형태에 싣는다. */
+
+/* 타이포 스케일 — 라벨과 값의 대비를 1.33배에서 2.4배로 */
+.t-display {
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.t-title { font-size: 1.0625rem; font-weight: 700; line-height: 1.25; }
+.t-body { font-size: 0.875rem; font-weight: 500; line-height: 1.45; }
+.t-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: #b45309;
+}
+@media (min-width: 640px) {
+  .t-display { font-size: 1.875rem; }
+}
+
+/* 표면 3단 — 지금 행동할 곳 / 정보 / 보조.
+   그림자 깊이만으로 위계를 만들어 색을 아끼도록 한다. */
+.surface-stage {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 2px 4px rgba(120, 53, 15, 0.06),
+    0 12px 32px rgba(120, 53, 15, 0.14);
+}
+.surface-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 2px rgba(120, 53, 15, 0.05),
+    0 3px 10px rgba(120, 53, 15, 0.06);
+}
+.surface-quiet {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 0.875rem;
+}
+
+/* 플레이어 카드 — 열 폭에 따라 가로/세로 배치를 스스로 바꾼다.
+   세로 모드에서 5명을 한 줄에 놓으면 열이 150px 안팎이 되는데,
+   그때 아바타 옆에 이름·금액을 욱여넣으면 둘 다 잘린다. */
+.player-card { container-type: inline-size; }
+.player-card-inner { display: flex; align-items: center; gap: 0.5rem; }
+@container (max-width: 190px) {
+  .player-card-inner {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+  }
+  .player-card-inner > :last-child { width: 100%; }
+}
+
+/* 보드 중앙 무대 — 주사위·액션이 들어가는 자리.
+   칸 크기에 맞춰 줄어들되, 내용이 넘치면 무대 안에서만 스크롤한다. */
+.board-stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* 비스듬한 줄무늬 — 색맹 친화 호텔 강조 */
 .bg-stripes-rose {
   background-image: repeating-linear-gradient(

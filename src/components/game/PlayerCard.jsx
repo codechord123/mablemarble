@@ -8,25 +8,25 @@ export default function PlayerCard({ player, isCurrent }) {
 
   return (
     <div
-      className={`p-2 sm:p-2.5 rounded-xl border transition-all duration-300 ${
+      className={`player-card p-2 sm:p-2.5 rounded-xl border transition-all duration-300 ${
         isCurrent
           ? 'border-amber-400 bg-white breathe-ring scale-[1.02]'
           : 'border-amber-900/5 bg-white/70 card-soft opacity-80'
       } ${!player.alive ? 'grayscale opacity-50' : ''}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="player-card-inner">
         <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full ${player.color} flex items-center justify-center text-base sm:text-lg shadow-sm ring-2 ring-white flex-shrink-0`}>
           <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-amber-900 truncate text-sm sm:text-base leading-tight">{player.name}</div>
-          <div className="text-amber-700 text-xs sm:text-sm leading-tight font-semibold tabular-nums flex items-center gap-1">
+          <div className="t-body text-amber-800/70 truncate leading-tight">{player.name}</div>
+          <div className="t-title text-amber-900 tabular-nums flex items-center gap-1 leading-tight">
             <CoinIcon size={15} /> <AnimatedNumber value={player.money} />원
           </div>
         </div>
       </div>
       {(accuracy !== null || player.islandTurnsLeft > 0) && (
-        <div className="flex items-center justify-between mt-1.5 text-[10px] sm:text-xs">
+        <div className="flex items-center justify-center gap-1 flex-wrap mt-1.5 text-[10px] sm:text-xs">
           {accuracy !== null && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold">
               ✅ {stats.correct}/{stats.answered}

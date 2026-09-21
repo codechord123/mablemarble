@@ -13,15 +13,19 @@ export default function Board({
   currentRound,
   turnLimit,
   isLandscape,
+  centerStage,
 }) {
   const [selectedTile, setSelectedTile] = useState(null)
 
   // 디바이스 적응:
-  // - 가로 모드: 화면 높이 기준 (액션 패널이 사이드로 가서 보드가 전체 높이 사용 가능)
-  // - 세로 모드: 화면 너비 기준 (액션 패널이 보드 아래에 있음)
+  // - 가로 모드: 화면 높이 기준
+  // - 세로 모드: 화면 너비 기준. 주사위·액션이 보드 중앙 무대로 들어가면서
+  //   아래에 두던 액션 패널이 사라져 보드에 세로 공간을 더 줄 수 있게 됐다.
   const sizeStyle = isLandscape
     ? { maxWidth: 'min(calc(100vh - 2rem), 100%, 56rem)' }
-    : { maxWidth: 'min(95vw, calc(100vh - 28rem), 56rem)' }
+    : centerStage
+      ? { maxWidth: 'min(95vw, calc(100vh - 16rem), 56rem)' }
+      : { maxWidth: 'min(95vw, calc(100vh - 28rem), 56rem)' }
 
   const ownerOf = (tileId) => {
     const info = ownership[tileId]
@@ -58,6 +62,7 @@ export default function Board({
             lastRoll={lastRoll}
             currentRound={currentRound}
             turnLimit={turnLimit}
+            stage={centerStage}
           />
         </div>
 
