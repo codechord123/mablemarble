@@ -202,6 +202,43 @@ function Grid({ gw, gh, poly, unit }) {
   )
 }
 
+// 분수의 곱셈 넓이 모델 — 한 변이 1인 정사각형을 가로 ad칸·세로 bd칸으로 나누고,
+// 가로 an칸 × 세로 bn칸이 겹치는 부분이 곱의 결과.
+function FracArea({ an, ad, bn, bd, unit }) {
+  const SQ = 96
+  const x = 58, y = 22
+  const cw = SQ / ad, rh = SQ / bd
+  const lines = []
+  for (let i = 1; i < ad; i++) lines.push(<line key={'v' + i} x1={x + i * cw} y1={y} x2={x + i * cw} y2={y + SQ} stroke="#cbd5e1" strokeWidth="0.9" />)
+  for (let j = 1; j < bd; j++) lines.push(<line key={'h' + j} x1={x} y1={y + j * rh} x2={x + SQ} y2={y + j * rh} stroke="#cbd5e1" strokeWidth="0.9" />)
+  return (
+    <>
+      <rect x={x} y={y} width={SQ} height={SQ} fill="#f8fafc" />
+      {/* 가로 an/ad (파랑 띠) · 세로 bn/bd (노랑 띠) */}
+      <rect x={x} y={y} width={an * cw} height={SQ} fill="#bfdbfe" fillOpacity="0.75" />
+      <rect x={x} y={y} width={SQ} height={bn * rh} fill="#fde68a" fillOpacity="0.7" />
+      {/* 겹친 부분 = 답 */}
+      <rect x={x} y={y} width={an * cw} height={bn * rh} fill="#34d399" fillOpacity="0.85" />
+      <rect x={x} y={y} width={an * cw} height={bn * rh} fill="none" stroke="#059669" strokeWidth="2.2" />
+      {lines}
+      <rect x={x} y={y} width={SQ} height={SQ} fill="none" stroke="#475569" strokeWidth="1.6" />
+      {/* 라벨 */}
+      <text x={x + (an * cw) / 2} y={y - 7} textAnchor="middle" fontSize="12" fontWeight="700" fill="#1d4ed8">
+        {an}/{ad}{unit ? ` ${unit}` : ''}
+      </text>
+      <text x={x - 8} y={y + (bn * rh) / 2 + 4} textAnchor="end" fontSize="12" fontWeight="700" fill="#b45309">
+        {bn}/{bd}{unit ? ` ${unit}` : ''}
+      </text>
+      <text x={x + SQ / 2} y={y + SQ + 16} textAnchor="middle" fontSize="10.5" fontWeight="600" fill={LABEL}>
+        전체 {ad} × {bd} = {ad * bd}칸 · 겹친 {an * bn}칸
+      </text>
+      <text x={x + SQ / 2} y={y + SQ + 30} textAnchor="middle" fontSize="10" fill="#6b7280">
+        (한 변이 1{unit ? ` ${unit}` : ''}인 정사각형)
+      </text>
+    </>
+  )
+}
+
 export default function ShapeDiagram({ figure, className = '' }) {
   if (!figure) return null
   const unit = figure.unit || 'cm'
@@ -214,6 +251,7 @@ export default function ShapeDiagram({ figure, className = '' }) {
     case 'house': body = <House w={figure.w} h={figure.h} roofH={figure.roofH} unit={unit} />; break
     case 'paratri': body = <ParaTri base={figure.base} pHeight={figure.pHeight} tHeight={figure.tHeight} unit={unit} />; break
     case 'grid': body = <Grid gw={figure.gw} gh={figure.gh} poly={figure.poly} unit={unit} />; break
+    case 'fracArea': body = <FracArea an={figure.an} ad={figure.ad} bn={figure.bn} bd={figure.bd} unit={figure.unit} />; break
     default: return null
   }
   return (
