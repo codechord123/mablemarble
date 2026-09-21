@@ -1,0 +1,98 @@
+========================================
+부르마블 에셋 — Gemini 복붙용 프롬프트
+========================================
+※ 영어 프롬프트가 결과가 더 좋습니다.
+※ 투명 배경이 안 나오면 순백 배경으로 뽑고 Canva "배경 제거" 사용.
+※ 톤 통일: 첫 결과가 마음에 들면 그 이미지를 첨부하고
+   "Same art style as the attached image, but a [다음 동물]" 로 이어가세요.
+
+
+[1] 동물 캐릭터 10종 — [ANIMAL] 만 바꿔가며
+----------------------------------------
+A cute [ANIMAL] character head for a children's board game piece.
+Style: glossy 3D casual mobile game art, rounded friendly shapes,
+thick dark brown outline (#7C2D12), soft gradient shading,
+subtle drop shadow underneath.
+Front-facing, big friendly eyes, simple cheerful expression.
+Bold readable silhouette that stays clear when shrunk to 30 pixels.
+Centered in frame with generous padding. Pure white background,
+no text, no props, no border.
+
+[ANIMAL] 자리에 넣을 값 (파일명):
+  shiba dog  -> dog.png
+  cat        -> cat.png
+  rabbit     -> rabbit.png
+  fox        -> fox.png
+  bear       -> bear.png
+  panda      -> panda.png
+  lion       -> lion.png
+  tiger      -> tiger.png
+  monkey     -> monkey.png
+  frog       -> frog.png
+
+
+[2] 도시 랜드마크 15종 — [LANDMARK], [CITY] 교체
+----------------------------------------
+A simplified icon of [LANDMARK] in [CITY].
+Style: glossy 3D casual mobile board game art, rounded shapes,
+thick dark brown outline, soft gradient shading, warm colors.
+Vertical composition, the building only - no sky, no ground, no people.
+Bold simple silhouette that remains recognizable at 36 pixels.
+Centered with padding. Pure white background, no text.
+
+  Taipei 101 tower / Taipei              -> tw.png
+  Tiananmen Gate / Beijing               -> cn.png
+  Manila Cathedral / Manila              -> ph.png
+  Victoria Harbour skyline / Hong Kong   -> hk.png
+  Tokyo Tower / Tokyo                    -> jp.png
+  the Great Pyramid and Sphinx / Cairo   -> eg.png
+  the Parthenon / Athens                 -> gr.png
+  the Opera House / Sydney               -> au.png
+  Saint Basil's Cathedral / Moscow       -> ru.png
+  the Brandenburg Gate / Berlin          -> de.png
+  Big Ben / London                       -> gb.png
+  the Statue of Liberty / New York       -> us.png
+  the Eiffel Tower / Paris               -> fr.png
+  the Colosseum / Rome                   -> it.png
+  N Seoul Tower / Seoul                  -> kr.png
+
+
+[3] 특수칸 아이콘 6종 — [ITEM] 교체
+----------------------------------------
+A [ITEM] icon for a children's board game.
+Style: glossy 3D casual mobile game art, rounded chunky shapes,
+thick dark brown outline, soft gradient, vibrant saturated colors.
+Single object centered with padding, slight top-down angle.
+Pure white background, no text, no shadow on the background.
+
+  a checkered start flag                    -> start.png
+  a shiny golden key                        -> goldenkey.png
+  a tiny desert island with a palm tree     -> island.png
+  a cartoon rocket                          -> space.png
+  a stack of paper money                    -> tax.png
+  a gift box with a ribbon                  -> welfare.png
+
+
+[4] 건물 3종 — [BUILDING], [ROOF] 교체
+----------------------------------------
+A small [BUILDING] for a board game property, isometric 3D view.
+Style: glossy 3D casual mobile game art, rounded chunky shapes,
+thick dark brown outline, cream walls (#FEF3C7), [ROOF] roof,
+soft gradient shading. Cute and simple, readable at 32 pixels.
+Centered with padding. Pure white background, no text.
+
+  one-story cottage / green (#16A34A)                  -> b1_condo.png
+  two-story apartment building / blue (#2563EB)        -> b2_apartment.png
+  grand hotel with a gold star on top / red (#DC2626)  -> b3_hotel.png
+
+
+[5] 로고 (글자는 Canva에서 직접 넣기 권장)
+----------------------------------------
+A logo for a Korean children's math board game.
+A glossy 3D globe with world landmarks (Eiffel Tower, Big Ben,
+Statue of Liberty) rising behind it, and two white dice in front.
+Style: glossy 3D casual mobile game art, thick outlines,
+warm amber and orange palette, playful and inviting.
+Horizontal composition, empty space in the lower area for a title.
+Transparent or pure white background, no text.
+                                                       -> logo.png
