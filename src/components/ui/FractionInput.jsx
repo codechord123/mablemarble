@@ -7,10 +7,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { sfx } from '../../utils/sounds.js'
 import { popEl } from '../../utils/juice.js'
+import { mixedParticle } from '../../utils/korean.js'
 
 // 정답 문자열에서 입력 모드 자동 추론
 // 모든 숫자형 답안은 'fraction' 모드(자연수+분자/분모 3박스) 사용.
-// 대분수 구분자: 표준 한국어 수학 표기는 '과'(gwa)이지만, '와'(wa) 잘못 쓴 데이터도 모두 인식.
+// 대분수 구분자: 조사 '과/와'는 앞 수의 받침에 따라 달라지므로 둘 다 받는다.
 export const MIXED_SEPARATOR = /[과와]/
 
 export function detectInputMode(answer) {
@@ -113,17 +114,32 @@ export default function FractionInput({ mode, onValueChange, onEnter, autoFocus 
   }
 
   // fraction 모드: 자연수 + 분자/분모 (3박스)
+  // 예전에는 바닥 정렬(items-end)이라 자연수 박스가 분모 박스와 같은 높이에
+  // 놓여 분수보다 한참 아래로 보였다. 대분수는 정수부가 분수의 세로 중앙에
+  // 오는 게 맞으므로, 열을 같은 높이로 늘리고(items-stretch) 박스는 남는
+  // 공간의 가운데에, 라벨은 바닥에 붙인다. 라벨끼리도 높이가 맞는다.
   return (
     <div className="flex flex-col items-center gap-1">
       <div className="text-xs font-bold text-amber-500 tracking-wide">여기에 답을 입력하세요</div>
-      <div className="flex items-end justify-center gap-2 sm:gap-3 py-1">
-        <LabeledBox label="자연수">
-          {/* 자연수만 답하는 문제(연도 등)가 이 UI로 올 수 있으므로 큰 수도 허용 */}
-          <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
-            autoFocus={autoFocus} ariaLabel="대분수의 자연수 부분" maxDigits={6} />
-        </LabeledBox>
+      <div className="flex items-stretch justify-center gap-2 sm:gap-3 py-1">
+        <div className="flex flex-col items-center">
+          <div className="flex-1 flex items-center">
+            {/* 자연수만 답하는 문제(연도 등)가 이 UI로 올 수 있으므로 큰 수도 허용 */}
+            <NumBox value={intPart} onChange={setIntPart} onEnter={onEnter}
+              autoFocus={autoFocus} ariaLabel="대분수의 자연수 부분" maxDigits={6} />
+          </div>
+          <span className="text-xs sm:text-sm text-gray-500 mt-1.5 font-semibold">자연수</span>
+        </div>
 
-        <span className="text-amber-800 font-bold pb-8 text-lg">과</span>
+        <div className="flex flex-col items-center">
+          <div className="flex-1 flex items-center">
+            {/* 입력한 수에 맞춰 조사가 바뀐다 (2와 · 1과) */}
+            <span className={`font-bold text-lg transition-opacity ${intPart ? 'text-amber-800' : 'text-amber-800/35'}`}>
+              {mixedParticle(intPart)}
+            </span>
+          </div>
+          <span className="text-xs sm:text-sm mt-1.5 font-semibold invisible" aria-hidden="true">·</span>
+        </div>
 
         <div className="flex flex-col items-center">
           <div className="inline-flex flex-col items-center gap-1.5">
