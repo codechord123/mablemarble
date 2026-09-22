@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { BOARD, getTileCoord } from '../../utils/boardConfig.js'
 import Tile from './Tile.jsx'
 import PlayerToken from './PlayerToken.jsx'
 import BoardCenter from './BoardCenter.jsx'
 import TileInfoModal from './TileInfoModal.jsx'
+
+const CELL = 100 / 7
 
 export default function Board({
   players,
@@ -14,8 +17,17 @@ export default function Board({
   turnLimit,
   isLandscape,
   centerStage,
+  onTokenLanded,
 }) {
   const [selectedTile, setSelectedTile] = useState(null)
+  // 말이 착지한 칸에서 한 번 퍼지는 링. 도착을 움직임으로 알린다.
+  const [landing, setLanding] = useState(null)
+  const landingKey = useRef(0)
+
+  const handleLanded = (tileId) => {
+    setLanding({ tileId, key: ++landingKey.current })
+    onTokenLanded?.(tileId)
+  }
 
   // 디바이스 적응:
   // - 가로 모드: 화면 높이 기준
@@ -67,8 +79,37 @@ export default function Board({
         </div>
 
         <div className="absolute inset-1.5 sm:inset-2 pointer-events-none">
+          <AnimatePresence>
+            {landing && (
+              <div
+                key={landing.key}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  left: `${getTileCoord(landing.tileId).x * CELL + CELL / 2}%`,
+                  top: `${getTileCoord(landing.tileId).y * CELL + CELL / 2}%`,
+                  width: `${CELL}%`,
+                  aspectRatio: '1',
+                }}
+              >
+                <motion.span
+                  initial={{ scale: 0.35, opacity: 0.9 }}
+                  animate={{ scale: 1.75, opacity: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.65, ease: 'easeOut' }}
+                  onAnimationComplete={() => setLanding(null)}
+                  className="block h-full w-full rounded-full border-[3px] border-amber-500"
+                />
+              </div>
+            )}
+          </AnimatePresence>
+
           {players.filter((p) => p.alive).map((p, i) => (
-            <PlayerToken key={p.id} player={p} index={i} />
+            <PlayerToken
+              key={p.id}
+              player={p}
+              index={i}
+              onLanded={p.id === currentPlayer?.id ? handleLanded : undefined}
+            />
           ))}
         </div>
       </div>

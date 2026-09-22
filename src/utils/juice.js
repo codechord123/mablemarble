@@ -36,3 +36,22 @@ export function shakeEl(el, { duration = 480 } = {}) {
     { duration, easing: 'ease-in-out' },
   )
 }
+
+// 착지 충격 — 위에서 뭔가 떨어져 닿은 느낌. 진폭을 작게 유지해야
+// '흔들기'가 아니라 '무게'로 읽힌다.
+export function impactEl(el, { px = 5, duration = 260 } = {}) {
+  if (!el || reduced() || typeof el.animate !== 'function') return
+  el.animate(
+    [
+      { transform: 'translateY(0)' },
+      { transform: `translateY(${px}px)`, offset: 0.25 },
+      { transform: `translateY(${-px * 0.4}px)`, offset: 0.55 },
+      { transform: 'translateY(0)' },
+    ],
+    { duration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+  )
+}
+
+export function prefersReducedMotion() {
+  return reduced()
+}

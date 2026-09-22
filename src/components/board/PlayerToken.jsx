@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
-import { motion, useAnimation } from 'framer-motion'
+import { motion, useAnimation, useReducedMotion } from 'framer-motion'
 import { getTileCoord, BOARD_SIZE } from '../../utils/boardConfig.js'
 import AnimalFace from '../ui/AnimalFace.jsx'
 
 const CELL = 100 / 7
 const HALF = CELL / 2
 const HOP_MS = 180
+const HOP_H = 16 // 점프 높이(px)
 
 // 5명 펜타곤 분산 (각 토큰의 칸 안 위치 오프셋, % 단위)
 // 단일 셀 안에서 토큰들이 겹치지 않게 배치
@@ -34,10 +35,14 @@ function buildPath(from, to) {
   return path
 }
 
-export default function PlayerToken({ player, index }) {
+export default function PlayerToken({ player, index, onLanded }) {
   const controls = useAnimation()
   const bobControls = useAnimation()
+  const shadowControls = useAnimation()
+  const reduce = useReducedMotion()
   const prevPos = useRef(player.position)
+  const landedRef = useRef(onLanded)
+  landedRef.current = onLanded
 
   useEffect(() => {
     const path = buildPath(prevPos.current, player.position)
@@ -59,26 +64,70 @@ export default function PlayerToken({ player, index }) {
       transition: { duration, ease: 'easeInOut' },
     })
 
-    // 각 hop마다 점프 아치 + 약한 회전 (이동 중에만)
-    const arcKeys = []
-    const rotKeys = []
-    const times = []
-    for (let i = 0; i < path.length; i++) {
-      const baseT = i / path.length
-      const midT = (i + 0.5) / path.length
-      const endT = (i + 1) / path.length
-      arcKeys.push(0, -14, 0)
-      rotKeys.push(0, 18 * (i % 2 ? -1 : 1), 0)
-      times.push(baseT, midT, endT)
+    if (reduce) {
+      prevPos.current = player.position
+      return
     }
-    bobControls.start({
-      y: arcKeys,
-      rotate: rotKeys,
-      transition: { duration, ease: 'linear', times },
-    })
+
+    // 칸마다 한 번씩 튀어 오르는 호핑.
+    // 예전에는 높이만 바뀌는 아치였다. 고무공처럼 보이려면 이륙에서 늘어나고
+    // 착지에서 눌리는 스쿼시&스트레치, 그리고 높이에 반응하는 그림자가 있어야 한다.
+    // 그림자가 가만히 있으면 아무리 높이 띄워도 '떠 있다'로 읽히지 않는다.
+    const y = []
+    const sx = []
+    const sy = []
+    const rot = []
+    const times = []
+    const shadowScale = []
+    const shadowOpacity = []
+
+    const push = (t, yy, xs, ys, rr, ss, so) => {
+      times.push(t); y.push(yy); sx.push(xs); sy.push(ys)
+      rot.push(rr); shadowScale.push(ss); shadowOpacity.push(so)
+    }
+
+    for (let i = 0; i < path.length; i++) {
+      const t0 = i / path.length
+      const span = 1 / path.length
+      const at = (f) => t0 + span * f
+      const dir = i % 2 ? -1 : 1
+
+      // 첫 hop에서만 시작점을 찍는다. 이후 hop의 시작 = 이전 hop의 착지라 중복된다.
+      if (i === 0) push(0, 0, 1.18, 0.82, 0, 1, 0.9)
+      push(at(0.22), -HOP_H * 0.6, 0.9, 1.14, 10 * dir, 0.78, 0.6)
+      push(at(0.5), -HOP_H, 1, 1, 15 * dir, 0.55, 0.32)
+      push(at(0.78), -HOP_H * 0.6, 0.92, 1.1, 10 * dir, 0.78, 0.6)
+      push(at(1), 0, 1.18, 0.82, 0, 1.1, 0.95)
+    }
+
+    // 마지막 칸에 닿는 순간의 반동. 이게 없으면 이동이 '멈춘다'가 아니라 '사라진다'.
+    bobControls
+      .start({ y, scaleX: sx, scaleY: sy, rotate: rot, transition: { duration, ease: 'linear', times } })
+      .then(() => {
+        landedRef.current?.(player.position)
+        return bobControls.start({
+          y: [0, -7, 0],
+          scaleX: [1.24, 0.95, 1],
+          scaleY: [0.78, 1.07, 1],
+          rotate: 0,
+          transition: { duration: 0.3, ease: 'easeOut' },
+        })
+      })
+      .catch(() => {})
+
+    shadowControls
+      .start({ scaleX: shadowScale, opacity: shadowOpacity, transition: { duration, ease: 'linear', times } })
+      .then(() =>
+        shadowControls.start({
+          scaleX: [1.25, 0.95, 1],
+          opacity: [1, 0.75, 0.8],
+          transition: { duration: 0.3, ease: 'easeOut' },
+        }),
+      )
+      .catch(() => {})
 
     prevPos.current = player.position
-  }, [player.position, controls, bobControls])
+  }, [player.position, controls, bobControls, shadowControls, reduce])
 
   const start = getTileCoord(prevPos.current)
   const pos = POSITIONS[index % POSITIONS.length]
@@ -95,8 +144,12 @@ export default function PlayerToken({ player, index }) {
         className="relative"
         style={{ transform: `translate(${pos.dx * 4}px, ${pos.dy * 4}px)` }}
       >
-        {/* 정적 그림자 — 무한 애니메이션 제거 (성능 / 발열 개선) */}
-        <div className="absolute left-1/2 top-full -translate-x-1/2 h-1 w-5 sm:w-6 bg-black/25 rounded-full blur-[1px]" />
+        {/* 그림자 — 점프 높이에 맞춰 작아지고 흐려진다. 무게감의 핵심. */}
+        <motion.div
+          animate={shadowControls}
+          initial={{ scaleX: 1, opacity: 0.8 }}
+          className="absolute left-1/2 top-full -translate-x-1/2 h-1 w-5 sm:w-6 bg-black/30 rounded-full blur-[1px] origin-center"
+        />
 
         {/* 캐릭터 점프/회전 (이동 중에만) */}
         <motion.div animate={bobControls}>

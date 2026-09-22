@@ -1,206 +1,513 @@
 [
-  { "id": "fr01", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+  {
+    "id": "fr01",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "한 학생이 우유 0.7L를 마셨습니다. 마신 양을 분모가 10인 분수로 나타내시오.",
-    "choices": [], "answer": "7/10",
-    "explanation": "소수 한 자리는 분모 10인 분수로 바꿀 수 있다." },
-
-  { "id": "fr02", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+    "choices": [],
+    "answer": "7/10",
+    "explanation": "소수 한 자리는 분모 10인 분수로 바꿀 수 있다."
+  },
+  {
+    "id": "fr02",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "민지는 오늘 0.6L의 물을 마셨습니다. 마신 물의 양을 기약분수로 나타내면? (분수로 입력)",
-    "choices": [], "answer": "3/5",
-    "explanation": "소수를 분수로 바꾼 뒤 분모와 분자의 최대공약수로 약분." },
-
-  { "id": "fr03", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+    "choices": [],
+    "answer": "3/5",
+    "explanation": "소수를 분수로 바꾼 뒤 분모와 분자의 최대공약수로 약분."
+  },
+  {
+    "id": "fr03",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "어떤 학생이 케이크 한 판의 0.25 만큼을 먹었습니다. 분모가 4인 분수로 나타내면 분자는 얼마인가요? (숫자만)",
-    "choices": [], "answer": "1",
-    "explanation": "0.25 = 1/4." },
-
-  { "id": "fr04", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+    "choices": [],
+    "answer": "1",
+    "explanation": "0.25 = 1/4.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr04",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "지윤이의 키는 1.6m입니다. 분모가 5인 가분수로 나타내시오.",
-    "choices": [], "answer": "8/5",
-    "explanation": "1.6 = 16/10. 분모 5로 변환." },
-
-  { "id": "fr05", "category": "소수와분수", "difficulty": 2, "type": "multiple_choice",
+    "choices": [],
+    "answer": "8/5",
+    "explanation": "1.6 = 16/10. 분모 5로 변환."
+  },
+  {
+    "id": "fr05",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "multiple_choice",
     "question": "마라톤 코스의 3/5 만큼 달렸습니다. 달린 거리는 전체의 몇 분의 몇과 같은 소수로 표현되나요?",
-    "choices": ["0.3", "0.5", "0.6", "0.8"], "answer": 2,
-    "explanation": "분수를 통분 또는 나눗셈으로 소수로 변환." },
-
-  { "id": "fr06", "category": "소수와분수", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "0.3",
+      "0.5",
+      "0.6",
+      "0.8"
+    ],
+    "answer": 2,
+    "explanation": "분수를 통분 또는 나눗셈으로 소수로 변환."
+  },
+  {
+    "id": "fr06",
+    "category": "소수와분수",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "사과 5개를 4명이 똑같이 나누어 가지면 한 명이 받는 사과의 양은 소수로 얼마인가요?",
-    "choices": ["1.0", "1.2", "1.25", "1.5"], "answer": 2,
-    "explanation": "5 ÷ 4 = 5/4 → 소수로 변환." },
-
-  { "id": "fr07", "category": "소수와분수", "difficulty": 2, "type": "true_false",
+    "choices": [
+      "1.0",
+      "1.2",
+      "1.25",
+      "1.5"
+    ],
+    "answer": 2,
+    "explanation": "5 ÷ 4 = 5/4 → 소수로 변환."
+  },
+  {
+    "id": "fr07",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "true_false",
     "question": "0.6 과 3/5 는 같은 수이다.",
-    "choices": ["O", "X"], "answer": 0,
-    "explanation": "3/5 를 분모 10으로 통분." },
-
-  { "id": "fr08", "category": "소수와분수", "difficulty": 3, "type": "true_false",
+    "choices": [
+      "O",
+      "X"
+    ],
+    "answer": 0,
+    "explanation": "3/5 를 분모 10으로 통분."
+  },
+  {
+    "id": "fr08",
+    "category": "소수와분수",
+    "difficulty": 3,
+    "type": "true_false",
     "question": "한 식빵을 8조각으로 똑같이 자른 것 중 3조각의 양은 전체 식빵의 0.375 이다.",
-    "choices": ["O", "X"], "answer": 0,
-    "explanation": "3/8 을 소수로 변환." },
-
-  { "id": "fr09", "category": "소수와분수", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "O",
+      "X"
+    ],
+    "answer": 0,
+    "explanation": "3/8 을 소수로 변환."
+  },
+  {
+    "id": "fr09",
+    "category": "소수와분수",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "현우의 키는 1과 3/4 m입니다. 이 키와 같은 소수는?",
-    "choices": ["1.34", "1.43", "1.74", "1.75"], "answer": 3,
-    "explanation": "대분수의 분수부를 소수로 변환." },
-
-  { "id": "fr10", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+    "choices": [
+      "1.34",
+      "1.43",
+      "1.74",
+      "1.75"
+    ],
+    "answer": 3,
+    "explanation": "대분수의 분수부를 소수로 변환."
+  },
+  {
+    "id": "fr10",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "수업 시간 1시간의 1/4 은 몇 분에 해당하는가? (숫자만)",
-    "choices": [], "answer": "15",
-    "explanation": "60분의 1/4." },
-
-  { "id": "fr11", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+    "choices": [],
+    "answer": "15",
+    "explanation": "60분의 1/4.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr11",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "운동 시간 한 시간의 0.3 만큼 운동했다면 운동한 시간은 몇 분인가? (숫자만)",
-    "choices": [], "answer": "18",
-    "explanation": "60분의 0.3." },
-
-  { "id": "fr12", "category": "소수와분수", "difficulty": 2, "type": "short_answer",
+    "choices": [],
+    "answer": "18",
+    "explanation": "60분의 0.3.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr12",
+    "category": "소수와분수",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "동생의 키 1.3m를 분모가 10인 가분수로 나타내시오.",
-    "choices": [], "answer": "13/10",
-    "explanation": "소수 한 자리는 분모 10으로." },
-
-  { "id": "fr13", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "13/10",
+    "explanation": "소수 한 자리는 분모 10으로."
+  },
+  {
+    "id": "fr13",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "케이크 한 판 중 영수가 먹은 양은 1/3보다 많고 1/2보다 적습니다. 영수가 먹은 양을 분모 12인 분수로 나타낼 때, 분자에 들어갈 수 있는 자연수는 모두 몇 개인가요? (숫자만)",
-    "choices": [], "answer": "1",
-    "explanation": "12로 통분하여 1/3과 1/2을 같은 분모로 바꾼 뒤 그 사이의 분자 후보를 센다." },
-
-  { "id": "fr14", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "1",
+    "explanation": "12로 통분하여 1/3과 1/2을 같은 분모로 바꾼 뒤 그 사이의 분자 후보를 센다.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr14",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "민호가 줄넘기한 시간이 1/2시간보다 많고 2/3시간보다 적습니다. 줄넘기 시간을 분모 15인 분수로 나타낼 때, 분자에 들어갈 수 있는 자연수는 모두 몇 개인가요? (숫자만)",
-    "choices": [], "answer": "2",
-    "explanation": "15로 통분하여 1/2, 2/3을 분모 15로 바꾼 뒤 사이의 분자 개수를 센다." },
-
-  { "id": "fr15", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "2",
+    "explanation": "15로 통분하여 1/2, 2/3을 분모 15로 바꾼 뒤 사이의 분자 개수를 센다.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr15",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "공책 한 권을 6 등분했을 때, 1/3 권보다 많이 쓴 학생들의 사용량으로 가능한 분수(진분수)는 모두 몇 가지인가요? (숫자만)",
-    "choices": [], "answer": "3",
-    "explanation": "1/3 = 2/6. 분모 6 진분수 조건(분자<6)에서 분자가 2보다 큰 경우를 센다." },
-
-  { "id": "fr16", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "3",
+    "explanation": "1/3 = 2/6. 분모 6 진분수 조건(분자<6)에서 분자가 2보다 큰 경우를 센다.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr16",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "줄넘기 시간이 1/4시간보다 길고 1/2시간보다 짧은 학생을 찾으려고 합니다. 영희 1/3시간, 동수 1/5시간, 미정 3/8시간 했다면 조건을 만족하는 학생은 모두 몇 명인가? (숫자만)",
-    "choices": [], "answer": "2",
-    "explanation": "각 분수를 통분하거나 소수로 바꿔서 범위 확인." },
-
-  { "id": "fr17", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "2",
+    "explanation": "각 분수를 통분하거나 소수로 바꿔서 범위 확인.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr17",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "지호가 마신 우유의 양은 5/6 L보다 적었습니다. 마신 양을 분모 9인 분수로 나타낼 때, 분자에 들어갈 수 있는 가장 큰 자연수는? (숫자만)",
-    "choices": [], "answer": "7",
-    "explanation": "두 분수를 공통분모(18)로 통분하여 분자 비교." },
-
-  { "id": "fr18", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "7",
+    "explanation": "두 분수를 공통분모(18)로 통분하여 분자 비교.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr18",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "초콜릿 한 상자 중 영수가 먹은 양은 1/5상자보다 많고 1/3상자보다 적습니다. 먹은 양을 분모 30인 기약분수로 나타낼 수 있는 경우는 모두 몇 가지인가요? (숫자만)",
-    "choices": [], "answer": "1",
-    "explanation": "1/5과 1/3을 분모 30으로 통분(6/30, 10/30)한 뒤 사이의 분자 중 기약인 것을 센다." },
-
-  { "id": "fr19", "category": "통분범위", "difficulty": 3, "type": "multiple_choice",
+    "choices": [],
+    "answer": "1",
+    "explanation": "1/5과 1/3을 분모 30으로 통분(6/30, 10/30)한 뒤 사이의 분자 중 기약인 것을 센다.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr19",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "민준이가 색종이 한 묶음 중 사용한 양은 1/4보다 많고 1/2보다 적습니다. 다음 중 민준이가 사용한 양이 될 수 없는 분수는?",
-    "choices": ["3/8", "2/5", "1/3", "5/8"], "answer": 3,
-    "explanation": "1/4 = 0.25, 1/2 = 0.5. 각 보기가 이 범위에 들어가는지 확인." },
-
-  { "id": "fr20", "category": "통분범위", "difficulty": 3, "type": "short_answer",
+    "choices": [
+      "3/8",
+      "2/5",
+      "1/3",
+      "5/8"
+    ],
+    "answer": 3,
+    "explanation": "1/4 = 0.25, 1/2 = 0.5. 각 보기가 이 범위에 들어가는지 확인."
+  },
+  {
+    "id": "fr20",
+    "category": "통분범위",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "케이크를 ☐ 명에게 똑같이 나눠줄 때, 한 사람이 받는 양은 12/☐ 조각입니다. 이 양이 2/3 조각보다 작아지려면 사람 수 ☐는 최소 몇 명이어야 하나요? (☐는 12보다 큰 자연수, 숫자만)",
-    "choices": [], "answer": "19",
-    "explanation": "12/☐ < 2/3 부등식을 풀어 ☐ 조건 만족하는 최소 자연수를 찾는다." },
-
-  { "id": "fr21", "category": "카드만들기", "difficulty": 3, "type": "multiple_choice",
+    "choices": [],
+    "answer": "19",
+    "explanation": "12/☐ < 2/3 부등식을 풀어 ☐ 조건 만족하는 최소 자연수를 찾는다.",
+    "inputMode": "integer"
+  },
+  {
+    "id": "fr21",
+    "category": "카드만들기",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "숫자 카드 [1], [4], [7] 중 2장을 골라 만들 수 있는 가장 큰 '소수 첫째 자리' 소수는?",
-    "choices": ["1.7", "4.7", "7.1", "7.4"], "answer": 3,
-    "explanation": "가장 큰 수가 정수 자리에, 그 다음 큰 수가 소수 자리에." },
-
-  { "id": "fr22", "category": "카드만들기", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "1.7",
+      "4.7",
+      "7.1",
+      "7.4"
+    ],
+    "answer": 3,
+    "explanation": "가장 큰 수가 정수 자리에, 그 다음 큰 수가 소수 자리에."
+  },
+  {
+    "id": "fr22",
+    "category": "카드만들기",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "숫자 카드 [2], [5], [8] 3장을 모두 사용하여 만들 수 있는 '두 자리 정수.소수 첫째 자리' 소수 중 가장 큰 수는?",
-    "choices": ["25.8", "58.2", "82.5", "85.2"], "answer": 3,
-    "explanation": "정수 두 자리는 큰 순으로, 남은 카드를 소수 자리에." },
-
-  { "id": "fr23", "category": "카드만들기", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "25.8",
+      "58.2",
+      "82.5",
+      "85.2"
+    ],
+    "answer": 3,
+    "explanation": "정수 두 자리는 큰 순으로, 남은 카드를 소수 자리에."
+  },
+  {
+    "id": "fr23",
+    "category": "카드만들기",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "숫자 카드 [3], [6], [9] 3장을 모두 사용하여 만들 수 있는 '한 자리 정수.소수 둘째 자리' 소수 중 가장 작은 수는?",
-    "choices": ["3.69", "3.96", "6.39", "9.36"], "answer": 0,
-    "explanation": "정수 자리에 가장 작은 수, 소수 자리도 작은 순으로." },
-
-  { "id": "fr24", "category": "카드만들기", "difficulty": 3, "type": "short_answer",
+    "choices": [
+      "3.69",
+      "3.96",
+      "6.39",
+      "9.36"
+    ],
+    "answer": 0,
+    "explanation": "정수 자리에 가장 작은 수, 소수 자리도 작은 순으로."
+  },
+  {
+    "id": "fr24",
+    "category": "카드만들기",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "숫자 카드 [2], [4], [6], [8] 중 2장을 골라 만들 수 있는 가장 큰 진분수를 기약분수로 나타내시오.",
-    "choices": [], "answer": "3/4",
-    "explanation": "분자가 크고 분모가 크지 않을수록 큰 진분수." },
-
-  { "id": "fr25", "category": "카드만들기", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "3/4",
+    "explanation": "분자가 크고 분모가 크지 않을수록 큰 진분수."
+  },
+  {
+    "id": "fr25",
+    "category": "카드만들기",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "숫자 카드 [1], [3], [5], [7] 중 2장을 골라 만들 수 있는 가장 작은 진분수를 분수로 나타내시오.",
-    "choices": [], "answer": "1/7",
-    "explanation": "분자가 작고 분모가 클수록 작은 진분수." },
-
-  { "id": "fr26", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [],
+    "answer": "1/7",
+    "explanation": "분자가 작고 분모가 클수록 작은 진분수."
+  },
+  {
+    "id": "fr26",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "친구 세 명이 마라톤을 했습니다. 영수는 0.75km, 영희는 4/5km, 철수는 7/10km 달렸습니다. 가장 멀리 달린 사람은?",
-    "choices": ["영수", "영희", "철수", "모두 같음"], "answer": 1,
-    "explanation": "분수를 모두 소수로 바꿔 비교하거나, 공통분모로 통분." },
-
-  { "id": "fr27", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "영수",
+      "영희",
+      "철수",
+      "모두 같음"
+    ],
+    "answer": 1,
+    "explanation": "분수를 모두 소수로 바꿔 비교하거나, 공통분모로 통분."
+  },
+  {
+    "id": "fr27",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "수학 단원 평가 정답률: 가람 0.8, 나리 4/5, 다인 9/10. 가장 정답률이 높은 학생은?",
-    "choices": ["가람", "나리", "다인", "모두 같음"], "answer": 2,
-    "explanation": "통분 또는 소수 변환으로 비교." },
-
-  { "id": "fr28", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "가람",
+      "나리",
+      "다인",
+      "모두 같음"
+    ],
+    "answer": 2,
+    "explanation": "통분 또는 소수 변환으로 비교."
+  },
+  {
+    "id": "fr28",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "1주일에 민지는 동화책의 3/8을, 동생은 0.4를 읽었습니다. 더 많이 읽은 사람은?",
-    "choices": ["민지", "동생", "둘이 같음", "비교할 수 없음"], "answer": 1,
-    "explanation": "3/8을 소수로 바꿔서 0.4와 비교." },
-
-  { "id": "fr29", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "민지",
+      "동생",
+      "둘이 같음",
+      "비교할 수 없음"
+    ],
+    "answer": 1,
+    "explanation": "3/8을 소수로 바꿔서 0.4와 비교."
+  },
+  {
+    "id": "fr29",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "줄 세 가지의 길이: A 2/3m, B 0.65m, C 7/10m. 가장 긴 줄은?",
-    "choices": ["A줄", "B줄", "C줄", "모두 같음"], "answer": 2,
-    "explanation": "모두 같은 단위(소수 또는 동일 분모)로 만들어 비교." },
-
-  { "id": "fr30", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "A줄",
+      "B줄",
+      "C줄",
+      "모두 같음"
+    ],
+    "answer": 2,
+    "explanation": "모두 같은 단위(소수 또는 동일 분모)로 만들어 비교."
+  },
+  {
+    "id": "fr30",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "어떤 학생이 공부한 시간: 월 2/3시간, 화 0.5시간, 수 3/5시간. 가장 적게 공부한 요일은?",
-    "choices": ["월", "화", "수", "모두 같음"], "answer": 1,
-    "explanation": "분수를 소수로 변환하여 비교." },
-
-  { "id": "fr31", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "월",
+      "화",
+      "수",
+      "모두 같음"
+    ],
+    "answer": 1,
+    "explanation": "분수를 소수로 변환하여 비교."
+  },
+  {
+    "id": "fr31",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "김장에 사용한 양: 무 3/8 kg, 배추 1/3 kg, 마늘 1/4 kg. 가장 적게 사용한 재료는?",
-    "choices": ["무", "배추", "마늘", "모두 같음"], "answer": 2,
-    "explanation": "공통분모로 통분하여 분자 비교." },
-
-  { "id": "fr32", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "무",
+      "배추",
+      "마늘",
+      "모두 같음"
+    ],
+    "answer": 2,
+    "explanation": "공통분모로 통분하여 분자 비교."
+  },
+  {
+    "id": "fr32",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "세 사람의 키: 나리 1.55m, 다인 1과 11/20 m, 라온 1.6m. 키가 큰 순서로 옳게 나열한 것은?",
     "choices": [
       "라온 > 나리 > 다인",
       "라온 > 나리 = 다인",
       "나리 > 다인 > 라온",
       "라온 > 다인 > 나리"
-    ], "answer": 1,
-    "explanation": "대분수의 분수부를 소수로 바꿔 비교." },
-
-  { "id": "fr33", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    ],
+    "answer": 1,
+    "explanation": "대분수의 분수부를 소수로 바꿔 비교."
+  },
+  {
+    "id": "fr33",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "빵을 잘라 먹은 양: 가형 1/2, 나형 5/8, 다형 0.6. 가장 적게 먹은 사람은?",
-    "choices": ["가형", "나형", "다형", "모두 같음"], "answer": 0,
-    "explanation": "모두 소수로 바꿔서 비교." },
-
-  { "id": "fr34", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "가형",
+      "나형",
+      "다형",
+      "모두 같음"
+    ],
+    "answer": 0,
+    "explanation": "모두 소수로 바꿔서 비교."
+  },
+  {
+    "id": "fr34",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "시장에서 산 콩의 양: 영자 3/8 kg, 호식 0.4 kg, 미진 2/5 kg. 가장 적게 산 사람은?",
-    "choices": ["영자", "호식", "미진", "호식 = 미진"], "answer": 0,
-    "explanation": "0.4 = 2/5 임을 알고, 3/8과 비교." },
-
-  { "id": "fr35", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "영자",
+      "호식",
+      "미진",
+      "호식 = 미진"
+    ],
+    "answer": 0,
+    "explanation": "0.4 = 2/5 임을 알고, 3/8과 비교."
+  },
+  {
+    "id": "fr35",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "자전거를 탄 시간: 월요일 0.45시간, 화요일 1/2시간, 수요일 4/9시간. 가장 적게 탄 요일은?",
-    "choices": ["월요일", "화요일", "수요일", "월 = 수"], "answer": 2,
-    "explanation": "분수를 소수로 변환하여 비교." },
-
-  { "id": "fr36", "category": "응용약분", "difficulty": 2, "type": "short_answer",
+    "choices": [
+      "월요일",
+      "화요일",
+      "수요일",
+      "월 = 수"
+    ],
+    "answer": 2,
+    "explanation": "분수를 소수로 변환하여 비교."
+  },
+  {
+    "id": "fr36",
+    "category": "응용약분",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "학생 25명 중 15명이 안경을 썼습니다. 안경 쓴 학생의 비율을 기약분수로 나타내시오.",
-    "choices": [], "answer": "3/5",
-    "explanation": "비율을 분수로 나타낸 뒤 최대공약수로 약분." },
-
-  { "id": "fr37", "category": "응용약분", "difficulty": 2, "type": "short_answer",
+    "choices": [],
+    "answer": "3/5",
+    "explanation": "비율을 분수로 나타낸 뒤 최대공약수로 약분."
+  },
+  {
+    "id": "fr37",
+    "category": "응용약분",
+    "difficulty": 2,
+    "type": "short_answer",
     "question": "도서관 책 56권 중 동화책이 35권입니다. 동화책의 비율을 기약분수로 나타내시오.",
-    "choices": [], "answer": "5/8",
-    "explanation": "35/56 → 최대공약수로 약분." },
-
-  { "id": "fr38", "category": "역연산약분", "difficulty": 3, "type": "short_answer",
+    "choices": [],
+    "answer": "5/8",
+    "explanation": "35/56 → 최대공약수로 약분."
+  },
+  {
+    "id": "fr38",
+    "category": "역연산약분",
+    "difficulty": 3,
+    "type": "short_answer",
     "question": "어떤 분수의 분모와 분자를 6으로 약분했더니 4/5가 되었습니다. 원래 분수를 분수 형식으로 쓰시오.",
-    "choices": [], "answer": "24/30",
-    "explanation": "약분 전 분수는 분모와 분자에 각각 6을 곱한 것." },
-
-  { "id": "fr39", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [],
+    "answer": "24/30",
+    "explanation": "약분 전 분수는 분모와 분자에 각각 6을 곱한 것."
+  },
+  {
+    "id": "fr39",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "한 학기 동안 영희는 책 전체의 5/12, 동생은 7/18을 읽었습니다. 누가 더 많이 읽었나요?",
-    "choices": ["영희", "동생", "둘이 같음", "비교할 수 없음"], "answer": 0,
-    "explanation": "공통분모(LCD 36)로 통분하여 비교." },
-
-  { "id": "fr40", "category": "크기비교", "difficulty": 3, "type": "multiple_choice",
+    "choices": [
+      "영희",
+      "동생",
+      "둘이 같음",
+      "비교할 수 없음"
+    ],
+    "answer": 0,
+    "explanation": "공통분모(LCD 36)로 통분하여 비교."
+  },
+  {
+    "id": "fr40",
+    "category": "크기비교",
+    "difficulty": 3,
+    "type": "multiple_choice",
     "question": "약수터에서 영수는 9/15 L, 동수는 7/10 L 가져갔습니다. 더 많이 가져간 사람은?",
-    "choices": ["영수", "동수", "둘이 같음", "비교할 수 없음"], "answer": 1,
-    "explanation": "9/15 을 기약분수로 바꾼 뒤 통분." }
+    "choices": [
+      "영수",
+      "동수",
+      "둘이 같음",
+      "비교할 수 없음"
+    ],
+    "answer": 1,
+    "explanation": "9/15 을 기약분수로 바꾼 뒤 통분."
+  }
 ]

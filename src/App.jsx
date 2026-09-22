@@ -81,6 +81,9 @@ export default function App() {
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [showBoardHint, setShowBoardHint] = useState(false)
+  // 말이 목적지에 실제로 도착했는지. 도착 전에 '살까요?'를 물으면
+  // 결과가 말보다 먼저 와서 움직임이 가짜처럼 보인다.
+  const [moveSettled, setMoveSettled] = useState(true)
   const lastAnnouncedTurn = useRef(-1)
 
   useEffect(() => {
@@ -141,6 +144,20 @@ export default function App() {
       return () => clearTimeout(t)
     } catch { /* ignore */ }
   }, [phase, currentRound, currentTurn])
+
+  useEffect(() => {
+    if (phase !== 'tile') {
+      setMoveSettled(true)
+      return
+    }
+    setMoveSettled(false)
+    // 말의 착지 콜백이 정확한 시점을 알려 주지만, 제자리 이동 등으로 콜백이
+    // 오지 않는 경우를 대비해 이동 거리 기준 상한을 둔다. 판이 멈추면 안 된다.
+    const steps = Math.min(lastRoll?.total ?? 0, 20)
+    const cap = Math.max(500, steps * 180) + 400
+    const t = setTimeout(() => setMoveSettled(true), cap)
+    return () => clearTimeout(t)
+  }, [phase, currentTurn, lastRoll])
 
   // 설정 화면은 세로로 길어서 '게임 시작!'을 누르려면 아래로 스크롤해야 한다.
   // 그 스크롤 위치가 그대로 남아 게임에 들어오면 보드 윗줄(출발 칸 — 시작 시
@@ -272,14 +289,21 @@ export default function App() {
               />
             )}
             {phase === 'tile' && currentTile && (
-              <TileActionPanel
-                tile={currentTile}
-                player={current}
-                players={players}
-                ownership={ownership}
-                lastRoll={lastRoll}
-                onAction={handleTileAction}
-              />
+              moveSettled ? (
+                <TileActionPanel
+                  tile={currentTile}
+                  player={current}
+                  players={players}
+                  ownership={ownership}
+                  lastRoll={lastRoll}
+                  onAction={handleTileAction}
+                />
+              ) : (
+                // 말이 가는 동안은 주사위 결과만. 도착하면 선택지가 뜬다.
+                <div className="t-display text-amber-900 tabular-nums">
+                  {lastRoll ? `${lastRoll.d1} + ${lastRoll.d2} = ${lastRoll.total}` : ''}
+                </div>
+              )
             )}
             {phase === 'question' && <div className="text-amber-700 text-sm">문제에 답해 주세요…</div>}
             {phase === 'result' && <div className="text-amber-700 text-sm">결과 확인 중…</div>}
@@ -345,6 +369,7 @@ export default function App() {
             turnLimit={turnLimit}
             isLandscape={isLandscape}
             centerStage={centerStage}
+            onTokenLanded={() => setMoveSettled(true)}
           />
         )
 

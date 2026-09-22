@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import AnimatedNumber from '../ui/AnimatedNumber.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
 import AnimalFace from '../ui/AnimalFace.jsx'
@@ -6,14 +8,46 @@ export default function PlayerCard({ player, isCurrent }) {
   const stats = player.stats || { answered: 0, correct: 0 }
   const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : null
 
+  // 금액 변화를 떠오르는 숫자로 보여준다. 여러 번 연속으로 바뀌어도 겹쳐 쌓인다.
+  const prevMoney = useRef(player.money)
+  const [deltas, setDeltas] = useState([])
+  useEffect(() => {
+    const diff = player.money - prevMoney.current
+    prevMoney.current = player.money
+    if (!diff) return
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    setDeltas((cur) => [...cur, { id, diff }])
+    const t = setTimeout(() => setDeltas((cur) => cur.filter((d) => d.id !== id)), 1000)
+    return () => clearTimeout(t)
+  }, [player.money])
+
   return (
     <div
-      className={`player-card p-2 sm:p-2.5 rounded-xl border transition-all duration-300 ${
+      className={`player-card relative p-2 sm:p-2.5 rounded-xl border transition-all duration-300 ${
         isCurrent
           ? 'border-amber-400 bg-white breathe-ring scale-[1.02]'
           : 'border-amber-900/5 bg-white/70 card-soft opacity-80'
       } ${!player.alive ? 'grayscale opacity-50' : ''}`}
     >
+      <AnimatePresence>
+        {deltas.map(({ id, diff }) => (
+          <motion.span
+            key={id}
+            initial={{ opacity: 0, y: 4, scale: 0.7 }}
+            animate={{ opacity: 1, y: -28, scale: 1 }}
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+            className={`pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 z-10 t-title tabular-nums whitespace-nowrap ${
+              diff > 0 ? 'text-emerald-600' : 'text-rose-600'
+            }`}
+            style={{ textShadow: '0 1px 2px rgba(255,255,255,0.9)' }}
+          >
+            {diff > 0 ? '+' : '−'}
+            {Math.abs(diff).toLocaleString()}
+          </motion.span>
+        ))}
+      </AnimatePresence>
+
       <div className="player-card-inner">
         <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full ${player.color} flex items-center justify-center text-base sm:text-lg shadow-sm ring-2 ring-white flex-shrink-0`}>
           <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
