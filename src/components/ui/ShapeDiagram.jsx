@@ -1,6 +1,6 @@
 // 넓이 문제용 도형 그림(SVG). figure 스펙을 받아 치수 라벨과 함께 그린다.
 // figure 예: { shape:'triangle', base:8, height:5, unit:'cm' }
-// shape: rectangle | parallelogram | triangle | rhombus | house | paratri
+// shape: rectangle | parallelogram | triangle | rhombus | house | paratri | array
 // 그림은 개념 설명용이라 실제 비율과 정확히 일치하지 않을 수 있음(교과서식).
 
 const FILL = '#fef3c7'
@@ -239,6 +239,63 @@ function FracArea({ an, ad, bn, bd, unit }) {
   )
 }
 
+// 곱셈구구의 배열(묶어 세기) 모델. 한 줄에 몇 개씩 몇 줄인지를 점으로 보여 준다.
+// 초2는 "3씩 4묶음"을 눈으로 세어 보고 3 × 4를 만들어 내는 단계라 그림이 중요하다.
+function DotArray({ rows, cols, group }) {
+  const r = clamp(rows, 1, 9)
+  const c = clamp(cols, 1, 9)
+  const areaW = 140
+  const areaH = 92
+  const step = Math.min(areaW / c, areaH / r, 18)
+  const dot = clamp(step * 0.26, 2.2, 4.6)
+  const gridW = step * c
+  const gridH = step * r
+  const x0 = 48 + (areaW - gridW) / 2
+  const y0 = 26 + (areaH - gridH) / 2
+
+  const dots = []
+  for (let i = 0; i < r; i++) {
+    for (let j = 0; j < c; j++) {
+      dots.push(
+        <circle key={`${i}-${j}`} cx={x0 + step * (j + 0.5)} cy={y0 + step * (i + 0.5)} r={dot} fill={STROKE} />,
+      )
+    }
+  }
+
+  return (
+    <g>
+      {/* 묶음 표시 — 한 줄이 한 묶음임을 드러낸다 */}
+      {group &&
+        Array.from({ length: r }, (_, i) => (
+          <rect
+            key={i}
+            x={x0 + 1.5}
+            y={y0 + step * i + 1.5}
+            width={gridW - 3}
+            height={step - 3}
+            rx={Math.min(6, step / 2)}
+            fill={FILL}
+            stroke={STROKE}
+            strokeWidth="1.2"
+          />
+        ))}
+      {dots}
+
+      {/* 한 줄에 몇 개씩 */}
+      <path d={`M ${x0} ${y0 - 7} L ${x0 + gridW} ${y0 - 7}`} stroke={DIM} strokeWidth="1.4" fill="none" />
+      <text x={x0 + gridW / 2} y={y0 - 11} fontSize="11" fill={LABEL} textAnchor="middle" fontWeight="bold">
+        {c}개씩
+      </text>
+
+      {/* 몇 줄 */}
+      <path d={`M ${x0 - 7} ${y0} L ${x0 - 7} ${y0 + gridH}`} stroke={DIM} strokeWidth="1.4" fill="none" />
+      <text x={x0 - 12} y={y0 + gridH / 2 + 4} fontSize="11" fill={LABEL} textAnchor="end" fontWeight="bold">
+        {r}줄
+      </text>
+    </g>
+  )
+}
+
 export default function ShapeDiagram({ figure, className = '' }) {
   if (!figure) return null
   const unit = figure.unit || 'cm'
@@ -252,6 +309,7 @@ export default function ShapeDiagram({ figure, className = '' }) {
     case 'paratri': body = <ParaTri base={figure.base} pHeight={figure.pHeight} tHeight={figure.tHeight} unit={unit} />; break
     case 'grid': body = <Grid gw={figure.gw} gh={figure.gh} poly={figure.poly} unit={unit} />; break
     case 'fracArea': body = <FracArea an={figure.an} ad={figure.ad} bn={figure.bn} bd={figure.bd} unit={figure.unit} />; break
+    case 'array': body = <DotArray rows={figure.rows} cols={figure.cols} group={figure.group} />; break
     default: return null
   }
   return (

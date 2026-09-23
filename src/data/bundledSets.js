@@ -5,6 +5,7 @@ import fractionsAddSubQuestions from './fractionsAddSubQuestions.json'
 import fractionsQuestions from './fractionsQuestions.json'
 import polygonAreaQuestions from './polygonAreaQuestions.json'
 import fractionMultiplyQuestions from './fractionMultiplyQuestions.json'
+import multiplicationQuestions from './multiplicationQuestions.json'
 
 export const BUNDLED_SETS = [
   {
@@ -30,6 +31,12 @@ export const BUNDLED_SETS = [
     name: '📐 수학 5-1 · 4단원 약분과 통분',
     subject: '수학',
     questions: fractionsQuestions,
+  },
+  {
+    id: 'bundled:multiplication-2-2-ch2',
+    name: '✳️ 수학 2-2 · 2단원 곱셈구구',
+    subject: '수학',
+    questions: multiplicationQuestions,
   },
   {
     id: 'bundled:sample-mixed',

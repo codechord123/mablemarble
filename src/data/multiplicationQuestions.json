@@ -1,0 +1,786 @@
+[
+  {
+    "id": "m01",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "사탕이 한 봉지에 2개씩 들어 있습니다. 6봉지에 든 사탕은 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "12",
+    "explanation": "2개씩 6묶음이므로 2 × 6 = 12 (개).",
+    "figure": {
+      "shape": "array",
+      "rows": 6,
+      "cols": 2,
+      "group": true
+    }
+  },
+  {
+    "id": "m02",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "2 × 8은 얼마일까요?",
+    "choices": [],
+    "answer": "16",
+    "explanation": "2단은 2씩 커집니다. 2 × 8 = 16."
+  },
+  {
+    "id": "m03",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "자전거 한 대에는 바퀴가 2개 있습니다. 자전거 7대의 바퀴는 모두 몇 개일까요?",
+    "choices": [
+      "9개",
+      "12개",
+      "14개",
+      "16개",
+      "21개"
+    ],
+    "answer": 2,
+    "explanation": "2 × 7 = 14 (개). 2 + 7 = 9로 더하지 않도록 조심해요."
+  },
+  {
+    "id": "m04",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "5 × 4는 얼마일까요?",
+    "choices": [],
+    "answer": "20",
+    "explanation": "5 × 4 = 20."
+  },
+  {
+    "id": "m05",
+    "category": "2단과 5단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "연필을 한 사람에게 5자루씩 나누어 줍니다. 7명에게 주려면 연필은 모두 몇 자루 필요할까요?",
+    "choices": [],
+    "answer": "35",
+    "explanation": "5자루씩 7명이므로 5 × 7 = 35 (자루)."
+  },
+  {
+    "id": "m06",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "5 × 6은 얼마일까요?",
+    "choices": [
+      "11",
+      "25",
+      "30",
+      "35",
+      "56"
+    ],
+    "answer": 2,
+    "explanation": "5 × 6 = 30. 5 × 5 = 25보다 5 큽니다."
+  },
+  {
+    "id": "m07",
+    "category": "2단과 5단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "꽃 한 다발에 꽃이 5송이씩 있습니다. 9다발이면 꽃은 모두 몇 송이일까요?",
+    "choices": [],
+    "answer": "45",
+    "explanation": "5 × 9 = 45 (송이).",
+    "figure": {
+      "shape": "array",
+      "rows": 9,
+      "cols": 5,
+      "group": true
+    }
+  },
+  {
+    "id": "m08",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "2 × 9는 얼마일까요?",
+    "choices": [],
+    "answer": "18",
+    "explanation": "2 × 9 = 18."
+  },
+  {
+    "id": "m09",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "5 × 8은 얼마일까요?",
+    "choices": [],
+    "answer": "40",
+    "explanation": "5 × 8 = 40."
+  },
+  {
+    "id": "m10",
+    "category": "2단과 5단",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "2씩 뛰어 세었습니다. 2, 4, 6, 8, □에서 □에 알맞은 수는 무엇일까요?",
+    "choices": [
+      "9",
+      "10",
+      "12",
+      "16",
+      "18"
+    ],
+    "answer": 1,
+    "explanation": "2씩 뛰어 세면 다섯 번째는 2 × 5 = 10입니다."
+  },
+  {
+    "id": "m11",
+    "category": "3단과 6단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "3 × 7은 얼마일까요?",
+    "choices": [],
+    "answer": "21",
+    "explanation": "3 × 7 = 21."
+  },
+  {
+    "id": "m12",
+    "category": "3단과 6단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "세발자전거 한 대에는 바퀴가 3개 있습니다. 세발자전거 8대의 바퀴는 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "24",
+    "explanation": "3 × 8 = 24 (개).",
+    "figure": {
+      "shape": "array",
+      "rows": 8,
+      "cols": 3,
+      "group": true
+    }
+  },
+  {
+    "id": "m13",
+    "category": "3단과 6단",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "3 × 6은 얼마일까요?",
+    "choices": [
+      "9",
+      "15",
+      "18",
+      "21",
+      "36"
+    ],
+    "answer": 2,
+    "explanation": "3 × 6 = 18. 3 + 6 = 9로 더하지 않도록 조심해요."
+  },
+  {
+    "id": "m14",
+    "category": "3단과 6단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "6 × 4는 얼마일까요?",
+    "choices": [],
+    "answer": "24",
+    "explanation": "6 × 4 = 24."
+  },
+  {
+    "id": "m15",
+    "category": "3단과 6단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "달걀이 한 상자에 6개씩 들어 있습니다. 7상자에 든 달걀은 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "42",
+    "explanation": "6 × 7 = 42 (개)."
+  },
+  {
+    "id": "m16",
+    "category": "3단과 6단",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "6 × 8은 얼마일까요?",
+    "choices": [
+      "14",
+      "42",
+      "48",
+      "54",
+      "64"
+    ],
+    "answer": 2,
+    "explanation": "6 × 8 = 48. 6 × 7 = 42보다 6 큽니다. 42와 헷갈리지 않도록 해요."
+  },
+  {
+    "id": "m17",
+    "category": "3단과 6단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "3 × 9는 얼마일까요?",
+    "choices": [],
+    "answer": "27",
+    "explanation": "3 × 9 = 27."
+  },
+  {
+    "id": "m18",
+    "category": "3단과 6단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "6 × 9는 얼마일까요?",
+    "choices": [],
+    "answer": "54",
+    "explanation": "6 × 9 = 54."
+  },
+  {
+    "id": "m19",
+    "category": "3단과 6단",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "3단으로 뛰어 세었습니다. 3, 6, 9, 12, □에서 □에 알맞은 수는 무엇일까요?",
+    "choices": [
+      "13",
+      "14",
+      "15",
+      "16",
+      "18"
+    ],
+    "answer": 2,
+    "explanation": "3씩 커지므로 12 다음은 3 × 5 = 15입니다."
+  },
+  {
+    "id": "m20",
+    "category": "3단과 6단",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "6 × 5와 계산 결과가 같은 것은 무엇일까요?",
+    "choices": [
+      "5 × 6",
+      "6 + 5",
+      "6 × 6",
+      "5 × 5",
+      "6 − 5"
+    ],
+    "answer": 0,
+    "explanation": "곱하는 두 수의 순서를 바꾸어도 값은 같습니다. 6 × 5 = 30, 5 × 6 = 30."
+  },
+  {
+    "id": "m21",
+    "category": "4단과 8단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "4 × 6은 얼마일까요?",
+    "choices": [],
+    "answer": "24",
+    "explanation": "4 × 6 = 24."
+  },
+  {
+    "id": "m22",
+    "category": "4단과 8단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "자동차 한 대에는 바퀴가 4개 있습니다. 자동차 7대의 바퀴는 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "28",
+    "explanation": "4 × 7 = 28 (개)."
+  },
+  {
+    "id": "m23",
+    "category": "4단과 8단",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "4 × 8은 얼마일까요?",
+    "choices": [
+      "12",
+      "24",
+      "28",
+      "32",
+      "36"
+    ],
+    "answer": 3,
+    "explanation": "4 × 8 = 32. 4단은 4씩 커집니다."
+  },
+  {
+    "id": "m24",
+    "category": "4단과 8단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "8 × 3은 얼마일까요?",
+    "choices": [],
+    "answer": "24",
+    "explanation": "8 × 3 = 24."
+  },
+  {
+    "id": "m25",
+    "category": "4단과 8단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "문어 한 마리의 다리는 8개입니다. 문어 6마리의 다리는 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "48",
+    "explanation": "8 × 6 = 48 (개).",
+    "figure": {
+      "shape": "array",
+      "rows": 6,
+      "cols": 8,
+      "group": true
+    }
+  },
+  {
+    "id": "m26",
+    "category": "4단과 8단",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "8 × 7은 얼마일까요?",
+    "choices": [
+      "15",
+      "48",
+      "54",
+      "56",
+      "63"
+    ],
+    "answer": 3,
+    "explanation": "8 × 7 = 56. 8 × 6 = 48보다 8 큽니다."
+  },
+  {
+    "id": "m27",
+    "category": "4단과 8단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "4 × 9는 얼마일까요?",
+    "choices": [],
+    "answer": "36",
+    "explanation": "4 × 9 = 36."
+  },
+  {
+    "id": "m28",
+    "category": "4단과 8단",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "8 × 9는 얼마일까요?",
+    "choices": [],
+    "answer": "72",
+    "explanation": "8 × 9 = 72."
+  },
+  {
+    "id": "m29",
+    "category": "4단과 8단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "4 × 4는 얼마일까요?",
+    "choices": [],
+    "answer": "16",
+    "explanation": "4 × 4 = 16."
+  },
+  {
+    "id": "m30",
+    "category": "4단과 8단",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "8 × 4와 4 × 8에 대한 설명으로 알맞은 것은 무엇일까요?",
+    "choices": [
+      "8 × 4가 더 큽니다",
+      "4 × 8이 더 큽니다",
+      "두 값은 같습니다",
+      "비교할 수 없습니다",
+      "8 × 4는 짝수가 아닙니다"
+    ],
+    "answer": 2,
+    "explanation": "8 × 4 = 32, 4 × 8 = 32. 곱하는 순서를 바꾸어도 값은 같습니다."
+  },
+  {
+    "id": "m31",
+    "category": "7단과 9단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "7 × 3은 얼마일까요?",
+    "choices": [],
+    "answer": "21",
+    "explanation": "7 × 3 = 21."
+  },
+  {
+    "id": "m32",
+    "category": "7단과 9단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "일주일은 7일입니다. 4주일은 모두 며칠일까요?",
+    "choices": [],
+    "answer": "28",
+    "explanation": "7 × 4 = 28 (일)."
+  },
+  {
+    "id": "m33",
+    "category": "7단과 9단",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "7 × 6은 얼마일까요?",
+    "choices": [
+      "13",
+      "35",
+      "42",
+      "49",
+      "56"
+    ],
+    "answer": 2,
+    "explanation": "7 × 6 = 42. 7 × 7 = 49와 헷갈리지 않도록 해요."
+  },
+  {
+    "id": "m34",
+    "category": "7단과 9단",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "9 × 2는 얼마일까요?",
+    "choices": [],
+    "answer": "18",
+    "explanation": "9 × 2 = 18."
+  },
+  {
+    "id": "m35",
+    "category": "7단과 9단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "구슬을 한 봉지에 9개씩 담았습니다. 5봉지에 담은 구슬은 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "45",
+    "explanation": "9 × 5 = 45 (개)."
+  },
+  {
+    "id": "m36",
+    "category": "7단과 9단",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "9 × 7은 얼마일까요?",
+    "choices": [
+      "16",
+      "54",
+      "56",
+      "63",
+      "72"
+    ],
+    "answer": 3,
+    "explanation": "9 × 7 = 63. 9단은 9씩 커집니다."
+  },
+  {
+    "id": "m37",
+    "category": "7단과 9단",
+    "difficulty": 3,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "7 × 8은 얼마일까요?",
+    "choices": [],
+    "answer": "56",
+    "explanation": "7 × 8 = 56."
+  },
+  {
+    "id": "m38",
+    "category": "7단과 9단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "9 × 9는 얼마일까요?",
+    "choices": [],
+    "answer": "81",
+    "explanation": "9 × 9 = 81."
+  },
+  {
+    "id": "m39",
+    "category": "7단과 9단",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "7 × 7은 얼마일까요?",
+    "choices": [],
+    "answer": "49",
+    "explanation": "7 × 7 = 49."
+  },
+  {
+    "id": "m40",
+    "category": "7단과 9단",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "9단으로 뛰어 세었습니다. 9, 18, 27, □에서 □에 알맞은 수는 무엇일까요?",
+    "choices": [
+      "30",
+      "34",
+      "36",
+      "38",
+      "45"
+    ],
+    "answer": 2,
+    "explanation": "9씩 커지므로 27 다음은 9 × 4 = 36입니다."
+  },
+  {
+    "id": "m41",
+    "category": "1단과 0의 곱",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "1 × 7은 얼마일까요?",
+    "choices": [],
+    "answer": "7",
+    "explanation": "어떤 수에 1을 곱하면 그 수 그대로입니다. 1 × 7 = 7."
+  },
+  {
+    "id": "m42",
+    "category": "1단과 0의 곱",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "0 × 6은 얼마일까요?",
+    "choices": [],
+    "answer": "0",
+    "explanation": "0을 곱하면 언제나 0입니다. 0 × 6 = 0."
+  },
+  {
+    "id": "m43",
+    "category": "1단과 0의 곱",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "0 × 8은 얼마일까요?",
+    "choices": [
+      "0",
+      "1",
+      "8",
+      "18",
+      "80"
+    ],
+    "answer": 0,
+    "explanation": "0이 8묶음 있어도 모두 0개입니다. 0 × 8 = 0."
+  },
+  {
+    "id": "m44",
+    "category": "1단과 0의 곱",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "1 × 9는 얼마일까요?",
+    "choices": [
+      "0",
+      "1",
+      "9",
+      "10",
+      "19"
+    ],
+    "answer": 2,
+    "explanation": "1이 9묶음이므로 9입니다. 1 × 9 = 9."
+  },
+  {
+    "id": "m45",
+    "category": "1단과 0의 곱",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "접시 5개에 사탕이 한 개도 담겨 있지 않습니다. 접시에 담긴 사탕은 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "0",
+    "explanation": "한 접시에 0개씩 5접시이므로 0 × 5 = 0 (개)."
+  },
+  {
+    "id": "m46",
+    "category": "1단과 0의 곱",
+    "difficulty": 1,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "5 × 0은 얼마일까요?",
+    "choices": [],
+    "answer": "0",
+    "explanation": "0을 곱하면 0입니다. 5 × 0 = 0."
+  },
+  {
+    "id": "m47",
+    "category": "곱셈표",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "곱셈표에서 4단과 6단이 만나는 칸에 들어갈 수는 얼마일까요?",
+    "choices": [],
+    "answer": "24",
+    "explanation": "4 × 6 = 24. 6 × 4도 24로 같습니다."
+  },
+  {
+    "id": "m48",
+    "category": "곱셈표",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "3 × 5 = 15입니다. 그렇다면 5 × 3은 얼마일까요?",
+    "choices": [
+      "8",
+      "15",
+      "18",
+      "35",
+      "53"
+    ],
+    "answer": 1,
+    "explanation": "곱하는 두 수의 순서를 바꾸어도 값은 같습니다. 5 × 3 = 15."
+  },
+  {
+    "id": "m49",
+    "category": "곱셈표",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "□ × 6 = 24입니다. □에 알맞은 수는 무엇일까요?",
+    "choices": [],
+    "answer": "4",
+    "explanation": "6단을 외워 보면 6 × 4 = 24이므로 □ = 4입니다."
+  },
+  {
+    "id": "m50",
+    "category": "곱셈표",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "7 × □ = 35입니다. □에 알맞은 수는 무엇일까요?",
+    "choices": [],
+    "answer": "5",
+    "explanation": "7단을 외워 보면 7 × 5 = 35이므로 □ = 5입니다."
+  },
+  {
+    "id": "m51",
+    "category": "곱셈표",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "8단은 8씩 커집니다. 8 × 5 = 40일 때 8 × 6은 얼마일까요?",
+    "choices": [],
+    "answer": "48",
+    "explanation": "40보다 8 큰 수이므로 8 × 6 = 48."
+  },
+  {
+    "id": "m52",
+    "category": "곱셈표",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "곱셈표에 같은 수가 두 번 나오는 칸이 있습니다. 그 까닭으로 알맞은 것은 무엇일까요?",
+    "choices": [
+      "숫자를 잘못 썼기 때문입니다",
+      "3 × 4와 4 × 3의 값이 같기 때문입니다",
+      "곱셈표가 정사각형이기 때문입니다",
+      "0단이 있기 때문입니다",
+      "1단이 있기 때문입니다"
+    ],
+    "answer": 1,
+    "explanation": "곱하는 순서를 바꾸어도 값이 같아서, 곱셈표가 대각선을 기준으로 같은 수가 마주 봅니다."
+  },
+  {
+    "id": "m53",
+    "category": "생활 속 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "학생들이 한 줄에 6명씩 5줄로 섰습니다. 학생은 모두 몇 명일까요?",
+    "choices": [],
+    "answer": "30",
+    "explanation": "6 × 5 = 30 (명).",
+    "figure": {
+      "shape": "array",
+      "rows": 5,
+      "cols": 6
+    }
+  },
+  {
+    "id": "m54",
+    "category": "생활 속 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "딱지를 하루에 4장씩 9일 동안 모았습니다. 모은 딱지는 모두 몇 장일까요?",
+    "choices": [],
+    "answer": "36",
+    "explanation": "4 × 9 = 36 (장)."
+  },
+  {
+    "id": "m55",
+    "category": "생활 속 곱셈",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "3개씩 담은 접시 7개와 7개씩 담은 접시 3개가 있습니다. 어느 쪽 사탕이 더 많을까요?",
+    "choices": [
+      "3개씩 담은 쪽",
+      "7개씩 담은 쪽",
+      "두 쪽이 같습니다",
+      "알 수 없습니다",
+      "접시 수가 많은 쪽"
+    ],
+    "answer": 2,
+    "explanation": "3 × 7 = 21, 7 × 3 = 21로 둘 다 21개입니다."
+  },
+  {
+    "id": "m56",
+    "category": "생활 속 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "바구니 한 개에 귤이 8개씩 들어 있습니다. 바구니 5개에 든 귤은 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "40",
+    "explanation": "8 × 5 = 40 (개)."
+  },
+  {
+    "id": "m57",
+    "category": "생활 속 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "색종이를 한 명에게 9장씩 3명에게 나누어 주었습니다. 나누어 준 색종이는 모두 몇 장일까요?",
+    "choices": [],
+    "answer": "27",
+    "explanation": "9 × 3 = 27 (장)."
+  },
+  {
+    "id": "m58",
+    "category": "생활 속 곱셈",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "다리가 4개인 의자가 6개 있습니다. 의자 다리는 모두 몇 개일까요?",
+    "choices": [
+      "10개",
+      "18개",
+      "20개",
+      "24개",
+      "28개"
+    ],
+    "answer": 3,
+    "explanation": "4 × 6 = 24 (개)."
+  },
+  {
+    "id": "m59",
+    "category": "생활 속 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "사탕이 한 봉지에 7개씩 들어 있습니다. 6봉지에 든 사탕은 모두 몇 개일까요?",
+    "choices": [],
+    "answer": "42",
+    "explanation": "7 × 6 = 42 (개)."
+  },
+  {
+    "id": "m60",
+    "category": "생활 속 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "inputMode": "integer",
+    "question": "농구 경기에서 한 골을 넣으면 2점입니다. 9골을 넣으면 모두 몇 점일까요?",
+    "choices": [],
+    "answer": "18",
+    "explanation": "2 × 9 = 18 (점)."
+  }
+]
