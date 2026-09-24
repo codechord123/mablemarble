@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS, TOLL_MULTIPLIERS } from '../../utils/boardConfig.js'
 import { calculateToll } from '../../utils/gameEngine.js'
 import BuildingIcon from './BuildingIcon.jsx'
-import LandmarkIcon from './LandmarkIcon.jsx'
+import TileArt from './TileArt.jsx'
 import AnimalFace from '../ui/AnimalFace.jsx'
 
 const TYPE_LABEL = {
@@ -32,16 +32,14 @@ export default function TileInfoModal({ tile, owner, ownerInfo, onClose }) {
           className="bg-white rounded-3xl shadow-2xl p-5 max-w-sm w-full"
         >
           <div className="text-center">
-            <div className="flex items-center justify-center" style={{ height: '48px' }}>
-              {isCity ? (
-                level > 0 ? (
-                  <BuildingIcon level={level} size={48} />
-                ) : tile.country ? (
-                  <span style={{ width: 52, height: 52 }}>
-                    <LandmarkIcon code={tile.country} />
-                  </span>
-                ) : <span className="text-3xl">🏘️</span>
-              ) : <span className="text-3xl">✨</span>}
+            {/* 칸 그림을 크게 — 건물이 섰으면 그림 앞에 건물을 겹쳐 세운다 */}
+            <div className="relative mx-auto flex items-end justify-center" style={{ width: 132, height: 120 }}>
+              <TileArt artKey={isCity ? tile.country : tile.type} alt="" className="h-full w-auto drop-shadow-md" />
+              {isCity && level > 0 && (
+                <span className="building-pop absolute -right-3 bottom-0" style={{ width: 64, height: 64 }}>
+                  <BuildingIcon level={level} />
+                </span>
+              )}
             </div>
             <div className="text-2xl font-extrabold text-amber-900 mt-2">
               {tile.name || TYPE_LABEL[tile.type] || tile.type}

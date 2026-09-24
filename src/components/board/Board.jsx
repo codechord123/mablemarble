@@ -1,12 +1,11 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BOARD, getTileCoord } from '../../utils/boardConfig.js'
+import { BOARD, getTileCoord, tileCenterPct, GRID_TEMPLATE } from '../../utils/boardConfig.js'
 import Tile from './Tile.jsx'
 import PlayerToken from './PlayerToken.jsx'
 import BoardCenter from './BoardCenter.jsx'
 import TileInfoModal from './TileInfoModal.jsx'
 
-const CELL = 100 / 7
 
 export default function Board({
   players,
@@ -56,7 +55,10 @@ export default function Board({
       >
         <div className="board-plane absolute inset-x-0 bottom-0 aspect-square p-1.5 sm:p-3">
         <div className="board-felt relative h-full w-full p-0.5 sm:p-1.5 preserve-3d">
-        <div className="grid grid-cols-7 grid-rows-7 gap-[3px] sm:gap-1.5 h-full w-full preserve-3d">
+        <div
+          className="grid gap-[3px] sm:gap-1.5 h-full w-full preserve-3d"
+          style={{ gridTemplateColumns: GRID_TEMPLATE, gridTemplateRows: GRID_TEMPLATE }}
+        >
           {BOARD.map((tile) => {
             const { x, y } = getTileCoord(tile.id)
             const info = ownership[tile.id]
@@ -67,10 +69,15 @@ export default function Board({
                 type="button"
                 onClick={() => setSelectedTile(tile.id)}
                 style={{ gridColumn: x + 1, gridRow: y + 1 }}
-                className="p-0 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
+                className="p-0 min-h-0 min-w-0 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
                 aria-label={`${tile.name || tile.type} 칸`}
               >
-                <Tile tile={tile} owner={owner} ownerInfo={info} />
+                <Tile
+                  tile={tile}
+                  owner={owner}
+                  ownerInfo={info}
+                  side={(x === 0 || x === 6) && y !== 0 && y !== 6 ? (x === 0 ? 'left' : 'right') : null}
+                />
               </button>
             )
           })}
@@ -95,9 +102,9 @@ export default function Board({
                 key={landing.key}
                 className="absolute -translate-x-1/2 -translate-y-1/2"
                 style={{
-                  left: `${getTileCoord(landing.tileId).x * CELL + CELL / 2}%`,
-                  top: `${getTileCoord(landing.tileId).y * CELL + CELL / 2}%`,
-                  width: `${CELL}%`,
+                  left: `${tileCenterPct(landing.tileId).left}%`,
+                  top: `${tileCenterPct(landing.tileId).top}%`,
+                  width: `${tileCenterPct(landing.tileId).size}%`,
                   aspectRatio: '1',
                 }}
               >

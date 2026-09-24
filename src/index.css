@@ -31,6 +31,24 @@ body {
 .hero-bg {
   background: url('./assets/art/intro-bg.webp') center 30% / cover no-repeat, #38bdf8;
 }
+/* 게임 화면 — 인트로의 바다를 흐리게 깔아 보드가 바다 위 무대에 놓인 것처럼.
+   그림은 고정 레이어(::before)로 두어 스크롤해도 따라 움직이지 않는다. */
+.game-bg {
+  position: relative;
+  isolation: isolate;
+  background: #7dd3fc;
+}
+.game-bg::before {
+  content: '';
+  position: fixed;
+  inset: -24px;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, rgba(255, 255, 255, 0.18), rgba(8, 47, 73, 0.18) 100%),
+    url('./assets/art/intro-bg.webp') center 70% / cover no-repeat;
+  filter: blur(7px) saturate(1.1);
+}
+
 /* 설정·결과 화면처럼 글이 많은 곳은 그림을 한 겹 흐리게 깐다 */
 .hero-bg-soft {
   background:
@@ -158,13 +176,32 @@ body {
   transform: rotateX(var(--board-tilt));
   transform-origin: 50% 100%;
   transform-style: preserve-3d;
-  /* 보드 테두리 — 두꺼운 금테 + 아래로 보이는 판 두께 */
-  background: linear-gradient(160deg, #fde68a 0%, #f59e0b 55%, #d97706 100%);
+  /* 보드 테두리 — 광택 나는 두꺼운 금테. 위쪽은 빛을 받아 밝고 아래로 갈수록
+     짙어진다. 아래로 겹겹이 깐 그림자가 판의 두께(옆면)가 된다. */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 22%),
+    linear-gradient(160deg, #fff1b8 0%, #fcd34d 22%, #f59e0b 55%, #d97706 82%, #b45309 100%);
   border-radius: 1.4rem;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.55),
-    0 12px 0 #92400e,
-    0 26px 38px rgba(69, 26, 3, 0.35);
+    inset 0 2px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -3px 0 rgba(120, 53, 15, 0.45),
+    inset 0 0 0 1px rgba(120, 53, 15, 0.35),
+    0 5px 0 #c2410c,
+    0 11px 0 #7c2d12,
+    0 12px 2px rgba(69, 26, 3, 0.4),
+    0 30px 44px rgba(8, 47, 73, 0.38);
+}
+/* 금테 위를 도는 흰 점선 — 판 가장자리 장식 */
+.board-plane::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 1.2rem;
+  border: 1.5px dashed rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+@media (min-width: 640px) {
+  .board-plane::before { inset: 5px; border-width: 2px; }
 }
 .board-felt {
   /* 칸이 놓이는 안쪽 바닥 — 캔바로 그린 파스텔 세계지도를 크림색으로 한 겹 덮어 깐다.
@@ -174,7 +211,9 @@ body {
     url('./assets/art/world-map.webp') center / cover no-repeat,
     #fef3c7;
   border-radius: 1rem;
-  box-shadow: inset 0 3px 8px rgba(146, 64, 14, 0.25);
+  box-shadow:
+    inset 0 0 0 2px rgba(120, 53, 15, 0.45),
+    inset 0 4px 10px rgba(69, 26, 3, 0.35);
 }
 .preserve-3d { transform-style: preserve-3d; }
 
@@ -186,9 +225,22 @@ body {
 
 /* 칸 블록 — 앞쪽 옆면이 보이는 두께 */
 .tile-block {
+  /* 두꺼운 타일 — 윗면 광택 + 아래 옆면 + 바닥 그림자 */
   box-shadow:
-    0 4px 0 rgba(146, 64, 14, 0.38),
-    0 7px 10px rgba(69, 26, 3, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(120, 53, 15, 0.12),
+    0 3px 0 rgba(146, 64, 14, 0.45),
+    0 6px 8px rgba(69, 26, 3, 0.2);
+}
+/* 칸 그림 — 칸 바닥에 살짝 그림자를 떨궈 올려놓은 미니어처처럼 */
+.tile-art {
+  filter: drop-shadow(0 2px 1.5px rgba(69, 26, 3, 0.3));
+}
+/* 모서리 칸 이름표 */
+.tile-pill {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 rgba(0, 0, 0, 0.18);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
 }
 
 /* 건물이 올라설 때 — 땅에서 솟았다가 살짝 눌리며 자리잡는다.

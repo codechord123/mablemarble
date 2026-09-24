@@ -234,7 +234,7 @@ export default function App() {
   const onIsland = phase === 'rolling' && current?.islandTurnsLeft > 0
 
   return (
-    <div className="min-h-screen app-bg safe-padded">
+    <div className="min-h-screen game-bg safe-padded">
       <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
       <BigEvent event={bigEvent} onDone={clearBigEvent} />
@@ -251,7 +251,7 @@ export default function App() {
         ⚠️ 자동 저장 실패 — 새로고침 시 진행 상황이 사라집니다
       </Toast>
       <Toast show={hotelFirstBuilt} color="bg-rose-600" position="bottom">
-        🏨 호텔(빨간 줄무늬)이 가장 비싼 도시! 통행료가 매우 비쌉니다
+        🏨 첫 호텔 완성! 호텔 도시는 통행료가 가장 비싸요
       </Toast>
 
       {phase === 'question' && currentQuestion && (
@@ -364,7 +364,7 @@ export default function App() {
 
             <button
               onClick={() => setConfirmEnd(true)}
-              className="w-full py-2 t-body font-semibold text-amber-900/45 hover:text-rose-600 hover:bg-rose-50/70 rounded-lg transition"
+              className="w-full py-2 t-body font-semibold text-white/85 bg-sky-950/15 hover:text-rose-600 hover:bg-rose-50/80 rounded-lg transition"
             >
               게임 종료
             </button>

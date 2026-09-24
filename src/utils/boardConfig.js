@@ -89,6 +89,29 @@ export const ISLAND_ESCAPE_FAIL_PENALTY = 50
 export const QUESTION_TIME_BY_DIFFICULTY = { 1: 20, 2: 30, 3: 45 }
 
 // 7x7 그리드 좌표 (UI 렌더링용). 시계방향 외곽 24칸을 0..23으로 매핑.
+// 보드 격자 한 줄의 칸 비율. 모서리 칸(출발·무인도·우주여행·사회복지)을 넓게 잡아
+// 모두의 마블처럼 네 귀퉁이가 크게 보이게 한다. CSS grid-template과 말 위치 계산이
+// 같은 값을 쓴다.
+export const CORNER_WEIGHT = 1.28
+export const TRACK = [CORNER_WEIGHT, 1, 1, 1, 1, 1, CORNER_WEIGHT]
+const TRACK_TOTAL = TRACK.reduce((a, b) => a + b, 0)
+// minmax(0, …) — 그림이 커도 칸이 늘어나지 않게 최소 크기를 0으로 묶는다
+export const GRID_TEMPLATE = TRACK.map((w) => `minmax(0, ${w}fr)`).join(' ')
+
+// 격자 한 줄에서 i번째 칸의 시작 위치와 폭(%). 칸 사이 간격(몇 px)은 무시한다.
+export function trackSpan(i) {
+  let start = 0
+  for (let k = 0; k < i; k++) start += TRACK[k]
+  return { start: (start / TRACK_TOTAL) * 100, size: (TRACK[i] / TRACK_TOTAL) * 100 }
+}
+// 칸 한가운데 좌표(%) — 말·착지 링 배치용
+export function tileCenterPct(index) {
+  const { x, y } = getTileCoord(index)
+  const cx = trackSpan(x)
+  const cy = trackSpan(y)
+  return { left: cx.start + cx.size / 2, top: cy.start + cy.size / 2, size: Math.min(cx.size, cy.size) }
+}
+
 export function getTileCoord(index) {
   const side = 7
   const last = side - 1

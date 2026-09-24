@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { motion, useAnimation, useReducedMotion } from 'framer-motion'
-import { getTileCoord, BOARD_SIZE } from '../../utils/boardConfig.js'
+import { tileCenterPct, BOARD_SIZE } from '../../utils/boardConfig.js'
 import AnimalFace from '../ui/AnimalFace.jsx'
 
-const CELL = 100 / 7
-const HALF = CELL / 2
 const HOP_MS = 180
 const HOP_H = 16 // 점프 높이(px)
 
@@ -51,9 +49,9 @@ export default function PlayerToken({ player, index, onLanded }) {
     const lefts = []
     const tops = []
     for (let i = 0; i < path.length; i++) {
-      const { x, y } = getTileCoord(path[i])
-      lefts.push(`${x * CELL + HALF}%`)
-      tops.push(`${y * CELL + HALF}%`)
+      const c = tileCenterPct(path[i])
+      lefts.push(`${c.left}%`)
+      tops.push(`${c.top}%`)
     }
 
     const duration = Math.max(0.45, (path.length * HOP_MS) / 1000)
@@ -129,12 +127,12 @@ export default function PlayerToken({ player, index, onLanded }) {
     prevPos.current = player.position
   }, [player.position, controls, bobControls, shadowControls, reduce])
 
-  const start = getTileCoord(prevPos.current)
+  const start = tileCenterPct(prevPos.current)
   const pos = POSITIONS[index % POSITIONS.length]
 
   return (
     <motion.div
-      initial={{ left: `${start.x * CELL + HALF}%`, top: `${start.y * CELL + HALF}%` }}
+      initial={{ left: `${start.left}%`, top: `${start.top}%` }}
       animate={controls}
       style={{ zIndex: 20 + index }}
       className="absolute -translate-x-1/2 -translate-y-1/2 preserve-3d"
