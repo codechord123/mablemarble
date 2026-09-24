@@ -85,6 +85,7 @@ export default function Board({
                       ? null
                       : y === 0 ? 'top' : y === 6 ? 'bottom' : x === 0 ? 'left' : 'right'
                   }
+
                 />
               </button>
             )

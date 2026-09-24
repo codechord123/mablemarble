@@ -18,26 +18,17 @@ const FACE = {
 
 const CORNERS = new Set([TILE_TYPES.START, TILE_TYPES.ISLAND, TILE_TYPES.SPACE, TILE_TYPES.WELFARE])
 
-// 건물 부지 — 모두의 마블처럼 도시 카드마다 보드 가운데 쪽으로 붙은 전용 띠.
-// 칸 안에 건물을 넣으면 그림·이름에 가려 잘 안 보였다. 띠에는 칸 3개가 있고
-// 콘도 → 아파트 → 호텔이 한 칸씩 채워져서 몇 단계까지 지었는지 바로 보인다.
-const LOT_PLACE = {
-  top: { top: '100%', left: 0, right: 0, height: 'var(--lot)', flexDirection: 'row' },
-  bottom: { bottom: '100%', left: 0, right: 0, height: 'var(--lot)', flexDirection: 'row' },
-  left: { left: '100%', top: 0, bottom: 0, width: 'var(--lot)', flexDirection: 'column' },
-  right: { right: '100%', top: 0, bottom: 0, width: 'var(--lot)', flexDirection: 'column' },
-}
-const LOT_ROUND = {
-  top: 'rounded-b-md', bottom: 'rounded-t-md', left: 'rounded-r-md', right: 'rounded-l-md',
-}
-
-function BuildingLot({ edge, owner, level }) {
+// 건물 부지 — 모두의 마블처럼 도시 카드마다 건물 자리가 따로 있다.
+// 카드 맨 위 띠에 칸 3개를 두고 콘도 → 아파트 → 호텔이 한 칸씩 채워진다.
+// (카드 밖 보드 가운데 쪽에 붙였더니 안쪽 모서리에서 이웃 부지와 겹치고
+//  가운데 무대 자리도 줄어서, 카드 안으로 옮겼다.)
+function BuildingLot({ owner, level }) {
   return (
     <div
-      className={`building-lot absolute z-[3] flex pointer-events-none ${LOT_ROUND[edge]} ${
+      className={`building-lot absolute top-0 inset-x-0 z-[3] flex pointer-events-none rounded-t-md sm:rounded-t-lg ${
         owner ? `${owner.color} is-owned` : ''
       }`}
-      style={LOT_PLACE[edge]}
+      title={owner?.name}
     >
       {[1, 2, 3].map((n) => (
         <div key={n} className="lot-slot relative flex-1 flex items-end justify-center">
@@ -72,15 +63,14 @@ function Tile({ tile, owner, ownerInfo, edge }) {
     isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-black/10'
   } overflow-hidden leading-tight`
 
-  const building = isCity && edge && <BuildingLot edge={edge} owner={owner} level={level} />
+  const building = isCity && <BuildingLot owner={owner} level={level} />
+  // 도시 카드는 위쪽을 건물 부지 띠만큼 비워 둔다
+  const lotPad = isCity ? { paddingTop: 'var(--lot)' } : null
 
   let face
   if (side) {
     face = (
-      <div className={`${shell} flex ${side === 'right' ? 'flex-row-reverse' : 'flex-row'} items-stretch`} style={{ background: s.face }} aria-label={name}>
-        {owner && (
-          <div className={`absolute top-0 inset-x-0 h-[9%] min-h-[3px] z-[1] ${owner.color}`} title={owner.name} />
-        )}
+      <div className={`${shell} flex ${side === 'right' ? 'flex-row-reverse' : 'flex-row'} items-stretch`} style={{ background: s.face, ...lotPad }} aria-label={name}>
         <div className="h-full w-[44%] shrink-0 flex items-center justify-center p-[3%] pt-[8%]">
           <TileArt artKey={artKey} alt="" className="h-full w-auto" />
         </div>
@@ -115,14 +105,10 @@ function Tile({ tile, owner, ownerInfo, edge }) {
       className={`tile-block relative h-full w-full rounded-md sm:rounded-lg border ${
         isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-black/10'
       } flex flex-col items-center leading-tight overflow-hidden`}
-      style={{ background: s.face }}
+      style={{ background: s.face, ...lotPad }}
       aria-label={name}
     >
       {/* 소유주 컬러 띠 (상단) */}
-      {owner && (
-        <div className={`absolute top-0 inset-x-0 h-[7%] min-h-[3px] z-[1] ${owner.color}`} title={owner.name} />
-      )}
-
       {/* 그림 — 남는 높이를 모두 쓴다. 칸 모양(가로로 긴 옆줄, 세로로 긴 윗줄)에 맞춰
           알아서 줄어든다. */}
       <div

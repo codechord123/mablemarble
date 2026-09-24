@@ -50,8 +50,11 @@ export default function PlayerToken({ player, index, onLanded, startDelay = 0 })
     const path = buildPath(prevPos.current, player.position)
     if (path.length === 0) return
 
-    const lefts = []
-    const tops = []
+    // 첫 키프레임은 지금 칸이어야 한다. 없으면 출발 지연(주사위가 구르는 동안)
+    // 사이에 말이 첫 목적지 칸으로 먼저 튀어가 있었다.
+    const from = tileCenterPct(prevPos.current)
+    const lefts = [`${from.left}%`]
+    const tops = [`${from.top}%`]
     for (let i = 0; i < path.length; i++) {
       const c = tileCenterPct(path[i])
       lefts.push(`${c.left}%`)
