@@ -7,28 +7,40 @@ import FractionInput, { detectInputMode } from '../ui/FractionInput.jsx'
 import ConfirmDialog from '../ui/ConfirmDialog.jsx'
 import GameButton from '../ui/GameButton.jsx'
 import ShapeDiagram from '../ui/ShapeDiagram.jsx'
+import AnimalFace from '../ui/AnimalFace.jsx'
 
-const PROMPT_LABEL = {
-  purchase: '💰 땅 구매를 위해 풀어주세요',
-  upgrade: '🏗️ 건물 짓기 — 한 단계 업그레이드',
-  'skip-toll': '🎯 통행료 면제 도전!',
-  'bonus-question': '⭐ 보너스 문제',
-  'escape-island': '🏝️ 무인도 탈출 시도',
+// 무엇을 걸고 푸는 문제인지에 따라 머리띠 색과 제목을 바꾼다.
+const INTENT = {
+  purchase: { title: '땅 사기 도전', icon: '💰', from: '#10b981', to: '#047857' },
+  upgrade: { title: '건물 짓기 도전', icon: '🏗️', from: '#38bdf8', to: '#1d4ed8' },
+  'skip-toll': { title: '통행료 면제 도전', icon: '🎯', from: '#a78bfa', to: '#6d28d9' },
+  'bonus-question': { title: '보너스 문제', icon: '⭐', from: '#fbbf24', to: '#d97706' },
+  'escape-island': { title: '무인도 탈출 도전', icon: '🏝️', from: '#22d3ee', to: '#0e7490' },
 }
+const DEFAULT_INTENT = { title: '문제 도전', icon: '📝', from: '#fb923c', to: '#c2410c' }
 
 export const TIMEOUT_SENTINEL = '__TIMEOUT__'
 
-function CountdownBar({ remaining, total }) {
-  const pct = Math.max(0, (remaining / total) * 100)
-  const color =
-    pct > 50 ? 'bg-emerald-500' : pct > 25 ? 'bg-amber-500' : 'bg-rose-500'
+// 둥근 타이머 — 남은 시간만큼 테가 줄고, 절반·4분의 1 아래로 가면 색이 바뀐다
+function TimerRing({ remaining, total, urgent }) {
+  const R = 20
+  const C = 2 * Math.PI * R
+  const pct = Math.max(0, remaining / total)
+  const color = pct > 0.5 ? '#ffffff' : pct > 0.25 ? '#fde047' : '#fecaca'
   return (
-    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-      <motion.div
-        className={`h-full ${color}`}
-        animate={{ width: `${pct}%` }}
-        transition={{ duration: 0.9, ease: 'linear' }}
-      />
+    <div className={`relative h-14 w-14 shrink-0 ${urgent ? 'tick-urgent' : ''}`} aria-label={`남은 시간 ${remaining}초`}>
+      <svg viewBox="0 0 48 48" className="h-full w-full -rotate-90">
+        <circle cx="24" cy="24" r={R} fill="rgba(0,0,0,0.18)" stroke="rgba(255,255,255,0.25)" strokeWidth="4" />
+        <motion.circle
+          cx="24" cy="24" r={R} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round"
+          strokeDasharray={C}
+          animate={{ strokeDashoffset: C * (1 - pct) }}
+          transition={{ duration: 0.9, ease: 'linear' }}
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-lg font-black tabular-nums text-white drop-shadow">
+        {remaining}
+      </span>
     </div>
   )
 }
@@ -90,24 +102,19 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
     }
   }
 
+  const theme = INTENT[intent] || DEFAULT_INTENT
+
   return (
-    <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-40 bg-sky-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
       <motion.div
-        initial={{ scale: 0.7, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-        className={`bg-white rounded-[1.75rem] shadow-2xl px-5 pt-5 sm:px-8 sm:pt-8 max-w-2xl w-full relative max-h-[96dvh] overflow-y-auto overscroll-contain transition-shadow ${
-          urgent ? 'ring-4 ring-rose-400/70' : 'ring-1 ring-amber-900/5'
+        initial={{ scale: 0.6, rotateX: 35, opacity: 0, y: 40 }}
+        animate={{ scale: 1, rotateX: 0, opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 230, damping: 19 }}
+        style={{ transformPerspective: 900 }}
+        className={`question-card bg-white rounded-[1.75rem] max-w-2xl w-full relative max-h-[96dvh] overflow-y-auto overscroll-contain ${
+          urgent ? 'ring-4 ring-rose-400/80' : ''
         }`}
       >
-        <button
-          onClick={() => setConfirmSkip(true)}
-          aria-label="문제 건너뛰기"
-          title="문제 건너뛰기"
-          className="absolute top-3 right-3 h-9 w-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-lg"
-        >
-          ✕
-        </button>
         <ConfirmDialog
           open={confirmSkip}
           title="문제 건너뛰기"
@@ -122,24 +129,44 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           }}
           onCancel={() => setConfirmSkip(false)}
         />
-        <CountdownBar remaining={remaining} total={total} />
-        <div className="flex items-center mt-2 text-sm">
-          <div className="flex items-center gap-2">
-            <div className={`h-3 w-3 rounded-full ${player.color}`} />
-            <span className="text-amber-900 font-bold">{player.name}</span>
+
+        {/* 머리띠 — 누가, 무엇을 걸고, 얼마나 남았는지 */}
+        <div
+          className="question-banner relative px-4 sm:px-6 pt-4 sm:pt-5 pb-7 sm:pb-8 text-white"
+          style={{ background: `linear-gradient(135deg, ${theme.from}, ${theme.to})` }}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-full ${player.color} border-[3px] border-white shadow-lg flex items-center justify-center`}>
+              <AnimalFace emoji={player.avatar} className="w-[92%] h-[92%]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs sm:text-sm font-bold text-white/85 truncate">{player.name}</div>
+              <div className="text-lg sm:text-2xl font-black leading-tight drop-shadow-sm">
+                {theme.icon} {theme.title}
+              </div>
+            </div>
+            <TimerRing remaining={remaining} total={total} urgent={urgent} />
+            <button
+              onClick={() => setConfirmSkip(true)}
+              aria-label="문제 건너뛰기"
+              title="문제 건너뛰기"
+              className="self-start -mr-1 -mt-1 h-8 w-8 shrink-0 rounded-full bg-black/15 hover:bg-black/25 text-white/90 font-bold"
+            >
+              ✕
+            </button>
           </div>
-          <span className="text-amber-600 ml-auto">
-            {question.category} · 난이도 {'★'.repeat(question.difficulty)}
-          </span>
-        </div>
-        <div className="flex justify-between items-center mt-1">
-          <div className="text-amber-700 text-sm">{PROMPT_LABEL[intent] || ''}</div>
-          <div className={`text-sm font-extrabold inline-flex items-center ${urgent ? 'text-rose-600 tick-urgent' : 'text-amber-700'}`}>
-            ⏱ {remaining}초
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-bold">
+            <span className="px-2.5 py-1 rounded-full bg-white/20 ring-1 ring-white/30">{question.category}</span>
+            <span className="px-2.5 py-1 rounded-full bg-white/20 ring-1 ring-white/30 tracking-tight">
+              난이도 <span className="text-yellow-200">{'★'.repeat(question.difficulty)}</span>
+              <span className="text-white/35">{'★'.repeat(Math.max(0, 3 - question.difficulty))}</span>
+            </span>
           </div>
         </div>
 
-        <div className="text-[1.3rem] sm:text-3xl font-bold text-amber-900 mt-3 sm:mt-4 mb-3 leading-[1.75] break-keep tabular-nums">
+        {/* 본문 — 머리띠 위로 살짝 겹쳐 올린 카드 */}
+        <div className="relative -mt-4 bg-white rounded-t-[1.5rem] px-5 sm:px-8 pt-5 sm:pt-7">
+        <div className="question-text text-[1.25rem] sm:text-3xl font-bold text-slate-800 mb-3 leading-[1.75] break-keep tabular-nums">
           <MathText>{question.question}</MathText>
         </div>
 
@@ -162,14 +189,14 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
                   whileTap={{ scale: 0.97 }}
                   animate={active ? { scale: [1, 1.03, 1] } : { scale: 1 }}
                   transition={{ duration: 0.25 }}
-                  className={`w-full p-4 sm:p-5 rounded-xl border-2 text-left transition-colors text-lg sm:text-xl flex items-center ${
+                  className={`w-full px-4 py-3.5 sm:p-5 rounded-2xl border-2 text-left transition-colors text-lg sm:text-xl flex items-center font-semibold text-slate-800 ${
                     active
-                      ? 'border-amber-500 bg-amber-50 shadow-md'
-                      : 'border-gray-200 hover:border-amber-300 hover:bg-amber-50/40'
+                      ? 'border-amber-500 bg-amber-50 shadow-[0_4px_0_#f59e0b]'
+                      : 'border-slate-200 bg-white shadow-[0_4px_0_#e2e8f0] hover:border-amber-300'
                   }`}
                 >
-                  <span className={`inline-flex items-center justify-center h-7 w-7 rounded-full mr-3 font-bold text-sm flex-shrink-0 transition-colors ${
-                    active ? 'bg-amber-500 text-white' : 'bg-gray-100 text-amber-700'
+                  <span className={`inline-flex items-center justify-center h-8 w-8 rounded-xl mr-3 font-black text-base flex-shrink-0 transition-colors ${
+                    active ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-500'
                   }`}>
                     {i + 1}
                   </span>
@@ -196,10 +223,10 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
               <button
                 key={i}
                 onClick={() => setSelected(i)}
-                className={`p-8 sm:p-10 rounded-xl border-2 text-5xl sm:text-6xl font-extrabold transition ${
+                className={`p-8 sm:p-10 rounded-2xl border-2 text-5xl sm:text-6xl font-black transition ${
                   selected === i
-                    ? 'border-amber-500 bg-amber-50'
-                    : 'border-gray-200 hover:border-amber-300'
+                    ? 'border-amber-500 bg-amber-50 shadow-[0_5px_0_#f59e0b]'
+                    : 'border-slate-200 bg-white shadow-[0_5px_0_#e2e8f0] hover:border-amber-300'
                 } ${c === 'O' ? 'text-emerald-600' : 'text-rose-600'}`}
               >
                 {c}
@@ -239,6 +266,7 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           >
             정답 제출
           </GameButton>
+        </div>
         </div>
       </motion.div>
     </div>

@@ -17,7 +17,7 @@ export default function BoardCenter({ player, lastRoll, currentRound, turnLimit,
         stage ? 'pointer-events-auto' : 'pointer-events-none'
       }`}
       // 가장자리는 비워 둔다 — 칸 옆(가운데 쪽)에 세운 건물이 서는 자리
-      style={{ padding: 'clamp(12px, 6cqi, 52px)' }}
+      style={{ padding: 'clamp(10px, 5cqi, 48px)' }}
     >
       {/* 차례 표시 — 무대가 있을 때는 한 줄로 압축해 자리를 내준다 */}
       {player && (

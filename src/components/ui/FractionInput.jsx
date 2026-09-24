@@ -14,7 +14,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { sfx } from '../../utils/sounds.js'
 import { popEl } from '../../utils/juice.js'
-import { mixedParticle } from '../../utils/korean.js'
 
 // 조사 '과/와'는 앞 수의 받침에 따라 달라지므로 둘 다 받는다.
 export const MIXED_SEPARATOR = /[과와]/
@@ -212,15 +211,6 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
               ariaLabel="대분수의 자연수 부분" boxRef={refs.int} />
           </div>
           <Label>자연수</Label>
-        </div>
-
-        <div className="flex flex-col items-center">
-          <div className="flex-1 flex items-center">
-            <span className={`font-bold text-lg ${vals.int ? 'text-amber-800' : 'text-amber-800/35'}`}>
-              {mixedParticle(vals.int)}
-            </span>
-          </div>
-          <Label hidden>·</Label>
         </div>
 
         <div className="flex flex-col items-center">
