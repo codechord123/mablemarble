@@ -188,6 +188,11 @@ body {
   filter: drop-shadow(0 2px 1px rgba(69, 26, 3, 0.25));
 }
 
+/* 문제 창의 그림 — 폰에선 높이를 줄여 입력칸·키패드가 한 화면에 들어오게 */
+@media (max-width: 639px) {
+  .question-figure svg { width: auto; height: 108px; }
+}
+
 /* 주사위 영역 — 무대가 좁으면 버튼을 주사위 아래로 내리고 주사위도 줄인다 */
 .dice-roller { display: flex; align-items: center; gap: 1rem; }
 .die-face { width: clamp(44px, 17cqi, 80px); height: clamp(44px, 17cqi, 80px); }

@@ -91,12 +91,12 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-        className={`bg-white rounded-[1.75rem] shadow-2xl p-6 sm:p-8 max-w-2xl w-full relative max-h-[95vh] overflow-y-auto transition-shadow ${
+        className={`bg-white rounded-[1.75rem] shadow-2xl px-5 pt-5 sm:px-8 sm:pt-8 max-w-2xl w-full relative max-h-[96dvh] overflow-y-auto overscroll-contain transition-shadow ${
           urgent ? 'ring-4 ring-rose-400/70' : 'ring-1 ring-amber-900/5'
         }`}
       >
@@ -139,12 +139,12 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           </div>
         </div>
 
-        <div className="text-2xl sm:text-3xl font-bold text-amber-900 mt-4 mb-3 leading-relaxed break-keep tabular-nums">
+        <div className="text-[1.3rem] sm:text-3xl font-bold text-amber-900 mt-3 sm:mt-4 mb-3 leading-[1.75] break-keep tabular-nums">
           <MathText>{question.question}</MathText>
         </div>
 
         {question.figure && (
-          <div className="mb-5 flex justify-center">
+          <div className="question-figure mb-3 sm:mb-5 flex justify-center">
             <div className="bg-amber-50/70 rounded-2xl px-3 py-2 ring-1 ring-amber-200">
               <ShapeDiagram figure={question.figure} />
             </div>
@@ -228,14 +228,18 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
           />
         )}
 
-        <GameButton
-          color={canSubmit ? 'orange' : 'gray'}
-          onClick={submit}
-          disabled={!canSubmit}
-          className="mt-6 w-full py-3.5 text-lg"
-        >
-          정답 제출
-        </GameButton>
+        {/* 제출 버튼은 창 아래에 붙여 둔다. 작은 폰에서 창이 넘쳐도 버튼은 늘 보이고
+            내용만 스크롤된다. (창 자체의 아래 여백은 이 띠가 대신 가진다) */}
+        <div className="sticky bottom-0 -mx-5 sm:-mx-8 px-5 sm:px-8 pt-3 sm:pt-5 pb-5 sm:pb-8 mt-1 bg-white shadow-[0_-10px_14px_-12px_rgba(69,26,3,0.25)]">
+          <GameButton
+            color={canSubmit ? 'orange' : 'gray'}
+            onClick={submit}
+            disabled={!canSubmit}
+            className="w-full py-3.5 text-lg"
+          >
+            정답 제출
+          </GameButton>
+        </div>
       </motion.div>
     </div>
   )

@@ -3,18 +3,22 @@
 
 import { mixedParticle } from '../../utils/korean.js'
 
+// 세로 정렬은 middle — 분수 상자의 가운데(=가로선)가 글자의 가운데 높이에 온다.
+// 예전 값(-0.28em)은 분자의 바닥선을 글줄 아래로 내려서, 분자는 글자 줄에,
+// 분모는 줄 밑에 매달린 모양이 됐다. 크기(0.7em)·행간(1)을 줄여 분수가 든
+// 줄만 벌어지지 않게 한다.
 function Fraction({ num, den }) {
   return (
     <span
-      className="inline-flex flex-col items-center justify-center text-center align-middle tabular-nums leading-[1.05]"
-      style={{ fontSize: '0.82em', verticalAlign: '-0.28em', margin: '0 0.12em' }}
+      className="inline-flex flex-col items-center text-center tabular-nums"
+      style={{ fontSize: '0.7em', lineHeight: 1, verticalAlign: 'middle', margin: '0 0.14em' }}
     >
-      <span className="px-[0.35em]">{num}</span>
+      <span className="px-[0.3em]">{num}</span>
       <span
         className="block w-full bg-current rounded-full"
-        style={{ height: '0.09em', margin: '0.06em 0' }}
+        style={{ height: '0.1em', margin: '0.08em 0' }}
       />
-      <span className="px-[0.35em]">{den}</span>
+      <span className="px-[0.3em]">{den}</span>
     </span>
   )
 }
@@ -24,8 +28,9 @@ function Fraction({ num, den }) {
 // (2와 2분의 1, 1과 3분의 2) — 데이터에 뭐라 적혀 있든 읽는 대로 보여준다.
 function Mixed({ int, num, den }) {
   return (
-    <span className="inline-flex items-center whitespace-nowrap align-middle">
-      <span>{int}</span>
+    // 정수부는 보통 글자처럼 바닥선에 두고, 분수만 가운데 정렬로 띄운다
+    <span className="whitespace-nowrap">
+      {int}
       <span className="text-[0.72em] opacity-60 mx-[0.1em] font-semibold">{mixedParticle(int)}</span>
       <Fraction num={num} den={den} />
     </span>
