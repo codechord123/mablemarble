@@ -7,6 +7,7 @@ import PlayerCard from './components/game/PlayerCard.jsx'
 import DiceRoller from './components/game/DiceRoller.jsx'
 import TurnAnnouncement from './components/game/TurnAnnouncement.jsx'
 import BigEvent from './components/game/BigEvent.jsx'
+import { duckMusic } from './utils/bgm.js'
 import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
 import QuestionModal from './components/game/QuestionModal.jsx'
@@ -163,6 +164,11 @@ export default function App() {
     const t = setTimeout(() => setMoveSettled(true), cap)
     return () => clearTimeout(t)
   }, [phase, currentTurn, lastRoll])
+
+  // 문제를 푸는 동안에는 배경음악을 작게 줄인다
+  useEffect(() => {
+    duckMusic(phase === 'question')
+  }, [phase])
 
   // 설정 화면은 세로로 길어서 '게임 시작!'을 누르려면 아래로 스크롤해야 한다.
   // 그 스크롤 위치가 그대로 남아 게임에 들어오면 보드 윗줄(출발 칸 — 시작 시
@@ -401,7 +407,7 @@ export default function App() {
         // 세로: 주사위·액션이 보드 중앙 무대 안으로 들어간다.
         // 별도 액션 패널이 사라져 보드가 커지고, 굴리기→말 이동을 한자리에서 본다.
         return (
-          <div className="flex flex-col gap-3 sm:gap-4 mx-auto p-2 sm:p-4 pb-20 max-w-3xl items-center">
+          <div className="flex flex-col gap-3 sm:gap-4 mx-auto p-2 sm:p-4 pb-32 max-w-3xl items-center">
             {makeBoard(actionContent)}
             <aside className="w-full max-w-2xl space-y-2 sm:space-y-3">
               {sidebarInfo}
