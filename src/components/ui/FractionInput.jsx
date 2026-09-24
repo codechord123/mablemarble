@@ -84,7 +84,9 @@ function Key({ children, onPress, tone = 'digit', ariaLabel, wide, order = '' })
 }
 
 export default function FractionInput({ mode, onValueChange, onEnter }) {
-  const fields = mode === 'integer' ? ['int'] : ['int', 'num', 'den']
+  // 입력 순서는 교과서대로 자연수 → 분모 → 분자. (화면 배치는 분자가 위)
+  // '다음 칸', Tab·→, 빈 칸에서 지우기로 되돌아가는 순서 모두 이 순서를 따른다.
+  const fields = mode === 'integer' ? ['int'] : ['int', 'den', 'num']
   const [vals, setVals] = useState({ int: '', num: '', den: '' })
   const [active, setActive] = useState(fields[0])
   const refs = { int: useRef(null), num: useRef(null), den: useRef(null) }
@@ -201,7 +203,7 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
   return (
     <div className="flex flex-col items-center">
       <div className="text-xs font-bold text-amber-500 tracking-wide mb-0.5 sm:mb-1">
-        칸을 눌러 고르고, 아래 숫자를 누르세요
+        자연수 → 분모 → 분자 순서로 써요
       </div>
       <div className="flex items-stretch justify-center gap-2 sm:gap-3">
         <div className="flex flex-col items-center">
