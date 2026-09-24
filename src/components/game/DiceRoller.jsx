@@ -137,8 +137,8 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
       rollingRef.current = false
       setRolling(false)
       onRoll()
-      // 두 번째 주사위가 멈추는 타이밍에 맞춰 바닥이 한 번 울린다
-      setTimeout(() => impactEl(rowRef.current, { px: 4 }), 120)
+      // 주사위가 굴러와 바닥에 닿는 타이밍(약 0.7초 뒤)에 맞춰 바닥이 한 번 울린다
+      setTimeout(() => impactEl(rowRef.current, { px: 4 }), 700)
     }, 1200)
   }
 
@@ -153,7 +153,7 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
         <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.45, type: 'spring', stiffness: 420, damping: 18 }}
+          transition={{ delay: 0.72, type: 'spring', stiffness: 420, damping: 18 }}
           className="t-display text-amber-900 tabular-nums whitespace-nowrap"
         >
           {lastRoll ? `${lastRoll.d1} + ${lastRoll.d2} = ${lastRoll.total}` : ''}

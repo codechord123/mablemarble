@@ -33,7 +33,9 @@ function buildPath(from, to) {
   return path
 }
 
-export default function PlayerToken({ player, index, onLanded }) {
+// startDelay(초): 위치가 바뀐 뒤 출발까지 기다리는 시간. 주사위를 굴린 경우
+// 주사위가 멈추고 합이 뜬 다음에 말이 출발하도록 App이 넘겨준다.
+export default function PlayerToken({ player, index, onLanded, startDelay = 0 }) {
   const controls = useAnimation()
   const bobControls = useAnimation()
   const shadowControls = useAnimation()
@@ -41,6 +43,8 @@ export default function PlayerToken({ player, index, onLanded }) {
   const prevPos = useRef(player.position)
   const landedRef = useRef(onLanded)
   landedRef.current = onLanded
+  const delayRef = useRef(startDelay)
+  delayRef.current = startDelay
 
   useEffect(() => {
     const path = buildPath(prevPos.current, player.position)
@@ -55,11 +59,12 @@ export default function PlayerToken({ player, index, onLanded }) {
     }
 
     const duration = Math.max(0.45, (path.length * HOP_MS) / 1000)
+    const delay = delayRef.current
 
     controls.start({
       left: lefts,
       top: tops,
-      transition: { duration, ease: 'easeInOut' },
+      transition: { duration, ease: 'easeInOut', delay },
     })
 
     if (reduce) {
@@ -100,7 +105,7 @@ export default function PlayerToken({ player, index, onLanded }) {
 
     // 마지막 칸에 닿는 순간의 반동. 이게 없으면 이동이 '멈춘다'가 아니라 '사라진다'.
     bobControls
-      .start({ y, scaleX: sx, scaleY: sy, rotate: rot, transition: { duration, ease: 'linear', times } })
+      .start({ y, scaleX: sx, scaleY: sy, rotate: rot, transition: { duration, ease: 'linear', times, delay } })
       .then(() => {
         landedRef.current?.(player.position)
         return bobControls.start({
@@ -114,7 +119,7 @@ export default function PlayerToken({ player, index, onLanded }) {
       .catch(() => {})
 
     shadowControls
-      .start({ scaleX: shadowScale, opacity: shadowOpacity, transition: { duration, ease: 'linear', times } })
+      .start({ scaleX: shadowScale, opacity: shadowOpacity, transition: { duration, ease: 'linear', times, delay } })
       .then(() =>
         shadowControls.start({
           scaleX: [1.25, 0.95, 1],

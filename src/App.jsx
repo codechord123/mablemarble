@@ -27,6 +27,8 @@ const QuestionManager = lazy(() => import('./components/questions/QuestionManage
 
 // 주사위가 멈춘 뒤 나온 눈을 읽을 수 있게 칸 선택지를 띄우기 전 최소한 기다리는 시간(ms)
 const DICE_SHOW_MS = 1400
+// 굴리기 결과가 나온 뒤 주사위가 굴러 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
+const DICE_LAND_MS = 1000
 
 function FullScreenSpinner({ label = '불러오는 중…' }) {
   return (
@@ -166,7 +168,7 @@ export default function App() {
     // 말의 착지 콜백이 정확한 시점을 알려 주지만, 제자리 이동 등으로 콜백이
     // 오지 않는 경우를 대비해 이동 거리 기준 상한을 둔다. 판이 멈추면 안 된다.
     const steps = Math.min(lastRoll?.total ?? 0, 20)
-    const cap = Math.max(500, steps * 180) + 400
+    const cap = DICE_LAND_MS + Math.max(500, steps * 180) + 400
     const t = setTimeout(() => setMoveSettled(true), Math.max(cap, DICE_SHOW_MS))
     return () => clearTimeout(t)
   }, [phase, currentTurn, lastRoll])
@@ -398,6 +400,7 @@ export default function App() {
             isLandscape={isLandscape}
             centerStage={centerStage}
             onTokenLanded={handleTokenLanded}
+            moveDelay={phase === 'tile' ? DICE_LAND_MS / 1000 : 0}
           />
         )
 

@@ -18,9 +18,20 @@ const FACE = {
 
 const CORNERS = new Set([TILE_TYPES.START, TILE_TYPES.ISLAND, TILE_TYPES.SPACE, TILE_TYPES.WELFARE])
 
-// side: 보드 왼쪽·오른쪽 줄 칸('left'|'right'). 이 칸들은 가로로 길고 세로가 짧아서
-// 그림을 옆에 두고 이름·값을 나란히 놓는다. 그림은 보드 바깥쪽에 둔다.
-function Tile({ tile, owner, ownerInfo, side }) {
+// 건물은 칸 카드 밖, 보드 가운데 쪽에 세운다. 칸 안에 두면 그림·이름에 가려
+// 잘 안 보였다. 어느 줄의 칸인지(edge)에 따라 가운데를 향하는 쪽이 다르다.
+const BUILDING_PLACE = {
+  top: { top: '100%', left: '50%', transform: 'translate(-50%, -14%)' },
+  bottom: { bottom: '100%', left: '50%', transform: 'translate(-50%, 14%)' },
+  left: { left: '100%', top: '50%', transform: 'translate(-14%, -50%)' },
+  right: { right: '100%', top: '50%', transform: 'translate(14%, -50%)' },
+}
+
+// edge: 칸이 놓인 줄('top'|'bottom'|'left'|'right', 모서리는 null).
+// 왼쪽·오른쪽 줄 칸은 가로로 길고 세로가 짧아서 그림을 옆에 두고 이름·값을
+// 나란히 놓는다. 그림은 보드 바깥쪽에 둔다.
+function Tile({ tile, owner, ownerInfo, edge }) {
+  const side = edge === 'left' || edge === 'right' ? edge : null
   const s = FACE[tile.type] || {}
   const isCity = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   const isCorner = CORNERS.has(tile.type)
@@ -31,22 +42,25 @@ function Tile({ tile, owner, ownerInfo, side }) {
   const artKey = isCity ? tile.country : tile.type
 
   const shell = `tile-block relative h-full w-full rounded-md sm:rounded-lg border ${
-    isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-amber-900/25'
+    isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-black/10'
   } overflow-hidden leading-tight`
 
-  const building = isCity && level > 0 && (
+  const building = isCity && level > 0 && edge && (
     <span
-      key={level}
-      className={`building-pop absolute top-[4%] aspect-square z-[2] pointer-events-none ${
-        side ? `h-[58%] ${side === 'left' ? 'left-[22%]' : 'right-[22%]'}` : 'right-[2%] top-[6%] w-[50%]'
-      }`}
+      className="absolute z-[3] pointer-events-none"
+      style={{ ...BUILDING_PLACE[edge], width: 'clamp(22px, 8.5cqi, 74px)', height: 'clamp(22px, 8.5cqi, 74px)' }}
     >
-      <BuildingIcon level={level} />
+      {/* 주인 색 받침 — 누구 건물인지 한눈에 */}
+      {owner && <span className={`building-base ${owner.color}`} />}
+      <span key={level} className="building-pop absolute inset-0">
+        <BuildingIcon level={level} />
+      </span>
     </span>
   )
 
+  let face
   if (side) {
-    return (
+    face = (
       <div className={`${shell} flex ${side === 'right' ? 'flex-row-reverse' : 'flex-row'} items-stretch`} style={{ background: s.face }} aria-label={name}>
         {owner && (
           <div className={`absolute top-0 inset-x-0 h-[9%] min-h-[3px] z-[1] ${owner.color}`} title={owner.name} />
@@ -54,7 +68,6 @@ function Tile({ tile, owner, ownerInfo, side }) {
         <div className="h-full w-[44%] shrink-0 flex items-center justify-center p-[3%] pt-[8%]">
           <TileArt artKey={artKey} alt="" className="h-full w-auto" />
         </div>
-        {building}
         <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-[0.6cqi] px-[2%] pt-[4%]">
           {/* 도시 이름은 한 줄, '황금열쇠'처럼 긴 특수칸 이름은 두 줄로 접는다 */}
           <div
@@ -80,12 +93,11 @@ function Tile({ tile, owner, ownerInfo, side }) {
         </div>
       </div>
     )
-  }
-
-  return (
+  } else {
+    face = (
     <div
       className={`tile-block relative h-full w-full rounded-md sm:rounded-lg border ${
-        isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-amber-900/25'
+        isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-black/10'
       } flex flex-col items-center leading-tight overflow-hidden`}
       style={{ background: s.face }}
       aria-label={name}
@@ -104,9 +116,6 @@ function Tile({ tile, owner, ownerInfo, side }) {
       >
         <TileArt artKey={artKey} alt="" className="h-full w-auto" />
       </div>
-
-      {/* 건물 — 랜드마크 그림 오른쪽 위에 세운다. 레벨이 오를 때마다 다시 솟는다. */}
-      {building}
 
       {/* 이름 — 모서리 칸은 색 알약 이름표로 크게 */}
       {isCorner ? (
@@ -141,6 +150,14 @@ function Tile({ tile, owner, ownerInfo, side }) {
         </div>
       )}
     </div>
+    )
+  }
+
+  return (
+    <div className="relative h-full w-full">
+      {face}
+      {building}
+    </div>
   )
 }
 
@@ -151,6 +168,6 @@ export default memo(Tile, (prev, next) => {
     prev.owner?.id === next.owner?.id &&
     prev.owner?.color === next.owner?.color &&
     prev.ownerInfo?.houses === next.ownerInfo?.houses &&
-    prev.side === next.side
+    prev.edge === next.edge
   )
 })

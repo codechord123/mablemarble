@@ -17,6 +17,7 @@ export default function Board({
   isLandscape,
   centerStage,
   onTokenLanded,
+  moveDelay = 0,
 }) {
   const [selectedTile, setSelectedTile] = useState(null)
   // 말이 착지한 칸에서 한 번 퍼지는 링. 도착을 움직임으로 알린다.
@@ -56,9 +57,12 @@ export default function Board({
         <div className="board-plane absolute inset-x-0 bottom-0 aspect-square p-1.5 sm:p-3">
         <div className="board-felt relative h-full w-full p-0.5 sm:p-1.5 preserve-3d">
         <div
-          className="grid gap-[3px] sm:gap-1.5 h-full w-full preserve-3d"
+          className="grid gap-[2px] sm:gap-1 h-full w-full preserve-3d"
           style={{ gridTemplateColumns: GRID_TEMPLATE, gridTemplateRows: GRID_TEMPLATE }}
         >
+          {/* 가운데 지도 액자 — 칸보다 먼저 그려서 건물이 액자 위에 선다 */}
+          <div className="board-inset" style={{ gridColumn: '2 / 7', gridRow: '2 / 7' }} aria-hidden="true" />
+
           {BOARD.map((tile) => {
             const { x, y } = getTileCoord(tile.id)
             const info = ownership[tile.id]
@@ -76,7 +80,11 @@ export default function Board({
                   tile={tile}
                   owner={owner}
                   ownerInfo={info}
-                  side={(x === 0 || x === 6) && y !== 0 && y !== 6 ? (x === 0 ? 'left' : 'right') : null}
+                  edge={
+                    (x === 0 || x === 6) && (y === 0 || y === 6)
+                      ? null
+                      : y === 0 ? 'top' : y === 6 ? 'bottom' : x === 0 ? 'left' : 'right'
+                  }
                 />
               </button>
             )
@@ -126,6 +134,7 @@ export default function Board({
               player={p}
               index={i}
               onLanded={p.id === currentPlayer?.id ? handleLanded : undefined}
+              startDelay={p.id === currentPlayer?.id ? moveDelay : 0}
             />
           ))}
         </div>
