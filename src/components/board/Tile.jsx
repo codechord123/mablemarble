@@ -26,7 +26,7 @@ function Tile({ tile, owner, ownerInfo }) {
     <div
       className={`tile-block relative h-full w-full rounded-md border ${
         isHotel
-          ? 'border-rose-500 ring-2 ring-rose-400 bg-stripes-rose'
+          ? 'border-rose-500 ring-2 ring-rose-400'
           : 'border-amber-900/25'
       } ${s.bg} flex flex-col items-center leading-tight overflow-hidden`}
       aria-label={tile.name || s.label}
@@ -41,10 +41,23 @@ function Tile({ tile, owner, ownerInfo }) {
 
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-[0.3cqi] w-full px-0.5 pt-[0.5cqi]">
         {/* 도시 랜드마크 + 빌딩 아이콘 */}
+        {/* 건물이 서면 랜드마크 자리를 건물이 차지한다. 입체 그림이라 칸 위에
+            서 있는 것처럼 보이도록 칸 윗부분까지 크게 올린다. */}
         {isCity && tile.country && (
-          <div className="flex items-center gap-1 leading-none">
+          level > 0 ? (
             <span
-              className="inline-flex items-center"
+              key={level}
+              className="building-pop inline-flex items-end justify-center leading-none -mt-[1.2cqi]"
+              style={{
+                width: 'clamp(18px, 7.2cqi, 58px)',
+                height: 'clamp(18px, 7.2cqi, 58px)',
+              }}
+            >
+              <BuildingIcon level={level} />
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center leading-none"
               style={{
                 width: 'clamp(12px, 4.8cqi, 38px)',
                 height: 'clamp(12px, 4.8cqi, 38px)',
@@ -52,18 +65,7 @@ function Tile({ tile, owner, ownerInfo }) {
             >
               <LandmarkIcon code={tile.country} />
             </span>
-            {level > 0 && (
-              <span
-                className="inline-flex items-center"
-                style={{
-                  width: 'clamp(14px, 4.5cqi, 32px)',
-                  height: 'clamp(14px, 4.5cqi, 32px)',
-                }}
-              >
-                <BuildingIcon level={level} />
-              </span>
-            )}
-          </div>
+          )
         )}
         {/* 도시가 아닌 칸: 기본 아이콘 */}
         {!isCity && (
@@ -80,10 +82,6 @@ function Tile({ tile, owner, ownerInfo }) {
           {tile.name || s.label}
         </div>
 
-        {/* 호텔 표시 — 색맹 친화: 색+패턴+텍스트 */}
-        {isHotel && (
-          <div className="text-rose-700 font-extrabold tile-text-meta">⚠ HOTEL</div>
-        )}
       </div>
 
       {/* 그룹 색 띠 + 땅값. 색만 보고도 비싼 동네를 알아볼 수 있다. */}

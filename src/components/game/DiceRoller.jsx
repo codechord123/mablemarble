@@ -16,11 +16,11 @@ const PIPS = {
 function DiceFace({ value }) {
   const pattern = PIPS[value] || PIPS[1]
   return (
-    <div className="h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-300 p-2 grid grid-cols-3 grid-rows-3 gap-1">
+    <div className="die-face bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-300 p-[10%] grid grid-cols-3 grid-rows-3 gap-[6%]">
       {pattern.map((on, i) => (
         <div key={i} className="flex items-center justify-center">
           {on ? (
-            <span className="block h-2.5 w-2.5 sm:h-3 sm:w-3 bg-amber-900 rounded-full shadow-inner" />
+            <span className="block h-[78%] w-[78%] bg-amber-900 rounded-full shadow-inner" />
           ) : null}
         </div>
       ))}
@@ -108,7 +108,7 @@ export default function DiceRoller({ lastRoll, onRoll, disabled }) {
   }
 
   return (
-    <div className="flex items-center gap-4 sm:gap-6">
+    <div className="dice-roller">
       <div ref={rowRef} className="flex gap-3">
         {[lastRoll?.d1, lastRoll?.d2].map((v, i) => (
           <Die key={i} value={v} rolling={rolling} delay={i * 0.09} />

@@ -118,6 +118,7 @@ body {
 /* 보드 중앙 무대 — 주사위·액션이 들어가는 자리.
    칸 크기에 맞춰 줄어들되, 내용이 넘치면 무대 안에서만 스크롤한다. */
 .board-stage {
+  container-type: inline-size;
   width: 100%;
   height: 100%;
   display: flex;
@@ -173,15 +174,25 @@ body {
     0 7px 10px rgba(69, 26, 3, 0.16);
 }
 
-/* 비스듬한 줄무늬 — 색맹 친화 호텔 강조 */
-.bg-stripes-rose {
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(244, 63, 94, 0.12) 0,
-    rgba(244, 63, 94, 0.12) 4px,
-    transparent 4px,
-    transparent 10px
-  );
+/* 건물이 올라설 때 — 땅에서 솟았다가 살짝 눌리며 자리잡는다.
+   key가 레벨이라 콘도 → 아파트 → 호텔로 바뀔 때마다 다시 재생된다. */
+@keyframes building-pop {
+  0%   { transform: translateY(35%) scale(0.2, 0.2); opacity: 0; }
+  55%  { transform: translateY(-8%) scale(1.12, 1.18); opacity: 1; }
+  75%  { transform: translateY(0) scale(1.08, 0.9); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+.building-pop {
+  transform-origin: 50% 100%;
+  animation: building-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 2px 1px rgba(69, 26, 3, 0.25));
+}
+
+/* 주사위 영역 — 무대가 좁으면 버튼을 주사위 아래로 내리고 주사위도 줄인다 */
+.dice-roller { display: flex; align-items: center; gap: 1rem; }
+.die-face { width: clamp(44px, 17cqi, 80px); height: clamp(44px, 17cqi, 80px); }
+@container (max-width: 330px) {
+  .dice-roller { flex-direction: column; gap: 0.5rem; }
 }
 
 /* 부드러운 그림자 */
@@ -301,7 +312,7 @@ body {
 /* 접근성 — 모션 축소 선호 시 장식용 애니메이션 정지
    (입력·금액 pop은 WAAPI(utils/juice.js)에서 reduced-motion을 직접 확인해 건너뜀) */
 @media (prefers-reduced-motion: reduce) {
-  .breathe-ring, .float-soft,
+  .breathe-ring, .float-soft, .building-pop,
   .juice-shake, .juice-stamp, .juice-flash,
   .attention-pulse, .focus-ring, .tick-urgent {
     animation: none;

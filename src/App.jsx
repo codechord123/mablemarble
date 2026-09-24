@@ -6,6 +6,7 @@ import Board from './components/board/Board.jsx'
 import PlayerCard from './components/game/PlayerCard.jsx'
 import DiceRoller from './components/game/DiceRoller.jsx'
 import TurnAnnouncement from './components/game/TurnAnnouncement.jsx'
+import BigEvent from './components/game/BigEvent.jsx'
 import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
 import QuestionModal from './components/game/QuestionModal.jsx'
@@ -78,6 +79,8 @@ export default function App() {
 
   const { isLandscape } = useViewport()
   const [view, setView] = useState('menu')
+  const bigEvent = useGameStore((s) => s.bigEvent)
+  const clearBigEvent = useGameStore((s) => s.clearBigEvent)
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [showBoardHint, setShowBoardHint] = useState(false)
@@ -123,13 +126,15 @@ export default function App() {
       setShowAnnouncement(false)
       return
     }
+    // 통행료·파산 연출이 도는 중이면 끝난 뒤에 알린다 — 두 연출이 겹치지 않게
+    if (bigEvent) return
     if (lastAnnouncedTurn.current !== currentTurn) {
       lastAnnouncedTurn.current = currentTurn
       setShowAnnouncement(true)
       const t = setTimeout(() => setShowAnnouncement(false), 1000) // T2: 1.5s → 1.0s
       return () => clearTimeout(t)
     }
-  }, [currentTurn, phase])
+  }, [currentTurn, phase, bigEvent])
 
   // T10: 첫 게임에서 보드 클릭 안내 (한 번만)
   useEffect(() => {
@@ -226,6 +231,7 @@ export default function App() {
     <div className="min-h-screen app-bg safe-padded">
       <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
+      <BigEvent event={bigEvent} onDone={clearBigEvent} />
       <Toast show={!!extraTurnReason} color="bg-rose-500">
         {extraTurnReason === 'double' ? '🎲 더블! 한 번 더 굴리기' : '⚡ 카드 효과 — 한 번 더!'}
       </Toast>
@@ -279,7 +285,7 @@ export default function App() {
         const actionContent = (
           <>
             {phase === 'rolling' && !onIsland && (
-              <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement} />
+              <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement || !!bigEvent} />
             )}
             {phase === 'rolling' && onIsland && (
               <IslandPanel

@@ -56,7 +56,12 @@ const initialState = {
   persistError: false,    // localStorage 저장 실패 토스트용
   hotelFirstBuilt: false, // T17: 첫 호텔 건설 안내 (한 게임에 한 번)
   salaryReceived: 0,      // 출발 통과 시 받은 월급 — 토스트 알림용
+  // 큰 사건 연출(통행료·건설·파산 등). key가 바뀔 때마다 한 번 재생된다.
+  bigEvent: null,
 }
+
+let eventSeq = 0
+const makeEvent = (ev) => ({ ...ev, key: ++eventSeq })
 
 export const useGameStore = create((set, get) => ({
   ...initialState,
@@ -131,8 +136,21 @@ export const useGameStore = create((set, get) => ({
     const updated = [...players]
     updated[currentTurn] = { ...updated[currentTurn], money: updated[currentTurn].money - toll }
     updated[owner.ownerId] = { ...updated[owner.ownerId], money: updated[owner.ownerId].money + toll }
-    set({ players: updated })
+    set({
+      players: updated,
+      bigEvent: makeEvent({
+        kind: 'toll',
+        amount: toll,
+        payer: players[currentTurn].name,
+        receiver: players[owner.ownerId].name,
+        tileName: tile.name,
+      }),
+    })
     get()._resolveTurn()
+  },
+
+  clearBigEvent() {
+    set({ bigEvent: null })
   },
 
   payTax(amount) {
@@ -338,6 +356,7 @@ export const useGameStore = create((set, get) => ({
     correct ? sfx.correct() : sfx.wrong()
     let message = ''
     let postAction = 'end-turn'
+    let event = null
     let updatedPlayers = [...players]
     let updatedOwnership = ownership
 
@@ -364,6 +383,7 @@ export const useGameStore = create((set, get) => ({
           [tile.id]: { ownerId: currentTurn, houses: 0 },
         }
         message = `${tile.name} 땅 구매 성공! (-${cost.toLocaleString()}원)`
+        event = { kind: 'buy', tileName: tile.name, tileId: tile.id }
       } else {
         message = '구매 실패 — 다음 기회에!'
       }
@@ -384,12 +404,14 @@ export const useGameStore = create((set, get) => ({
         sfx.coin()
         const labels = ['땅', '콘도', '아파트', '호텔']
         message = `${tile.name} ${labels[newLevel]} 건설 성공! (-${cost.toLocaleString()}원)`
+        event = { kind: newLevel === 3 ? 'hotel' : 'build', level: newLevel, label: labels[newLevel], tileName: tile.name, tileId: tile.id }
       } else {
         message = '건설 실패 — 다음 기회에!'
       }
     } else if (pendingAction.type === 'skip-toll') {
       if (correct) {
         message = `통행료 ${pendingAction.toll.toLocaleString()}원 면제!`
+        event = { kind: 'saved', amount: pendingAction.toll, tileName: pendingAction.tile.name }
       } else {
         const { tile, toll } = pendingAction
         const owner = ownership[tile.id]
@@ -402,6 +424,13 @@ export const useGameStore = create((set, get) => ({
           money: updatedPlayers[owner.ownerId].money + toll,
         }
         message = `오답 — 통행료 ${toll.toLocaleString()}원 지불`
+        event = {
+          kind: 'toll',
+          amount: toll,
+          payer: players[currentTurn].name,
+          receiver: players[owner.ownerId].name,
+          tileName: tile.name,
+        }
       }
     } else if (pendingAction.type === 'bonus-question') {
       const delta = correct ? pendingAction.winAmount : -pendingAction.loseAmount
@@ -456,6 +485,7 @@ export const useGameStore = create((set, get) => ({
         explanation: currentQuestion.explanation,
         question: currentQuestion,
         postAction,
+        event,
       },
       hotelFirstBuilt,
     })
@@ -463,7 +493,8 @@ export const useGameStore = create((set, get) => ({
 
   closeResult() {
     const post = get().lastResult?.postAction
-    set({ lastResult: null })
+    const ev = get().lastResult?.event
+    set({ lastResult: null, ...(ev ? { bigEvent: makeEvent(ev) } : {}) })
     if (post === 'roll-again') {
       set({ phase: 'rolling', lastRoll: null })
       return
@@ -488,7 +519,11 @@ export const useGameStore = create((set, get) => ({
         )
       }
     }
-    if (anyBankrupt) sfx.bankrupt()
+    if (anyBankrupt) {
+      sfx.bankrupt()
+      const names = updated.filter((p, i) => !p.alive && players[i].alive).map((p) => p.name)
+      set({ bigEvent: makeEvent({ kind: 'bankrupt', names }) })
+    }
 
     const aliveCount = updated.filter((p) => p.alive).length
     if (aliveCount <= 1) {
