@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useAnimation, useReducedMotion } from 'framer-motion'
 import { impactEl } from '../../utils/juice.js'
 import GameButton from '../ui/GameButton.jsx'
 
@@ -42,58 +42,65 @@ function forwardTo(current, target, turns) {
   return v
 }
 
-// 예전에는 평면 그림이 빙글 돌았다. 지금은 정육면체가 두 축으로 구르다가
-// 나온 눈이 앞을 향하게 멈춘다. 살짝 비스듬히 세워 두어 윗면·옆면이 함께
-// 보이므로 멈춰 있을 때도 입체로 읽힌다. 두 주사위는 시차를 두고 멈춘다.
-function Die({ value, rolling, delay = 0 }) {
+// 굴림 한 번의 길이(초). 결과는 굴리기를 누르는 순간 정해지고, 주사위는 이 시간
+// 동안 한 번에 굴러서 그 눈이 앞을 향하게 멈춘다.
+// (예전에는 결과를 모른 채 먼저 한 번 돌고, 결과가 나오면 다시 한 바퀴 돌아
+//  '두 번 던져진' 것처럼 보였다.)
+export const ROLL_S = 1.3
+// 두 번째 주사위는 살짝 늦게 멈춘다
+const STAGGER_S = 0.1
+// 누른 뒤 두 주사위가 모두 멈추고 합이 뜨기까지(ms) — App이 말 출발 시점에 쓴다
+export const DICE_SETTLE_MS = Math.round((ROLL_S + STAGGER_S + 0.15) * 1000)
+
+// 살짝 비스듬히 세워 두어 윗면·옆면이 함께 보이므로 멈춰 있을 때도 입체로 읽힌다.
+function Die({ value, roll, delay = 0 }) {
   const reduce = useReducedMotion()
-  const [rot, setRot] = useState(() => TARGET[value || 1])
-  const rotRef = useRef(rot)
+  const cube = useAnimation()
+  const stage = useAnimation()
+  const shadow = useAnimation()
+  const rotRef = useRef(TARGET[value || 1])
+  const lastRoll = useRef(roll)
 
   useEffect(() => {
-    if (rolling) {
-      // 굴리는 동안: 결과를 아직 모르므로 크게 여러 바퀴 돌린다
-      const next = { x: rotRef.current.x + 720 + 180, y: rotRef.current.y + 540 + 90 }
-      rotRef.current = next
-      setRot(next)
-    } else if (value) {
-      const t = TARGET[value]
-      const next = { x: forwardTo(rotRef.current.x, t.x, 1), y: forwardTo(rotRef.current.y, t.y, 1) }
-      rotRef.current = next
-      setRot(next)
+    cube.set({ rotateX: rotRef.current.x, rotateY: rotRef.current.y })
+  }, [cube])
+
+  useEffect(() => {
+    if (!roll || roll === lastRoll.current || !value) return
+    lastRoll.current = roll
+    const t = TARGET[value]
+    // 여러 바퀴 돈 뒤 나온 눈에서 정확히 멈춘다 — 한 번의 연속 동작
+    const next = { x: forwardTo(rotRef.current.x, t.x, 3), y: forwardTo(rotRef.current.y, t.y, 2) }
+    rotRef.current = next
+    if (reduce) {
+      cube.set({ rotateX: next.x, rotateY: next.y })
+      return
     }
-  }, [rolling, value])
+    cube.start({
+      rotateX: next.x,
+      rotateY: next.y,
+      transition: { duration: ROLL_S, ease: [0.12, 0.62, 0.28, 1], delay },
+    })
+    // 던져 올림 → 떨어짐 → 작게 한 번 튐 → 착지하며 눌림
+    const times = [0, 0.28, 0.52, 0.66, 0.8, 0.9, 1]
+    stage.start({
+      y: [0, -40, -4, -16, 0, -3, 0],
+      scaleX: [1, 1, 1, 1, 1.18, 0.96, 1],
+      scaleY: [1, 1, 1, 1, 0.84, 1.05, 1],
+      transition: { duration: ROLL_S + 0.1, times, delay, ease: 'easeInOut' },
+    })
+    shadow.start({
+      scaleX: [1, 0.45, 0.95, 0.7, 1.4, 0.95, 1],
+      opacity: [0.65, 0.25, 0.6, 0.4, 0.9, 0.6, 0.65],
+      transition: { duration: ROLL_S + 0.1, times, delay },
+    })
+  }, [roll, value, delay, reduce, cube, stage, shadow])
 
   return (
     <div className="flex flex-col items-center">
-      <motion.div
-        className="die-stage"
-        animate={
-          reduce
-            ? {}
-            : rolling
-              ? { y: [0, -34, -12, -26, 0], scale: [1, 1.1, 1.04, 1.06, 1] }
-              : { y: 0, scaleX: [1.18, 0.95, 1.03, 1], scaleY: [0.84, 1.07, 0.98, 1] }
-        }
-        transition={{
-          duration: rolling ? 1.15 : 0.5,
-          ease: rolling ? 'easeOut' : [0.34, 1.56, 0.64, 1],
-          delay: rolling ? 0 : delay + 0.35,
-        }}
-        style={{ transformOrigin: '50% 100%' }}
-      >
+      <motion.div className="die-stage" animate={stage} style={{ transformOrigin: '50% 100%' }}>
         <div className="die-tilt">
-          <motion.div
-            className="die-cube"
-            animate={{ rotateX: rot.x, rotateY: rot.y }}
-            transition={
-              reduce
-                ? { duration: 0 }
-                : rolling
-                  ? { duration: 1.15, ease: [0.2, 0.7, 0.4, 1] }
-                  : { duration: 0.75, ease: [0.22, 1.4, 0.4, 1], delay }
-            }
-          >
+          <motion.div className="die-cube" animate={cube}>
             {/* 모서리를 둥글린 면 사이 빈틈을 메우는 속심 */}
             <span className="die-core" style={{ transform: 'rotateX(90deg)' }} />
             <span className="die-core" style={{ transform: 'rotateY(90deg)' }} />
@@ -108,17 +115,7 @@ function Die({ value, rolling, delay = 0 }) {
       </motion.div>
 
       {/* 바닥 그림자 — 주사위가 뜨면 작아지고, 닿는 순간 확 퍼진다 */}
-      <motion.div
-        animate={
-          reduce
-            ? {}
-            : rolling
-              ? { scaleX: [1, 0.5, 0.75, 0.6, 1], opacity: [0.65, 0.3, 0.5, 0.35, 0.65] }
-              : { scaleX: [1.45, 0.92, 1], opacity: [0.85, 0.6, 0.65] }
-        }
-        transition={{ duration: rolling ? 1.15 : 0.45, delay: rolling ? 0 : delay + 0.35 }}
-        className="die-shadow"
-      />
+      <motion.div animate={shadow} initial={{ opacity: 0.65 }} className="die-shadow" />
     </div>
   )
 }
@@ -133,27 +130,28 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
     if (rollingRef.current || disabled) return
     rollingRef.current = true
     setRolling(true)
+    // 누르는 순간 결과가 정해지고 주사위는 그 눈을 향해 한 번에 굴러간다
+    onRoll()
+    // 두 주사위가 바닥에 닿는 순간 한 번 울린다
+    setTimeout(() => impactEl(rowRef.current, { px: 4 }), Math.round((ROLL_S * 0.8 + STAGGER_S) * 1000))
     setTimeout(() => {
       rollingRef.current = false
       setRolling(false)
-      onRoll()
-      // 주사위가 굴러와 바닥에 닿는 타이밍(약 0.7초 뒤)에 맞춰 바닥이 한 번 울린다
-      setTimeout(() => impactEl(rowRef.current, { px: 4 }), 700)
-    }, 1200)
+    }, DICE_SETTLE_MS)
   }
 
   return (
     <div className="dice-roller">
       <div ref={rowRef} className="flex gap-3">
         {[lastRoll?.d1, lastRoll?.d2].map((v, i) => (
-          <Die key={i} value={v} rolling={rolling} delay={i * 0.09} />
+          <Die key={i} value={v} roll={lastRoll} delay={i * STAGGER_S} />
         ))}
       </div>
       {showResult ? (
         <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.72, type: 'spring', stiffness: 420, damping: 18 }}
+          transition={{ delay: ROLL_S + STAGGER_S, type: 'spring', stiffness: 420, damping: 18 }}
           className="t-display text-amber-900 tabular-nums whitespace-nowrap"
         >
           {lastRoll ? `${lastRoll.d1} + ${lastRoll.d2} = ${lastRoll.total}` : ''}

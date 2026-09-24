@@ -18,13 +18,40 @@ const FACE = {
 
 const CORNERS = new Set([TILE_TYPES.START, TILE_TYPES.ISLAND, TILE_TYPES.SPACE, TILE_TYPES.WELFARE])
 
-// 건물은 칸 카드 밖, 보드 가운데 쪽에 세운다. 칸 안에 두면 그림·이름에 가려
-// 잘 안 보였다. 어느 줄의 칸인지(edge)에 따라 가운데를 향하는 쪽이 다르다.
-const BUILDING_PLACE = {
-  top: { top: '100%', left: '50%', transform: 'translate(-50%, -14%)' },
-  bottom: { bottom: '100%', left: '50%', transform: 'translate(-50%, 14%)' },
-  left: { left: '100%', top: '50%', transform: 'translate(-14%, -50%)' },
-  right: { right: '100%', top: '50%', transform: 'translate(14%, -50%)' },
+// 건물 부지 — 모두의 마블처럼 도시 카드마다 보드 가운데 쪽으로 붙은 전용 띠.
+// 칸 안에 건물을 넣으면 그림·이름에 가려 잘 안 보였다. 띠에는 칸 3개가 있고
+// 콘도 → 아파트 → 호텔이 한 칸씩 채워져서 몇 단계까지 지었는지 바로 보인다.
+const LOT_PLACE = {
+  top: { top: '100%', left: 0, right: 0, height: 'var(--lot)', flexDirection: 'row' },
+  bottom: { bottom: '100%', left: 0, right: 0, height: 'var(--lot)', flexDirection: 'row' },
+  left: { left: '100%', top: 0, bottom: 0, width: 'var(--lot)', flexDirection: 'column' },
+  right: { right: '100%', top: 0, bottom: 0, width: 'var(--lot)', flexDirection: 'column' },
+}
+const LOT_ROUND = {
+  top: 'rounded-b-md', bottom: 'rounded-t-md', left: 'rounded-r-md', right: 'rounded-l-md',
+}
+
+function BuildingLot({ edge, owner, level }) {
+  return (
+    <div
+      className={`building-lot absolute z-[3] flex pointer-events-none ${LOT_ROUND[edge]} ${
+        owner ? `${owner.color} is-owned` : ''
+      }`}
+      style={LOT_PLACE[edge]}
+    >
+      {[1, 2, 3].map((n) => (
+        <div key={n} className="lot-slot relative flex-1 flex items-end justify-center">
+          {level >= n ? (
+            <span key={`b${n}`} className="lot-building building-pop">
+              <BuildingIcon level={n} />
+            </span>
+          ) : (
+            <span className="lot-empty" />
+          )}
+        </div>
+      ))}
+    </div>
+  )
 }
 
 // edge: 칸이 놓인 줄('top'|'bottom'|'left'|'right', 모서리는 null).
@@ -45,18 +72,7 @@ function Tile({ tile, owner, ownerInfo, edge }) {
     isHotel ? 'border-rose-500 ring-2 ring-rose-400' : 'border-black/10'
   } overflow-hidden leading-tight`
 
-  const building = isCity && level > 0 && edge && (
-    <span
-      className="absolute z-[3] pointer-events-none"
-      style={{ ...BUILDING_PLACE[edge], width: 'clamp(22px, 8.5cqi, 74px)', height: 'clamp(22px, 8.5cqi, 74px)' }}
-    >
-      {/* 주인 색 받침 — 누구 건물인지 한눈에 */}
-      {owner && <span className={`building-base ${owner.color}`} />}
-      <span key={level} className="building-pop absolute inset-0">
-        <BuildingIcon level={level} />
-      </span>
-    </span>
-  )
+  const building = isCity && edge && <BuildingLot edge={edge} owner={owner} level={level} />
 
   let face
   if (side) {

@@ -4,7 +4,7 @@ import { getTile } from './utils/gameEngine.js'
 import useViewport from './hooks/useViewport.js'
 import Board from './components/board/Board.jsx'
 import PlayerCard from './components/game/PlayerCard.jsx'
-import DiceRoller from './components/game/DiceRoller.jsx'
+import DiceRoller, { DICE_SETTLE_MS } from './components/game/DiceRoller.jsx'
 import TurnAnnouncement from './components/game/TurnAnnouncement.jsx'
 import BigEvent from './components/game/BigEvent.jsx'
 import { duckMusic } from './utils/bgm.js'
@@ -25,10 +25,10 @@ import { loadLastSetup } from './utils/persistence.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 
+// 굴리기를 누른 순간부터 주사위가 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
+const DICE_LAND_MS = DICE_SETTLE_MS + 100
 // 주사위가 멈춘 뒤 나온 눈을 읽을 수 있게 칸 선택지를 띄우기 전 최소한 기다리는 시간(ms)
-const DICE_SHOW_MS = 1400
-// 굴리기 결과가 나온 뒤 주사위가 굴러 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
-const DICE_LAND_MS = 1000
+const DICE_SHOW_MS = DICE_LAND_MS + 600
 
 function FullScreenSpinner({ label = '불러오는 중…' }) {
   return (
@@ -92,7 +92,17 @@ export default function App() {
   const [showBoardHint, setShowBoardHint] = useState(false)
   // 말이 목적지에 실제로 도착했는지. 도착 전에 '살까요?'를 물으면
   // 결과가 말보다 먼저 와서 움직임이 가짜처럼 보인다.
-  const [moveSettled, setMoveSettled] = useState(true)
+  // '칸 도착 처리'에 들어올 때마다 번호를 하나 올리고, 말이 도착한 번호를 기억한다.
+  // 예전에는 effect에서 moveSettled를 false로 내렸는데, 그 전 한 프레임 동안
+  // 선택지 패널이 먼저 그려지면서 주사위가 빠졌다가 새로 생겨 굴림 동작이 사라졌다.
+  // 렌더 중에 바로 계산하면 그 틈이 없다.
+  const tileKeyRef = useRef(0)
+  const prevPhaseRef = useRef(phase)
+  if (phase === 'tile' && prevPhaseRef.current !== 'tile') tileKeyRef.current += 1
+  prevPhaseRef.current = phase
+  const tileKey = tileKeyRef.current
+  const [settledKey, setSettledKey] = useState(0)
+  const moveSettled = phase !== 'tile' || settledKey === tileKey
   const tileEnteredAt = useRef(0)
   const landedTimer = useRef(null)
   const lastAnnouncedTurn = useRef(-1)
@@ -159,25 +169,24 @@ export default function App() {
   }, [phase, currentRound, currentTurn])
 
   useEffect(() => {
-    if (phase !== 'tile') {
-      setMoveSettled(true)
-      return
-    }
-    setMoveSettled(false)
+    if (phase !== 'tile') return
     tileEnteredAt.current = Date.now()
     // 말의 착지 콜백이 정확한 시점을 알려 주지만, 제자리 이동 등으로 콜백이
     // 오지 않는 경우를 대비해 이동 거리 기준 상한을 둔다. 판이 멈추면 안 된다.
     const steps = Math.min(lastRoll?.total ?? 0, 20)
     const cap = DICE_LAND_MS + Math.max(500, steps * 180) + 400
-    const t = setTimeout(() => setMoveSettled(true), Math.max(cap, DICE_SHOW_MS))
+    const key = tileKey
+    const t = setTimeout(() => setSettledKey(key), Math.max(cap, DICE_SHOW_MS))
     return () => clearTimeout(t)
-  }, [phase, currentTurn, lastRoll])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, tileKey])
 
-  // 말이 도착해도 주사위가 나온 눈을 보여 주며 멈추는 장면(약 1초)은 끝까지 보여 준다
+  // 말이 도착해도 주사위가 나온 눈을 보여 주며 멈추는 장면은 끝까지 보여 준다
   const handleTokenLanded = () => {
     const wait = Math.max(0, DICE_SHOW_MS - (Date.now() - tileEnteredAt.current))
+    const key = tileKeyRef.current
     clearTimeout(landedTimer.current)
-    landedTimer.current = setTimeout(() => setMoveSettled(true), wait)
+    landedTimer.current = setTimeout(() => setSettledKey(key), wait)
   }
 
   // 문제를 푸는 동안에는 배경음악을 작게 줄인다
