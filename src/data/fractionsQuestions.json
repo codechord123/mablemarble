@@ -2,7 +2,7 @@
   {
     "id": "fr01",
     "category": "소수와분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "한 학생이 우유 0.7L를 마셨습니다. 마신 양을 분모가 10인 분수로 나타내시오.",
     "choices": [],
@@ -43,7 +43,7 @@
   {
     "id": "fr05",
     "category": "소수와분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "마라톤 코스의 3/5 만큼 달렸습니다. 달린 거리는 전체의 몇 분의 몇과 같은 소수로 표현되나요?",
     "choices": [
@@ -58,7 +58,7 @@
   {
     "id": "fr06",
     "category": "소수와분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "사과 5개를 4명이 똑같이 나누어 가지면 한 명이 받는 사과의 양은 소수로 얼마인가요?",
     "choices": [
@@ -73,7 +73,7 @@
   {
     "id": "fr07",
     "category": "소수와분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "true_false",
     "question": "0.6 과 3/5 는 같은 수이다.",
     "choices": [
@@ -99,7 +99,7 @@
   {
     "id": "fr09",
     "category": "소수와분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "현우의 키는 1과 3/4 m입니다. 이 키와 같은 소수는?",
     "choices": [
@@ -114,7 +114,7 @@
   {
     "id": "fr10",
     "category": "소수와분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "수업 시간 1시간의 1/4 은 몇 분에 해당하는가? (숫자만)",
     "choices": [],
@@ -136,7 +136,7 @@
   {
     "id": "fr12",
     "category": "소수와분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "동생의 키 1.3m를 분모가 10인 가분수로 나타내시오.",
     "choices": [],
@@ -238,7 +238,7 @@
   {
     "id": "fr21",
     "category": "카드만들기",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "숫자 카드 [1], [4], [7] 중 2장을 골라 만들 수 있는 가장 큰 '소수 첫째 자리' 소수는?",
     "choices": [
@@ -293,7 +293,7 @@
   {
     "id": "fr25",
     "category": "카드만들기",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "숫자 카드 [1], [3], [5], [7] 중 2장을 골라 만들 수 있는 가장 작은 진분수를 분수로 나타내시오.",
     "choices": [],
@@ -303,7 +303,7 @@
   {
     "id": "fr26",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "친구 세 명이 마라톤을 했습니다. 영수는 0.75km, 영희는 4/5km, 철수는 7/10km 달렸습니다. 가장 멀리 달린 사람은?",
     "choices": [
@@ -318,7 +318,7 @@
   {
     "id": "fr27",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "수학 단원 평가 정답률: 가람 0.8, 나리 4/5, 다인 9/10. 가장 정답률이 높은 학생은?",
     "choices": [
@@ -363,7 +363,7 @@
   {
     "id": "fr30",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "어떤 학생이 공부한 시간: 월 2/3시간, 화 0.5시간, 수 3/5시간. 가장 적게 공부한 요일은?",
     "choices": [
@@ -378,7 +378,7 @@
   {
     "id": "fr31",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "김장에 사용한 양: 무 3/8 kg, 배추 1/3 kg, 마늘 1/4 kg. 가장 적게 사용한 재료는?",
     "choices": [
@@ -393,7 +393,7 @@
   {
     "id": "fr32",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "세 사람의 키: 나리 1.55m, 다인 1과 11/20 m, 라온 1.6m. 키가 큰 순서로 옳게 나열한 것은?",
     "choices": [
@@ -408,7 +408,7 @@
   {
     "id": "fr33",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "빵을 잘라 먹은 양: 가형 1/2, 나형 5/8, 다형 0.6. 가장 적게 먹은 사람은?",
     "choices": [
@@ -453,7 +453,7 @@
   {
     "id": "fr36",
     "category": "응용약분",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "학생 25명 중 15명이 안경을 썼습니다. 안경 쓴 학생의 비율을 기약분수로 나타내시오.",
     "choices": [],
@@ -473,7 +473,7 @@
   {
     "id": "fr38",
     "category": "역연산약분",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "어떤 분수의 분모와 분자를 6으로 약분했더니 4/5가 되었습니다. 원래 분수를 분수 형식으로 쓰시오.",
     "choices": [],
@@ -498,7 +498,7 @@
   {
     "id": "fr40",
     "category": "크기비교",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "약수터에서 영수는 9/15 L, 동수는 7/10 L 가져갔습니다. 더 많이 가져간 사람은?",
     "choices": [

@@ -22,7 +22,7 @@
   {
     "id": "n03",
     "category": "진분수×자연수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "수도에서 물이 1분에 3/8 L씩 나옵니다. 4분 동안 받으면 몇 L를 받을까요?",
     "choices": [],
@@ -58,7 +58,7 @@
   {
     "id": "n06",
     "category": "진분수×자연수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "수도꼭지에서 물이 1분에 5/6 L씩 나옵니다. 4분 동안 받으면 몇 L일까요?",
     "choices": [],
@@ -68,7 +68,7 @@
   {
     "id": "n07",
     "category": "진분수×자연수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "2/5 × 6 을 바르게 계산한 것은?",
     "choices": [
@@ -94,7 +94,7 @@
   {
     "id": "n09",
     "category": "진분수×자연수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "끈을 5/8 m씩 4도막 잘랐습니다. 자른 끈의 길이는 모두 몇 m일까요?",
     "choices": [],
@@ -104,7 +104,7 @@
   {
     "id": "n10",
     "category": "진분수×자연수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "7/10 × 5 의 계산 결과는?",
     "choices": [
@@ -176,7 +176,7 @@
   {
     "id": "n16",
     "category": "대분수×자연수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "지훈이는 한 시간에 2과1/2 km를 걷습니다. 3시간 동안 걸으면 몇 km를 갈 수 있을까요?",
     "choices": [],
@@ -212,7 +212,7 @@
   {
     "id": "n19",
     "category": "대분수×자연수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "우유를 한 병에 1과2/7 L씩 담았습니다. 5병이면 우유는 모두 몇 L일까요?",
     "choices": [],
@@ -222,7 +222,7 @@
   {
     "id": "n20",
     "category": "대분수×자연수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "3과1/2 × 4 의 계산 결과는?",
     "choices": [
@@ -238,7 +238,7 @@
   {
     "id": "n21",
     "category": "자연수×진분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "사탕 24개의 5/6을 친구들에게 나누어 주었습니다. 나누어 준 사탕은 몇 개일까요?",
     "choices": [],
@@ -259,7 +259,7 @@
   {
     "id": "n23",
     "category": "자연수×진분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "형은 2400원을 가지고 있습니다. 내가 가진 돈은 형이 가진 돈의 3/8배입니다. 내 돈은 얼마일까요?",
     "choices": [],
@@ -270,7 +270,7 @@
   {
     "id": "n24",
     "category": "자연수×진분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "색종이가 12장 있습니다. 그중 2/3을 종이접기에 썼습니다. 쓴 색종이는 몇 장일까요?",
     "choices": [],
@@ -281,7 +281,7 @@
   {
     "id": "n25",
     "category": "자연수×진분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "길이가 10 m인 끈의 3/5만큼을 잘라 썼습니다. 사용한 끈의 길이는?",
     "choices": [
@@ -297,7 +297,7 @@
   {
     "id": "n26",
     "category": "자연수×진분수",
-    "difficulty": 3,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "20 × 3/4 을 계산한 결과는 처음 수 20과 비교하면 어떨까요?",
     "choices": [
@@ -311,7 +311,7 @@
   {
     "id": "n27",
     "category": "자연수×진분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "구슬 18개의 2/9를 동생에게 주었습니다. 동생에게 준 구슬은 몇 개일까요?",
     "choices": [],
@@ -322,7 +322,7 @@
   {
     "id": "n28",
     "category": "자연수×진분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "short_answer",
     "question": "책 35쪽 중 4/7만큼을 읽었습니다. 읽은 쪽수는 몇 쪽일까요?",
     "choices": [],
@@ -333,7 +333,7 @@
   {
     "id": "n29",
     "category": "자연수×진분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "물탱크에 물이 15 L 있습니다. 그중 5/8을 사용했다면 사용한 물은 몇 L일까요?",
     "choices": [],
@@ -343,7 +343,7 @@
   {
     "id": "n30",
     "category": "자연수×진분수",
-    "difficulty": 2,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "30 × 7/10 의 계산 결과는?",
     "choices": [
@@ -359,7 +359,7 @@
   {
     "id": "n31",
     "category": "자연수×대분수",
-    "difficulty": 2,
+    "difficulty": 3,
     "type": "short_answer",
     "question": "동생의 몸무게는 35 kg입니다. 형의 몸무게는 동생의 1과1/2배입니다. 형은 몇 kg일까요?",
     "choices": [],
@@ -400,7 +400,7 @@
   {
     "id": "n35",
     "category": "자연수×대분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "철사 1 m의 무게가 6 g입니다. 이 철사 2와3/4 m의 무게는 몇 g일까요?",
     "choices": [],
@@ -426,7 +426,7 @@
   {
     "id": "n37",
     "category": "자연수×대분수",
-    "difficulty": 3,
+    "difficulty": 1,
     "type": "multiple_choice",
     "question": "1과1/3 을 가분수로 바르게 고친 것은?",
     "choices": [
@@ -463,7 +463,7 @@
   {
     "id": "n40",
     "category": "자연수×대분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "multiple_choice",
     "question": "6 × 2와1/3 의 계산 결과는?",
     "choices": [
@@ -507,7 +507,7 @@
   {
     "id": "n43",
     "category": "진분수×진분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "5학년의 4/5가 남학생이고, 그 남학생의 1/2이 축구를 좋아합니다. 축구를 좋아하는 남학생은 전체의 얼마일까요?",
     "choices": [],
@@ -545,7 +545,7 @@
   {
     "id": "n46",
     "category": "진분수×진분수",
-    "difficulty": 3,
+    "difficulty": 2,
     "type": "short_answer",
     "question": "5학년 학생의 3/5가 여학생입니다. 그 여학생의 1/4이 안경을 썼습니다. 안경을 쓴 여학생은 전체의 얼마일까요?",
     "choices": [],

@@ -436,10 +436,16 @@ export const useGameStore = create((set, get) => ({
       usedQuestions,
       pool,
     )
+    // 고른 난이도의 문제가 다 떨어져 다른 난이도 문제가 나오면, 보상도 실제로
+    // 나온 문제 난이도에 맞춘다. (쉬움을 골랐는데 보통 문제가 나오면 보통 보상)
+    const action = pendingAction.difficulty
+      ? { ...pendingAction, chosenDifficulty: pendingAction.difficulty,
+          difficulty: Math.min(3, Math.max(1, q.difficulty || pendingAction.difficulty)) }
+      : pendingAction
     set({
       phase: 'question',
       currentQuestion: q,
-      pendingAction,
+      pendingAction: action,
       usedQuestions: poolReset ? [q.id] : [...usedQuestions, q.id],
       poolJustReset: poolReset || get().poolJustReset,
     })
@@ -448,8 +454,8 @@ export const useGameStore = create((set, get) => ({
   submitAnswer(answer) {
     const { currentQuestion, pendingAction, players, currentTurn, ownership, roundEvent, currentRound } = get()
     const ev = activeRoundEvent(roundEvent, currentRound)
-    // 보상은 고른 난이도와 실제로 나온 문제 난이도 중 낮은 쪽 (그 난이도 문제가 없을 때 대비)
-    const level = Math.min(pendingAction.difficulty || 1, currentQuestion.difficulty || 1)
+    // 보상 단계 = 실제로 나온 문제의 난이도 (_askQuestion에서 맞춰 둠)
+    const level = pendingAction.difficulty || 1
     const isTimeout = answer === '__TIMEOUT__'
     const correct = isCorrect(currentQuestion, answer)
     correct ? sfx.correct() : sfx.wrong()
