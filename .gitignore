@@ -10,3 +10,4 @@ dist-ssr
 coverage
 .firebase
 firebase-debug.log
+.claude/settings.local.json

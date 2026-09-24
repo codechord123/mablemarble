@@ -21,11 +21,11 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
   }, [])
 
   return (
-    <div className="min-h-screen app-bg flex items-center justify-center p-6">
-      <div className="max-w-md w-full mx-auto bg-white/85 backdrop-blur rounded-[2rem] card-soft ring-1 ring-amber-900/5 px-8 pt-7 pb-9 text-center">
-        <Logo globeSize={130} className="mb-2" />
+    <div className="min-h-[100dvh] hero-bg safe-padded flex flex-col items-center justify-center px-5 py-8 overflow-hidden">
+      <Logo size="clamp(150px, 26vh, 260px)" className="menu-hero mb-5" />
 
-        <div className="mt-7 space-y-5">
+      <div className="menu-panel max-w-sm w-full rounded-[2rem] px-6 pt-6 pb-5 text-center">
+        <div className="space-y-4">
           {savedInfo && (
             <GameButton color="green" onClick={onResume} className="w-full py-4 text-lg">
               ▶️ 이어하기
@@ -43,7 +43,7 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
           </GameButton>
         </div>
 
-        <p className="text-amber-700/70 mt-7 text-sm font-medium">5학년 교실용 학습 보드게임</p>
+        <p className="text-sky-900/70 mt-5 text-sm font-semibold">교실용 학습 보드게임</p>
       </div>
     </div>
   )

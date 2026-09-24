@@ -58,7 +58,7 @@ export default function GameOverScreen({ players, ownership, onRestart, onRematc
   const winner = ranked[0]
 
   return (
-    <div className="min-h-screen app-bg flex items-center justify-center p-6">
+    <div className="min-h-screen hero-bg-soft flex items-center justify-center p-6">
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

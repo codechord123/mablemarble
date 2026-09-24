@@ -82,7 +82,7 @@ export default function GameSetup({ onStart, onBack }) {
   }
 
   return (
-    <div className="min-h-screen app-bg flex items-center justify-center p-6">
+    <div className="min-h-screen hero-bg-soft flex items-center justify-center p-6">
       <div className="max-w-lg w-full mx-auto bg-white rounded-[1.75rem] card-soft ring-1 ring-amber-900/5 p-6">
         {onBack && (
           <button onClick={onBack} className="text-amber-700 hover:underline mb-3 text-sm font-semibold">
@@ -148,7 +148,7 @@ export default function GameSetup({ onStart, onBack }) {
               <div className="flex gap-2 items-center">
                 <button
                   onClick={() => cycleAvatar(i)}
-                  className="h-12 w-12 rounded-full bg-white shadow border-2 border-amber-300 flex items-center justify-center hover:scale-110 active:scale-95 transition"
+                  className="h-12 w-12 shrink-0 rounded-full bg-white shadow border-2 border-amber-300 flex items-center justify-center hover:scale-110 active:scale-95 transition"
                   title="클릭하여 다른 캐릭터로 변경"
                 >
                   <AnimalFace emoji={p.avatar} className="w-[86%] h-[86%]" />
@@ -156,7 +156,7 @@ export default function GameSetup({ onStart, onBack }) {
                 <input
                   value={p.name}
                   onChange={(e) => updatePlayer(i, { name: e.target.value })}
-                  className="flex-1 px-3 py-2 border-2 border-amber-200 rounded-lg focus:border-amber-500 outline-none bg-white"
+                  className="flex-1 min-w-0 px-3 py-2 border-2 border-amber-200 rounded-lg focus:border-amber-500 outline-none bg-white"
                   maxLength={10}
                   placeholder="이름"
                 />
