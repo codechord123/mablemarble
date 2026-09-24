@@ -25,6 +25,9 @@ import { loadLastSetup } from './utils/persistence.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 
+// 주사위가 멈춘 뒤 나온 눈을 읽을 수 있게 칸 선택지를 띄우기 전 최소한 기다리는 시간(ms)
+const DICE_SHOW_MS = 1400
+
 function FullScreenSpinner({ label = '불러오는 중…' }) {
   return (
     <div className="min-h-screen app-bg flex items-center justify-center">
@@ -88,6 +91,8 @@ export default function App() {
   // 말이 목적지에 실제로 도착했는지. 도착 전에 '살까요?'를 물으면
   // 결과가 말보다 먼저 와서 움직임이 가짜처럼 보인다.
   const [moveSettled, setMoveSettled] = useState(true)
+  const tileEnteredAt = useRef(0)
+  const landedTimer = useRef(null)
   const lastAnnouncedTurn = useRef(-1)
 
   useEffect(() => {
@@ -157,13 +162,21 @@ export default function App() {
       return
     }
     setMoveSettled(false)
+    tileEnteredAt.current = Date.now()
     // 말의 착지 콜백이 정확한 시점을 알려 주지만, 제자리 이동 등으로 콜백이
     // 오지 않는 경우를 대비해 이동 거리 기준 상한을 둔다. 판이 멈추면 안 된다.
     const steps = Math.min(lastRoll?.total ?? 0, 20)
     const cap = Math.max(500, steps * 180) + 400
-    const t = setTimeout(() => setMoveSettled(true), cap)
+    const t = setTimeout(() => setMoveSettled(true), Math.max(cap, DICE_SHOW_MS))
     return () => clearTimeout(t)
   }, [phase, currentTurn, lastRoll])
+
+  // 말이 도착해도 주사위가 나온 눈을 보여 주며 멈추는 장면(약 1초)은 끝까지 보여 준다
+  const handleTokenLanded = () => {
+    const wait = Math.max(0, DICE_SHOW_MS - (Date.now() - tileEnteredAt.current))
+    clearTimeout(landedTimer.current)
+    landedTimer.current = setTimeout(() => setMoveSettled(true), wait)
+  }
 
   // 문제를 푸는 동안에는 배경음악을 작게 줄인다
   useEffect(() => {
@@ -290,8 +303,15 @@ export default function App() {
       {(() => {
         const actionContent = (
           <>
-            {phase === 'rolling' && !onIsland && (
-              <DiceRoller lastRoll={lastRoll} onRoll={rollAndMove} disabled={showAnnouncement || !!bigEvent} />
+            {/* 굴리기 → 말 이동이 끝날 때까지 같은 주사위를 유지한다. 그래야 굴러가던
+                주사위가 나온 눈을 보여 주며 멈추는 장면이 끊기지 않는다. */}
+            {((phase === 'rolling' && !onIsland) || (phase === 'tile' && !moveSettled)) && (
+              <DiceRoller
+                lastRoll={lastRoll}
+                onRoll={rollAndMove}
+                disabled={showAnnouncement || !!bigEvent}
+                showResult={phase === 'tile'}
+              />
             )}
             {phase === 'rolling' && onIsland && (
               <IslandPanel
@@ -301,7 +321,8 @@ export default function App() {
               />
             )}
             {phase === 'tile' && currentTile && (
-              moveSettled ? (
+              // 말이 가는 동안은 위의 주사위가 결과를 보여 주고, 도착하면 선택지가 뜬다.
+              moveSettled && (
                 <TileActionPanel
                   tile={currentTile}
                   player={current}
@@ -310,11 +331,6 @@ export default function App() {
                   lastRoll={lastRoll}
                   onAction={handleTileAction}
                 />
-              ) : (
-                // 말이 가는 동안은 주사위 결과만. 도착하면 선택지가 뜬다.
-                <div className="t-display text-amber-900 tabular-nums">
-                  {lastRoll ? `${lastRoll.d1} + ${lastRoll.d2} = ${lastRoll.total}` : ''}
-                </div>
               )
             )}
             {phase === 'question' && <div className="text-amber-700 text-sm">문제에 답해 주세요…</div>}
@@ -381,7 +397,7 @@ export default function App() {
             turnLimit={turnLimit}
             isLandscape={isLandscape}
             centerStage={centerStage}
-            onTokenLanded={() => setMoveSettled(true)}
+            onTokenLanded={handleTokenLanded}
           />
         )
 

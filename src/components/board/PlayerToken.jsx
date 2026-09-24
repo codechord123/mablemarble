@@ -140,7 +140,7 @@ export default function PlayerToken({ player, index, onLanded }) {
       {/* 펜타곤 분산 — 각 셀 안에서 위치 차이 */}
       <div
         className="relative preserve-3d"
-        style={{ transform: `translate(${pos.dx * 4}px, ${pos.dy * 4}px)` }}
+        style={{ transform: `translate(calc(${pos.dx} * 1.2cqi), calc(${pos.dy} * 1.2cqi))` }}
       >
         {/* 그림자 — 점프 높이에 맞춰 작아지고 흐려진다. 무게감의 핵심. */}
         <motion.div
@@ -152,10 +152,10 @@ export default function PlayerToken({ player, index, onLanded }) {
         {/* 캐릭터 점프/회전 (이동 중에만). 보드가 기울어진 만큼 되돌려 칸 위에 세운다. */}
         <div className="stand-up">
         <motion.div animate={bobControls} style={{ transformOrigin: '50% 100%' }}>
-          <div
-            className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-white shadow-lg ring-1 ring-amber-900/40 ${player.color} flex items-center justify-center text-sm sm:text-base`}
-          >
-            <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
+          {/* 말 = 플레이어 색 받침대 위에 선 캐릭터 얼굴. 받침대 색으로 누구 말인지 구분한다. */}
+          <div className="token-figure relative h-7 w-7 sm:h-10 sm:w-10">
+            <span className={`token-base ${player.color}`} />
+            <AnimalFace emoji={player.avatar} className="token-head absolute left-[2%] bottom-[16%] w-[96%] h-[96%]" />
           </div>
         </motion.div>
         </div>
