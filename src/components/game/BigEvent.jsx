@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { sfx } from '../../utils/sounds.js'
+import { ROUND_EVENTS } from '../../utils/rules.js'
 
 const KINDS = {
   toll: {
@@ -44,6 +45,20 @@ const KINDS = {
     fill: '#fde047', deep: '#92400e', ray: 'rgba(250, 204, 21, 0.3)',
     coins: ['#fde047', '#f59e0b', '#fef3c7', '#ef4444'], burst: 160, ms: 2000,
   },
+  monopoly: {
+    title: () => '라인 독점!',
+    sub: (e) => e.owner,
+    line: () => '👑 이 줄 도시 통행료 2배!',
+    fill: '#fde047', deep: '#7c2d12', ray: 'rgba(250, 204, 21, 0.32)',
+    coins: ['#fde047', '#f59e0b', '#fbbf24', '#fef3c7'], burst: 180, ms: 2200,
+  },
+  round: {
+    title: (e) => `${ROUND_EVENTS[e.eventKind]?.icon} ${ROUND_EVENTS[e.eventKind]?.title}`,
+    sub: (e) => `${e.round}라운드 이벤트`,
+    line: (e) => ROUND_EVENTS[e.eventKind]?.desc(e),
+    fill: '#f9a8d4', deep: '#831843', ray: 'rgba(236, 72, 153, 0.22)',
+    coins: ['#f9a8d4', '#fde047', '#a5f3fc'], burst: 120, ms: 2300,
+  },
   bankrupt: {
     title: () => '파산!',
     sub: (e) => e.names.join(', '),
@@ -58,8 +73,11 @@ export default function BigEvent({ event, onDone }) {
   const k = event ? KINDS[event.kind] : null
 
   useEffect(() => {
+    // 모르는 연출이면 바로 끝낸다 — 끝을 알리지 않으면 굴리기가 잠긴 채로 남는다
+    if (event && !k) { onDone(); return }
     if (!event || !k) return
-    if (event.kind === 'hotel') sfx.victory()
+    if (event.kind === 'hotel' || event.kind === 'monopoly') sfx.victory()
+    else if (event.kind === 'round') sfx.card()
     else if (event.kind === 'toll' || event.kind === 'buy' || event.kind === 'build') sfx.coin()
     else if (event.kind === 'saved') sfx.correct()
 

@@ -14,6 +14,7 @@ const SNAPSHOT_KEYS = [
   'turnLimit',
   'startMoney',
   'modeId',
+  'roundEvent',
 ]
 
 export function persistSnapshot(state) {

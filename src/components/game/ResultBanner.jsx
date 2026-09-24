@@ -5,7 +5,7 @@ import MathText from '../ui/MathText.jsx'
 import { shakeEl } from '../../utils/juice.js'
 import GameButton from '../ui/GameButton.jsx'
 
-function formatAnswer(q) {
+export function formatAnswer(q) {
   if (!q) return ''
   if (q.type === 'multiple_choice') return q.choices[q.answer] ?? ''
   if (q.type === 'true_false') return q.answer === 0 ? 'O' : 'X'
@@ -73,6 +73,16 @@ export default function ResultBanner({ result, onClose }) {
               <div className="text-amber-700 mt-3 text-lg sm:text-xl font-semibold">
                 <MathText>{result.message}</MathText>
               </div>
+            )}
+            {result.combo && (
+              <motion.div
+                initial={{ scale: 0.4, rotate: -8, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                transition={{ delay: 0.35, type: 'spring', stiffness: 380, damping: 14 }}
+                className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-lg shadow-[0_4px_0_#9a3412]"
+              >
+                🔥 {result.combo.streak}연속 정답! 콤보 +{result.combo.bonus.toLocaleString()}원
+              </motion.div>
             )}
             {!result.correct && result.question && (
               <div className="mt-4 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-xl">

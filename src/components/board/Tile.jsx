@@ -48,7 +48,9 @@ function BuildingLot({ owner, level }) {
 // edge: 칸이 놓인 줄('top'|'bottom'|'left'|'right', 모서리는 null).
 // 왼쪽·오른쪽 줄 칸은 가로로 길고 세로가 짧아서 그림을 옆에 두고 이름·값을
 // 나란히 놓는다. 그림은 보드 바깥쪽에 둔다.
-function Tile({ tile, owner, ownerInfo, edge }) {
+// monopoly: 이 칸이 속한 색 줄을 한 사람이 모두 가짐 (통행료 2배)
+// festival: 이번 라운드 축제 도시 (통행료 2배)
+function Tile({ tile, owner, ownerInfo, edge, monopoly, festival }) {
   const side = edge === 'left' || edge === 'right' ? edge : null
   const s = FACE[tile.type] || {}
   const isCity = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
@@ -156,9 +158,15 @@ function Tile({ tile, owner, ownerInfo, edge }) {
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className={`relative h-full w-full ${monopoly ? 'tile-monopoly' : ''}`}>
       {face}
       {building}
+      {(monopoly || festival) && (
+        <div className="tile-badges absolute z-[4] pointer-events-none flex gap-[1px]">
+          {monopoly && <span title="라인 독점 — 통행료 2배">👑</span>}
+          {festival && <span title="축제 도시 — 통행료 2배">🎉</span>}
+        </div>
+      )}
     </div>
   )
 }
@@ -170,6 +178,8 @@ export default memo(Tile, (prev, next) => {
     prev.owner?.id === next.owner?.id &&
     prev.owner?.color === next.owner?.color &&
     prev.ownerInfo?.houses === next.ownerInfo?.houses &&
-    prev.edge === next.edge
+    prev.edge === next.edge &&
+    prev.monopoly === next.monopoly &&
+    prev.festival === next.festival
   )
 })

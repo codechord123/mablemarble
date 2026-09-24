@@ -574,3 +574,26 @@ body {
   pointer-events: none;
 }
 .question-banner > * { position: relative; z-index: 1; }
+
+/* ─── 라인 독점·축제 표시 ─── */
+.tile-monopoly > .tile-block {
+  box-shadow:
+    0 0 0 2px #fbbf24,
+    0 0 10px 2px rgba(251, 191, 36, 0.75),
+    0 2px 0 rgba(0, 0, 0, 0.35);
+}
+.tile-badges {
+  right: -3px;
+  bottom: -3px;
+  font-size: clamp(9px, 2.6cqi, 20px);
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+
+/* 콤보 불꽃 — 3연속부터 살짝 흔들린다 */
+@keyframes combo-flame {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50% { transform: scale(1.08) rotate(2deg); }
+}
+.combo-flame { animation: combo-flame 0.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .combo-flame { animation: none; } }

@@ -44,7 +44,7 @@ export const BOARD_SIZE = BOARD.length
 
 // 도시 그룹 색. 보드 한 변이 한 그룹이고 한 바퀴 돌수록 비싸진다.
 // 칸 아래 띠 색만 보고도 '비싼 동네'를 알아볼 수 있게 한다 (모두의 마블식).
-const GROUP_OF = {
+export const GROUP_OF = {
   1: 'A', 2: 'A', 4: 'A', 5: 'A',
   7: 'B', 8: 'B', 10: 'B',
   13: 'C', 14: 'C', 16: 'C',
@@ -60,6 +60,10 @@ export const GROUP_COLORS = {
 }
 export function tileGroup(tileId) {
   return GROUP_COLORS[GROUP_OF[tileId]] || null
+}
+// 같은 색 줄에 속한 칸 id 목록
+export function groupTiles(groupKey) {
+  return Object.keys(GROUP_OF).filter((id) => GROUP_OF[id] === groupKey).map(Number)
 }
 
 export const START_MONEY = 1500

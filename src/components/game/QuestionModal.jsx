@@ -45,7 +45,8 @@ function TimerRing({ remaining, total, urgent }) {
   )
 }
 
-export default function QuestionModal({ question, intent, player, onSubmit }) {
+// stake: 고른 난이도와 걸린 보상 한 줄, streak: 지금까지 연속 정답 수
+export default function QuestionModal({ question, intent, player, onSubmit, stake = null, streak = 0 }) {
   const total = QUESTION_TIME_BY_DIFFICULTY[question.difficulty] || 30
   const [remaining, setRemaining] = useState(total)
   const [selected, setSelected] = useState(null)
@@ -156,8 +157,12 @@ export default function QuestionModal({ question, intent, player, onSubmit }) {
             </button>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-bold">
+            {stake ? (
+              <span className="px-2.5 py-1 rounded-full bg-white text-slate-800 shadow-sm">{stake}</span>
+            ) : null}
             <span className="px-2.5 py-1 rounded-full bg-white/20 ring-1 ring-white/30">{question.category}</span>
             <span className="px-2.5 py-1 rounded-full bg-white/20 ring-1 ring-white/30 tracking-tight">
+              {streak >= 2 && <span className="mr-1">🔥{streak}연속 ·</span>}
               난이도 <span className="text-yellow-200">{'★'.repeat(question.difficulty)}</span>
               <span className="text-white/35">{'★'.repeat(Math.max(0, 3 - question.difficulty))}</span>
             </span>

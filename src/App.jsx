@@ -10,6 +10,9 @@ import BigEvent from './components/game/BigEvent.jsx'
 import { duckMusic } from './utils/bgm.js'
 import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
+import DifficultyPicker from './components/game/DifficultyPicker.jsx'
+import SellModal from './components/game/SellModal.jsx'
+import { activeRoundEvent, underdogId, ITEMS, TOLL_CHALLENGE, DIFFICULTY_DISCOUNT } from './utils/rules.js'
 import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
@@ -36,6 +39,15 @@ function FullScreenSpinner({ label = '불러오는 중…' }) {
       <div className="text-amber-700 font-bold animate-pulse">{label}</div>
     </div>
   )
+}
+
+// 문제 머리띠에 보여 줄 '무엇을 걸었나' 한 줄
+function stakeLabel(action) {
+  if (!action?.difficulty) return null
+  const stars = '★'.repeat(action.difficulty)
+  if (action.type === 'skip-toll') return `${stars} 도전 · 맞히면 ${TOLL_CHALLENGE[action.difficulty].label}`
+  const off = DIFFICULTY_DISCOUNT[action.difficulty]
+  return `${stars} 도전 · ${off ? `맞히면 ${Math.round(off * 100)}% 할인` : '정가'}`
 }
 
 export default function App() {
@@ -86,6 +98,17 @@ export default function App() {
   const { isLandscape } = useViewport()
   const [view, setView] = useState('menu')
   const bigEvent = useGameStore((s) => s.bigEvent)
+  const roundEventRaw = useGameStore((s) => s.roundEvent)
+  const roundEvent = activeRoundEvent(roundEventRaw, currentRound)
+  const sellerId = useGameStore((s) => s.sellerId)
+  const sellTile = useGameStore((s) => s.sellTile)
+  const chooseDifficulty = useGameStore((s) => s.chooseDifficulty)
+  const cancelDifficulty = useGameStore((s) => s.cancelDifficulty)
+  const useAngelCard = useGameStore((s) => s.useAngelCard)
+  const useHalfCoupon = useGameStore((s) => s.useHalfCoupon)
+  const useTeleport = useGameStore((s) => s.useTeleport)
+  const spaceMode = useGameStore((s) => s.spaceMode)
+  const salaryNote = useGameStore((s) => s.salaryNote)
   const clearBigEvent = useGameStore((s) => s.clearBigEvent)
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
@@ -253,9 +276,12 @@ export default function App() {
     if (action.type === 'space-pick') return goToSpacePick()
     if (action.type === 'upgrade') return attemptUpgrade(currentTile)
     if (action.type === 'skip') return skipTile()
+    if (action.type === 'use-angel') return useAngelCard(currentTile, action.toll)
+    if (action.type === 'use-half') return useHalfCoupon(currentTile, action.toll)
   }
 
   const onIsland = phase === 'rolling' && current?.islandTurnsLeft > 0
+  const underdog = underdogId(players, ownership)
 
   return (
     <div className="min-h-screen game-bg safe-padded">
@@ -267,6 +293,8 @@ export default function App() {
       </Toast>
       <Toast show={salaryReceived > 0} color="bg-emerald-600">
         🏁 출발 통과! +{salaryReceived.toLocaleString()}원 월급
+        {salaryNote === 'underdog' && ' 💪 역전 보너스 1.5배!'}
+        {salaryNote === 'boom' && ' 📈 호황 2배!'}
       </Toast>
       <Toast show={poolJustReset} color="bg-sky-500" position="bottom">
         🔁 문제 풀이 다시 시작됩니다 (모든 문제 출제 완료)
@@ -278,9 +306,26 @@ export default function App() {
         🏨 첫 호텔 완성! 호텔 도시는 통행료가 가장 비싸요
       </Toast>
 
+      {phase === 'difficulty' && pendingAction && current && (
+        <DifficultyPicker
+          action={pendingAction}
+          player={current}
+          ownership={ownership}
+          roundEvent={roundEvent}
+          onPick={chooseDifficulty}
+          onCancel={cancelDifficulty}
+        />
+      )}
+
+      {phase === 'sell' && sellerId != null && players[sellerId] && (
+        <SellModal player={players[sellerId]} ownership={ownership} onSell={sellTile} />
+      )}
+
       {phase === 'question' && currentQuestion && (
         <QuestionModal
           question={currentQuestion}
+          stake={stakeLabel(pendingAction)}
+          streak={current?.streak || 0}
           intent={pendingAction?.type}
           player={current}
           onSubmit={submitAnswer}
@@ -294,7 +339,7 @@ export default function App() {
       )}
 
       {phase === 'space-pick' && (
-        <SpaceTravelModal onPick={pickSpaceDestination} onCancel={cancelSpacePick} />
+        <SpaceTravelModal mode={spaceMode} onPick={pickSpaceDestination} onCancel={cancelSpacePick} />
       )}
 
       <ConfirmDialog
@@ -316,13 +361,23 @@ export default function App() {
           <>
             {/* 굴리기 → 말 이동이 끝날 때까지 같은 주사위를 유지한다. 그래야 굴러가던
                 주사위가 나온 눈을 보여 주며 멈추는 장면이 끊기지 않는다. */}
-            {((phase === 'rolling' && !onIsland) || (phase === 'tile' && !moveSettled)) && (
+            {((phase === 'rolling' && !onIsland) || (phase === 'tile' && !moveSettled && lastRoll)) && (
               <DiceRoller
                 lastRoll={lastRoll}
                 onRoll={rollAndMove}
                 disabled={showAnnouncement || !!bigEvent}
                 showResult={phase === 'tile'}
               />
+            )}
+            {phase === 'rolling' && !onIsland && current?.items?.includes('teleport') && (
+              <button
+                type="button"
+                onClick={useTeleport}
+                disabled={showAnnouncement || !!bigEvent}
+                className="px-3 py-1.5 rounded-full bg-violet-600 text-white font-bold text-sm shadow-[0_3px_0_#4c1d95] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
+              >
+                {ITEMS.teleport.icon} 순간이동 카드 쓰기
+              </button>
             )}
             {phase === 'rolling' && onIsland && (
               <IslandPanel
@@ -340,6 +395,7 @@ export default function App() {
                   players={players}
                   ownership={ownership}
                   lastRoll={lastRoll}
+                  roundEvent={roundEvent}
                   onAction={handleTileAction}
                 />
               )
@@ -348,6 +404,8 @@ export default function App() {
             {phase === 'result' && <div className="text-amber-700 text-sm">결과 확인 중…</div>}
             {phase === 'golden-key' && <div className="text-amber-700 text-sm">카드 확인 중…</div>}
             {phase === 'space-pick' && <div className="text-amber-700 text-sm">목적지 선택 중…</div>}
+            {phase === 'difficulty' && <div className="text-amber-700 text-sm">난이도 고르는 중…</div>}
+            {phase === 'sell' && <div className="text-amber-700 text-sm">땅 파는 중…</div>}
           </>
         )
 
@@ -374,7 +432,7 @@ export default function App() {
                 const isOddLast = !isLandscape && i === players.length - 1 && players.length % 2 === 1
                 return (
                   <div key={p.id} className={isOddLast ? 'col-span-2 sm:col-span-1' : ''}>
-                    <PlayerCard player={p} isCurrent={i === currentTurn} />
+                    <PlayerCard player={p} isCurrent={i === currentTurn} underdog={underdog === p.id} />
                   </div>
                 )
               })}
@@ -409,7 +467,8 @@ export default function App() {
             isLandscape={isLandscape}
             centerStage={centerStage}
             onTokenLanded={handleTokenLanded}
-            moveDelay={phase === 'tile' ? DICE_LAND_MS / 1000 : 0}
+            moveDelay={phase === 'tile' && lastRoll ? DICE_LAND_MS / 1000 : 0}
+            roundEvent={roundEvent}
           />
         )
 

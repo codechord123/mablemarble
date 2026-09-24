@@ -7,8 +7,12 @@
 
 import { motion } from 'framer-motion'
 import AnimalFace from '../ui/AnimalFace.jsx'
+import { ROUND_EVENTS, ROUND_EVENT_EVERY } from '../../utils/rules.js'
 
-export default function BoardCenter({ player, lastRoll, currentRound, turnLimit, stage }) {
+export default function BoardCenter({ player, lastRoll, currentRound, turnLimit, stage, roundEvent }) {
+  const ev = roundEvent && ROUND_EVENTS[roundEvent.kind]
+  // 다음 이벤트까지 남은 라운드 (4·7·10… 라운드 시작에 터진다)
+  const untilEvent = ROUND_EVENT_EVERY - ((currentRound - 1) % ROUND_EVENT_EVERY)
   const progress = turnLimit ? Math.min(100, (currentRound / turnLimit) * 100) : null
 
   return (
@@ -45,7 +49,13 @@ export default function BoardCenter({ player, lastRoll, currentRound, turnLimit,
         <div className="px-2 py-0.5 bg-amber-200/60 rounded-full text-amber-900 tile-text-meta font-bold">
           라운드 {currentRound}
           {turnLimit ? ` / ${turnLimit}` : ''}
+          {!ev && <span className="font-semibold text-amber-800/70"> · 이벤트까지 {untilEvent}</span>}
         </div>
+        {ev && (
+          <div className="px-2 py-0.5 rounded-full bg-pink-500 text-white tile-text-meta font-black shadow-sm">
+            {ev.icon} {ev.title}: {ev.desc(roundEvent)}
+          </div>
+        )}
         {progress !== null && (
           <div className="h-1 w-16 bg-amber-200/70 rounded-full overflow-hidden">
             <div className="h-full bg-amber-500 transition-all" style={{ width: `${progress}%` }} />

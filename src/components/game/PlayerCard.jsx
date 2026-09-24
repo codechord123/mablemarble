@@ -3,8 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion'
 import AnimatedNumber from '../ui/AnimatedNumber.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
 import AnimalFace from '../ui/AnimalFace.jsx'
+import { ITEMS } from '../../utils/rules.js'
 
-export default function PlayerCard({ player, isCurrent }) {
+// underdog: 지금 꼴찌라 월급 1.5배를 받는 사람
+export default function PlayerCard({ player, isCurrent, underdog = false }) {
+  const streak = player.streak || 0
+  const items = player.items || []
   const stats = player.stats || { answered: 0, correct: 0 }
   const accuracy = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : null
 
@@ -59,13 +63,32 @@ export default function PlayerCard({ player, isCurrent }) {
           </div>
         </div>
       </div>
-      {(accuracy !== null || player.islandTurnsLeft > 0) && (
+      {(accuracy !== null || player.islandTurnsLeft > 0 || streak >= 2 || items.length > 0 || underdog) && (
         <div className="flex items-center justify-center gap-1 flex-wrap mt-1.5 text-[10px] sm:text-xs">
           {accuracy !== null && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold">
               ✅ {stats.correct}/{stats.answered}
               <span className="text-emerald-500">·</span>
               {accuracy}%
+            </span>
+          )}
+          {streak >= 2 && (
+            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full font-black ${
+              streak >= 3 ? 'bg-orange-500 text-white combo-flame' : 'bg-orange-50 text-orange-600'
+            }`}>
+              🔥 {streak}연속
+            </span>
+          )}
+          {items.length > 0 && (
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 font-semibold"
+              title={items.map((k) => ITEMS[k]?.name).join(', ')}>
+              {items.map((k, i) => <span key={i}>{ITEMS[k]?.icon}</span>)}
+            </span>
+          )}
+          {underdog && (
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 font-bold"
+              title="꼴찌는 출발 월급 1.5배">
+              💪 역전 찬스
             </span>
           )}
           {player.islandTurnsLeft > 0 && (

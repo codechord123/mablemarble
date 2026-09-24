@@ -3,6 +3,7 @@
 // 이동 효과는 별도 처리(`movePlayerTo`, `movePlayerBy`)로 위임.
 
 import { BOARD, BOARD_SIZE, TILE_TYPES, SALARY } from './boardConfig.js'
+import { ITEMS, MAX_ITEMS } from './rules.js'
 
 const adjustMoney = (player, delta) => ({ ...player, money: player.money + delta })
 
@@ -72,6 +73,17 @@ export function applyCardEffect(card, state) {
         message: `${eff.steps > 0 ? `+${eff.steps}` : eff.steps}칸 이동${passedStart ? ` (+${SALARY}원 통과)` : ''}`,
         movedTo: next,
       }
+    }
+
+    // 보관 카드 — 들고 있다가 필요할 때 쓴다 (최대 MAX_ITEMS장)
+    case 'gain-item': {
+      const items = me.items || []
+      const info = ITEMS[eff.item]
+      if (items.length >= MAX_ITEMS) {
+        return { players, message: `카드가 가득 차서 ${info.name}은(는) 버렸어요` }
+      }
+      updated[currentTurn] = { ...me, items: [...items, eff.item] }
+      return { players: updated, message: `${info.icon} ${info.name}을(를) 받았어요! (${info.desc})` }
     }
 
     case 'extra-turn':

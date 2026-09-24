@@ -2,7 +2,9 @@ import { motion } from 'framer-motion'
 import { BOARD, TILE_TYPES } from '../../utils/boardConfig.js'
 import GameButton from '../ui/GameButton.jsx'
 
-export default function SpaceTravelModal({ onPick, onCancel }) {
+// mode: 'space'(우주여행 칸) | 'teleport'(순간이동 카드)
+export default function SpaceTravelModal({ mode = 'space', onPick, onCancel }) {
+  const teleport = mode === 'teleport'
   const cities = BOARD.filter(
     (t) => t.type === TILE_TYPES.CITY || t.type === TILE_TYPES.LANDMARK,
   )
@@ -16,8 +18,8 @@ export default function SpaceTravelModal({ onPick, onCancel }) {
         className="bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 max-w-md w-full"
       >
         <div className="text-center">
-          <div className="text-5xl">🚀</div>
-          <h3 className="text-2xl font-extrabold text-amber-900 mt-2">우주여행</h3>
+          <div className="text-5xl">{teleport ? '🌀' : '🚀'}</div>
+          <h3 className="text-2xl font-extrabold text-amber-900 mt-2">{teleport ? '순간이동' : '우주여행'}</h3>
           <p className="text-amber-700 mt-1">이동할 도시를 선택하세요.</p>
         </div>
 

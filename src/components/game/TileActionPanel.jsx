@@ -1,5 +1,5 @@
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS } from '../../utils/boardConfig.js'
-import { calculateToll, nextUpgradeCost } from '../../utils/gameEngine.js'
+import { hasMonopoly, purchaseCost, tollFor, upgradeCost, ITEMS } from '../../utils/rules.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
 import TileArt from '../board/TileArt.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
@@ -13,10 +13,12 @@ const TYPE_LABEL = {
 function Header({ player, tile, lastRoll }) {
   return (
     <div className="text-center">
-      <div className="text-amber-900 font-bold text-lg">
-        🎲 {lastRoll?.d1} + {lastRoll?.d2} = {lastRoll?.total}
-        {lastRoll?.isDouble && <span className="ml-2 text-rose-600">더블!</span>}
-      </div>
+      {lastRoll && (
+        <div className="text-amber-900 font-bold text-lg">
+          🎲 {lastRoll.d1} + {lastRoll.d2} = {lastRoll.total}
+          {lastRoll.isDouble && <span className="ml-2 text-rose-600">더블!</span>}
+        </div>
+      )}
       <div className="text-amber-700 flex items-center justify-center gap-1 flex-wrap">
         <strong className="text-amber-900">{player.name}</strong> →
         <span className="inline-block align-middle mr-1" style={{ width: 30, height: 30 }}>
@@ -48,21 +50,26 @@ function Btn({ children, onClick, color, disabled }) {
   )
 }
 
-export default function TileActionPanel({ tile, player, players, ownership, lastRoll, onAction }) {
+// roundEvent: 지금 라운드에 살아 있는 판 전체 사건 (축제·불경기 등) 또는 null
+export default function TileActionPanel({ tile, player, players, ownership, lastRoll, roundEvent, onAction }) {
   const owner = ownership[tile.id]
   const purchasable = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   const nextLabel = lastRoll?.isDouble ? '계속' : '다음 턴'
 
   // 1. 빈 도시/랜드마크 — 땅(레벨 0)만 구매. 콘도/아파트/호텔은 재방문 시 단계별 업그레이드.
   if (purchasable && !owner) {
-    const landCost = tile.price
-    const afford = player.money >= landCost
+    const landCost = purchaseCost(tile, roundEvent, 1)
+    // 가장 어려운 도전(25% 할인)으로 살 수 있으면 버튼을 열어 둔다
+    const afford = player.money >= purchaseCost(tile, roundEvent, 3)
+    const sale = roundEvent?.kind === 'recession'
 
     return (
       <div className="flex flex-col items-center gap-3 w-full">
         <Header player={player} tile={tile} lastRoll={lastRoll} />
         <div className="text-amber-800 text-sm text-center flex items-center justify-center gap-1 flex-wrap">
-          <CoinIcon size={15} /> 땅값 <strong>{landCost.toLocaleString()}원</strong> · 문제를 풀면 땅을 살 수 있어요
+          <CoinIcon size={15} /> 땅값 <strong>{landCost.toLocaleString()}원</strong>
+          {sale && <span className="text-sky-700 font-bold">📉 불경기 반값</span>}
+          · 어려운 문제일수록 더 싸게 살 수 있어요
         </div>
         <div className="hidden sm:block text-[11px] text-amber-600 text-center">
           다시 방문할 때마다 콘도 → 아파트 → 호텔 순으로 한 단계씩 업그레이드할 수 있어요
@@ -89,7 +96,10 @@ export default function TileActionPanel({ tile, player, players, ownership, last
   // 2. 남의 도시 — 통행료 / 면제 시도 (건물 레벨 반영)
   if (purchasable && owner && owner.ownerId !== player.id) {
     const ownerPlayer = players[owner.ownerId]
-    const toll = calculateToll(tile, owner.houses)
+    const toll = tollFor(tile, ownership, roundEvent)
+    const mono = hasMonopoly(ownership, tile.id)
+    const festival = roundEvent?.kind === 'festival' && roundEvent.tileId === tile.id
+    const items = player.items || []
     return (
       <div className="flex flex-col items-center gap-3">
         <Header player={player} tile={tile} lastRoll={lastRoll} />
@@ -103,11 +113,28 @@ export default function TileActionPanel({ tile, player, players, ownership, last
           )}
           <span>· 통행료 <strong>{toll.toLocaleString()}원</strong></span>
         </div>
-        <div className="flex gap-2">
+        {(mono || festival) && (
+          <div className="flex gap-1.5 flex-wrap justify-center text-xs font-black">
+            {mono && <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">👑 라인 독점 ×2</span>}
+            {festival && <span className="px-2 py-0.5 rounded-full bg-pink-100 text-pink-700">🎉 축제 도시 ×2</span>}
+          </div>
+        )}
+        {/* 지불·문제 도전·보관 카드를 한 묶음으로 — 자리가 모자라면 줄을 바꾼다 */}
+        <div className="flex gap-2 flex-wrap justify-center">
           <Btn onClick={() => onAction({ type: 'pay-toll', toll })}>지불</Btn>
           <Btn onClick={() => onAction({ type: 'attempt-skip-toll', toll })} color="bg-violet-600 hover:bg-violet-700">
-            🎯 문제로 면제 시도
+            🎯 문제로 면제 도전
           </Btn>
+          {items.includes('angel') && (
+            <Btn onClick={() => onAction({ type: 'use-angel', toll })} color="bg-emerald-600 hover:bg-emerald-700">
+              {ITEMS.angel.icon} 천사 카드
+            </Btn>
+          )}
+          {items.includes('half') && (
+            <Btn onClick={() => onAction({ type: 'use-half', toll })} color="bg-blue-600 hover:bg-blue-700">
+              {ITEMS.half.icon} 반값 쿠폰
+            </Btn>
+          )}
         </div>
       </div>
     )
@@ -116,9 +143,9 @@ export default function TileActionPanel({ tile, player, players, ownership, last
   // 3. 내 도시 — 업그레이드 옵션
   if (purchasable && owner && owner.ownerId === player.id) {
     const lvl = owner.houses
-    const upgradeCost = nextUpgradeCost(tile, lvl)
-    const canUpgrade = upgradeCost != null && player.money >= upgradeCost
-    const nextLevelLabel = upgradeCost != null ? BUILDING_LABELS[lvl + 1] : null
+    const nextCost = upgradeCost(tile, lvl, roundEvent, 1)
+    const canUpgrade = nextCost != null && player.money >= upgradeCost(tile, lvl, roundEvent, 3)
+    const nextLevelLabel = nextCost != null ? BUILDING_LABELS[lvl + 1] : null
 
     return (
       <div className="flex flex-col items-center gap-3">
@@ -126,17 +153,17 @@ export default function TileActionPanel({ tile, player, players, ownership, last
         <div className="text-emerald-700 font-semibold flex items-center gap-1">
           {BUILDING_ICONS[lvl] || '🏠'} 내 도시 · {BUILDING_LABELS[lvl]}
         </div>
-        {upgradeCost == null ? (
+        {nextCost == null ? (
           <div className="text-xs text-amber-600">🏨 최고 등급 호텔 완료!</div>
         ) : (
           <div className="text-sm text-amber-700 text-center">
             {BUILDING_ICONS[lvl + 1]} {nextLevelLabel} 업그레이드 비용:{' '}
-            <strong>{upgradeCost.toLocaleString()}원</strong>
-            <div className="text-[11px] text-amber-600 mt-0.5">문제를 풀면 한 단계 짓습니다</div>
+            <strong>{nextCost.toLocaleString()}원</strong>
+            <div className="text-[11px] text-amber-600 mt-0.5">문제를 풀면 한 단계 짓습니다 · 어려울수록 할인</div>
           </div>
         )}
         <div className="flex gap-2">
-          {upgradeCost != null && (
+          {nextCost != null && (
             <Btn
               onClick={() => onAction({ type: 'upgrade' })}
               color="bg-emerald-600 hover:bg-emerald-700"

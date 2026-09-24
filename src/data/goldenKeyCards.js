@@ -1,4 +1,4 @@
-// 황금열쇠 카드 12종. 효과는 type + payload로 표현 → 엔진이 해석.
+// 황금열쇠 카드 (돈·이동·문제·추가 턴·보관 카드·미션). 효과는 type + payload로 표현 → 엔진이 해석.
 // 카드 분포: 머니 효과 6 / 이동 4 / 보너스 문제 1 / 추가 턴 1
 
 export const GOLDEN_KEY_CARDS = [
@@ -37,6 +37,19 @@ export const GOLDEN_KEY_CARDS = [
 
   { id: 'gk_12', emoji: '⚡', title: '점프!', description: '5칸 앞으로 이동합니다.',
     effect: { type: 'move-relative', steps: 5 } },
+
+  // ─── 보관 카드 — 받아 두었다가 필요할 때 쓴다 ───
+  { id: 'gk_21', emoji: '😇', title: '천사 카드', description: '보관했다가 남의 도시에 걸렸을 때 통행료를 1번 면제받아요.',
+    effect: { type: 'gain-item', item: 'angel' } },
+
+  { id: 'gk_22', emoji: '🎟️', title: '반값 쿠폰', description: '보관했다가 통행료를 1번 반값으로 내요.',
+    effect: { type: 'gain-item', item: 'half' } },
+
+  { id: 'gk_23', emoji: '🌀', title: '순간이동 카드', description: '보관했다가 내 차례에 주사위 대신 원하는 칸으로 이동해요.',
+    effect: { type: 'gain-item', item: 'teleport' } },
+
+  { id: 'gk_24', emoji: '😇', title: '수호천사', description: '천사 카드를 1장 받아요. 통행료 1번 면제!',
+    effect: { type: 'gain-item', item: 'angel' } },
 
   // ─── 미션 카드 (몸으로 하는 미니 챌린지) ───
   { id: 'gk_13', emoji: '🐘', title: '코끼리 코 챌린지',

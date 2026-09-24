@@ -89,6 +89,10 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
   const [vals, setVals] = useState({ int: '', num: '', den: '' })
   const [active, setActive] = useState(fields[0])
   const refs = { int: useRef(null), num: useRef(null), den: useRef(null) }
+  // 부모가 매 렌더마다 새 함수를 넘겨도 값 알림 effect가 다시 돌지 않게 ref로 잡는다.
+  // (의존성에 함수를 넣었더니 알림 → 부모 리렌더 → 새 함수 → 알림… 무한 반복이었다)
+  const onValueChangeRef = useRef(onValueChange)
+  onValueChangeRef.current = onValueChange
 
   useEffect(() => {
     const { int, num, den } = vals
@@ -107,8 +111,8 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
         valid = true
       }
     }
-    onValueChange(assembled, valid)
-  }, [vals, mode, onValueChange])
+    onValueChangeRef.current(assembled, valid)
+  }, [vals, mode])
 
   const typeDigit = useCallback((d) => {
     setVals((v) => {

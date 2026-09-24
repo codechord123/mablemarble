@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BOARD, getTileCoord, tileCenterPct, GRID_TEMPLATE } from '../../utils/boardConfig.js'
+import { hasMonopoly } from '../../utils/rules.js'
 import Tile from './Tile.jsx'
 import PlayerToken from './PlayerToken.jsx'
 import BoardCenter from './BoardCenter.jsx'
@@ -18,6 +19,7 @@ export default function Board({
   centerStage,
   onTokenLanded,
   moveDelay = 0,
+  roundEvent = null,
 }) {
   const [selectedTile, setSelectedTile] = useState(null)
   // 말이 착지한 칸에서 한 번 퍼지는 링. 도착을 움직임으로 알린다.
@@ -80,6 +82,8 @@ export default function Board({
                   tile={tile}
                   owner={owner}
                   ownerInfo={info}
+                  monopoly={hasMonopoly(ownership, tile.id)}
+                  festival={roundEvent?.kind === 'festival' && roundEvent.tileId === tile.id}
                   edge={
                     (x === 0 || x === 6) && (y === 0 || y === 6)
                       ? null
@@ -97,6 +101,7 @@ export default function Board({
             currentRound={currentRound}
             turnLimit={turnLimit}
             stage={centerStage}
+            roundEvent={roundEvent}
           />
         </div>
 
