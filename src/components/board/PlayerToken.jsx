@@ -137,11 +137,11 @@ export default function PlayerToken({ player, index, onLanded }) {
       initial={{ left: `${start.x * CELL + HALF}%`, top: `${start.y * CELL + HALF}%` }}
       animate={controls}
       style={{ zIndex: 20 + index }}
-      className="absolute -translate-x-1/2 -translate-y-1/2"
+      className="absolute -translate-x-1/2 -translate-y-1/2 preserve-3d"
     >
       {/* 펜타곤 분산 — 각 셀 안에서 위치 차이 */}
       <div
-        className="relative"
+        className="relative preserve-3d"
         style={{ transform: `translate(${pos.dx * 4}px, ${pos.dy * 4}px)` }}
       >
         {/* 그림자 — 점프 높이에 맞춰 작아지고 흐려진다. 무게감의 핵심. */}
@@ -151,14 +151,16 @@ export default function PlayerToken({ player, index, onLanded }) {
           className="absolute left-1/2 top-full -translate-x-1/2 h-1 w-5 sm:w-6 bg-black/30 rounded-full blur-[1px] origin-center"
         />
 
-        {/* 캐릭터 점프/회전 (이동 중에만) */}
-        <motion.div animate={bobControls}>
+        {/* 캐릭터 점프/회전 (이동 중에만). 보드가 기울어진 만큼 되돌려 칸 위에 세운다. */}
+        <div className="stand-up">
+        <motion.div animate={bobControls} style={{ transformOrigin: '50% 100%' }}>
           <div
             className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full border-2 border-white shadow-lg ring-1 ring-amber-900/40 ${player.color} flex items-center justify-center text-sm sm:text-base`}
           >
             <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
           </div>
         </motion.div>
+        </div>
       </div>
     </motion.div>
   )

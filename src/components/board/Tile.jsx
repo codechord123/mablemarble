@@ -1,12 +1,12 @@
 import { memo } from 'react'
-import { TILE_TYPES, BUILDING_LABELS } from '../../utils/boardConfig.js'
+import { TILE_TYPES, BUILDING_LABELS, tileGroup } from '../../utils/boardConfig.js'
 import BuildingIcon from './BuildingIcon.jsx'
 import LandmarkIcon from './LandmarkIcon.jsx'
 import SpecialIcon from './SpecialIcon.jsx'
 
 const STYLE = {
   [TILE_TYPES.START]:      { bg: 'bg-emerald-300', label: '출발',     icon: '🏁' },
-  [TILE_TYPES.CITY]:       { bg: 'bg-white',       label: null,        icon: null },
+  [TILE_TYPES.CITY]:       { bg: 'bg-gradient-to-b from-white to-amber-50', label: null, icon: null },
   [TILE_TYPES.LANDMARK]:   { bg: 'bg-amber-200',   label: null,        icon: '🏛️' },
   [TILE_TYPES.GOLDEN_KEY]: { bg: 'bg-yellow-300',  label: '황금열쇠',  icon: '🔑' },
   [TILE_TYPES.ISLAND]:     { bg: 'bg-sky-200',     label: '무인도',    icon: '🏝️' },
@@ -20,14 +20,15 @@ function Tile({ tile, owner, ownerInfo }) {
   const isCity = tile.type === TILE_TYPES.CITY || tile.type === TILE_TYPES.LANDMARK
   const level = ownerInfo?.houses ?? 0
   const isHotel = isCity && level === 3
+  const group = isCity ? tileGroup(tile.id) : null
 
   return (
     <div
-      className={`relative h-full w-full rounded-md border ${
+      className={`tile-block relative h-full w-full rounded-md border ${
         isHotel
           ? 'border-rose-500 ring-2 ring-rose-400 bg-stripes-rose'
-          : 'border-amber-800/30'
-      } ${s.bg} flex flex-col items-center justify-center leading-tight overflow-hidden`}
+          : 'border-amber-900/25'
+      } ${s.bg} flex flex-col items-center leading-tight overflow-hidden`}
       aria-label={tile.name || s.label}
     >
       {/* 소유주 컬러 띠 (상단) */}
@@ -38,15 +39,15 @@ function Tile({ tile, owner, ownerInfo }) {
         />
       )}
 
-      <div className="mt-2 flex flex-col items-center justify-center gap-0.5 w-full px-0.5">
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-[0.3cqi] w-full px-0.5 pt-[0.5cqi]">
         {/* 도시 랜드마크 + 빌딩 아이콘 */}
         {isCity && tile.country && (
           <div className="flex items-center gap-1 leading-none">
             <span
               className="inline-flex items-center"
               style={{
-                width: 'clamp(18px, 5.4cqi, 38px)',
-                height: 'clamp(18px, 5.4cqi, 38px)',
+                width: 'clamp(12px, 4.8cqi, 38px)',
+                height: 'clamp(12px, 4.8cqi, 38px)',
               }}
             >
               <LandmarkIcon code={tile.country} />
@@ -79,17 +80,26 @@ function Tile({ tile, owner, ownerInfo }) {
           {tile.name || s.label}
         </div>
 
-        {tile.price && (
-          <div className="text-amber-700 tile-text-meta">
-            💰{tile.price}
-          </div>
-        )}
-
         {/* 호텔 표시 — 색맹 친화: 색+패턴+텍스트 */}
         {isHotel && (
           <div className="text-rose-700 font-extrabold tile-text-meta">⚠ HOTEL</div>
         )}
       </div>
+
+      {/* 그룹 색 띠 + 땅값. 색만 보고도 비싼 동네를 알아볼 수 있다. */}
+      {group && (
+        <div
+          className="w-full text-center font-extrabold tile-text-meta tabular-nums py-[0.35cqi]"
+          style={{
+            background: group.gold ? 'linear-gradient(180deg, #fcd34d, #d97706)' : group.band,
+            color: group.gold ? '#451a03' : '#fff',
+            boxShadow: `inset 0 -2px 0 ${group.deep}`,
+            textShadow: group.gold ? 'none' : `0 1px 0 ${group.deep}`,
+          }}
+        >
+          {tile.price}
+        </div>
+      )}
     </div>
   )
 }

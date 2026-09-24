@@ -46,11 +46,17 @@ export default function Board({
 
   return (
     <>
+      {/* 테이블 원근 → 금테 판(기울어짐) → 펠트 바닥 → 칸.
+          말과 가운데 무대는 판 위에 세워서 '실물 보드'처럼 보이게 한다. */}
+      {/* 판을 눕히면 먼 쪽이 줄어들어 위에 약 9% 빈 공간이 생긴다.
+          틀은 그만큼 낮게 잡고, 정사각형 판은 바닥에 붙여 위로 넘치게 둔다. */}
       <div
-        className="board-container relative aspect-square w-full bg-amber-100 p-1.5 sm:p-2 rounded-2xl shadow-lg"
-        style={sizeStyle}
+        className="board-container board-scene relative w-full"
+        style={{ ...sizeStyle, aspectRatio: '1 / 0.91' }}
       >
-        <div className="grid grid-cols-7 grid-rows-7 gap-1 h-full w-full">
+        <div className="board-plane absolute inset-x-0 bottom-0 aspect-square p-1.5 sm:p-3">
+        <div className="board-felt relative h-full w-full p-0.5 sm:p-1.5 preserve-3d">
+        <div className="grid grid-cols-7 grid-rows-7 gap-[3px] sm:gap-1.5 h-full w-full preserve-3d">
           {BOARD.map((tile) => {
             const { x, y } = getTileCoord(tile.id)
             const info = ownership[tile.id]
@@ -61,7 +67,7 @@ export default function Board({
                 type="button"
                 onClick={() => setSelectedTile(tile.id)}
                 style={{ gridColumn: x + 1, gridRow: y + 1 }}
-                className="p-0 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 rounded"
+                className="p-0 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
                 aria-label={`${tile.name || tile.type} 칸`}
               >
                 <Tile tile={tile} owner={owner} ownerInfo={info} />
@@ -78,7 +84,11 @@ export default function Board({
           />
         </div>
 
-        <div className="absolute inset-1.5 sm:inset-2 pointer-events-none">
+        {/* 말·착지 링 층. 칸과 같은 평면에서 겹쳐 깜빡이지 않게 1px 띄운다. */}
+        <div
+          className="absolute inset-0.5 sm:inset-1.5 pointer-events-none preserve-3d"
+          style={{ transform: 'translateZ(1px)' }}
+        >
           <AnimatePresence>
             {landing && (
               <div
@@ -111,6 +121,8 @@ export default function Board({
               onLanded={p.id === currentPlayer?.id ? handleLanded : undefined}
             />
           ))}
+        </div>
+        </div>
         </div>
       </div>
 

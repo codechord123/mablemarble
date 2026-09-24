@@ -42,6 +42,26 @@ export const BOARD = [
 
 export const BOARD_SIZE = BOARD.length
 
+// 도시 그룹 색. 보드 한 변이 한 그룹이고 한 바퀴 돌수록 비싸진다.
+// 칸 아래 띠 색만 보고도 '비싼 동네'를 알아볼 수 있게 한다 (모두의 마블식).
+const GROUP_OF = {
+  1: 'A', 2: 'A', 4: 'A', 5: 'A',
+  7: 'B', 8: 'B', 10: 'B',
+  13: 'C', 14: 'C', 16: 'C',
+  19: 'D', 21: 'D', 22: 'D',
+  11: 'L', 23: 'L',
+}
+export const GROUP_COLORS = {
+  A: { band: '#65A30D', deep: '#3F6212' }, // 연두 — 가장 싼 동네
+  B: { band: '#0284C7', deep: '#075985' }, // 파랑
+  C: { band: '#EA580C', deep: '#9A3412' }, // 주황
+  D: { band: '#DC2626', deep: '#991B1B' }, // 빨강 — 가장 비싼 동네
+  L: { band: '#B45309', deep: '#78350F', gold: true }, // 랜드마크
+}
+export function tileGroup(tileId) {
+  return GROUP_COLORS[GROUP_OF[tileId]] || null
+}
+
 export const START_MONEY = 1500
 export const SALARY = 200
 export const LANDMARK_TOLL_MULTIPLIER = 1.5

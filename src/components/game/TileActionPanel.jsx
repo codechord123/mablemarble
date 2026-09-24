@@ -66,7 +66,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
         <div className="text-amber-800 text-sm text-center flex items-center justify-center gap-1 flex-wrap">
           <CoinIcon size={15} /> 땅값 <strong>{landCost.toLocaleString()}원</strong> · 문제를 풀면 땅을 살 수 있어요
         </div>
-        <div className="text-[11px] text-amber-600 text-center">
+        <div className="hidden sm:block text-[11px] text-amber-600 text-center">
           다시 방문할 때마다 콘도 → 아파트 → 호텔 순으로 한 단계씩 업그레이드할 수 있어요
         </div>
         <div className="flex flex-wrap gap-2 justify-center">
