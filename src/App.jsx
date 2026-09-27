@@ -12,7 +12,7 @@ import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
 import DifficultyPicker from './components/game/DifficultyPicker.jsx'
 import SellModal from './components/game/SellModal.jsx'
-import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT } from './utils/rules.js'
+import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT, SKIP_QUIZ } from './utils/rules.js'
 import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
@@ -43,6 +43,7 @@ function FullScreenSpinner({ label = '불러오는 중…' }) {
 
 // 문제 머리띠에 보여 줄 '무엇을 걸었나' 한 줄
 function stakeLabel(action) {
+  if (action?.type === 'skip-quiz') return `맞히면 +${SKIP_QUIZ.win}원 · 틀리면 −${SKIP_QUIZ.lose}원`
   if (!action?.difficulty) return null
   const stars = '★'.repeat(action.difficulty)
   const off = DIFFICULTY_DISCOUNT[action.difficulty]
@@ -65,6 +66,7 @@ export default function App() {
   const rollAndMove = useGameStore((s) => s.rollAndMove)
   const attemptPurchase = useGameStore((s) => s.attemptPurchase)
   const payToll = useGameStore((s) => s.payToll)
+  const attemptSkipQuiz = useGameStore((s) => s.attemptSkipQuiz)
   const payTax = useGameStore((s) => s.payTax)
   const claimWelfare = useGameStore((s) => s.claimWelfare)
   const skipTile = useGameStore((s) => s.skipTile)
@@ -273,6 +275,7 @@ export default function App() {
     if (action.type === 'space-pick') return goToSpacePick()
     if (action.type === 'upgrade') return attemptUpgrade(currentTile)
     if (action.type === 'skip') return skipTile()
+    if (action.type === 'skip-quiz') return attemptSkipQuiz(currentTile)
     if (action.type === 'use-angel') return useAngelCard(currentTile, action.toll)
     if (action.type === 'use-half') return useHalfCoupon(currentTile, action.toll)
   }

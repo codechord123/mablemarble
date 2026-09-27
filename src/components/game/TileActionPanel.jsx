@@ -1,5 +1,5 @@
 import { TILE_TYPES, BUILDING_LABELS, BUILDING_ICONS } from '../../utils/boardConfig.js'
-import { hasMonopoly, purchaseCost, tollFor, upgradeCost, ITEMS } from '../../utils/rules.js'
+import { hasMonopoly, purchaseCost, tollFor, upgradeCost, ITEMS, SKIP_QUIZ } from '../../utils/rules.js'
 import BuildingIcon from '../board/BuildingIcon.jsx'
 import TileArt from '../board/TileArt.jsx'
 import CoinIcon from '../ui/CoinIcon.jsx'
@@ -82,9 +82,12 @@ export default function TileActionPanel({ tile, player, players, ownership, last
           >
             🟫 땅 사기 ({landCost.toLocaleString()}원)
           </Btn>
-          <Btn onClick={() => onAction({ type: 'skip' })} color="bg-gray-400 hover:bg-gray-500">
-            건너뛰기
+          <Btn onClick={() => onAction({ type: 'skip-quiz' })} color="bg-gray-400 hover:bg-gray-500">
+            📝 건너뛰기 (문제)
           </Btn>
+        </div>
+        <div className="text-[11px] text-amber-600 text-center">
+          건너뛸 때도 문제를 풀어요 · 맞히면 +{SKIP_QUIZ.win}원, 틀리면 −{SKIP_QUIZ.lose}원
         </div>
         {!afford && (
           <div className="text-rose-600 text-xs">자금이 부족합니다.</div>

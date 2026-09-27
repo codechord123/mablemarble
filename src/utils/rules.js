@@ -67,6 +67,9 @@ export function tollFor(tile, ownership, roundEvent = null) {
 // 문제 전에 난이도를 고른다. 어려울수록 보상이 크다.
 export const DIFFICULTY_DISCOUNT = { 1: 0, 2: 0.1, 3: 0.25 } // 땅 사기·건물 짓기 할인
 
+// 빈 땅을 사지 않고 넘어갈 때도 문제를 푼다. 맞히면 조금 벌고, 틀리면 조금 잃는다.
+export const SKIP_QUIZ = { win: 50, lose: 30 }
+
 function costFactor(roundEvent, difficulty) {
   const recession = roundEvent?.kind === 'recession' ? 0.5 : 1
   return recession * (1 - (DIFFICULTY_DISCOUNT[difficulty] || 0))

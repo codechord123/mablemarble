@@ -3,7 +3,7 @@ import { rollDice, nextPosition, getTile, calculateToll } from '../utils/gameEng
 import {
   activeRoundEvent, comboBonus, isRoundEventRound, monopolyGroupOf,
   purchaseCost, rollRoundEvent, salaryFor, sellValue, totalSellValue, upgradeCost,
-  underdogId, CHARITY_AMOUNT, ITEMS,
+  underdogId, CHARITY_AMOUNT, ITEMS, SKIP_QUIZ,
 } from '../utils/rules.js'
 import { BOARD } from '../utils/boardConfig.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
@@ -162,6 +162,11 @@ export const useGameStore = create((set, get) => ({
   // 땅 사기·건물 짓기는 먼저 난이도를 고른다 (어려울수록 할인 큼)
   attemptPurchase(tile) {
     set({ phase: 'difficulty', pendingAction: { type: 'purchase', tile } })
+  },
+
+  // 빈 땅 건너뛰기 — 문제를 풀고 넘어간다 (정답 +, 오답 −)
+  attemptSkipQuiz(tile) {
+    get()._askQuestion({ type: 'skip-quiz', tile })
   },
 
   chooseDifficulty(difficulty) {
@@ -514,6 +519,15 @@ export const useGameStore = create((set, get) => ({
       } else {
         message = '건설 실패 — 다음 기회에!'
       }
+    } else if (pendingAction.type === 'skip-quiz') {
+      const delta = correct ? SKIP_QUIZ.win : -SKIP_QUIZ.lose
+      updatedPlayers[currentTurn] = {
+        ...updatedPlayers[currentTurn],
+        money: updatedPlayers[currentTurn].money + delta,
+      }
+      message = correct
+        ? `건너뛰기 성공! +${SKIP_QUIZ.win}원`
+        : `건너뛰기 — 오답 -${SKIP_QUIZ.lose}원`
     } else if (pendingAction.type === 'bonus-question') {
       const delta = correct ? pendingAction.winAmount : -pendingAction.loseAmount
       updatedPlayers[currentTurn] = {
