@@ -66,11 +66,6 @@ export function tollFor(tile, ownership, roundEvent = null) {
 // ─── 난이도 도전 ───
 // 문제 전에 난이도를 고른다. 어려울수록 보상이 크다.
 export const DIFFICULTY_DISCOUNT = { 1: 0, 2: 0.1, 3: 0.25 } // 땅 사기·건물 짓기 할인
-export const TOLL_CHALLENGE = {
-  1: { label: '통행료 반값', waive: 0.5, bonus: 0 },
-  2: { label: '통행료 면제', waive: 1, bonus: 0 },
-  3: { label: '면제 + 보너스 100원', waive: 1, bonus: 100 },
-}
 
 function costFactor(roundEvent, difficulty) {
   const recession = roundEvent?.kind === 'recession' ? 0.5 : 1

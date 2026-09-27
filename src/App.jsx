@@ -12,7 +12,7 @@ import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
 import DifficultyPicker from './components/game/DifficultyPicker.jsx'
 import SellModal from './components/game/SellModal.jsx'
-import { activeRoundEvent, underdogId, ITEMS, TOLL_CHALLENGE, DIFFICULTY_DISCOUNT } from './utils/rules.js'
+import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT } from './utils/rules.js'
 import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
@@ -45,7 +45,6 @@ function FullScreenSpinner({ label = '불러오는 중…' }) {
 function stakeLabel(action) {
   if (!action?.difficulty) return null
   const stars = '★'.repeat(action.difficulty)
-  if (action.type === 'skip-toll') return `${stars} 도전 · 맞히면 ${TOLL_CHALLENGE[action.difficulty].label}`
   const off = DIFFICULTY_DISCOUNT[action.difficulty]
   return `${stars} 도전 · ${off ? `맞히면 ${Math.round(off * 100)}% 할인` : '정가'}`
 }
@@ -65,7 +64,6 @@ export default function App() {
   const initGame = useGameStore((s) => s.initGame)
   const rollAndMove = useGameStore((s) => s.rollAndMove)
   const attemptPurchase = useGameStore((s) => s.attemptPurchase)
-  const attemptSkipToll = useGameStore((s) => s.attemptSkipToll)
   const payToll = useGameStore((s) => s.payToll)
   const payTax = useGameStore((s) => s.payTax)
   const claimWelfare = useGameStore((s) => s.claimWelfare)
@@ -268,7 +266,6 @@ export default function App() {
 
   const handleTileAction = (action) => {
     if (action.type === 'attempt-purchase') return attemptPurchase(currentTile)
-    if (action.type === 'attempt-skip-toll') return attemptSkipToll(currentTile, action.toll)
     if (action.type === 'pay-toll') return payToll(currentTile, action.toll)
     if (action.type === 'pay-tax') return payTax(action.amount)
     if (action.type === 'claim-welfare') return claimWelfare()

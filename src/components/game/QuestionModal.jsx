@@ -13,7 +13,6 @@ import AnimalFace from '../ui/AnimalFace.jsx'
 const INTENT = {
   purchase: { title: '땅 사기 도전', icon: '💰', from: '#10b981', to: '#047857' },
   upgrade: { title: '건물 짓기 도전', icon: '🏗️', from: '#38bdf8', to: '#1d4ed8' },
-  'skip-toll': { title: '통행료 면제 도전', icon: '🎯', from: '#a78bfa', to: '#6d28d9' },
   'bonus-question': { title: '보너스 문제', icon: '⭐', from: '#fbbf24', to: '#d97706' },
   'escape-island': { title: '무인도 탈출 도전', icon: '🏝️', from: '#22d3ee', to: '#0e7490' },
 }

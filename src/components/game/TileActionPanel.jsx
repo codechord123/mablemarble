@@ -93,7 +93,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
     )
   }
 
-  // 2. 남의 도시 — 통행료 / 면제 시도 (건물 레벨 반영)
+  // 2. 남의 도시 — 통행료 (건물 레벨·독점·축제 반영). 보관 카드가 있으면 면제·반값
   if (purchasable && owner && owner.ownerId !== player.id) {
     const ownerPlayer = players[owner.ownerId]
     const toll = tollFor(tile, ownership, roundEvent)
@@ -119,12 +119,9 @@ export default function TileActionPanel({ tile, player, players, ownership, last
             {festival && <span className="px-2 py-0.5 rounded-full bg-pink-100 text-pink-700">🎉 축제 도시 ×2</span>}
           </div>
         )}
-        {/* 지불·문제 도전·보관 카드를 한 묶음으로 — 자리가 모자라면 줄을 바꾼다 */}
+        {/* 지불·보관 카드를 한 묶음으로 — 자리가 모자라면 줄을 바꾼다 */}
         <div className="flex gap-2 flex-wrap justify-center">
           <Btn onClick={() => onAction({ type: 'pay-toll', toll })}>지불</Btn>
-          <Btn onClick={() => onAction({ type: 'attempt-skip-toll', toll })} color="bg-violet-600 hover:bg-violet-700">
-            🎯 문제로 면제 도전
-          </Btn>
           {items.includes('angel') && (
             <Btn onClick={() => onAction({ type: 'use-angel', toll })} color="bg-emerald-600 hover:bg-emerald-700">
               {ITEMS.angel.icon} 천사 카드

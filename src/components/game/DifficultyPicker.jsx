@@ -1,9 +1,9 @@
-// 난이도 골라 도전 — 땅 사기·건물 짓기·통행료 면제 전에 뜬다.
-// 어려운 문제를 고를수록 할인·면제 폭이 커진다. 틀리면 보상은 없다.
+// 난이도 골라 도전 — 땅 사기·건물 짓기 전에 뜬다.
+// 어려운 문제를 고를수록 할인 폭이 커진다. 틀리면 사지 못한다.
 
 import { motion } from 'framer-motion'
 import { QUESTION_TIME_BY_DIFFICULTY, BUILDING_LABELS } from '../../utils/boardConfig.js'
-import { DIFFICULTY_DISCOUNT, TOLL_CHALLENGE, purchaseCost, upgradeCost } from '../../utils/rules.js'
+import { DIFFICULTY_DISCOUNT, purchaseCost, upgradeCost } from '../../utils/rules.js'
 import AnimalFace from '../ui/AnimalFace.jsx'
 
 const LEVELS = [
@@ -15,16 +15,12 @@ const LEVELS = [
 const TITLE = {
   purchase: (a) => `${a.tile.name} 땅 사기`,
   upgrade: (a, lvl) => `${a.tile.name} ${BUILDING_LABELS[lvl + 1]} 짓기`,
-  'skip-toll': (a) => `${a.tile.name} 통행료 ${a.toll.toLocaleString()}원 면제 도전`,
 }
 
 export default function DifficultyPicker({ action, player, ownership, roundEvent, onPick, onCancel }) {
   const level = ownership[action.tile.id]?.houses ?? 0
 
   const reward = (d) => {
-    if (action.type === 'skip-toll') {
-      return { main: TOLL_CHALLENGE[d].label, afford: true }
-    }
     const base = action.type === 'purchase'
       ? purchaseCost(action.tile, roundEvent, 1)
       : upgradeCost(action.tile, level, roundEvent, 1)

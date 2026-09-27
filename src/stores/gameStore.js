@@ -3,7 +3,7 @@ import { rollDice, nextPosition, getTile, calculateToll } from '../utils/gameEng
 import {
   activeRoundEvent, comboBonus, isRoundEventRound, monopolyGroupOf,
   purchaseCost, rollRoundEvent, salaryFor, sellValue, totalSellValue, upgradeCost,
-  underdogId, CHARITY_AMOUNT, ITEMS, TOLL_CHALLENGE,
+  underdogId, CHARITY_AMOUNT, ITEMS,
 } from '../utils/rules.js'
 import { BOARD } from '../utils/boardConfig.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
@@ -159,13 +159,9 @@ export const useGameStore = create((set, get) => ({
   },
 
   // ─── 칸 액션 진입점 ───
-  // 땅 사기·건물 짓기·통행료 면제는 먼저 난이도를 고른다 (어려울수록 보상 큼)
+  // 땅 사기·건물 짓기는 먼저 난이도를 고른다 (어려울수록 할인 큼)
   attemptPurchase(tile) {
     set({ phase: 'difficulty', pendingAction: { type: 'purchase', tile } })
-  },
-
-  attemptSkipToll(tile, toll) {
-    set({ phase: 'difficulty', pendingAction: { type: 'skip-toll', tile, toll } })
   },
 
   chooseDifficulty(difficulty) {
@@ -517,46 +513,6 @@ export const useGameStore = create((set, get) => ({
         event = { kind: newLevel === 3 ? 'hotel' : 'build', level: newLevel, label: labels[newLevel], tileName: tile.name, tileId: tile.id }
       } else {
         message = '건설 실패 — 다음 기회에!'
-      }
-    } else if (pendingAction.type === 'skip-toll') {
-      if (correct) {
-        const { tile, toll } = pendingAction
-        const rule = TOLL_CHALLENGE[level]
-        const pay = Math.round(toll * (1 - rule.waive))
-        const owner = ownership[tile.id]
-        updatedPlayers[currentTurn] = {
-          ...updatedPlayers[currentTurn],
-          money: updatedPlayers[currentTurn].money - pay + rule.bonus,
-        }
-        if (pay > 0) {
-          updatedPlayers[owner.ownerId] = {
-            ...updatedPlayers[owner.ownerId],
-            money: updatedPlayers[owner.ownerId].money + pay,
-          }
-        }
-        message = pay > 0
-          ? `통행료 반값! ${pay.toLocaleString()}원만 내요`
-          : `통행료 ${toll.toLocaleString()}원 면제!${rule.bonus ? ` 보너스 +${rule.bonus}원` : ''}`
-        event = { kind: 'saved', amount: toll - pay, tileName: tile.name }
-      } else {
-        const { tile, toll } = pendingAction
-        const owner = ownership[tile.id]
-        updatedPlayers[currentTurn] = {
-          ...updatedPlayers[currentTurn],
-          money: updatedPlayers[currentTurn].money - toll,
-        }
-        updatedPlayers[owner.ownerId] = {
-          ...updatedPlayers[owner.ownerId],
-          money: updatedPlayers[owner.ownerId].money + toll,
-        }
-        message = `오답 — 통행료 ${toll.toLocaleString()}원 지불`
-        event = {
-          kind: 'toll',
-          amount: toll,
-          payer: players[currentTurn].name,
-          receiver: players[owner.ownerId].name,
-          tileName: tile.name,
-        }
       }
     } else if (pendingAction.type === 'bonus-question') {
       const delta = correct ? pendingAction.winAmount : -pendingAction.loseAmount
