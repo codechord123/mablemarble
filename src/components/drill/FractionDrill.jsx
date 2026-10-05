@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import {
-  makeProblem, grade, levelFromXp, xpFor, titleFor, TOPICS, MAX_TOPIC_LEVEL,
+  makeProblem, grade, levelFromXp, xpFor, titleFor, speedBonus, TOPICS, MAX_TOPIC_LEVEL,
 } from '../../utils/fractionDrill.js'
 import { listProfiles, loadProfile, saveProfile } from '../../utils/drillProfiles.js'
 import { sfx } from '../../utils/sounds.js'
@@ -15,7 +15,6 @@ import FractionInput from '../ui/FractionInput.jsx'
 import GameButton from '../ui/GameButton.jsx'
 import MathText from '../ui/MathText.jsx'
 
-const SPEED_FAST = 10 // 이 시간 안에 풀면 빠르기 보너스 +10 (20초 안이면 +5)
 
 // ─── 로비: 누가 할지 고르고, 명예의 전당을 본다 ───
 function Lobby({ onStart, onBack }) {
@@ -261,8 +260,8 @@ function Play({ profile: initial, onExit }) {
               <span className="px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-black">{problem.topicName}</span>
               {isNewTopic && <span className="px-2 py-1 rounded-full bg-amber-400 text-amber-950 text-xs font-black">NEW</span>}
             </div>
-            <span className={`text-xs font-black tabular-nums ${elapsed < SPEED_FAST ? 'text-emerald-600' : elapsed < 20 ? 'text-amber-600' : 'text-slate-400'}`}>
-              ⏱ {elapsed}초 {elapsed < SPEED_FAST ? '· 빠르기 +10' : elapsed < 20 ? '· 빠르기 +5' : ''}
+            <span className={`text-xs font-black tabular-nums ${speedBonus(elapsed) >= 5 ? 'text-emerald-600' : speedBonus(elapsed) > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+              ⏱ {elapsed}초 {speedBonus(elapsed) > 0 ? `· 빠르기 +${speedBonus(elapsed)}` : ''}
             </span>
           </div>
 

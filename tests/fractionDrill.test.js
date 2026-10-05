@@ -68,14 +68,21 @@ describe('채점', () => {
 
 describe('레벨·경험치', () => {
   it('경험치가 쌓이면 레벨이 오른다', () => {
-    expect(levelFromXp(0)).toEqual({ level: 1, into: 0, need: 50 })
-    expect(levelFromXp(50).level).toBe(2)
-    expect(levelFromXp(50 + xpToNext(2)).level).toBe(3)
+    expect(levelFromXp(0)).toEqual({ level: 1, into: 0, need: 160 })
+    expect(levelFromXp(159).level).toBe(1)
+    expect(levelFromXp(160).level).toBe(2)
+    expect(levelFromXp(160 + xpToNext(2)).level).toBe(3)
   })
   it('빠르고 연속이면 보너스', () => {
-    expect(xpFor({ seconds: 30, streak: 1 }).total).toBe(10)
-    expect(xpFor({ seconds: 8, streak: 3 }).total).toBe(25)
-    expect(xpFor({ seconds: 15, streak: 6 }).total).toBe(25)
+    expect(xpFor({ seconds: 30, streak: 1 }).total).toBe(20)
+    expect(xpFor({ seconds: 8, streak: 3 }).total).toBe(28)
+    expect(xpFor({ seconds: 15, streak: 6 }).total).toBe(28)
+    expect(xpFor({ seconds: 5, streak: 9 }).total).toBe(30)
+  })
+  it('레벨당 정답 6~8개', () => {
+    // 가장 느리게(20씩) 8개, 가장 빠르게(30씩) 6개
+    expect(Math.ceil(xpToNext(1) / 20)).toBe(8)
+    expect(Math.ceil(xpToNext(5) / 30)).toBe(6)
   })
   it('칭호', () => {
     expect(titleFor(1)).toBe('분수 새싹')

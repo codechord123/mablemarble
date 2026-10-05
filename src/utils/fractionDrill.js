@@ -120,8 +120,9 @@ export function titleFor(level) {
   return t
 }
 
-// 다음 레벨까지 필요한 경험치 — 레벨이 오를수록 조금씩 늘어난다
-export const xpToNext = (level) => 50 + 15 * (level - 1)
+// 레벨마다 정답 약 8개. 정답 하나에 20~30이라 천천히 풀면 8개, 빠르고 연속이면 6개.
+export const XP_PER_LEVEL = 160
+export const xpToNext = () => XP_PER_LEVEL
 
 // 경험치 → 레벨·현재 칸
 export function levelFromXp(totalXp) {
@@ -134,11 +135,18 @@ export function levelFromXp(totalXp) {
   return { level, into: rest, need: xpToNext(level) }
 }
 
-// 정답 한 번에 얻는 경험치: 기본 10 + 빠르기 + 연속 정답
+// 정답 한 번에 얻는 경험치: 기본 20 + 빠르기 + 연속 정답.
+// 보너스를 작게 두어 누가 풀어도 레벨당 문제 수가 크게 다르지 않게 한다.
+export const XP_BASE = 20
+export const SPEED_BONUS = [[10, 5], [20, 3]] // [초 안에, 보너스]
+export function speedBonus(seconds) {
+  for (const [limit, bonus] of SPEED_BONUS) if (seconds <= limit) return bonus
+  return 0
+}
 export function xpFor({ seconds, streak }) {
-  const speed = seconds <= 10 ? 10 : seconds <= 20 ? 5 : 0
-  const combo = streak >= 5 ? 10 : streak >= 3 ? 5 : 0
-  return { base: 10, speed, combo, total: 10 + speed + combo }
+  const speed = speedBonus(seconds)
+  const combo = streak >= 5 ? 5 : streak >= 3 ? 3 : 0
+  return { base: XP_BASE, speed, combo, total: XP_BASE + speed + combo }
 }
 
 // 레벨에 맞는 문제 하나. 새로 열린 유형을 자주(60%), 지난 유형도 섞어서 복습.
