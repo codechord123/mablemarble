@@ -3,7 +3,7 @@ import { hasSnapshot, loadSnapshot } from '../../utils/persistence.js'
 import Logo from '../ui/Logo.jsx'
 import GameButton from '../ui/GameButton.jsx'
 
-export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
+export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDrill }) {
   const [savedInfo, setSavedInfo] = useState(null)
 
   useEffect(() => {
@@ -38,6 +38,12 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume }) {
           <GameButton color="orange" onClick={onNewGame} className="w-full py-4 text-xl">
             🎮 새 게임 시작
           </GameButton>
+          {onDrill && (
+            <GameButton color="violet" onClick={onDrill} className="w-full py-4 text-lg">
+              🧮 분수 곱셈 수련장
+              <div className="text-xs font-semibold opacity-90 mt-0.5">혼자 연습하고 레벨 올리기</div>
+            </GameButton>
+          )}
           <GameButton color="blue" onClick={onManageQuestions} className="w-full py-4 text-lg">
             📚 문제 관리
           </GameButton>

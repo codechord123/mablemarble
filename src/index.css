@@ -597,3 +597,26 @@ body {
 }
 .combo-flame { animation: combo-flame 0.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .combo-flame { animation: none; } }
+
+/* ─── 분수 곱셈 수련장 (미니게임) ─── */
+.drill-bg {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(244, 114, 182, 0.35), transparent 40%),
+    radial-gradient(circle at 90% 85%, rgba(56, 189, 248, 0.3), transparent 45%),
+    linear-gradient(160deg, #4c1d95 0%, #6d28d9 45%, #7c3aed 100%);
+}
+.drill-card {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 34px rgba(30, 10, 70, 0.35), inset 0 1px 0 #fff;
+}
+.drill-title {
+  text-shadow: 0 3px 0 #4c1d95, 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+.drill-expr { font-size: clamp(2.1rem, 11vw, 3.4rem); line-height: 1.2; }
+.drill-levelup {
+  font-size: clamp(3.2rem, 17vw, 6.5rem);
+  color: #fde047;
+  -webkit-text-stroke: 5px #7c2d12;
+  paint-order: stroke fill;
+  text-shadow: 0 5px 0 #7c2d12, 0 14px 24px rgba(0, 0, 0, 0.4);
+}

@@ -27,6 +27,7 @@ import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
 import { loadLastSetup } from './utils/persistence.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
+const FractionDrill = lazy(() => import('./components/drill/FractionDrill.jsx'))
 
 // 굴리기를 누른 순간부터 주사위가 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
 const DICE_LAND_MS = DICE_SETTLE_MS + 100
@@ -234,8 +235,16 @@ export default function App() {
         <MainMenu
           onNewGame={() => setView('setup')}
           onManageQuestions={() => setView('questions')}
+          onDrill={() => setView('drill')}
           onResume={() => { resumeGame() }}
         />
+      )
+    }
+    if (view === 'drill') {
+      return (
+        <Suspense fallback={<FullScreenSpinner label="수련장 불러오는 중…" />}>
+          <FractionDrill onBack={() => setView('menu')} />
+        </Suspense>
       )
     }
     if (view === 'questions') {
