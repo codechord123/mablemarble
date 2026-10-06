@@ -5,6 +5,12 @@ import AnimalFace, { animalLabel } from '../ui/AnimalFace.jsx'
 import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
 import { loadLastSetup } from '../../utils/persistence.js'
 import GameButton from '../ui/GameButton.jsx'
+import StudentLogin from '../account/StudentLogin.jsx'
+import { loginSeat, logoutSeat } from '../../account/store.js'
+
+// 자리마다 따로 로그인한다 — 플레이어를 빼고 넣어도 자리 이름은 그대로
+let seatCounter = 0
+const newSeat = () => `seat${Date.now().toString(36)}${seatCounter++}`
 
 // 마지막 설정이 있으면 자동 로드 (T23 — 같은 친구들로 다시)
 function initialPlayers() {
@@ -13,11 +19,12 @@ function initialPlayers() {
     return last.players.map((p) => ({
       name: p.name || '플레이어',
       avatar: p.avatar || AVATARS[0],
+      seat: newSeat(),
     }))
   }
   return [
-    { name: '플레이어1', avatar: AVATARS[0] },
-    { name: '플레이어2', avatar: AVATARS[1] },
+    { name: '플레이어1', avatar: AVATARS[0], seat: newSeat() },
+    { name: '플레이어2', avatar: AVATARS[1], seat: newSeat() },
   ]
 }
 
@@ -29,6 +36,7 @@ function initialMode() {
 export default function GameSetup({ onStart, onBack }) {
   const [players, setPlayers] = useState(initialPlayers)
   const [modeId, setModeId] = useState(initialMode)
+  const [linking, setLinking] = useState(null) // 아이디를 연결하는 중인 플레이어 번호
 
   const bundledSets = useQuestionStore((s) => s.bundledSets)
   const sets = useQuestionStore((s) => s.sets)
@@ -61,14 +69,33 @@ export default function GameSetup({ onStart, onBack }) {
   }
 
   const removePlayer = (i) => {
+    if (players[i].account) logoutSeat(players[i].seat).catch(() => {})
     setPlayers((curr) => curr.filter((_, j) => j !== i))
+  }
+
+  // 플레이어에 학생 아이디 연결 — 이 판에서 틀린 문제가 그 학생 오답 노트에 저장된다
+  const linkAccount = async (i, username, password) => {
+    const u = (username || '').trim().toLowerCase()
+    if (players.some((p, j) => j !== i && p.account?.username === u)) throw new Error('이미 다른 플레이어에 연결된 아이디예요')
+    const p = players[i]
+    const acc = await loginSeat(p.seat, u, password)
+    updatePlayer(i, {
+      account: { username: acc.username, name: acc.name, classId: acc.classId, slot: p.seat },
+      name: (acc.name || acc.username).slice(0, 10),
+    })
+    setLinking(null)
+  }
+
+  const unlinkAccount = (i) => {
+    logoutSeat(players[i].seat).catch(() => {})
+    updatePlayer(i, { account: null })
   }
 
   const addPlayer = () => {
     setPlayers((curr) => {
       const used = curr.map((p) => p.avatar)
       const avatar = AVATARS.find((a) => !used.includes(a)) || DEFAULT_AVATAR
-      return [...curr, { name: `플레이어${curr.length + 1}`, avatar }]
+      return [...curr, { name: `플레이어${curr.length + 1}`, avatar, seat: newSeat() }]
     })
   }
 
@@ -144,7 +171,7 @@ export default function GameSetup({ onStart, onBack }) {
         <label className="block text-sm font-bold text-amber-900 mb-2">플레이어</label>
         <div className="space-y-3">
           {players.map((p, i) => (
-            <div key={i} className="p-3 bg-amber-50 rounded-xl border border-amber-200">
+            <div key={p.seat || i} className="p-3 bg-amber-50 rounded-xl border border-amber-200">
               <div className="flex gap-2 items-center">
                 <button
                   onClick={() => cycleAvatar(i)}
@@ -167,6 +194,18 @@ export default function GameSetup({ onStart, onBack }) {
                     aria-label="플레이어 제거"
                   >
                     ✕
+                  </button>
+                )}
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2 text-xs font-bold">
+                {p.account ? (
+                  <>
+                    <span className="truncate text-emerald-700">🎒 {p.account.name || p.account.username} 연결됨 · 틀린 문제는 오답 노트로</span>
+                    <button onClick={() => unlinkAccount(i)} className="shrink-0 text-gray-400 underline">해제</button>
+                  </>
+                ) : (
+                  <button onClick={() => setLinking(i)} className="text-amber-700 hover:underline">
+                    🔑 아이디 연결 (오답 노트 저장)
                   </button>
                 )}
               </div>
@@ -212,6 +251,13 @@ export default function GameSetup({ onStart, onBack }) {
           게임 시작!
         </GameButton>
       </div>
+      {linking !== null && players[linking] && (
+        <StudentLogin
+          title={`${players[linking].name} 아이디 연결`}
+          onClose={() => setLinking(null)}
+          onLogin={(u, pw) => linkAccount(linking, u, pw)}
+        />
+      )}
     </div>
   )
 }

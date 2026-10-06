@@ -90,3 +90,15 @@ describe('레벨·경험치', () => {
     expect(titleFor(20)).toBe('분수의 전설')
   })
 })
+
+describe('계정 수련 기록', async () => {
+  const { loadAccountProfile } = await import('../src/utils/drillProfiles.js')
+  it('계정 기록이 더 앞서면 그것을 쓰고, 아이디로 구분한다', () => {
+    const acc = { username: 'minji', name: '민지' }
+    const p = loadAccountProfile(acc, '🐶', { xp: 500, solved: 30, correct: 25, bestStreak: 7 })
+    expect(p.id).toBe('acct:minji')
+    expect(p.xp).toBe(500)
+    expect(p.account).toBe('minji')
+    expect(loadAccountProfile(acc, '🐶', null).xp).toBe(0)
+  })
+})

@@ -21,6 +21,7 @@ import { GAME_MODES, DEFAULT_MODE } from '../data/gameModes.js'
 import { useQuestionStore } from './questionStore.js'
 import { sfx } from '../utils/sounds.js'
 import { persistSnapshot, loadSnapshot, clearSnapshot, persistLastSetup } from '../utils/persistence.js'
+import { recordFor } from '../account/store.js'
 
 const emptyStats = () => ({ answered: 0, correct: 0, byCategory: {}, wrong: [] })
 
@@ -123,6 +124,7 @@ export const useGameStore = create((set, get) => ({
         streak: 0,
         items: [],
         stats: emptyStats(),
+        account: p.account || null, // 연결된 학생 아이디 — 문제 결과를 그 학생 오답 노트에
       })),
       phase: 'rolling',
     })
@@ -460,6 +462,8 @@ export const useGameStore = create((set, get) => ({
     const isTimeout = answer === '__TIMEOUT__'
     const correct = isCorrect(currentQuestion, answer)
     correct ? sfx.correct() : sfx.wrong()
+    const account = players[currentTurn].account
+    if (account) recordFor(account.slot, currentQuestion, correct)
     let message = ''
     let postAction = 'end-turn'
     let event = null

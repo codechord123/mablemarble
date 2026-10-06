@@ -16,6 +16,7 @@ const INTENT = {
   'bonus-question': { title: '보너스 문제', icon: '⭐', from: '#fbbf24', to: '#d97706' },
   'skip-quiz': { title: '건너뛰기 문제', icon: '📝', from: '#64748b', to: '#334155' },
   'escape-island': { title: '무인도 탈출 도전', icon: '🏝️', from: '#22d3ee', to: '#0e7490' },
+  review: { title: '오답 다시 풀기', icon: '📒', from: '#a78bfa', to: '#6d28d9' },
 }
 const DEFAULT_INTENT = { title: '문제 도전', icon: '📝', from: '#fb923c', to: '#c2410c' }
 

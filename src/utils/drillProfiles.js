@@ -35,6 +35,15 @@ export function loadProfile(name, avatar) {
   }
 }
 
+// 로그인한 학생 — 아이디로 구분하고, 계정(클라우드)에 있는 기록과 더 앞선 쪽을 쓴다
+export function loadAccountProfile(account, avatar, cloud) {
+  const id = `acct:${account.username}`
+  const local = readAll().profiles[id]
+  const base = local || { id, xp: 0, solved: 0, correct: 0, bestStreak: 0, updatedAt: 0 }
+  const best = cloud && (cloud.xp || 0) > (base.xp || 0) ? { ...base, ...cloud } : base
+  return { ...best, id, name: (account.name || account.username).slice(0, 10), avatar, account: account.username }
+}
+
 export function saveProfile(profile) {
   const data = readAll()
   data.profiles[profile.id] = { ...profile, updatedAt: Date.now() }

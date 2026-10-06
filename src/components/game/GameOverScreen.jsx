@@ -8,7 +8,7 @@ import { formatAnswer } from './ResultBanner.jsx'
 import { netWorth } from '../../utils/rules.js'
 
 // 단원(분류)별 정답률 막대 + 오답 노트
-function StatBar({ stats }) {
+function StatBar({ stats, linked }) {
   const [open, setOpen] = useState(false)
   if (!stats || stats.answered === 0) {
     return <div className="text-xs text-gray-500">문제 풀이 기록 없음</div>
@@ -52,6 +52,9 @@ function StatBar({ stats }) {
             <span>📒 오답 노트 ({wrong.length})</span>
             <span>{open ? '접기 ▲' : '다시 보기 ▼'}</span>
           </button>
+          {linked && (
+            <div className="mt-1 text-[11px] font-bold text-violet-700">🎒 내 오답 노트에 저장했어요 — 메뉴의 '오답 다시 풀기'에서 다시 풀 수 있어요</div>
+          )}
           {open && (
             <ol className="mt-2 grid gap-2">
               {wrong.map((q, i) => (
@@ -140,7 +143,7 @@ export default function GameOverScreen({ players, ownership, onRestart, onRematc
                   </div>
                 </div>
               </div>
-              <StatBar stats={p.stats} />
+              <StatBar stats={p.stats} linked={!!p.account} />
             </motion.div>
           ))}
         </div>

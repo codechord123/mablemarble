@@ -8,7 +8,8 @@ import confetti from 'canvas-confetti'
 import {
   makeProblem, grade, levelFromXp, xpFor, titleFor, speedBonus, TOPICS, MAX_TOPIC_LEVEL,
 } from '../../utils/fractionDrill.js'
-import { listProfiles, loadProfile, saveProfile } from '../../utils/drillProfiles.js'
+import { listProfiles, loadProfile, saveProfile as saveLocal, loadAccountProfile } from '../../utils/drillProfiles.js'
+import { accountApi, useAccount } from '../../account/store.js'
 import { sfx } from '../../utils/sounds.js'
 import AnimalFace, { ANIMAL_KEYS, animalLabel } from '../ui/AnimalFace.jsx'
 import FractionInput from '../ui/FractionInput.jsx'
@@ -16,9 +17,20 @@ import GameButton from '../ui/GameButton.jsx'
 import MathText from '../ui/MathText.jsx'
 
 
+// 기기에 저장하고, 로그인한 학생이면 계정에도 저장
+function saveProfile(p) {
+  saveLocal(p)
+  if (!p.account) return
+  const { xp, solved, correct, bestStreak } = p
+  accountApi()
+    .then((a) => a.saveDrill(a.ME, { xp, solved, correct, bestStreak }))
+    .catch(() => {})
+}
+
 // ─── 로비: 누가 할지 고르고, 명예의 전당을 본다 ───
-function Lobby({ onStart, onBack }) {
+function Lobby({ onStart, onStartAccount, onBack }) {
   const profiles = useMemo(() => listProfiles(), [])
+  const me = useAccount((s) => s.me)
   const [avatar, setAvatar] = useState(ANIMAL_KEYS[0])
   const [name, setName] = useState('')
   const canStart = name.trim().length > 0
@@ -36,6 +48,12 @@ function Lobby({ onStart, onBack }) {
 
         <div className="drill-card rounded-[1.5rem] p-5">
           <div className="font-black text-slate-700 mb-2">누가 할까요?</div>
+          {me && (
+            <GameButton color="green" onClick={() => onStartAccount(me, avatar)} className="w-full mb-3 py-3 text-lg">
+              🎒 {me.name || me.username}(으)로 수련하기
+              <div className="text-xs font-semibold opacity-90 mt-0.5">캐릭터를 고르고 누르세요 · 기록이 내 계정에 저장돼요</div>
+            </GameButton>
+          )}
           <div className="grid grid-cols-5 gap-2">
             {ANIMAL_KEYS.map((a) => (
               <button
@@ -348,7 +366,22 @@ function Play({ profile: initial, onExit }) {
 export default function FractionDrill({ onBack }) {
   const [profile, setProfile] = useState(null)
   if (!profile) {
-    return <Lobby onBack={onBack} onStart={(name, avatar) => setProfile(loadProfile(name, avatar))} />
+    return (
+      <Lobby
+        onBack={onBack}
+        onStart={(name, avatar) => setProfile(loadProfile(name, avatar))}
+        onStartAccount={async (me, avatar) => {
+          let cloud = null
+          try {
+            const a = await accountApi()
+            cloud = (await a.loadProgress(a.ME))?.drill || null
+          } catch {
+            /* 인터넷이 안 되면 기기 기록으로 */
+          }
+          setProfile(loadAccountProfile(me, avatar, cloud))
+        }}
+      />
+    )
   }
   return <Play profile={profile} onExit={() => setProfile(null)} />
 }

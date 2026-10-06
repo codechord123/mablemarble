@@ -25,9 +25,11 @@ import CoinIcon from './components/ui/CoinIcon.jsx'
 import Toast from './components/ui/Toast.jsx'
 import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
 import { loadLastSetup } from './utils/persistence.js'
+import { initAccount } from './account/store.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 const FractionDrill = lazy(() => import('./components/drill/FractionDrill.jsx'))
+const WrongReview = lazy(() => import('./components/account/WrongReview.jsx'))
 
 // 굴리기를 누른 순간부터 주사위가 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
 const DICE_LAND_MS = DICE_SETTLE_MS + 100
@@ -130,6 +132,11 @@ export default function App() {
   const tileEnteredAt = useRef(0)
   const landedTimer = useRef(null)
   const lastAnnouncedTurn = useRef(-1)
+
+  // 역사게임에서 넘어온 입장권·이 기기에 로그인해 둔 학생 확인
+  useEffect(() => {
+    initAccount()
+  }, [])
 
   useEffect(() => {
     if (!extraTurnReason) return
@@ -236,6 +243,7 @@ export default function App() {
           onNewGame={() => setView('setup')}
           onManageQuestions={() => setView('questions')}
           onDrill={() => setView('drill')}
+          onReview={() => setView('review')}
           onResume={() => { resumeGame() }}
         />
       )
@@ -244,6 +252,13 @@ export default function App() {
       return (
         <Suspense fallback={<FullScreenSpinner label="수련장 불러오는 중…" />}>
           <FractionDrill onBack={() => setView('menu')} />
+        </Suspense>
+      )
+    }
+    if (view === 'review') {
+      return (
+        <Suspense fallback={<FullScreenSpinner label="오답 노트 불러오는 중…" />}>
+          <WrongReview onBack={() => setView('menu')} />
         </Suspense>
       )
     }
