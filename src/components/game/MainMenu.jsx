@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react'
 import { hasSnapshot, loadSnapshot } from '../../utils/persistence.js'
 import Logo from '../ui/Logo.jsx'
 import GameButton from '../ui/GameButton.jsx'
-import StudentLogin from '../account/StudentLogin.jsx'
 import Toast from '../ui/Toast.jsx'
-import { useAccount, loginMe, logoutMe, clearNotice } from '../../account/store.js'
+import { useAccount, logoutMe, clearNotice } from '../../account/store.js'
+import { goToLogin } from '../../account/site.js'
 
 export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDrill, onReview }) {
   const [savedInfo, setSavedInfo] = useState(null)
   const me = useAccount((s) => s.me)
   const checking = useAccount((s) => s.checking)
-  const [showLogin, setShowLogin] = useState(false)
   const notice = useAccount((s) => s.notice)
 
   useEffect(() => {
@@ -56,7 +55,7 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDri
                 {checking ? '로그인 확인 중…' : '로그인하면 오답 노트가 생겨요'}
               </span>
               <button
-                onClick={() => setShowLogin(true)}
+                onClick={goToLogin}
                 disabled={checking}
                 className="shrink-0 rounded-full bg-amber-500 px-3 py-1.5 text-xs font-extrabold text-white shadow disabled:opacity-50"
               >
@@ -98,15 +97,7 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDri
         <p className="text-sky-900/70 mt-5 text-sm font-semibold">교실용 학습 보드게임</p>
       </div>
       <Toast show={!!notice} color="bg-violet-600">{notice}</Toast>
-      {showLogin && (
-        <StudentLogin
-          onClose={() => setShowLogin(false)}
-          onLogin={async (u, p) => {
-            await loginMe(u, p)
-            setShowLogin(false)
-          }}
-        />
-      )}
+
     </div>
   )
 }

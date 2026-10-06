@@ -67,14 +67,6 @@ export async function initAccount() {
   }
 }
 
-export async function loginMe(username, password) {
-  const a = await accountApi()
-  const me = await a.login(a.ME, username, password)
-  setMe(me)
-  await watch()
-  return me
-}
-
 export async function logoutMe() {
   const a = await accountApi()
   await a.logout(a.ME)

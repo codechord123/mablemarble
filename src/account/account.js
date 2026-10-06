@@ -2,8 +2,7 @@
 // 비밀번호는 이 앱에 저장하지 않는다.
 import { signInWithCustomToken, signOut, onAuthStateChanged } from 'firebase/auth'
 import { authOf, ME } from './firebase.js'
-
-export const ACCOUNT_API = (import.meta.env.VITE_ACCOUNT_API || 'https://studyapple.vercel.app').replace(/\/$/, '')
+import { ACCOUNT_SITE as ACCOUNT_API } from './site.js'
 
 const INFO_KEY = (uid) => `boomarble_account_${uid}` // 서버가 준 공개 정보(이름·반)
 
