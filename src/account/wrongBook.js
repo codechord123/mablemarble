@@ -50,6 +50,19 @@ export function applyResult(book, question, correct, now = Date.now()) {
   return { ...b, wrong }
 }
 
+// 푼 문제 통계 — 선생님 통계 화면용 (전체·영역별 푼 수와 맞힌 수)
+export function applyStats(stats, question, correct, now = Date.now()) {
+  const s = stats || { answered: 0, correct: 0, byCat: {} }
+  const cat = String(question.category || '기타').slice(0, 40)
+  const c = (s.byCat || {})[cat] || { a: 0, c: 0 }
+  return {
+    answered: (s.answered || 0) + 1,
+    correct: (s.correct || 0) + (correct ? 1 : 0),
+    byCat: { ...(s.byCat || {}), [cat]: { a: c.a + 1, c: c.c + (correct ? 1 : 0) } },
+    lastAt: now,
+  }
+}
+
 // 다시 풀 순서 — 많이 틀린 것, 오래된 것 먼저
 export function reviewList(book) {
   return Object.entries(book?.wrong || {})

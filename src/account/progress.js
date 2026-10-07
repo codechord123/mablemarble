@@ -3,7 +3,7 @@
 // 규칙: 본인만 읽고 쓰기, 같은 반 담임은 읽기.
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { authOf, dbOf } from './firebase.js'
-import { applyResult, emptyBook } from './wrongBook.js'
+import { applyResult, applyStats, emptyBook } from './wrongBook.js'
 import { currentAccount } from './account.js'
 
 const cache = new Map() // uid → Promise<doc>
@@ -53,7 +53,7 @@ async function update(slot, fn) {
 
 // 문제 하나 풀 때마다 — 틀리면 노트에 넣고, 노트에 있던 문제를 맞히면 졸업에 가까워진다
 export function recordResult(slot, question, correct) {
-  return update(slot, (cur) => ({ ...cur, ...applyResult(cur, question, correct) }))
+  return update(slot, (cur) => ({ ...cur, ...applyResult(cur, question, correct), stats: applyStats(cur.stats, question, correct) }))
 }
 
 export function saveDrill(slot, drill) {

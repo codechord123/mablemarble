@@ -5,8 +5,8 @@ const FLAG = 'boomarble_me' // 이 기기에 로그인해 둔 학생이 있으�
 
 let mods = null
 export const accountApi = () =>
-  (mods ||= Promise.all([import('./account.js'), import('./progress.js'), import('./firebase.js')]).then(
-    ([a, p, f]) => ({ ...a, ...p, ME: f.ME }),
+  (mods ||= Promise.all([import('./account.js'), import('./progress.js'), import('./firebase.js'), import('./teacher.js')]).then(
+    ([a, p, f, t]) => ({ ...a, ...p, ...t, ME: f.ME }),
   ))
 
 export const useAccount = create(() => ({ me: null, checking: false, notice: null, noteToast: null }))

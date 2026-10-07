@@ -30,6 +30,7 @@ import { initAccount, useAccount, clearNoteToast } from './account/store.js'
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 const FractionDrill = lazy(() => import('./components/drill/FractionDrill.jsx'))
 const WrongReview = lazy(() => import('./components/account/WrongReview.jsx'))
+const TeacherStats = lazy(() => import('./components/account/TeacherStats.jsx'))
 
 // 굴리기를 누른 순간부터 주사위가 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
 const DICE_LAND_MS = DICE_SETTLE_MS + 100
@@ -256,6 +257,7 @@ export default function App() {
           onManageQuestions={() => setView('questions')}
           onDrill={() => setView('drill')}
           onReview={() => setView('review')}
+          onTeacherStats={() => setView('teacher-stats')}
           onResume={() => { resumeGame() }}
         />
       )
@@ -264,6 +266,13 @@ export default function App() {
       return (
         <Suspense fallback={<FullScreenSpinner label="수련장 불러오는 중…" />}>
           <FractionDrill onBack={() => setView('menu')} />
+        </Suspense>
+      )
+    }
+    if (view === 'teacher-stats') {
+      return (
+        <Suspense fallback={<FullScreenSpinner label="우리 반 기록 불러오는 중…" />}>
+          <TeacherStats onBack={() => setView('menu')} />
         </Suspense>
       )
     }
