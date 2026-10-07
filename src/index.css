@@ -620,3 +620,11 @@ body {
   paint-order: stroke fill;
   text-shadow: 0 5px 0 #7c2d12, 0 14px 24px rgba(0, 0, 0, 0.4);
 }
+
+/* ── 오답 문제지 인쇄 — 문제지(print-root)만 종이에 ── */
+@media print {
+  body > *:not(.print-root) { display: none !important; }
+  .print-root { display: block !important; padding: 12mm 14mm; }
+  body { background: #fff !important; }
+  .worksheet li { break-inside: avoid; }
+}

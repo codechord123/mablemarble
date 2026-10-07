@@ -9,6 +9,7 @@ import { reviewList, MASTER_STREAK } from '../../account/wrongBook.js'
 import { accountApi, useAccount } from '../../account/store.js'
 import { sfx } from '../../utils/sounds.js'
 import { formatAnswer } from '../game/ResultBanner.jsx'
+import PrintSheet from './PrintSheet.jsx'
 
 // 오답 다시 풀기 — 내 오답 노트의 문제를 하나씩. 연속 2번 맞히면 노트에서 졸업.
 export default function WrongReview({ onBack }) {
@@ -52,6 +53,7 @@ export default function WrongReview({ onBack }) {
     return Object.entries(n).sort((a, b) => b[1] - a[1])
   }, [allList])
   const list = useMemo(() => (unit ? allList.filter((w) => w.unit === unit) : allList), [allList, unit])
+  const [printing, setPrinting] = useState(false)
   const player = useMemo(
     () => ({
       name: me ? me.name || me.username : '',
@@ -228,6 +230,18 @@ export default function WrongReview({ onBack }) {
               <GameButton color="violet" onClick={start} className="mt-5 w-full py-3.5 text-lg">
                 다시 풀기 시작 ({Math.min(10, list.length)}문제)
               </GameButton>
+              <button onClick={() => setPrinting(true)} className="mt-3 w-full text-sm font-bold text-amber-700 hover:underline">
+                🖨️ 오답 노트 인쇄하기 ({list.length}문제)
+              </button>
+              {printing && (
+                <PrintSheet
+                  title={`${player.name}의 오답 노트`}
+                  subtitle={unit || '전체 단원'}
+                  questions={list.map((w) => w.question)}
+                  onClose={() => setPrinting(false)}
+                  nameLine={false}
+                />
+              )}
             </>
           )}
         </>

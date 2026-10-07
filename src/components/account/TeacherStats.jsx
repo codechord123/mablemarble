@@ -4,6 +4,7 @@ import { summarize, unitsOf } from '../../account/classStats.js'
 import { formatAnswer } from '../game/ResultBanner.jsx'
 import MathText from '../ui/MathText.jsx'
 import GameButton from '../ui/GameButton.jsx'
+import PrintSheet from './PrintSheet.jsx'
 
 const pct = (r) => (r == null ? '–' : `${r}%`)
 const rateColor = (r) => (r == null ? 'bg-gray-300' : r >= 80 ? 'bg-emerald-500' : r >= 50 ? 'bg-amber-400' : 'bg-rose-400')
@@ -22,6 +23,7 @@ export default function TeacherStats({ onBack }) {
   const units = rows ? unitsOf(rows) : []
   const [error, setError] = useState(null)
   const [openQ, setOpenQ] = useState(null)
+  const [printing, setPrinting] = useState(false)
 
   async function load() {
     setError(null)
@@ -125,7 +127,12 @@ export default function TeacherStats({ onBack }) {
             {/* 많이 틀린 문제 */}
             {data.topWrong.length > 0 && (
               <section className="mt-6">
-                <h3 className="font-black text-amber-900">우리 반이 많이 틀린 문제 <span className="text-xs font-bold text-amber-600">(오답 노트에 남아 있는 학생 수)</span></h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-black text-amber-900">우리 반이 많이 틀린 문제 <span className="text-xs font-bold text-amber-600">(오답 노트에 남아 있는 학생 수)</span></h3>
+                  <button onClick={() => setPrinting(true)} className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-extrabold text-white shadow">
+                    🖨️ 인쇄 · 알림장
+                  </button>
+                </div>
                 <ol className="mt-2 space-y-2">
                   {data.topWrong.map((w, i) => (
                     <li key={w.key} className="rounded-xl bg-rose-50 p-3 text-sm">
@@ -193,6 +200,14 @@ export default function TeacherStats({ onBack }) {
           </>
         )}
       </div>
+      {printing && data && (
+        <PrintSheet
+          title="우리 반 복습 문제"
+          subtitle={`${unit || '전체 단원'} · 우리 반이 많이 틀린 문제`}
+          questions={data.topWrong.map((w) => w.question)}
+          onClose={() => setPrinting(false)}
+        />
+      )}
     </div>
   )
 }
