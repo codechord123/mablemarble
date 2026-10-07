@@ -4,10 +4,11 @@ import { isCorrect } from '../src/utils/questionPicker.js'
 import { getBundledSet } from '../src/data/bundledSets.js'
 
 describe('국어 3단원 표준어와 방언 문제', () => {
-  it('난이도별 20문제씩, 모두 60문제', () => {
-    expect(qs.length).toBe(60)
-    for (const d of [1, 2, 3]) expect(qs.filter((q) => q.difficulty === d).length).toBe(20)
-    expect(new Set(qs.map((q) => q.id)).size).toBe(60)
+  it('난이도별 40문제씩, 모두 120문제 (문제 글도 겹치지 않음)', () => {
+    expect(qs.length).toBe(120)
+    for (const d of [1, 2, 3]) expect(qs.filter((q) => q.difficulty === d).length).toBe(40)
+    expect(new Set(qs.map((q) => q.id)).size).toBe(120)
+    expect(new Set(qs.map((q) => q.question)).size).toBe(120)
     expect(getBundledSet('bundled:korean-dialect-ch3').questions).toBe(qs)
   })
   it('객관식은 정답 번호가 보기 안에 있고 보기가 겹치지 않는다', () => {
@@ -24,7 +25,9 @@ describe('국어 3단원 표준어와 방언 문제', () => {
     expect(sa.length).toBeGreaterThan(0)
     for (const q of sa) {
       expect(isCorrect(q, q.answer)).toBe(true)
-      expect(isCorrect(q, ` ${q.answer.split('').join(' ')} `)).toBe(true)
+      const first = q.answer.split(',')[0]
+      expect(isCorrect(q, ` ${first.split('').join(' ')} `)).toBe(true)
+      for (const alt of q.answer.split(',')) expect(isCorrect(q, alt)).toBe(true)
       expect(isCorrect(q, '모르겠다')).toBe(false)
     }
   })

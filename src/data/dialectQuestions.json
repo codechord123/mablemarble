@@ -862,5 +862,860 @@
     ],
     "answer": 0,
     "explanation": "두 말 모두 소중해요. 상황과 듣는 사람에 맞게 골라 쓰는 것이 바른 태도예요."
+  },
+  {
+    "id": "sd61",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘아이다’의 뜻은?",
+    "choices": [
+      "아니다",
+      "맞다",
+      "아이(어린이)다",
+      "있다"
+    ],
+    "answer": 0,
+    "explanation": "경상 지역에서는 ‘아니다’를 ‘아이다’라고 해요."
+  },
+  {
+    "id": "sd62",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘와?’의 뜻은?",
+    "choices": [
+      "왜?",
+      "어디?",
+      "누구?",
+      "와!(감탄)"
+    ],
+    "answer": 0,
+    "explanation": "‘와 그라노?’는 ‘왜 그러니?’라는 뜻이에요."
+  },
+  {
+    "id": "sd63",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘니’는 표준어로 무엇일까요?",
+    "choices": [
+      "이",
+      "나",
+      "네(대답)",
+      "너"
+    ],
+    "answer": 3,
+    "explanation": "‘니 어디 가노?’ = ‘너 어디 가니?’"
+  },
+  {
+    "id": "sd64",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘어멍’은 표준어로 무엇일까요?",
+    "choices": [
+      "언니",
+      "이모",
+      "어머니",
+      "아버지"
+    ],
+    "answer": 2,
+    "explanation": "제주에서는 어머니를 ‘어멍’, 아버지를 ‘아방’이라고 해요."
+  },
+  {
+    "id": "sd65",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘아방’은 표준어로 무엇일까요?",
+    "choices": [
+      "아기",
+      "할아버지",
+      "어머니",
+      "아버지"
+    ],
+    "answer": 3,
+    "explanation": "제주에서는 아버지를 ‘아방’이라고 해요."
+  },
+  {
+    "id": "sd66",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘바당’은 표준어로 무엇일까요?",
+    "choices": [
+      "바람",
+      "바위",
+      "바다",
+      "바닥"
+    ],
+    "answer": 2,
+    "explanation": "제주에서는 바다를 ‘바당’이라고 해요."
+  },
+  {
+    "id": "sd67",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘몰라유’의 뜻은?",
+    "choices": [
+      "멀어요",
+      "몰라요",
+      "말해요",
+      "물어요"
+    ],
+    "answer": 1,
+    "explanation": "충청 방언은 말끝에 ‘~유’를 붙이는 것이 특징이에요."
+  },
+  {
+    "id": "sd68",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘괜찮아유’의 뜻은?",
+    "choices": [
+      "안 돼요",
+      "괜찮아요",
+      "귀찮아요",
+      "괜히 그래요"
+    ],
+    "answer": 1,
+    "explanation": "‘~유’는 표준어의 ‘~요’예요."
+  },
+  {
+    "id": "sd69",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘마이’의 뜻은?",
+    "choices": [
+      "아이",
+      "조금",
+      "마음",
+      "많이"
+    ],
+    "answer": 3,
+    "explanation": "‘마이 묵어라’는 ‘많이 먹어라’라는 뜻이에요."
+  },
+  {
+    "id": "sd70",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "표준어는 공식적인 자리에서 쓰기에 알맞다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 0,
+    "explanation": "발표·회의·뉴스처럼 공식적인 자리에서는 누구나 알아듣는 표준어가 알맞아요."
+  },
+  {
+    "id": "sd71",
+    "category": "방언의 좋은 점",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "같은 물건이라도 지역마다 부르는 말이 다를 수 있다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 0,
+    "explanation": "부추를 경상에서는 ‘정구지’, 전라에서는 ‘솔’이라고 부르는 것처럼 지역마다 말이 달라요."
+  },
+  {
+    "id": "sd72",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "서울 사람이 쓰는 말은 모두 표준어다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 1,
+    "explanation": "서울에도 서울 방언이 있어요. 표준어는 현대 서울말 가운데 교양 있는 사람들이 두루 쓰는 말로 정한 거예요."
+  },
+  {
+    "id": "sd73",
+    "category": "방언의 좋은 점",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "표준어와 방언은 모두 소중한 우리말이다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 0,
+    "explanation": "표준어는 서로 잘 통하게 해 주고, 방언은 지역의 문화와 정을 담고 있어 둘 다 소중해요."
+  },
+  {
+    "id": "sd74",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "학급 회의에서 사회를 볼 때 알맞은 말은?",
+    "choices": [
+      "우리 동네 방언만",
+      "은어",
+      "표준어",
+      "줄임말"
+    ],
+    "answer": 2,
+    "explanation": "회의처럼 여러 사람이 함께하는 공식적인 자리에서는 표준어로 말해요."
+  },
+  {
+    "id": "sd75",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "시험 문제나 안내문을 만들 때 쓰는 말은?",
+    "choices": [
+      "사투리",
+      "표준어",
+      "방언",
+      "유행어"
+    ],
+    "answer": 1,
+    "explanation": "누구나 같은 뜻으로 읽도록 시험 문제와 안내문은 표준어로 써요."
+  },
+  {
+    "id": "sd76",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "할아버지와 고향 장터에서 정답게 이야기할 때 써도 자연스러운 말은?",
+    "choices": [
+      "은어",
+      "외국어",
+      "방언",
+      "전문 용어"
+    ],
+    "answer": 2,
+    "explanation": "같은 고향 사람끼리는 방언을 쓰면 더 정답고 잘 통해요."
+  },
+  {
+    "id": "sd77",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "전라 방언 ‘겁나게 맛있다’의 뜻은?",
+    "choices": [
+      "매우 맛있다",
+      "조금 맛있다",
+      "무섭게 맛없다",
+      "겁이 나서 못 먹겠다"
+    ],
+    "answer": 0,
+    "explanation": "‘겁나게’는 ‘매우, 정말’이라는 뜻이에요. 무섭다는 뜻이 아니에요!"
+  },
+  {
+    "id": "sd78",
+    "category": "어느 지역 말일까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "‘고맙수다’, ‘혼저 옵서예’처럼 말하는 지역은?",
+    "choices": [
+      "강원도",
+      "충청도",
+      "제주도",
+      "경상도"
+    ],
+    "answer": 2,
+    "explanation": "‘~수다’, ‘~예’로 끝나는 말은 제주 방언이에요."
+  },
+  {
+    "id": "sd79",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "표준어와 방언 가운데 한 지역 사람끼리 더 친근하게 느끼는 말은?",
+    "choices": [
+      "외래어",
+      "표준어",
+      "전문어",
+      "방언"
+    ],
+    "answer": 3,
+    "explanation": "방언은 같은 지역 사람끼리 정다움과 친근함을 느끼게 해 줘요."
+  },
+  {
+    "id": "sd80",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "방언 가운데 사는 곳(지역)에 따라 달라지는 말을 무엇이라고 할까요?",
+    "choices": [
+      "지역 방언",
+      "외래어",
+      "표준어",
+      "사회 방언"
+    ],
+    "answer": 0,
+    "explanation": "지역에 따라 다른 말은 지역 방언이라고 해요."
+  },
+  {
+    "id": "sd81",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘얼라’는 표준어로 무엇일까요?",
+    "choices": [
+      "얼음",
+      "아기(어린아이)",
+      "언니",
+      "어른"
+    ],
+    "answer": 1,
+    "explanation": "경상 지역에서는 어린아이를 ‘얼라’라고 해요."
+  },
+  {
+    "id": "sd82",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "여러 지역에서 ‘정지’라고 부르는 곳은 집의 어디일까요?",
+    "choices": [
+      "지붕",
+      "마당",
+      "창고",
+      "부엌"
+    ],
+    "answer": 3,
+    "explanation": "‘정지’는 부엌을 가리키는 방언이에요."
+  },
+  {
+    "id": "sd83",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "전라 지역에서 ‘솔’이라고 부르는 채소는?",
+    "choices": [
+      "배추",
+      "부추",
+      "소나무",
+      "솔잎"
+    ],
+    "answer": 1,
+    "explanation": "전라 지역에서는 부추를 ‘솔’이라고 불러요. 경상에서는 ‘정구지’라고 해요."
+  },
+  {
+    "id": "sd84",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘지슬’은 무엇일까요?",
+    "choices": [
+      "무",
+      "옥수수",
+      "고구마",
+      "감자"
+    ],
+    "answer": 3,
+    "explanation": "제주에서는 감자를 ‘지슬’이라고 해요."
+  },
+  {
+    "id": "sd85",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘퍼뜩’의 뜻은?",
+    "choices": [
+      "퍼석하게",
+      "빨리, 얼른",
+      "가득",
+      "천천히"
+    ],
+    "answer": 1,
+    "explanation": "‘퍼뜩 온나’는 ‘빨리 오너라’라는 뜻이에요."
+  },
+  {
+    "id": "sd86",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘쪼매’의 뜻은?",
+    "choices": [
+      "많이",
+      "쫓아가",
+      "아주",
+      "조금"
+    ],
+    "answer": 3,
+    "explanation": "‘쪼매만 줘’는 ‘조금만 줘’라는 뜻이에요."
+  },
+  {
+    "id": "sd87",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘고마 해라’의 뜻은?",
+    "choices": [
+      "고쳐라",
+      "그만해라",
+      "계속해라",
+      "고마워해라"
+    ],
+    "answer": 1,
+    "explanation": "‘고마’는 ‘그만’이라는 뜻이에요."
+  },
+  {
+    "id": "sd88",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘우짜노?’의 뜻은?",
+    "choices": [
+      "어떡하니?",
+      "어디 가니?",
+      "언제 하니?",
+      "왜 웃니?"
+    ],
+    "answer": 0,
+    "explanation": "‘우짜노’는 ‘어떡하니, 어쩌니’라는 뜻이에요."
+  },
+  {
+    "id": "sd89",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘기여?’의 뜻으로 알맞은 것은?",
+    "choices": [
+      "그래? (그렇니?)",
+      "기다려?",
+      "길어?",
+      "기어가?"
+    ],
+    "answer": 0,
+    "explanation": "충청 지역에서는 ‘그래?’를 ‘기여?’라고 해요."
+  },
+  {
+    "id": "sd90",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘혼디’의 뜻은?",
+    "choices": [
+      "함께, 같이",
+      "혼나다",
+      "한 번",
+      "혼자"
+    ],
+    "answer": 0,
+    "explanation": "‘혼디 가게’는 ‘함께 가자’라는 뜻이에요."
+  },
+  {
+    "id": "sd91",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "전라 방언 ‘싸게 와라’의 뜻은?",
+    "choices": [
+      "천천히 와라",
+      "싸게 사 와라",
+      "조용히 와라",
+      "빨리 와라"
+    ],
+    "answer": 3,
+    "explanation": "전라 지역에서 ‘싸게’는 ‘빨리’라는 뜻이에요."
+  },
+  {
+    "id": "sd92",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "강원 방언 ‘마카’의 뜻은?",
+    "choices": [
+      "모두, 다",
+      "마구",
+      "막대",
+      "하나도"
+    ],
+    "answer": 0,
+    "explanation": "‘마카 모여라’는 ‘모두 모여라’라는 뜻이에요."
+  },
+  {
+    "id": "sd93",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "전라 방언 ‘~해부러’를 표준어로 바꾸면?",
+    "choices": [
+      "~해 버려",
+      "~하지 마",
+      "~해 줄게",
+      "~해 봐"
+    ],
+    "answer": 0,
+    "explanation": "‘먹어부러’는 ‘먹어 버려’라는 뜻이에요."
+  },
+  {
+    "id": "sd94",
+    "category": "어느 지역 말일까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "‘퍼뜩’, ‘우짜노’, ‘고마 해라’처럼 말하는 것으로 잘 알려진 지역은?",
+    "choices": [
+      "전라도",
+      "경상도",
+      "충청도",
+      "제주도"
+    ],
+    "answer": 1,
+    "explanation": "모두 경상 방언이에요."
+  },
+  {
+    "id": "sd95",
+    "category": "어느 지역 말일까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "‘바당’, ‘어멍’, ‘혼디’처럼 말하는 지역은?",
+    "choices": [
+      "제주도",
+      "강원도",
+      "전라도",
+      "경상도"
+    ],
+    "answer": 0,
+    "explanation": "모두 제주 방언이에요."
+  },
+  {
+    "id": "sd96",
+    "category": "언제 쓸까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "다음 중 표준어로 말해야 하는 상황은?",
+    "choices": [
+      "전국 학생이 보는 방송에서 학교 소개하기",
+      "같은 동네 친구와 장난치기",
+      "할머니와 저녁 먹으며 이야기하기",
+      "고향 이웃에게 인사하기"
+    ],
+    "answer": 0,
+    "explanation": "여러 지역 사람이 보고 듣는 자리에서는 표준어가 알맞아요."
+  },
+  {
+    "id": "sd97",
+    "category": "방언의 좋은 점",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "방언이 사라지면 어떤 점이 아쉬울까요?",
+    "choices": [
+      "말이 짧아진다",
+      "지역의 문화와 옛 생활 모습을 담은 말이 함께 사라진다",
+      "표준어가 없어진다",
+      "외국어가 늘어난다"
+    ],
+    "answer": 1,
+    "explanation": "방언에는 그 지역 사람들의 생활과 문화가 담겨 있어서, 사라지면 그 문화도 함께 잊혀요."
+  },
+  {
+    "id": "sd98",
+    "category": "방언의 좋은 점",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "드라마나 동화에서 인물이 방언을 쓰게 하는 까닭으로 알맞은 것은?",
+    "choices": [
+      "글자 수를 줄이려고",
+      "표준어가 틀린 말이라서",
+      "아무도 못 알아듣게 하려고",
+      "인물의 고향과 성격을 생생하게 느끼게 하려고"
+    ],
+    "answer": 3,
+    "explanation": "방언은 인물이 어디 사람인지, 어떤 사람인지를 실감 나게 보여 줘요."
+  },
+  {
+    "id": "sd99",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "제주 방언 ‘바당’을 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "바다",
+    "explanation": "제주에서는 바다를 ‘바당’이라고 해요."
+  },
+  {
+    "id": "sd100",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "제주 방언 ‘어멍’을 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "어머니,엄마",
+    "explanation": "제주에서는 어머니를 ‘어멍’이라고 해요."
+  },
+  {
+    "id": "sd101",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "경상 방언 “퍼뜩 온나.”를 표준어로 바르게 바꾼 것은?",
+    "choices": [
+      "빨리 오너라.",
+      "천천히 가거라.",
+      "퍼지게 놀아라.",
+      "퍼런 옷 입어라."
+    ],
+    "answer": 0,
+    "explanation": "‘퍼뜩’은 ‘빨리’, ‘온나’는 ‘오너라’예요."
+  },
+  {
+    "id": "sd102",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "경상 방언 “쪼매만 기다리래이.”를 표준어로 바르게 바꾼 것은?",
+    "choices": [
+      "많이 기다려라.",
+      "기다리지 마라.",
+      "조금만 기다려라.",
+      "쪼개서 기다려라."
+    ],
+    "answer": 2,
+    "explanation": "‘쪼매’는 ‘조금’, ‘~래이’는 ‘~라’라는 뜻이에요."
+  },
+  {
+    "id": "sd103",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "제주 방언 “바당에 혼디 가게.”를 표준어로 바꾼 것은?",
+    "choices": [
+      "바다에 함께 가자.",
+      "바다에 혼나러 가자.",
+      "바닥에 혼자 가자.",
+      "바람에 한 번 가자."
+    ],
+    "answer": 0,
+    "explanation": "‘바당’은 바다, ‘혼디’는 함께라는 뜻이에요."
+  },
+  {
+    "id": "sd104",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "제주에서 ‘감저’는 무엇을 가리킬까요? (헷갈리기 쉬워요!)",
+    "choices": [
+      "감",
+      "감자",
+      "배추",
+      "고구마"
+    ],
+    "answer": 3,
+    "explanation": "제주에서는 고구마를 ‘감저’, 감자를 ‘지슬’이라고 불러요."
+  },
+  {
+    "id": "sd105",
+    "category": "방언의 좋은 점",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 중 ‘부추’를 가리키는 방언끼리 바르게 묶은 것은?",
+    "choices": [
+      "바당, 혼디",
+      "정구지, 솔",
+      "얼라, 정지",
+      "감재, 지슬"
+    ],
+    "answer": 1,
+    "explanation": "부추를 경상·충청에서는 ‘정구지’, 전라에서는 ‘솔’이라고 불러요."
+  },
+  {
+    "id": "sd106",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 문장에서 방언인 낱말을 모두 고른 것은? “얼라가 정지에서 울고 있다.”",
+    "choices": [
+      "모두 표준어이다",
+      "울고, 있다",
+      "얼라만",
+      "얼라, 정지"
+    ],
+    "answer": 3,
+    "explanation": "‘얼라’는 아기, ‘정지’는 부엌을 가리키는 방언이에요."
+  },
+  {
+    "id": "sd107",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 문장에서 방언인 낱말은? “우리 마카 운동장에 모이자.”",
+    "choices": [
+      "운동장에",
+      "우리",
+      "모이자",
+      "마카"
+    ],
+    "answer": 3,
+    "explanation": "‘마카’는 ‘모두’라는 뜻의 방언이에요."
+  },
+  {
+    "id": "sd108",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "청소년들이 친구끼리 쓰는 줄임말도 사회 방언의 하나로 볼 수 있다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 0,
+    "explanation": "나이(세대)에 따라 달라지는 말도 사회 방언이에요."
+  },
+  {
+    "id": "sd109",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "표준어의 뜻 가운데 ‘두루 쓰는’이 뜻하는 것은?",
+    "choices": [
+      "옛날에만 쓰던",
+      "많은 사람이 널리 쓰는",
+      "한 사람만 쓰는",
+      "책에만 나오는"
+    ],
+    "answer": 1,
+    "explanation": "‘두루’는 ‘빠짐없이 골고루, 널리’라는 뜻이에요."
+  },
+  {
+    "id": "sd110",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "표준어의 뜻 가운데 ‘현대’가 들어간 까닭으로 알맞은 것은?",
+    "choices": [
+      "옛날 말을 지키려고",
+      "지금 시대에 쓰는 말을 기준으로 하려고",
+      "외국어를 쓰려고",
+      "어른들 말만 쓰려고"
+    ],
+    "answer": 1,
+    "explanation": "표준어는 옛말이 아니라 지금 시대 사람들이 쓰는 말을 바탕으로 정해요."
+  },
+  {
+    "id": "sd111",
+    "category": "방언의 좋은 점",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "사라져 가는 방언을 지키는 방법으로 알맞은 것은?",
+    "choices": [
+      "지역 어르신들의 말을 기록해 방언 사전을 만든다",
+      "방언을 모두 표준어로 바꿔 없앤다",
+      "방언을 쓰지 못하게 한다",
+      "방언을 쓰는 사람을 놀린다"
+    ],
+    "answer": 0,
+    "explanation": "방언을 기록하고 소개하면 지역의 말과 문화를 지킬 수 있어요."
+  },
+  {
+    "id": "sd112",
+    "category": "언제 쓸까?",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "신문 기사에서 방언보다 표준어를 쓰는 까닭은?",
+    "choices": [
+      "기사를 길게 쓰려고",
+      "서울 사람만 읽어서",
+      "방언은 틀린 말이라서",
+      "전국의 많은 독자가 뜻을 정확히 알 수 있게 하려고"
+    ],
+    "answer": 3,
+    "explanation": "여러 지역 사람이 읽는 글은 표준어로 써야 뜻이 정확히 전해져요."
+  },
+  {
+    "id": "sd113",
+    "category": "언제 쓸까?",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 중 방언을 쓴 것이 가장 알맞지 않은 상황은?",
+    "choices": [
+      "고향 친구와의 전화",
+      "전교생 앞에서 하는 학생 회장 선거 연설",
+      "할머니께 보내는 손 편지",
+      "지역 축제 홍보 문구"
+    ],
+    "answer": 1,
+    "explanation": "여러 지역에서 온 사람이 함께 듣는 공식적인 연설에서는 표준어가 알맞아요."
+  },
+  {
+    "id": "sd114",
+    "category": "어느 지역 말일까?",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "방언과 지역을 바르게 짝지은 것은?",
+    "choices": [
+      "기여 – 경상도",
+      "혼디 – 제주도",
+      "싸게 – 강원도",
+      "퍼뜩 – 전라도"
+    ],
+    "answer": 1,
+    "explanation": "혼디(제주), 퍼뜩(경상), 기여(충청), 싸게(전라)로 짝지어야 해요."
+  },
+  {
+    "id": "sd115",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "경상 방언 “니 와 그라노?”를 표준어로 바르게 바꾼 것은?",
+    "choices": [
+      "네가 그랬니?",
+      "너 왜 그러니?",
+      "너 와서 그려?",
+      "너 어디 가니?"
+    ],
+    "answer": 1,
+    "explanation": "‘니’는 너, ‘와’는 왜, ‘그라노’는 그러니라는 뜻이에요."
+  },
+  {
+    "id": "sd116",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "경상 방언 ‘얼라’를 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "아기,어린아이,어린애,아이",
+    "explanation": "경상 지역에서는 어린아이를 ‘얼라’라고 해요."
+  },
+  {
+    "id": "sd117",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "경상 방언 ‘퍼뜩’을 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "빨리,얼른,어서",
+    "explanation": "‘퍼뜩 온나’ = ‘빨리 오너라’"
+  },
+  {
+    "id": "sd118",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "여러 지역에서 부엌을 가리키는 방언 ‘정지’를 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "부엌",
+    "explanation": "‘정지’는 부엌을 가리키는 방언이에요."
+  },
+  {
+    "id": "sd119",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "제주 방언 ‘지슬’을 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "감자",
+    "explanation": "제주에서는 감자를 ‘지슬’, 고구마를 ‘감저’라고 해요."
+  },
+  {
+    "id": "sd120",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "강원 방언 ‘마카’를 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "모두,다",
+    "explanation": "‘마카 모여라’ = ‘모두 모여라’"
   }
 ]
