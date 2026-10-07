@@ -3,7 +3,7 @@ import { rollDice, nextPosition, getTile, calculateToll } from '../utils/gameEng
 import {
   activeRoundEvent, comboBonus, isRoundEventRound, monopolyGroupOf,
   purchaseCost, rollRoundEvent, salaryFor, sellValue, totalSellValue, upgradeCost,
-  underdogId, CHARITY_AMOUNT, ITEMS, SKIP_QUIZ,
+  underdogId, CHARITY_AMOUNT, ITEMS, SKIP_QUIZ, TOLL_QUIZ,
 } from '../utils/rules.js'
 import { BOARD } from '../utils/boardConfig.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
@@ -202,7 +202,7 @@ export const useGameStore = create((set, get) => ({
       players: updated,
       bigEvent: makeEvent({ kind: 'saved', amount: toll, tileName: `${ITEMS.angel.icon} ${ITEMS.angel.name}` }),
     })
-    get()._resolveTurn()
+    get()._askQuestion({ type: 'toll-quiz', tile }) // 통행료는 면제돼도 문제는 푼다
   },
 
   useHalfCoupon(tile, toll) {
@@ -235,7 +235,8 @@ export const useGameStore = create((set, get) => ({
         tileName: tile.name,
       }),
     })
-    get()._resolveTurn()
+    // 남의 땅에 걸리면 통행료를 내고 문제도 꼭 푼다 (파산·땅 팔기 판정은 문제 뒤에)
+    get()._askQuestion({ type: 'toll-quiz', tile })
   },
 
   clearBigEvent() {
@@ -532,6 +533,15 @@ export const useGameStore = create((set, get) => ({
       message = correct
         ? `건너뛰기 성공! +${SKIP_QUIZ.win}원`
         : `건너뛰기 — 오답 -${SKIP_QUIZ.lose}원`
+    } else if (pendingAction.type === 'toll-quiz') {
+      const delta = correct ? TOLL_QUIZ.win : -TOLL_QUIZ.lose
+      updatedPlayers[currentTurn] = {
+        ...updatedPlayers[currentTurn],
+        money: updatedPlayers[currentTurn].money + delta,
+      }
+      message = correct
+        ? `정답! 보너스 +${TOLL_QUIZ.win}원`
+        : TOLL_QUIZ.lose ? `오답 -${TOLL_QUIZ.lose}원` : '아쉬워요! 풀이를 확인해 봐요'
     } else if (pendingAction.type === 'bonus-question') {
       const delta = correct ? pendingAction.winAmount : -pendingAction.loseAmount
       updatedPlayers[currentTurn] = {

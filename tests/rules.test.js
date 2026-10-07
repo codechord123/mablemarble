@@ -89,3 +89,39 @@ describe('라운드 이벤트', () => {
     expect(BOARD[ev.tileId].price).toBeGreaterThan(0)
   })
 })
+
+describe('통행료 문제 (남의 땅)', async () => {
+  const { useGameStore } = await import('../src/stores/gameStore.js')
+  const { useQuestionStore } = await import('../src/stores/questionStore.js')
+  const q = { id: 'tq1', type: 'multiple_choice', difficulty: 2, question: '?', choices: ['a', 'b'], answer: 0, category: '시험' }
+  it('통행료를 내면 바로 문제가 나오고, 맞히면 보너스 · 틀려도 더 잃지 않는다', () => {
+    useQuestionStore.setState({ activeQuestions: [q] })
+    const g = useGameStore.getState()
+    g.initGame([{ name: 'A' }, { name: 'B' }])
+    const tile = { id: 5, name: '도시' }
+    useGameStore.setState({ ownership: { 5: { ownerId: 1, houses: 0 } }, currentTurn: 0 })
+    const before = useGameStore.getState().players.map((p) => p.money)
+    useGameStore.getState().payToll(tile, 100)
+    let s = useGameStore.getState()
+    expect(s.phase).toBe('question')
+    expect(s.pendingAction.type).toBe('toll-quiz')
+    expect(s.players[0].money).toBe(before[0] - 100)
+    expect(s.players[1].money).toBe(before[1] + 100)
+    s.submitAnswer(0) // 정답
+    s = useGameStore.getState()
+    expect(s.players[0].money).toBe(before[0] - 100 + 50)
+    // 오답
+    useGameStore.setState({ currentTurn: 0, phase: 'tile' })
+    const m = useGameStore.getState().players[0].money
+    useGameStore.getState().payToll(tile, 100)
+    useGameStore.getState().submitAnswer(1)
+    expect(useGameStore.getState().players[0].money).toBe(m - 100)
+  })
+  it('천사 카드로 통행료를 면제받아도 문제는 푼다', () => {
+    useQuestionStore.setState({ activeQuestions: [q] })
+    useGameStore.getState().initGame([{ name: 'A' }, { name: 'B' }])
+    useGameStore.setState((st) => ({ ownership: { 5: { ownerId: 1, houses: 0 } }, currentTurn: 0, players: st.players.map((p, i) => (i === 0 ? { ...p, items: ['angel'] } : p)) }))
+    useGameStore.getState().useAngelCard({ id: 5, name: '도시' }, 100)
+    expect(useGameStore.getState().pendingAction.type).toBe('toll-quiz')
+  })
+})

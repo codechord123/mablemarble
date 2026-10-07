@@ -12,7 +12,7 @@ import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
 import DifficultyPicker from './components/game/DifficultyPicker.jsx'
 import SellModal from './components/game/SellModal.jsx'
-import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT, SKIP_QUIZ } from './utils/rules.js'
+import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT, SKIP_QUIZ, TOLL_QUIZ } from './utils/rules.js'
 import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
@@ -47,6 +47,8 @@ function FullScreenSpinner({ label = '불러오는 중…' }) {
 // 문제 머리띠에 보여 줄 '무엇을 걸었나' 한 줄
 function stakeLabel(action) {
   if (action?.type === 'skip-quiz') return `맞히면 +${SKIP_QUIZ.win}원 · 틀리면 −${SKIP_QUIZ.lose}원`
+  if (action?.type === 'toll-quiz')
+    return `통행료는 냈어요 · 맞히면 +${TOLL_QUIZ.win}원${TOLL_QUIZ.lose ? ` · 틀리면 −${TOLL_QUIZ.lose}원` : ''}`
   if (!action?.difficulty) return null
   const stars = '★'.repeat(action.difficulty)
   const off = DIFFICULTY_DISCOUNT[action.difficulty]
@@ -345,7 +347,8 @@ export default function App() {
         <SellModal player={players[sellerId]} ownership={ownership} onSell={sellTile} />
       )}
 
-      {phase === 'question' && currentQuestion && (
+      {/* 통행료 연출(돈이 넘어가는 장면)이 끝난 뒤에 통행료 문제를 띄운다 */}
+      {phase === 'question' && currentQuestion && !(bigEvent && pendingAction?.type === 'toll-quiz') && (
         <QuestionModal
           question={currentQuestion}
           stake={stakeLabel(pendingAction)}

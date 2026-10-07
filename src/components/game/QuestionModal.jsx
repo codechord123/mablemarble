@@ -15,6 +15,7 @@ const INTENT = {
   upgrade: { title: '건물 짓기 도전', icon: '🏗️', from: '#38bdf8', to: '#1d4ed8' },
   'bonus-question': { title: '보너스 문제', icon: '⭐', from: '#fbbf24', to: '#d97706' },
   'skip-quiz': { title: '건너뛰기 문제', icon: '📝', from: '#64748b', to: '#334155' },
+  'toll-quiz': { title: '통행료 문제', icon: '🧾', from: '#f87171', to: '#b91c1c' },
   'escape-island': { title: '무인도 탈출 도전', icon: '🏝️', from: '#22d3ee', to: '#0e7490' },
   review: { title: '오답 다시 풀기', icon: '📒', from: '#a78bfa', to: '#6d28d9' },
 }
