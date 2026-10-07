@@ -13,9 +13,17 @@ function ref(slot, uid) {
   return doc(dbOf(slot), 'boomarble_progress', uid)
 }
 
-export function loadProgress(slot) {
-  const uid = authOf(slot).currentUser?.uid
-  if (!uid) return Promise.resolve(null)
+// 새로고침 직후엔 로그인 정보를 불러오는 중이라 currentUser가 잠깐 비어 있다 — 기다렸다가 쓴다
+// (예전엔 이때 푼 문제가 오답 노트에 안 들어갔다)
+async function uidOf(slot) {
+  const a = authOf(slot)
+  await a.authStateReady()
+  return a.currentUser?.uid || null
+}
+
+export async function loadProgress(slot) {
+  const uid = await uidOf(slot)
+  if (!uid) return null
   if (!cache.has(uid)) {
     const p = getDoc(ref(slot, uid))
       .then((s) => (s.exists() ? s.data() : { uid, ...emptyBook(), drill: null }))
@@ -29,8 +37,8 @@ export function loadProgress(slot) {
 }
 
 async function update(slot, fn) {
-  const uid = authOf(slot).currentUser?.uid
-  if (!uid) return null
+  const uid = await uidOf(slot)
+  if (!uid) throw new Error('not-signed-in')
   const run = async () => {
     const cur = await loadProgress(slot)
     const acc = currentAccount(slot)
@@ -45,10 +53,7 @@ async function update(slot, fn) {
 
 // 문제 하나 풀 때마다 — 틀리면 노트에 넣고, 노트에 있던 문제를 맞히면 졸업에 가까워진다
 export function recordResult(slot, question, correct) {
-  return update(slot, (cur) => ({ ...cur, ...applyResult(cur, question, correct) })).catch((e) => {
-    console.warn('오답 노트 저장 실패', e)
-    return null
-  })
+  return update(slot, (cur) => ({ ...cur, ...applyResult(cur, question, correct) }))
 }
 
 export function saveDrill(slot, drill) {

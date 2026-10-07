@@ -3,8 +3,8 @@
 //   me      : 메뉴·수련장·오답 다시 풀기에서 쓰는 학생 (이 기기에 기억)
 //   seatN   : 보드게임 플레이어 자리 (탭을 닫으면 풀린다)
 import { initializeApp, getApp } from 'firebase/app'
-import { initializeAuth, getAuth, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { initializeAuth, getAuth, browserLocalPersistence, browserSessionPersistence, connectAuthEmulator } from 'firebase/auth'
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAF_2Oyq7EHOvUAsOFmSdzeuYDIFUV9kpg',
@@ -22,7 +22,12 @@ function appFor(slot) {
     return getApp(slot)
   } catch {
     const app = initializeApp(firebaseConfig, slot)
-    initializeAuth(app, { persistence: slot === ME ? browserLocalPersistence : browserSessionPersistence })
+    const auth = initializeAuth(app, { persistence: slot === ME ? browserLocalPersistence : browserSessionPersistence })
+    // 개발용: VITE_FIREBASE_EMULATOR=1 이면 내 컴퓨터의 가짜 Firebase에 연결 (진짜 데이터에 영향 없음)
+    if (import.meta.env.DEV && import.meta.env.VITE_FIREBASE_EMULATOR) {
+      connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
+      connectFirestoreEmulator(getFirestore(app), '127.0.0.1', 8081)
+    }
     return app
   }
 }

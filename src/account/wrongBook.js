@@ -8,14 +8,28 @@ function snapshot(q) {
   const { id, type, question, choices, answer, explanation, category, difficulty, inputMode, figure } = q
   return JSON.stringify({ id, type, question, choices, answer, explanation, category, difficulty, inputMode, figure })
 }
-export const keyOf = (q) => String(q.id ?? q.question).replace(/[^\w가-힣-]/g, '_').slice(0, 120)
+const clean = (s) => String(s).replace(/[^\w가-힣-]/g, '_')
+// 문제 글자의 짧은 지문 — 직접 올린 문제 세트끼리 아이디(1, 2, 3…)가 같아도 다른 문제로 구분
+function textHash(s) {
+  let h = 5381
+  for (const ch of String(s || '')) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0
+  return h.toString(36)
+}
+export const keyOf = (q) => `${clean(q.id ?? 'q').slice(0, 60)}~${textHash(q.question)}`
+const legacyKeyOf = (q) => clean(q.id ?? q.question).slice(0, 120) // 예전 열쇠 (이어받기용)
 
 export const emptyBook = () => ({ wrong: {}, mastered: 0 })
 
 // book: { wrong: { [key]: { q, count, streak, lastAt } }, mastered }
 export function applyResult(book, question, correct, now = Date.now()) {
-  const b = book || emptyBook()
+  let b = book || emptyBook()
   const key = keyOf(question)
+  // 예전 열쇠로 저장된 같은 문제가 있으면 새 열쇠로 옮긴다
+  const old = legacyKeyOf(question)
+  if (!b.wrong[key] && old !== key && b.wrong[old] && JSON.parse(b.wrong[old].q).question === question.question) {
+    const { [old]: moved, ...rest } = b.wrong
+    b = { ...b, wrong: { ...rest, [key]: moved } }
+  }
   const cur = b.wrong[key]
   if (correct) {
     if (!cur) return b

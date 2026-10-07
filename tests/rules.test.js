@@ -94,7 +94,7 @@ describe('통행료 문제 (남의 땅)', async () => {
   const { useGameStore } = await import('../src/stores/gameStore.js')
   const { useQuestionStore } = await import('../src/stores/questionStore.js')
   const q = { id: 'tq1', type: 'multiple_choice', difficulty: 2, question: '?', choices: ['a', 'b'], answer: 0, category: '시험' }
-  it('통행료를 내면 바로 문제가 나오고, 맞히면 보너스 · 틀려도 더 잃지 않는다', () => {
+  it('통행료를 내면 바로 문제가 나오고, 맞히면 절반 환급 · 틀려도 더 잃지 않는다', () => {
     useQuestionStore.setState({ activeQuestions: [q] })
     const g = useGameStore.getState()
     g.initGame([{ name: 'A' }, { name: 'B' }])
@@ -107,9 +107,10 @@ describe('통행료 문제 (남의 땅)', async () => {
     expect(s.pendingAction.type).toBe('toll-quiz')
     expect(s.players[0].money).toBe(before[0] - 100)
     expect(s.players[1].money).toBe(before[1] + 100)
-    s.submitAnswer(0) // 정답
+    s.submitAnswer(0) // 정답 → 통행료 절반을 땅 주인에게서 돌려받는다
     s = useGameStore.getState()
     expect(s.players[0].money).toBe(before[0] - 100 + 50)
+    expect(s.players[1].money).toBe(before[1] + 100 - 50)
     // 오답
     useGameStore.setState({ currentTurn: 0, phase: 'tile' })
     const m = useGameStore.getState().players[0].money

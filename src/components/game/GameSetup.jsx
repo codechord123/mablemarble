@@ -6,7 +6,7 @@ import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
 import { loadLastSetup } from '../../utils/persistence.js'
 import GameButton from '../ui/GameButton.jsx'
 import StudentLogin from '../account/StudentLogin.jsx'
-import { loginSeat, logoutSeat } from '../../account/store.js'
+import { loginSeat, logoutSeat, useAccount } from '../../account/store.js'
 
 // 자리마다 따로 로그인한다 — 플레이어를 빼고 넣어도 자리 이름은 그대로
 let seatCounter = 0
@@ -37,6 +37,8 @@ export default function GameSetup({ onStart, onBack }) {
   const [players, setPlayers] = useState(initialPlayers)
   const [modeId, setModeId] = useState(initialMode)
   const [linking, setLinking] = useState(null) // 아이디를 연결하는 중인 플레이어 번호
+  const me = useAccount((s) => s.me) // 메뉴에서 로그인한 학생 — 비밀번호 없이 한 번에 연결
+  const meLinked = me && players.some((p) => p.account?.username === me.username)
 
   const bundledSets = useQuestionStore((s) => s.bundledSets)
   const sets = useQuestionStore((s) => s.sets)
@@ -69,7 +71,7 @@ export default function GameSetup({ onStart, onBack }) {
   }
 
   const removePlayer = (i) => {
-    if (players[i].account) logoutSeat(players[i].seat).catch(() => {})
+    if (players[i].account && players[i].account.slot !== 'me') logoutSeat(players[i].seat).catch(() => {})
     setPlayers((curr) => curr.filter((_, j) => j !== i))
   }
 
@@ -87,8 +89,17 @@ export default function GameSetup({ onStart, onBack }) {
   }
 
   const unlinkAccount = (i) => {
-    logoutSeat(players[i].seat).catch(() => {})
+    if (players[i].account?.slot !== 'me') logoutSeat(players[i].seat).catch(() => {}) // 메뉴 로그인은 그대로 둔다
     updatePlayer(i, { account: null })
+  }
+
+  // 메뉴에서 로그인한 학생(나)을 이 플레이어에 연결 — 이미 로그인돼 있으니 비밀번호 없이
+  const linkMe = (i) => {
+    if (!me || meLinked) return
+    updatePlayer(i, {
+      account: { username: me.username, name: me.name, classId: me.classId, slot: 'me' },
+      name: (me.name || me.username).slice(0, 10),
+    })
   }
 
   const addPlayer = () => {
@@ -204,9 +215,16 @@ export default function GameSetup({ onStart, onBack }) {
                     <button onClick={() => unlinkAccount(i)} className="shrink-0 text-gray-400 underline">해제</button>
                   </>
                 ) : (
-                  <button onClick={() => setLinking(i)} className="text-amber-700 hover:underline">
-                    🔑 아이디 연결 (오답 노트 저장)
-                  </button>
+                  <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    {me && !meLinked && (
+                      <button onClick={() => linkMe(i)} className="text-violet-700 hover:underline">
+                        🎒 {me.name || me.username}(로그인됨) 연결
+                      </button>
+                    )}
+                    <button onClick={() => setLinking(i)} className="text-amber-700 hover:underline">
+                      🔑 아이디 연결 (오답 노트 저장)
+                    </button>
+                  </span>
                 )}
               </div>
               <div className="mt-2 flex gap-1 flex-wrap">

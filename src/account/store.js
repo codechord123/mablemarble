@@ -9,7 +9,8 @@ export const accountApi = () =>
     ([a, p, f]) => ({ ...a, ...p, ME: f.ME }),
   ))
 
-export const useAccount = create(() => ({ me: null, checking: false, notice: null }))
+export const useAccount = create(() => ({ me: null, checking: false, notice: null, noteToast: null }))
+export const clearNoteToast = () => useAccount.setState({ noteToast: null })
 
 function setMe(me) {
   try {
@@ -85,10 +86,30 @@ export async function logoutSeat(seat) {
   return a.logout(seat)
 }
 
-// 문제를 풀 때마다 그 학생 오답 노트에 기록 (실패해도 게임은 그대로)
-export function recordFor(slot, question, correct) {
+// 문제를 풀 때마다 그 학생 오답 노트에 기록 (실패해도 게임은 그대로).
+// 틀린 문제가 저장되면 짧게 알려 주고, 저장에 실패하면 실패했다고 알린다 — 조용히 빠지지 않게.
+export function recordFor(slot, question, correct, who = '') {
   if (!slot || !question) return
+  const say = (ok, text) => useAccount.setState({ noteToast: { ok, text, at: Date.now() } })
   accountApi()
     .then((a) => a.recordResult(slot, question, correct))
-    .catch(() => {})
+    .then(() => {
+      if (!correct) say(true, `📒 ${who} 오답 노트에 저장했어요`)
+    })
+    .catch((e) => {
+      console.warn('오답 노트 저장 실패', e)
+      say(false, `⚠️ ${who} 오답 노트에 저장하지 못했어요 — 인터넷이나 아이디 연결을 확인해 주세요`)
+    })
+}
+
+// 이어하기 — 연결해 둔 아이디가 아직 로그인돼 있는지 확인 (탭을 닫으면 자리 로그인은 풀린다)
+export async function verifyLinks(players) {
+  const a = await accountApi()
+  const lost = []
+  for (const p of players) {
+    if (!p.account?.slot) continue
+    const uid = await a.signedInAs(p.account.slot).catch(() => null)
+    if (uid !== p.account.username) lost.push(p.id)
+  }
+  return lost
 }

@@ -3,7 +3,7 @@ import { rollDice, nextPosition, getTile, calculateToll } from '../utils/gameEng
 import {
   activeRoundEvent, comboBonus, isRoundEventRound, monopolyGroupOf,
   purchaseCost, rollRoundEvent, salaryFor, sellValue, totalSellValue, upgradeCost,
-  underdogId, CHARITY_AMOUNT, ITEMS, SKIP_QUIZ, TOLL_QUIZ,
+  underdogId, CHARITY_AMOUNT, ITEMS, SKIP_QUIZ, tollRefund,
 } from '../utils/rules.js'
 import { BOARD } from '../utils/boardConfig.js'
 import { pickQuestion, isCorrect } from '../utils/questionPicker.js'
@@ -21,7 +21,7 @@ import { GAME_MODES, DEFAULT_MODE } from '../data/gameModes.js'
 import { useQuestionStore } from './questionStore.js'
 import { sfx } from '../utils/sounds.js'
 import { persistSnapshot, loadSnapshot, clearSnapshot, persistLastSetup } from '../utils/persistence.js'
-import { recordFor } from '../account/store.js'
+import { recordFor, verifyLinks, useAccount } from '../account/store.js'
 
 const emptyStats = () => ({ answered: 0, correct: 0, byCategory: {}, wrong: [] })
 
@@ -202,7 +202,7 @@ export const useGameStore = create((set, get) => ({
       players: updated,
       bigEvent: makeEvent({ kind: 'saved', amount: toll, tileName: `${ITEMS.angel.icon} ${ITEMS.angel.name}` }),
     })
-    get()._askQuestion({ type: 'toll-quiz', tile }) // 통행료는 면제돼도 문제는 푼다
+    get()._askQuestion({ type: 'toll-quiz', tile, paid: 0 }) // 통행료는 면제돼도 문제는 푼다
   },
 
   useHalfCoupon(tile, toll) {
@@ -236,7 +236,7 @@ export const useGameStore = create((set, get) => ({
       }),
     })
     // 남의 땅에 걸리면 통행료를 내고 문제도 꼭 푼다 (파산·땅 팔기 판정은 문제 뒤에)
-    get()._askQuestion({ type: 'toll-quiz', tile })
+    get()._askQuestion({ type: 'toll-quiz', tile, paid: toll, ownerId: owner.ownerId })
   },
 
   clearBigEvent() {
@@ -464,7 +464,7 @@ export const useGameStore = create((set, get) => ({
     const correct = isCorrect(currentQuestion, answer)
     correct ? sfx.correct() : sfx.wrong()
     const account = players[currentTurn].account
-    if (account) recordFor(account.slot, currentQuestion, correct)
+    if (account) recordFor(account.slot, currentQuestion, correct, players[currentTurn].name)
     let message = ''
     let postAction = 'end-turn'
     let event = null
@@ -534,14 +534,18 @@ export const useGameStore = create((set, get) => ({
         ? `건너뛰기 성공! +${SKIP_QUIZ.win}원`
         : `건너뛰기 — 오답 -${SKIP_QUIZ.lose}원`
     } else if (pendingAction.type === 'toll-quiz') {
-      const delta = correct ? TOLL_QUIZ.win : -TOLL_QUIZ.lose
-      updatedPlayers[currentTurn] = {
-        ...updatedPlayers[currentTurn],
-        money: updatedPlayers[currentTurn].money + delta,
+      // 맞히면 낸 통행료의 절반을 땅 주인에게서 돌려받는다
+      const refund = correct ? tollRefund(pendingAction.paid) : 0
+      const ownerId = pendingAction.ownerId
+      if (refund > 0 && ownerId != null && updatedPlayers[ownerId]) {
+        updatedPlayers[currentTurn] = { ...updatedPlayers[currentTurn], money: updatedPlayers[currentTurn].money + refund }
+        updatedPlayers[ownerId] = { ...updatedPlayers[ownerId], money: updatedPlayers[ownerId].money - refund }
       }
       message = correct
-        ? `정답! 보너스 +${TOLL_QUIZ.win}원`
-        : TOLL_QUIZ.lose ? `오답 -${TOLL_QUIZ.lose}원` : '아쉬워요! 풀이를 확인해 봐요'
+        ? refund > 0
+          ? `정답! 통행료 절반 ${refund.toLocaleString()}원을 돌려받아요`
+          : '정답! 잘했어요'
+        : '아쉬워요! 통행료는 그대로예요. 풀이를 확인해 봐요'
     } else if (pendingAction.type === 'bonus-question') {
       const delta = correct ? pendingAction.winAmount : -pendingAction.loseAmount
       updatedPlayers[currentTurn] = {
@@ -798,6 +802,17 @@ export const useGameStore = create((set, get) => ({
       roundEvent: snap.roundEvent || null,
       phase: 'rolling',
     })
+    // 연결된 아이디의 로그인이 풀렸으면 연결을 끊고 알린다 (오답 노트가 조용히 안 쌓이는 일 막기)
+    if (snap.players?.some((p) => p.account)) {
+      verifyLinks(snap.players)
+        .then((lost) => {
+          if (!lost.length) return
+          set((s) => ({ players: s.players.map((p) => (lost.includes(p.id) ? { ...p, account: null } : p)) }))
+          const names = snap.players.filter((p) => lost.includes(p.id)).map((p) => p.name).join(', ')
+          useAccount.setState({ noteToast: { ok: false, text: `⚠️ ${names} 아이디 연결이 풀렸어요 — 오답 노트를 쓰려면 새 게임에서 다시 연결해 주세요`, at: Date.now() } })
+        })
+        .catch(() => {})
+    }
     return true
   },
 

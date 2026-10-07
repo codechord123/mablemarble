@@ -22,12 +22,24 @@ export default function WrongReview({ onBack }) {
 
   useEffect(() => {
     let alive = true
+    setError(null)
+    // 인터넷이 느리면 '불러오는 중'에서 멈춘 것처럼 보이지 않게 15초 뒤엔 안내
+    const slow = setTimeout(() => alive && setError('오답 노트를 불러오는 데 오래 걸려요. 인터넷을 확인하고 다시 들어와 주세요'), 15000)
     accountApi()
       .then((a) => a.loadProgress(a.ME))
-      .then((p) => alive && setBook(p))
-      .catch(() => alive && setError('오답 노트를 불러오지 못했어요. 인터넷을 확인해 주세요'))
+      .then((p) => {
+        clearTimeout(slow)
+        if (!alive) return
+        if (p) setBook(p)
+        else setError('로그인 정보를 확인하지 못했어요. 메뉴에서 다시 로그인해 주세요')
+      })
+      .catch(() => {
+        clearTimeout(slow)
+        if (alive) setError('오답 노트를 불러오지 못했어요. 인터넷을 확인해 주세요')
+      })
     return () => {
       alive = false
+      clearTimeout(slow)
     }
   }, [me?.username])
 
@@ -56,9 +68,13 @@ export default function WrongReview({ onBack }) {
     const graduated = correct && (item.streak || 0) + 1 >= MASTER_STREAK
     setFeedback({ correct, item, graduated })
     setScore((s) => ({ right: s.right + (correct ? 1 : 0), graduated: s.graduated + (graduated ? 1 : 0) }))
-    const a = await accountApi()
-    const next = await a.recordResult(a.ME, item.question, correct)
-    if (next) setBook(next)
+    try {
+      const a = await accountApi()
+      const next = await a.recordResult(a.ME, item.question, correct)
+      if (next) setBook(next)
+    } catch {
+      setError('결과를 저장하지 못했어요. 인터넷을 확인해 주세요')
+    }
   }
 
   function nextQuestion() {

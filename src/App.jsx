@@ -12,7 +12,7 @@ import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
 import DifficultyPicker from './components/game/DifficultyPicker.jsx'
 import SellModal from './components/game/SellModal.jsx'
-import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT, SKIP_QUIZ, TOLL_QUIZ } from './utils/rules.js'
+import { activeRoundEvent, underdogId, ITEMS, DIFFICULTY_DISCOUNT, SKIP_QUIZ, tollRefund } from './utils/rules.js'
 import QuestionModal from './components/game/QuestionModal.jsx'
 import ResultBanner from './components/game/ResultBanner.jsx'
 import GameOverScreen from './components/game/GameOverScreen.jsx'
@@ -25,7 +25,7 @@ import CoinIcon from './components/ui/CoinIcon.jsx'
 import Toast from './components/ui/Toast.jsx'
 import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
 import { loadLastSetup } from './utils/persistence.js'
-import { initAccount } from './account/store.js'
+import { initAccount, useAccount, clearNoteToast } from './account/store.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 const FractionDrill = lazy(() => import('./components/drill/FractionDrill.jsx'))
@@ -48,7 +48,9 @@ function FullScreenSpinner({ label = '불러오는 중…' }) {
 function stakeLabel(action) {
   if (action?.type === 'skip-quiz') return `맞히면 +${SKIP_QUIZ.win}원 · 틀리면 −${SKIP_QUIZ.lose}원`
   if (action?.type === 'toll-quiz')
-    return `통행료는 냈어요 · 맞히면 +${TOLL_QUIZ.win}원${TOLL_QUIZ.lose ? ` · 틀리면 −${TOLL_QUIZ.lose}원` : ''}`
+    return action.paid > 0
+      ? `통행료 ${action.paid.toLocaleString()}원 냈어요 · 맞히면 절반 ${tollRefund(action.paid).toLocaleString()}원 돌려받기`
+      : '통행료는 면제 · 문제는 꼭 풀어요'
   if (!action?.difficulty) return null
   const stars = '★'.repeat(action.difficulty)
   const off = DIFFICULTY_DISCOUNT[action.difficulty]
@@ -139,6 +141,14 @@ export default function App() {
   useEffect(() => {
     initAccount()
   }, [])
+
+  // 오답 노트 저장 알림 (저장됨 / 실패) — 잠깐 보여 주고 사라진다
+  const noteToast = useAccount((s) => s.noteToast)
+  useEffect(() => {
+    if (!noteToast) return
+    const t = setTimeout(clearNoteToast, noteToast.ok ? 2200 : 5000)
+    return () => clearTimeout(t)
+  }, [noteToast])
 
   useEffect(() => {
     if (!extraTurnReason) return
@@ -314,6 +324,9 @@ export default function App() {
       <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
       <BigEvent event={bigEvent} onDone={clearBigEvent} />
+      <Toast show={!!noteToast} color={noteToast?.ok ? 'bg-violet-600' : 'bg-rose-600'} position="bottom">
+        {noteToast?.text}
+      </Toast>
       <Toast show={!!extraTurnReason} color="bg-rose-500">
         {extraTurnReason === 'double' ? '🎲 더블! 한 번 더 굴리기' : '⚡ 카드 효과 — 한 번 더!'}
       </Toast>

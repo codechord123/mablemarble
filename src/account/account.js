@@ -66,6 +66,13 @@ export function currentAccount(slot) {
   return recall(cu.uid) || { username: cu.uid, name: cu.uid, role: 'student', classId: null }
 }
 
+// 그 자리에 지금 로그인한 아이디 (저장된 로그인을 다 불러온 뒤에 답한다)
+export async function signedInAs(slot) {
+  const a = authOf(slot)
+  await a.authStateReady()
+  return a.currentUser?.uid || null
+}
+
 // 로그인 상태가 바뀔 때마다 cb(account|null). 처음 한 번은 저장된 로그인을 확인한 뒤 부른다.
 export function watchAccount(slot, cb) {
   return onAuthStateChanged(authOf(slot), (u) => cb(u ? currentAccount(slot) : null))
