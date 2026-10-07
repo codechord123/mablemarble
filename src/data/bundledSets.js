@@ -6,6 +6,7 @@ import fractionsQuestions from './fractionsQuestions.json'
 import polygonAreaQuestions from './polygonAreaQuestions.json'
 import fractionMultiplyQuestions from './fractionMultiplyQuestions.json'
 import multiplicationQuestions from './multiplicationQuestions.json'
+import dialectQuestions from './dialectQuestions.json'
 
 export const BUNDLED_SETS = [
   {
@@ -13,6 +14,12 @@ export const BUNDLED_SETS = [
     name: '✖️ 수학 5-2 · 분수의 곱셈',
     subject: '수학',
     questions: fractionMultiplyQuestions,
+  },
+  {
+    id: 'bundled:korean-dialect-ch3',
+    name: '🗣️ 국어 · 3단원 표준어와 방언',
+    subject: '국어',
+    questions: dialectQuestions,
   },
   {
     id: 'bundled:polygon-area-5-1-ch6',

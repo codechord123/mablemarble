@@ -1,0 +1,866 @@
+[
+  {
+    "id": "sd01",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "한 나라에서 기준으로 삼아 누구나 두루 쓰도록 정한 말을 무엇이라고 할까요?",
+    "choices": [
+      "외래어",
+      "표준어",
+      "줄임말",
+      "방언"
+    ],
+    "answer": 1,
+    "explanation": "표준어는 교양 있는 사람들이 두루 쓰는 현대 서울말로 정한 말이에요."
+  },
+  {
+    "id": "sd02",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "어느 한 지역에서만 쓰는, 그 지역 특유의 말을 무엇이라고 할까요?",
+    "choices": [
+      "표준어",
+      "방언",
+      "외래어",
+      "높임말"
+    ],
+    "answer": 1,
+    "explanation": "한 지역에서 쓰는 그 지역만의 말을 방언이라고 해요."
+  },
+  {
+    "id": "sd03",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "‘방언’을 부르는 다른 말은 무엇일까요?",
+    "choices": [
+      "속담",
+      "표어",
+      "사투리",
+      "존댓말"
+    ],
+    "answer": 2,
+    "explanation": "방언을 흔히 사투리라고도 불러요."
+  },
+  {
+    "id": "sd04",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "텔레비전 뉴스에서 아나운서가 소식을 전할 때 주로 쓰는 말은?",
+    "choices": [
+      "은어",
+      "줄임말",
+      "방언",
+      "표준어"
+    ],
+    "answer": 3,
+    "explanation": "전국 사람들이 모두 알아듣도록 뉴스에서는 표준어를 써요."
+  },
+  {
+    "id": "sd05",
+    "category": "방언의 좋은 점",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "고향 친구와 편하게 이야기할 때 방언을 쓰면 어떤 느낌을 줄 수 있을까요?",
+    "choices": [
+      "무서운 느낌",
+      "친근하고 정다운 느낌",
+      "딱딱한 느낌",
+      "무례한 느낌"
+    ],
+    "answer": 1,
+    "explanation": "같은 지역 사람끼리 방언을 쓰면 더 친근하고 정답게 느껴져요."
+  },
+  {
+    "id": "sd06",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "반 친구들 앞에서 발표할 때 가장 알맞은 말은?",
+    "choices": [
+      "은어",
+      "줄임말",
+      "표준어",
+      "우리 동네 사람만 아는 방언"
+    ],
+    "answer": 2,
+    "explanation": "발표처럼 여러 사람 앞에서 공식적으로 말할 때는 표준어가 알맞아요."
+  },
+  {
+    "id": "sd07",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "표준어를 정해 두면 좋은 점은 무엇일까요?",
+    "choices": [
+      "방언을 쓰면 벌을 받는다",
+      "사는 지역이 달라도 서로 뜻이 잘 통한다",
+      "다른 나라 말을 쓸 수 있다",
+      "말이 길어진다"
+    ],
+    "answer": 1,
+    "explanation": "지역마다 말이 달라 생기는 불편을 줄이고 서로 잘 통하게 하려고 표준어를 정해요."
+  },
+  {
+    "id": "sd08",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘혼저 옵서예’의 뜻은?",
+    "choices": [
+      "어서 오세요",
+      "안녕히 가세요",
+      "잘 먹겠습니다",
+      "고맙습니다"
+    ],
+    "answer": 0,
+    "explanation": "‘혼저 옵서예’는 손님을 맞이하는 제주 말로 ‘어서 오세요’라는 뜻이에요."
+  },
+  {
+    "id": "sd09",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘할망’은 표준어로 무엇일까요?",
+    "choices": [
+      "아주머니",
+      "아기",
+      "할머니",
+      "할아버지"
+    ],
+    "answer": 2,
+    "explanation": "제주에서는 할머니를 ‘할망’이라고 해요."
+  },
+  {
+    "id": "sd10",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘하르방’은 표준어로 무엇일까요?",
+    "choices": [
+      "할머니",
+      "할아버지",
+      "삼촌",
+      "아버지"
+    ],
+    "answer": 1,
+    "explanation": "제주에서는 할아버지를 ‘하르방’이라고 해요. 돌하르방은 할아버지 모습의 돌 조각이에요."
+  },
+  {
+    "id": "sd11",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘할매’는 표준어로 무엇일까요?",
+    "choices": [
+      "언니",
+      "할머니",
+      "아줌마",
+      "엄마"
+    ],
+    "answer": 1,
+    "explanation": "경상 지역에서는 할머니를 ‘할매’라고 해요."
+  },
+  {
+    "id": "sd12",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘그려유’의 뜻으로 알맞은 것은?",
+    "choices": [
+      "싫어요",
+      "없어요",
+      "몰라요",
+      "그래요"
+    ],
+    "answer": 3,
+    "explanation": "충청 지역에서는 말끝에 ‘~유’를 붙여 ‘그려유(그래요)’처럼 말해요."
+  },
+  {
+    "id": "sd13",
+    "category": "방언의 좋은 점",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "방언은 틀린 말이라서 쓰면 안 된다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 1,
+    "explanation": "방언도 그 지역 사람들이 오랫동안 써 온 소중한 우리말이에요. 상황에 맞게 쓰면 돼요."
+  },
+  {
+    "id": "sd14",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "표준어는 현대 서울말을 바탕으로 정했다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 0,
+    "explanation": "표준어는 교양 있는 사람들이 두루 쓰는 현대 서울말로 정했어요."
+  },
+  {
+    "id": "sd15",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "다른 지역에서 온 사람에게 길을 알려 줄 때 가장 알맞은 말은?",
+    "choices": [
+      "우리 동네 방언만",
+      "은어",
+      "줄임말",
+      "표준어"
+    ],
+    "answer": 3,
+    "explanation": "처음 만난 다른 지역 사람도 잘 알아듣도록 표준어로 말하는 것이 좋아요."
+  },
+  {
+    "id": "sd16",
+    "category": "언제 쓸까?",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "교과서나 학교 안내 방송처럼 모든 사람이 보고 듣는 곳에 쓰는 말은?",
+    "choices": [
+      "사투리",
+      "유행어",
+      "방언",
+      "표준어"
+    ],
+    "answer": 3,
+    "explanation": "누구나 이해할 수 있도록 교과서와 안내 방송에는 표준어를 써요."
+  },
+  {
+    "id": "sd17",
+    "category": "방언의 좋은 점",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "방언에 담겨 있는 것으로 알맞은 것은?",
+    "choices": [
+      "수학 규칙",
+      "다른 나라의 문화",
+      "그 지역 사람들의 생활과 문화",
+      "과학 공식"
+    ],
+    "answer": 2,
+    "explanation": "방언에는 그 지역 사람들의 생활 모습과 문화, 정서가 담겨 있어요."
+  },
+  {
+    "id": "sd18",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘억수로’의 뜻은?",
+    "choices": [
+      "천천히",
+      "조금",
+      "나중에",
+      "매우, 아주"
+    ],
+    "answer": 3,
+    "explanation": "‘억수로 덥다’는 ‘매우 덥다’라는 뜻이에요."
+  },
+  {
+    "id": "sd19",
+    "category": "방언 → 표준어",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘하영’의 뜻은?",
+    "choices": [
+      "많이",
+      "늦게",
+      "빨리",
+      "적게"
+    ],
+    "answer": 0,
+    "explanation": "제주에서는 ‘많이’를 ‘하영’이라고 해요."
+  },
+  {
+    "id": "sd20",
+    "category": "방언의 좋은 점",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "방언을 쓰면 다른 지역 사람이 뜻을 알아듣기 어려울 때가 있다. (맞아요/아니에요)",
+    "choices": [
+      "맞아요",
+      "아니에요"
+    ],
+    "answer": 0,
+    "explanation": "방언은 그 지역 사람이 아니면 뜻을 모를 수 있어서, 여러 지역 사람이 함께할 때는 표준어가 좋아요."
+  },
+  {
+    "id": "sd21",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상·충청 지역에서 ‘정구지’라고 부르는 채소는 무엇일까요?",
+    "choices": [
+      "배추",
+      "시금치",
+      "부추",
+      "상추"
+    ],
+    "answer": 2,
+    "explanation": "‘정구지’는 부추를 가리키는 방언이에요. 정구지 부침개 = 부추전!"
+  },
+  {
+    "id": "sd22",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘단디 해라’의 뜻으로 알맞은 것은?",
+    "choices": [
+      "천천히 해라",
+      "단단히(제대로) 해라",
+      "하지 마라",
+      "빨리 해라"
+    ],
+    "answer": 1,
+    "explanation": "‘단디’는 ‘단단히, 제대로, 잘’이라는 뜻이에요."
+  },
+  {
+    "id": "sd23",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘니 밥 뭇나?’를 표준어로 바르게 바꾼 것은?",
+    "choices": [
+      "너 밥 할래?",
+      "너 밥 줄까?",
+      "너 밥 남겼니?",
+      "너 밥 먹었니?"
+    ],
+    "answer": 3,
+    "explanation": "‘니’는 ‘너’, ‘뭇나’는 ‘먹었니’라는 뜻이에요."
+  },
+  {
+    "id": "sd24",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘가가 가가?’의 뜻은?",
+    "choices": [
+      "가게에 가니?",
+      "가방이 가볍니?",
+      "가자, 가자!",
+      "그 아이가 그 아이니?"
+    ],
+    "answer": 3,
+    "explanation": "‘가’는 ‘그 아이’를 줄인 말이에요. ‘가가 가가?’ = ‘그 아이가 그 아이니?’"
+  },
+  {
+    "id": "sd25",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘워디 가유?’를 표준어로 바꾸면?",
+    "choices": [
+      "왜 가요?",
+      "어디 가요?",
+      "언제 가요?",
+      "누구랑 가요?"
+    ],
+    "answer": 1,
+    "explanation": "‘워디’는 ‘어디’, ‘~유’는 ‘~요’예요."
+  },
+  {
+    "id": "sd26",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘냅둬유’의 뜻은?",
+    "choices": [
+      "내버려 두세요",
+      "나눠 주세요",
+      "넣어 두세요",
+      "내려 주세요"
+    ],
+    "answer": 0,
+    "explanation": "‘냅둬유’는 ‘내버려 두세요’라는 뜻이에요."
+  },
+  {
+    "id": "sd27",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "전라 방언 ‘포도시’의 뜻은?",
+    "choices": [
+      "겨우",
+      "가득",
+      "일찍",
+      "포도처럼"
+    ],
+    "answer": 0,
+    "explanation": "‘포도시 왔다’는 ‘겨우 왔다’라는 뜻이에요."
+  },
+  {
+    "id": "sd28",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "전라 방언 ‘허벌나게 좋다’의 뜻은?",
+    "choices": [
+      "매우 좋다",
+      "싫다",
+      "그저 그렇다",
+      "조금 좋다"
+    ],
+    "answer": 0,
+    "explanation": "‘허벌나게’는 ‘매우, 굉장히’라는 뜻이에요."
+  },
+  {
+    "id": "sd29",
+    "category": "어느 지역 말일까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "‘혼저 옵서예’, ‘폭삭 속았수다’는 어느 지역 방언일까요?",
+    "choices": [
+      "충청도",
+      "강원도",
+      "제주도",
+      "경기도"
+    ],
+    "answer": 2,
+    "explanation": "‘~예’, ‘~수다’로 끝나는 말은 제주 방언의 특징이에요."
+  },
+  {
+    "id": "sd30",
+    "category": "어느 지역 말일까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "말끝에 ‘~유’를 붙여 ‘그려유’, ‘몰라유’처럼 말하는 것으로 잘 알려진 지역은?",
+    "choices": [
+      "제주도",
+      "경상도",
+      "강원도",
+      "충청도"
+    ],
+    "answer": 3,
+    "explanation": "‘~유’로 끝나는 말투는 충청 방언의 특징이에요."
+  },
+  {
+    "id": "sd31",
+    "category": "어느 지역 말일까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "‘머라카노?’, ‘억수로’처럼 말하는 것으로 잘 알려진 지역은?",
+    "choices": [
+      "전라도",
+      "경상도",
+      "충청도",
+      "제주도"
+    ],
+    "answer": 1,
+    "explanation": "‘머라카노(뭐라고 하니)’, ‘억수로(매우)’는 경상 방언이에요."
+  },
+  {
+    "id": "sd32",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘폭삭 속았수다’의 뜻은?",
+    "choices": [
+      "완전히 속았습니다",
+      "푹 쉬세요",
+      "수고 많으셨습니다",
+      "배가 고픕니다"
+    ],
+    "answer": 2,
+    "explanation": "‘속다’는 제주 말로 ‘수고하다’예요. ‘폭삭 속았수다’ = ‘수고 많으셨습니다’."
+  },
+  {
+    "id": "sd33",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "제주 방언 ‘놀멍 쉬멍’의 뜻은?",
+    "choices": [
+      "놀면서 쉬면서",
+      "놀다가 멍하니",
+      "노래하며 춤추며",
+      "놀지 말고 쉬지 말고"
+    ],
+    "answer": 0,
+    "explanation": "제주 말 ‘~멍’은 ‘~면서’라는 뜻이에요."
+  },
+  {
+    "id": "sd34",
+    "category": "언제 쓸까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "다음 중 표준어를 쓰는 것이 가장 알맞은 상황은?",
+    "choices": [
+      "같은 동네 친구와 놀이",
+      "할머니와 집에서 나누는 대화",
+      "고향 친구와 전화 통화",
+      "전국에 방송되는 일기 예보"
+    ],
+    "answer": 3,
+    "explanation": "전국 사람이 함께 듣는 방송에서는 표준어를 써야 모두 알아들을 수 있어요."
+  },
+  {
+    "id": "sd35",
+    "category": "언제 쓸까?",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "다음 중 방언을 써도 자연스러운 상황은?",
+    "choices": [
+      "교과서에 실을 글",
+      "학급 회의에서 의견 발표",
+      "같은 고향 가족끼리 나누는 이야기",
+      "전국 뉴스"
+    ],
+    "answer": 2,
+    "explanation": "가족이나 같은 지역 사람끼리는 방언을 써도 잘 통하고 정다워요."
+  },
+  {
+    "id": "sd36",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "제주 방언 ‘할망’을 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "할머니",
+    "explanation": "제주에서는 할머니를 ‘할망’, 할아버지를 ‘하르방’이라고 해요."
+  },
+  {
+    "id": "sd37",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "경상·충청 지역에서 ‘정구지’라고 부르는 채소의 표준어 이름을 써 보세요.",
+    "choices": [],
+    "answer": "부추",
+    "explanation": "‘정구지’는 부추의 방언이에요."
+  },
+  {
+    "id": "sd38",
+    "category": "방언의 좋은 점",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "지역 축제 홍보물에 그 지역 방언을 넣었을 때 좋은 점은?",
+    "choices": [
+      "아무도 못 알아들어 신비롭다",
+      "글자 수가 줄어든다",
+      "표준어를 배우지 않아도 된다",
+      "지역의 특색과 친근함이 느껴진다"
+    ],
+    "answer": 3,
+    "explanation": "방언은 그 지역만의 개성과 정다움을 보여 줘서 홍보에 잘 어울려요."
+  },
+  {
+    "id": "sd39",
+    "category": "방언의 좋은 점",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "‘방언은 쓰면 안 되고 표준어만 써야 한다’는 생각에 대한 알맞은 의견은?",
+    "choices": [
+      "상황에 따라 표준어와 방언을 알맞게 골라 쓴다",
+      "방언은 어른만 쓸 수 있다",
+      "표준어는 서울 사람만 쓴다",
+      "방언은 모두 없애야 한다"
+    ],
+    "answer": 0,
+    "explanation": "공식적인 자리에서는 표준어를, 가족·이웃과는 방언도 쓰며 상황에 맞게 골라 쓰면 돼요."
+  },
+  {
+    "id": "sd40",
+    "category": "방언 → 표준어",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "충청 방언 ‘그려유, 지가 할게유.’를 표준어로 바르게 바꾼 것은?",
+    "choices": [
+      "그래요, 제가 할게요.",
+      "글쎄요, 제가 할까요?",
+      "그래요, 지금 할게요.",
+      "그러니까, 저기 할게요."
+    ],
+    "answer": 0,
+    "explanation": "‘그려유’는 ‘그래요’, ‘지가’는 ‘제가’, ‘할게유’는 ‘할게요’예요."
+  },
+  {
+    "id": "sd41",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "표준어의 뜻을 가장 바르게 말한 것은?",
+    "choices": [
+      "옛날 임금이 쓰던 말",
+      "사람이 가장 많이 사는 지역의 말",
+      "서울에 사는 모든 사람이 쓰는 말",
+      "교양 있는 사람들이 두루 쓰는 현대 서울말로 정한 말"
+    ],
+    "answer": 3,
+    "explanation": "표준어 = 교양 있는 사람들이 / 두루 쓰는 / 현대 / 서울말. 네 가지를 모두 기억해요."
+  },
+  {
+    "id": "sd42",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "표준어를 정하는 기준에 들어가지 않는 것은?",
+    "choices": [
+      "교양 있는 사람들이 쓰는 말일 것",
+      "가장 오래된 옛날 말일 것",
+      "두루 쓰는 말일 것",
+      "현대 서울말일 것"
+    ],
+    "answer": 1,
+    "explanation": "표준어는 옛말이 아니라 ‘현대’ 서울말을 바탕으로 정해요."
+  },
+  {
+    "id": "sd43",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "방언에는 지역에 따라 다른 말 말고도, 나이·직업처럼 사회 집단에 따라 다른 말도 있어요. 이런 말을 무엇이라고 할까요?",
+    "choices": [
+      "표준 방언",
+      "고유 방언",
+      "외래 방언",
+      "사회 방언"
+    ],
+    "answer": 3,
+    "explanation": "지역에 따라 다른 말은 지역 방언, 나이·직업 등 사회 집단에 따라 다른 말은 사회 방언이에요."
+  },
+  {
+    "id": "sd44",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 중 ‘사회 방언’의 예로 알맞은 것은?",
+    "choices": [
+      "제주 사람이 쓰는 ‘하영’",
+      "충청 지역의 ‘그려유’",
+      "의사들끼리 쓰는 전문 용어",
+      "경상 지역의 ‘억수로’"
+    ],
+    "answer": 2,
+    "explanation": "직업이나 나이처럼 사회 집단에 따라 달라지는 말이 사회 방언이에요. 나머지는 지역 방언이에요."
+  },
+  {
+    "id": "sd45",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 문장에서 방언인 낱말은? “오늘 날씨가 억수로 덥다.”",
+    "choices": [
+      "날씨가",
+      "덥다",
+      "오늘",
+      "억수로"
+    ],
+    "answer": 3,
+    "explanation": "‘억수로’는 ‘매우’라는 뜻의 경상 방언이에요."
+  },
+  {
+    "id": "sd46",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다음 문장에서 방언을 모두 고른 것은? “할매가 정구지 부침개를 해 주셨다.”",
+    "choices": [
+      "할매, 정구지",
+      "모두 표준어이다",
+      "부침개",
+      "해 주셨다"
+    ],
+    "answer": 0,
+    "explanation": "‘할매’는 할머니, ‘정구지’는 부추의 방언이에요."
+  },
+  {
+    "id": "sd47",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "경상 방언 ‘머라카노?’를 표준어로 바르게 바꾼 것은?",
+    "choices": [
+      "멀리 가니?",
+      "뭐라고 하니?",
+      "뭘 가지고 왔니?",
+      "머리가 아프니?"
+    ],
+    "answer": 1,
+    "explanation": "‘머라카노’는 ‘뭐라고 하니(뭐라고 하는 거야)’라는 뜻이에요."
+  },
+  {
+    "id": "sd48",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "전라 방언 “오메, 겁나 좋네잉!”을 표준어로 바꾼 것은?",
+    "choices": [
+      "오늘 좋은 날이네!",
+      "어머, 겁이 나네!",
+      "어머니, 무서워요!",
+      "어머, 정말 좋네!"
+    ],
+    "answer": 3,
+    "explanation": "‘오메’는 ‘어머’, ‘겁나’는 ‘매우·정말’이라는 뜻이에요. 무섭다는 뜻이 아니에요!"
+  },
+  {
+    "id": "sd49",
+    "category": "방언의 좋은 점",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "‘방언은 우리말을 풍부하게 한다’는 말의 뜻으로 알맞은 것은?",
+    "choices": [
+      "표준어보다 방언이 더 바른 말이다",
+      "방언은 외국어에서 들어왔다",
+      "방언을 쓰면 말이 길어진다",
+      "같은 것을 가리키는 여러 지역 말이 있어 우리말의 낱말과 표현이 다양해진다"
+    ],
+    "answer": 3,
+    "explanation": "부추를 정구지·솔 등으로 부르듯 지역마다 다양한 말이 있어 우리말이 풍부해져요."
+  },
+  {
+    "id": "sd50",
+    "category": "방언의 좋은 점",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "표준어와 방언에 대한 설명으로 알맞지 않은 것은?",
+    "choices": [
+      "표준어는 공식적인 자리에서 쓰기 좋다",
+      "방언에는 지역의 문화가 담겨 있다",
+      "방언은 표준어보다 못한 잘못된 말이다",
+      "상황에 맞게 골라 써야 한다"
+    ],
+    "answer": 2,
+    "explanation": "방언은 잘못된 말이 아니라 지역의 소중한 우리말이에요."
+  },
+  {
+    "id": "sd51",
+    "category": "언제 쓸까?",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "다른 지역 학교 친구들과 함께 쓰는 인터넷 게시판에 공지를 쓸 때 가장 알맞은 것은?",
+    "choices": [
+      "표준어로 써서 누구나 알아보게 한다",
+      "우리 지역 방언으로만 쓴다",
+      "소리 나는 대로 쓴다",
+      "줄임말로 짧게 쓴다"
+    ],
+    "answer": 0,
+    "explanation": "여러 지역 사람이 함께 읽는 글은 표준어로 써야 모두 정확히 이해할 수 있어요."
+  },
+  {
+    "id": "sd52",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "교양 있는 사람들이 두루 쓰는 현대 서울말로 정한 말을 무엇이라고 할까요? (세 글자)",
+    "choices": [],
+    "answer": "표준어",
+    "explanation": "이 말을 표준어라고 해요."
+  },
+  {
+    "id": "sd53",
+    "category": "표준어와 방언의 뜻",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "방언을 다른 말로 무엇이라고 할까요? (세 글자)",
+    "choices": [],
+    "answer": "사투리",
+    "explanation": "방언을 흔히 사투리라고 불러요."
+  },
+  {
+    "id": "sd54",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "충청 방언 ‘워디’를 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "어디",
+    "explanation": "‘워디 가유?’ = ‘어디 가요?’"
+  },
+  {
+    "id": "sd55",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "제주 방언 ‘하영’을 표준어로 써 보세요.",
+    "choices": [],
+    "answer": "많이",
+    "explanation": "‘하영 먹읍서’ = ‘많이 드세요’"
+  },
+  {
+    "id": "sd56",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "‘하르방’과 ‘할망’을 표준어로 함께 바꾸면?",
+    "choices": [
+      "할아버지와 할머니",
+      "오빠와 언니",
+      "삼촌과 이모",
+      "아버지와 어머니"
+    ],
+    "answer": 0,
+    "explanation": "제주 방언 하르방 = 할아버지, 할망 = 할머니."
+  },
+  {
+    "id": "sd57",
+    "category": "어느 지역 말일까?",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "강원 지역 방언으로 잘 알려진 말투는?",
+    "choices": [
+      "‘~했어유’",
+      "‘~했노’",
+      "‘~했수다’",
+      "‘~했드래요’"
+    ],
+    "answer": 3,
+    "explanation": "‘~드래요’는 강원, ‘~수다’는 제주, ‘~유’는 충청, ‘~노’는 경상 말투로 잘 알려져 있어요."
+  },
+  {
+    "id": "sd58",
+    "category": "어느 지역 말일까?",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "말끝 표현과 지역을 바르게 짝지은 것은?",
+    "choices": [
+      "~수다 – 경상도",
+      "~노 – 제주도",
+      "~드래요 – 전라도",
+      "~유 – 충청도"
+    ],
+    "answer": 3,
+    "explanation": "~유(충청), ~수다(제주), ~노(경상), ~드래요(강원)로 짝지어야 해요."
+  },
+  {
+    "id": "sd59",
+    "category": "방언 → 표준어",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "할머니께서 경상 방언으로 “마이 무라.” 하셨어요. 무슨 뜻일까요?",
+    "choices": [
+      "많이 먹어라",
+      "마음대로 해라",
+      "문을 닫아라",
+      "마이크를 잡아라"
+    ],
+    "answer": 0,
+    "explanation": "‘마이’는 ‘많이’, ‘무라’는 ‘먹어라’라는 뜻이에요."
+  },
+  {
+    "id": "sd60",
+    "category": "방언의 좋은 점",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "표준어와 방언을 쓰는 태도로 가장 바른 것은?",
+    "choices": [
+      "공식적인 자리에서는 표준어를, 가족·이웃과는 방언도 정답게 쓴다",
+      "방언을 쓰는 친구를 놀린다",
+      "언제나 방언만 쓴다",
+      "표준어를 모르는 척한다"
+    ],
+    "answer": 0,
+    "explanation": "두 말 모두 소중해요. 상황과 듣는 사람에 맞게 골라 쓰는 것이 바른 태도예요."
+  }
+]
