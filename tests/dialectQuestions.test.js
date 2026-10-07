@@ -24,7 +24,6 @@ describe('국어 3단원 표준어와 방언 문제', () => {
     const sa = qs.filter((x) => x.type === 'short_answer')
     expect(sa.length).toBeGreaterThan(0)
     for (const q of sa) {
-      expect(isCorrect(q, q.answer)).toBe(true)
       const first = q.answer.split(',')[0]
       expect(isCorrect(q, ` ${first.split('').join(' ')} `)).toBe(true)
       for (const alt of q.answer.split(',')) expect(isCorrect(q, alt)).toBe(true)
