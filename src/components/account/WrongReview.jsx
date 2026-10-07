@@ -43,7 +43,15 @@ export default function WrongReview({ onBack }) {
     }
   }, [me?.username])
 
-  const list = useMemo(() => (book ? reviewList(book) : []), [book])
+  const allList = useMemo(() => (book ? reviewList(book) : []), [book])
+  // 단원별 보기 — 단원(문제 세트)마다 남은 문제 수
+  const [unit, setUnit] = useState(null) // null = 전체
+  const units = useMemo(() => {
+    const n = {}
+    for (const w of allList) n[w.unit] = (n[w.unit] || 0) + 1
+    return Object.entries(n).sort((a, b) => b[1] - a[1])
+  }, [allList])
+  const list = useMemo(() => (unit ? allList.filter((w) => w.unit === unit) : allList), [allList, unit])
   const player = useMemo(
     () => ({
       name: me ? me.name || me.username : '',
@@ -170,10 +178,26 @@ export default function WrongReview({ onBack }) {
       {!book && !error && <p className="mt-6 animate-pulse text-center font-bold text-amber-700">불러오는 중…</p>}
       {book && (
         <>
-          <div className="mt-4 grid grid-cols-2 gap-2 text-center">
+          {/* 단원 고르기 */}
+          {units.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {[[null, allList.length], ...units].map(([u, n]) => (
+                <button
+                  key={u || 'all'}
+                  onClick={() => setUnit(u)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
+                    unit === u ? 'bg-violet-600 text-white shadow' : 'bg-violet-50 text-violet-800 hover:bg-violet-100'
+                  }`}
+                >
+                  {u || '전체'} <span className="opacity-80">{n}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="mt-3 grid grid-cols-2 gap-2 text-center">
             <div className="rounded-2xl bg-rose-50 p-3">
               <div className="text-2xl font-black text-rose-600">{list.length}</div>
-              <div className="text-xs font-bold text-rose-700">다시 풀 문제</div>
+              <div className="text-xs font-bold text-rose-700">다시 풀 문제{unit ? ' (이 단원)' : ''}</div>
             </div>
             <div className="rounded-2xl bg-violet-50 p-3">
               <div className="text-2xl font-black text-violet-600">{book.mastered || 0}</div>
@@ -190,7 +214,7 @@ export default function WrongReview({ onBack }) {
                 {list.map((w) => (
                   <li key={w.key} className="rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-950">
                     <div className="flex items-center justify-between gap-2 text-[11px] font-bold text-amber-700">
-                      <span>{w.question.category || '문제'}</span>
+                      <span className="truncate">{unit ? '' : `${w.unit} · `}{w.question.category || '문제'}</span>
                       <span>
                         {w.count}번 틀림{w.streak ? ` · ⭕${w.streak}` : ''}
                       </span>

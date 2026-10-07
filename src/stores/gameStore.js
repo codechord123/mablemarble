@@ -464,7 +464,11 @@ export const useGameStore = create((set, get) => ({
     const correct = isCorrect(currentQuestion, answer)
     correct ? sfx.correct() : sfx.wrong()
     const account = players[currentTurn].account
-    if (account) recordFor(account.slot, currentQuestion, correct, players[currentTurn].name)
+    if (account) {
+      // 어느 단원 문제였는지 함께 저장 (오답 노트·선생님 통계를 단원별로)
+      const unit = currentQuestion.unit || useQuestionStore.getState().activeUnit
+      recordFor(account.slot, { ...currentQuestion, unit }, correct, players[currentTurn].name)
+    }
     let message = ''
     let postAction = 'end-turn'
     let event = null

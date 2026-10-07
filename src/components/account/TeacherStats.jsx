@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { accountApi, useAccount } from '../../account/store.js'
-import { summarize } from '../../account/classStats.js'
+import { summarize, unitsOf } from '../../account/classStats.js'
 import { formatAnswer } from '../game/ResultBanner.jsx'
 import MathText from '../ui/MathText.jsx'
 import GameButton from '../ui/GameButton.jsx'
@@ -16,17 +16,19 @@ const ago = (t) => {
 // 선생님 — 우리 반 부르마블 통계 (정답률·영역별·많이 틀린 문제·학생별 오답 노트)
 export default function TeacherStats({ onBack }) {
   const me = useAccount((s) => s.me)
-  const [data, setData] = useState(null)
+  const [rows, setRows] = useState(null)
+  const [unit, setUnit] = useState(null) // null = 전체 단원
+  const data = rows ? summarize(rows, unit) : null
+  const units = rows ? unitsOf(rows) : []
   const [error, setError] = useState(null)
   const [openQ, setOpenQ] = useState(null)
 
   async function load() {
     setError(null)
-    setData(null)
+    setRows(null)
     try {
       const a = await accountApi()
-      const rows = await a.loadClassProgress(me.classId)
-      setData(summarize(rows))
+      setRows(await a.loadClassProgress(me.classId))
     } catch (e) {
       console.warn(e)
       setError('기록을 불러오지 못했어요. 인터넷을 확인하고 다시 눌러 주세요')
@@ -60,9 +62,26 @@ export default function TeacherStats({ onBack }) {
         )}
         {me?.role === 'teacher' && !data && !error && <p className="mt-8 animate-pulse text-center font-bold text-amber-700">불러오는 중…</p>}
 
+        {/* 단원 고르기 */}
+        {units.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {[null, ...units].map((u) => (
+              <button
+                key={u || 'all'}
+                onClick={() => setUnit(u)}
+                className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
+                  unit === u ? 'bg-amber-600 text-white shadow' : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
+                }`}
+              >
+                {u || '전체 단원'}
+              </button>
+            ))}
+          </div>
+        )}
+
         {data && data.totals.students === 0 && (
           <p className="mt-8 text-center font-bold text-amber-800">
-            아직 기록이 없어요. 아이들이 게임 설정에서 아이디를 연결하고 문제를 풀면 여기에 모여요.
+            {unit ? '이 단원은 아직 기록이 없어요.' : '아직 기록이 없어요. 아이들이 게임 설정에서 아이디를 연결하고 문제를 풀면 여기에 모여요.'}
           </p>
         )}
 
@@ -114,6 +133,7 @@ export default function TeacherStats({ onBack }) {
                         <div className="flex items-start gap-2">
                           <span className="font-black text-rose-600">{i + 1}</span>
                           <span className="flex-1 font-semibold text-slate-800">
+                            {!unit && <span className="mr-1 text-[11px] font-bold text-rose-500">[{w.unit}]</span>}
                             <MathText>{w.question.question}</MathText>
                           </span>
                           <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-black text-rose-700">{w.students}명</span>

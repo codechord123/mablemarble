@@ -12,6 +12,7 @@ export const useQuestionStore = create((set, get) => ({
   sets: [],
   selectedSetId: DEFAULT_BUNDLED_ID,
   activeQuestions: getBundledSet(DEFAULT_BUNDLED_ID).questions,
+  activeUnit: getBundledSet(DEFAULT_BUNDLED_ID).name, // 지금 고른 단원 이름 — 오답 노트에 함께 저장
 
   async refresh() {
     try {
@@ -33,7 +34,7 @@ export const useQuestionStore = create((set, get) => ({
     if (typeof id === 'string' && id.startsWith('bundled:')) {
       const bundled = getBundledSet(id)
       if (bundled) {
-        set({ selectedSetId: id, activeQuestions: bundled.questions })
+        set({ selectedSetId: id, activeQuestions: bundled.questions, activeUnit: bundled.name })
         return
       }
     }
@@ -42,11 +43,13 @@ export const useQuestionStore = create((set, get) => ({
       set({
         selectedSetId: DEFAULT_BUNDLED_ID,
         activeQuestions: getBundledSet(DEFAULT_BUNDLED_ID).questions,
+        activeUnit: getBundledSet(DEFAULT_BUNDLED_ID).name,
       })
       return
     }
     const questions = await loadQuestions(id)
-    set({ selectedSetId: id, activeQuestions: questions })
+    const meta = get().sets.find((s) => s.id === id)
+    set({ selectedSetId: id, activeQuestions: questions, activeUnit: meta?.name || '직접 올린 문제' })
   },
 
   async deleteSet(id) {
