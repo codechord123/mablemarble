@@ -534,16 +534,14 @@ export const useGameStore = create((set, get) => ({
         ? `건너뛰기 성공! +${SKIP_QUIZ.win}원`
         : `건너뛰기 — 오답 -${SKIP_QUIZ.lose}원`
     } else if (pendingAction.type === 'toll-quiz') {
-      // 맞히면 낸 통행료의 절반을 땅 주인에게서 돌려받는다
+      // 맞히면 낸 통행료의 30%를 은행에서 돌려받는다 (땅 주인 돈은 그대로)
       const refund = correct ? tollRefund(pendingAction.paid) : 0
-      const ownerId = pendingAction.ownerId
-      if (refund > 0 && ownerId != null && updatedPlayers[ownerId]) {
+      if (refund > 0) {
         updatedPlayers[currentTurn] = { ...updatedPlayers[currentTurn], money: updatedPlayers[currentTurn].money + refund }
-        updatedPlayers[ownerId] = { ...updatedPlayers[ownerId], money: updatedPlayers[ownerId].money - refund }
       }
       message = correct
         ? refund > 0
-          ? `정답! 통행료 절반 ${refund.toLocaleString()}원을 돌려받아요`
+          ? `정답! 은행에서 통행료의 30% ${refund.toLocaleString()}원을 돌려받아요`
           : '정답! 잘했어요'
         : '아쉬워요! 통행료는 그대로예요. 풀이를 확인해 봐요'
     } else if (pendingAction.type === 'bonus-question') {

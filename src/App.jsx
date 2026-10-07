@@ -49,7 +49,7 @@ function stakeLabel(action) {
   if (action?.type === 'skip-quiz') return `맞히면 +${SKIP_QUIZ.win}원 · 틀리면 −${SKIP_QUIZ.lose}원`
   if (action?.type === 'toll-quiz')
     return action.paid > 0
-      ? `통행료 ${action.paid.toLocaleString()}원 냈어요 · 맞히면 절반 ${tollRefund(action.paid).toLocaleString()}원 돌려받기`
+      ? `통행료 ${action.paid.toLocaleString()}원 냈어요 · 맞히면 은행에서 30%(${tollRefund(action.paid).toLocaleString()}원) 돌려받기`
       : '통행료는 면제 · 문제는 꼭 풀어요'
   if (!action?.difficulty) return null
   const stars = '★'.repeat(action.difficulty)

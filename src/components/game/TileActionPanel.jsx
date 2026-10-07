@@ -116,7 +116,7 @@ export default function TileActionPanel({ tile, player, players, ownership, last
           )}
           <span>· 통행료 <strong>{toll.toLocaleString()}원</strong></span>
         </div>
-        <div className="text-xs font-bold text-rose-700">통행료를 낸 뒤 문제를 꼭 풀어요 · 맞히면 절반({tollRefund(toll).toLocaleString()}원)을 돌려받아요</div>
+        <div className="text-xs font-bold text-rose-700">통행료를 낸 뒤 문제를 꼭 풀어요 · 맞히면 은행에서 30%({tollRefund(toll).toLocaleString()}원)를 돌려받아요</div>
         {(mono || festival) && (
           <div className="flex gap-1.5 flex-wrap justify-center text-xs font-black">
             {mono && <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">👑 라인 독점 ×2</span>}

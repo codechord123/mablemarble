@@ -70,8 +70,8 @@ export const DIFFICULTY_DISCOUNT = { 1: 0, 2: 0.1, 3: 0.25 } // 땅 사기·건�
 // 빈 땅을 사지 않고 넘어갈 때도 문제를 푼다. 맞히면 조금 벌고, 틀리면 조금 잃는다.
 export const SKIP_QUIZ = { win: 50, lose: 30 }
 // 남의 땅 통행료 문제 — 통행료는 먼저 다 내고, 문제는 꼭 푼다(면제 없음).
-// 맞히면 낸 통행료의 절반을 땅 주인에게서 돌려받는다. 틀리면 그대로(더 잃지 않음).
-export const TOLL_QUIZ = { refundRate: 0.5 }
+// 맞히면 낸 통행료의 30%를 은행에서 돌려받는다(땅 주인은 다 받은 그대로). 틀리면 그대로(더 잃지 않음).
+export const TOLL_QUIZ = { refundRate: 0.3 }
 export const tollRefund = (paid) => Math.round((paid || 0) * TOLL_QUIZ.refundRate)
 
 function costFactor(roundEvent, difficulty) {
