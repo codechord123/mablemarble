@@ -3,7 +3,7 @@ import { useQuestionStore } from '../../stores/questionStore.js'
 import { AVATARS, DEFAULT_AVATAR, nextAvailableAvatar } from '../../data/avatars.js'
 import AnimalFace, { animalLabel } from '../ui/AnimalFace.jsx'
 import { GAME_MODES, DEFAULT_MODE } from '../../data/gameModes.js'
-import { loadLastSetup } from '../../utils/persistence.js'
+import { loadLastSetup, loadSeen, clearSeen } from '../../utils/persistence.js'
 import GameButton from '../ui/GameButton.jsx'
 import StudentLogin from '../account/StudentLogin.jsx'
 import { loginSeat, logoutSeat, useAccount } from '../../account/store.js'
@@ -36,6 +36,7 @@ function initialMode() {
 export default function GameSetup({ onStart, onBack }) {
   const [players, setPlayers] = useState(initialPlayers)
   const [modeId, setModeId] = useState(initialMode)
+  const [, setSeenEpoch] = useState(0) // '처음부터 다시' 누르면 남은 문제 수를 다시 그린다
   const [linking, setLinking] = useState(null) // 아이디를 연결하는 중인 플레이어 번호
   const me = useAccount((s) => s.me) // 메뉴에서 로그인한 학생 — 비밀번호 없이 한 번에 연결
   const meLinked = me && players.some((p) => p.account?.username === me.username)
@@ -176,7 +177,32 @@ export default function GameSetup({ onStart, onBack }) {
               </optgroup>
             )}
           </select>
-          <div className="text-xs text-gray-500 mt-1">현재 활성: {activeQuestions.length}문제</div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-gray-500">
+            <span>현재 활성: {activeQuestions.length}문제</span>
+            {(() => {
+              // 이 기기에서 아직 안 나온 문제 수 — 다 나오면 처음부터 다시
+              const ids = new Set(activeQuestions.map((q) => q.id))
+              const seen = loadSeen(String(selectedSetId)).filter((id) => ids.has(id)).length
+              if (!seen) return <span>· 모두 새 문제</span>
+              return (
+                <>
+                  <span>· 아직 안 나온 문제 <b className="text-amber-700">{activeQuestions.length - seen}</b>개</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('이 세트의 문제를 처음부터 다시 낼까요? (이미 나온 문제도 다시 나올 수 있어요)')) {
+                        clearSeen(String(selectedSetId))
+                        setSeenEpoch((n) => n + 1)
+                      }
+                    }}
+                    className="text-amber-700 underline"
+                  >
+                    처음부터 다시
+                  </button>
+                </>
+              )
+            })()}
+          </div>
         </div>
 
         <label className="block text-sm font-bold text-amber-900 mb-2">플레이어</label>

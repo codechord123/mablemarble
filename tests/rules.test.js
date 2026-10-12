@@ -126,3 +126,27 @@ describe('통행료 문제 (남의 땅)', async () => {
     expect(useGameStore.getState().pendingAction.type).toBe('toll-quiz')
   })
 })
+
+describe('한 번 나온 문제는 다시 안 나오기', async () => {
+  const { useGameStore } = await import('../src/stores/gameStore.js')
+  const { useQuestionStore } = await import('../src/stores/questionStore.js')
+  const { clearSeen, loadSeen } = await import('../src/utils/persistence.js')
+  const pool = Array.from({ length: 6 }, (_, i) => ({ id: `u${i}`, type: 'multiple_choice', difficulty: 1 + (i % 3), question: `q${i}`, choices: ['a', 'b'], answer: 0 }))
+  it('게임을 새로 시작해도 세트의 모든 문제가 한 번씩 나올 때까지 겹치지 않는다', () => {
+    useQuestionStore.setState({ activeQuestions: pool, selectedSetId: 'test-set' })
+    clearSeen('test-set')
+    const asked = []
+    for (let game = 0; game < 3; game++) {
+      useGameStore.getState().initGame([{ name: 'A' }, { name: 'B' }]) // 새 게임 — 게임 안 기록은 비워진다
+      for (let k = 0; k < 2; k++) {
+        useGameStore.getState().attemptSkipQuiz({ id: 1, name: 'x' })
+        asked.push(useGameStore.getState().currentQuestion.id)
+      }
+    }
+    expect(new Set(asked).size).toBe(6)
+    expect(loadSeen('test-set').length).toBe(6)
+    // 다 나온 뒤에는 처음부터 다시
+    useGameStore.getState().attemptSkipQuiz({ id: 1, name: 'x' })
+    expect(loadSeen('test-set').length).toBe(1)
+  })
+})

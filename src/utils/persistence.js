@@ -78,3 +78,39 @@ export function loadLastSetup() {
     return null
   }
 }
+
+// ── 이미 나온 문제 기억 (문제 세트별, 이 기기) ──
+// 게임을 새로 시작해도 같은 문제가 또 나오지 않게, 세트의 모든 문제가 한 번씩 나올 때까지 기억한다.
+const SEEN_KEY = 'boomarble_seen_v1'
+const memSeen = {} // localStorage를 못 쓸 때(시험 환경 등) 대신
+function readSeenAll() {
+  try {
+    if (typeof localStorage === 'undefined') return memSeen
+    return JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {}
+  } catch {
+    return {}
+  }
+}
+function writeSeenAll(all) {
+  try {
+    if (typeof localStorage === 'undefined') return Object.assign(memSeen, all)
+    localStorage.setItem(SEEN_KEY, JSON.stringify(all))
+  } catch {
+    /* 저장 공간이 없으면 이번 게임 안에서만 겹치지 않는다 */
+  }
+}
+export function loadSeen(setKey) {
+  return readSeenAll()[setKey] || []
+}
+export function addSeen(setKey, id) {
+  const all = readSeenAll()
+  const cur = all[setKey] || []
+  if (!cur.includes(id)) all[setKey] = [...cur, id]
+  writeSeenAll(all)
+}
+export function clearSeen(setKey) {
+  const all = readSeenAll()
+  delete all[setKey]
+  if (typeof localStorage === 'undefined') delete memSeen[setKey]
+  writeSeenAll(all)
+}

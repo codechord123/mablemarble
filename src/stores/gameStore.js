@@ -20,7 +20,7 @@ import {
 import { GAME_MODES, DEFAULT_MODE } from '../data/gameModes.js'
 import { useQuestionStore } from './questionStore.js'
 import { sfx } from '../utils/sounds.js'
-import { persistSnapshot, loadSnapshot, clearSnapshot, persistLastSetup } from '../utils/persistence.js'
+import { persistSnapshot, loadSnapshot, clearSnapshot, persistLastSetup, loadSeen, addSeen, clearSeen } from '../utils/persistence.js'
 import { recordFor, verifyLinks, useAccount } from '../account/store.js'
 
 const emptyStats = () => ({ answered: 0, correct: 0, byCategory: {}, wrong: [] })
@@ -434,12 +434,18 @@ export const useGameStore = create((set, get) => ({
   // ─── 문제 흐름 ───
   _askQuestion(pendingAction) {
     const { usedQuestions } = get()
-    const pool = useQuestionStore.getState().activeQuestions
+    const qStore = useQuestionStore.getState()
+    const pool = qStore.activeQuestions
+    // 이 기기에서 지난 게임들에 이미 나온 문제도 빼고 고른다 — 세트의 문제가 모두 한 번씩 나오면 처음부터
+    const setKey = String(qStore.selectedSetId)
+    const seen = new Set([...usedQuestions, ...loadSeen(setKey)])
     const { question: q, poolReset } = pickQuestion(
       pendingAction.difficulty || pendingAction.tile?.difficulty || 2,
-      usedQuestions,
+      [...seen],
       pool,
     )
+    if (poolReset) clearSeen(setKey)
+    addSeen(setKey, q.id)
     // 고른 난이도의 문제가 다 떨어져 다른 난이도 문제가 나오면, 보상도 실제로
     // 나온 문제 난이도에 맞춘다. (쉬움을 골랐는데 보통 문제가 나오면 보통 보상)
     const action = pendingAction.difficulty

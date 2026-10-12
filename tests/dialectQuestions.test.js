@@ -30,4 +30,15 @@ describe('국어 3단원 표준어와 방언 문제', () => {
       expect(isCorrect(q, '모르겠다')).toBe(false)
     }
   })
+  it('문제 글 안에 정답이 그대로 들어 있지 않다 (문장 속 방언 찾기 문제는 빼고)', () => {
+    const strip = (t) => String(t).replace(/[\s.?!’‘“”()~,]/g, '')
+    for (const q of qs) {
+      if (q.question.includes('다음 문장에서') || q.choices.join() === '맞아요,아니에요') continue
+      const answers = q.type === 'short_answer' ? q.answer.split(',') : [q.choices[q.answer]]
+      for (const a of answers) {
+        const core = strip(a)
+        if (core.length >= 2) expect(strip(q.question).includes(core), `${q.id}: ${a}`).toBe(false)
+      }
+    }
+  })
 })
