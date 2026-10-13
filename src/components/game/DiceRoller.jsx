@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useAnimation, useReducedMotion } from 'framer-motion'
 import { impactEl } from '../../utils/juice.js'
+import { burstAt } from '../../utils/fx.js'
+import { sfx } from '../../utils/sounds.js'
 import GameButton from '../ui/GameButton.jsx'
 
 // 주사위 눈 패턴 (3x3 그리드)
@@ -208,6 +210,22 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
   // WebGL이 끊기면 예전 주사위로
   useEffect(() => api?.onLost(() => setApi(null)), [api])
 
+  // 더블! — 주사위가 멈추는 순간 금빛 별이 터진다 (3D든 예전 주사위든)
+  const seenRoll = useRef(lastRoll)
+  const [double, setDouble] = useState(false)
+  useEffect(() => {
+    if (!lastRoll || lastRoll === seenRoll.current) return
+    seenRoll.current = lastRoll
+    setDouble(false)
+    if (!lastRoll.isDouble) return
+    const t = setTimeout(() => {
+      setDouble(true)
+      sfx.double()
+      burstAt(rowRef.current, { count: 70, velocity: 26, scalar: 1.1 })
+    }, Math.round((ROLL_S + STAGGER_S) * 1000))
+    return () => clearTimeout(t)
+  }, [lastRoll])
+
   const handleClick = () => {
     if (rollingRef.current || disabled) return
     rollingRef.current = true
@@ -225,7 +243,7 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
 
   return (
     <div className="dice-roller">
-      <div ref={rowRef} className="flex gap-3">
+      <div ref={rowRef} className={`flex gap-3 ${double ? 'dice-double' : ''}`}>
         {api ? (
           <Dice3D api={api} lastRoll={lastRoll} />
         ) : (
@@ -240,7 +258,7 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
           className="t-display text-amber-900 tabular-nums whitespace-nowrap"
         >
           {lastRoll ? `${lastRoll.d1} + ${lastRoll.d2} = ${lastRoll.total}` : ''}
-          {lastRoll?.isDouble && <span className="ml-1 text-rose-600">더블!</span>}
+          {lastRoll?.isDouble && <span className="double-badge ml-2">더블!</span>}
         </motion.div>
       ) : (
         <GameButton

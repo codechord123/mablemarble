@@ -27,6 +27,7 @@ export default function PlayerCard({ player, isCurrent, underdog = false }) {
 
   return (
     <div
+      data-player-card={player.id}
       className={`player-card relative p-2 sm:p-2.5 rounded-xl border transition-all duration-300 ${
         isCurrent
           ? 'border-amber-400 bg-white breathe-ring scale-[1.02]'
@@ -58,7 +59,7 @@ export default function PlayerCard({ player, isCurrent, underdog = false }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="t-body text-amber-800/70 truncate leading-tight">{player.name}</div>
-          <div className="t-title text-amber-900 tabular-nums flex items-center gap-1 leading-tight">
+          <div data-money className="t-title text-amber-900 tabular-nums flex items-center gap-1 leading-tight">
             <CoinIcon size={15} /> <AnimatedNumber value={player.money} />원
           </div>
         </div>

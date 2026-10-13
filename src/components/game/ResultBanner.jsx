@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import confetti from 'canvas-confetti'
 import MathText from '../ui/MathText.jsx'
 import { shakeEl } from '../../utils/juice.js'
+import { burstAt, cheer, shake } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
 
 export function formatAnswer(q) {
@@ -12,29 +12,31 @@ export function formatAnswer(q) {
   return String(q.answer).split(/[,，]/)[0].trim()
 }
 
-const CONFETTI_COLORS = ['#f59e0b', '#10b981', '#ec4899', '#8b5cf6', '#3b82f6']
-
-function fireCheerConfetti() {
-  // T5 응원 컨페티 — 정답 시 축하 (양쪽 대포 + 중앙 버스트로 더 풍성하게)
-  confetti({ particleCount: 70, spread: 80, origin: { y: 0.4 }, colors: CONFETTI_COLORS, scalar: 0.95 })
-  confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: CONFETTI_COLORS })
-  confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: CONFETTI_COLORS })
-}
-
 export default function ResultBanner({ result, onClose }) {
   const cardRef = useRef(null)
+  const stampRef = useRef(null)
   const win = result && result.correct && !result.timeout
+  const streak = result?.streak || (win ? 1 : 0)
+  // 길게 이어 오던 연속 정답이 끊겼을 때만 알려 준다
+  const broken = result && !win && (result.prevStreak || 0) >= 3 ? result.prevStreak : 0
 
   useEffect(() => {
     if (!result) return
     if (win) {
-      fireCheerConfetti()
-    } else {
-      // 진입 스프링이 자리잡은 뒤 흔들어 transform 충돌 없이 매끈하게
-      const t = setTimeout(() => shakeEl(cardRef.current), 260)
+      // 연속으로 맞힐수록 축하가 커진다 (2연속 양옆 대포, 5연속부터 불꽃놀이)
+      cheer(streak)
+      // ⭕ 도장이 찍히는 순간 그 자리에서 별이 튄다
+      const t = setTimeout(() => burstAt(stampRef.current, { count: 24 + Math.min(40, streak * 8), velocity: 18, scalar: 0.9, shapes: ['star'] }), 220)
       return () => clearTimeout(t)
     }
-  }, [result, win])
+    // 진입 스프링이 자리잡은 뒤 흔들어 transform 충돌 없이 매끈하게.
+    // 뒤의 화면도 쿵 하고 흔들린다.
+    const t = setTimeout(() => {
+      shakeEl(cardRef.current)
+      shake(document.querySelector('.board-scene'), { px: 7, duration: 380 })
+    }, 260)
+    return () => clearTimeout(t)
+  }, [result, win]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AnimatePresence>
@@ -59,7 +61,7 @@ export default function ResultBanner({ result, onClose }) {
             transition={{ type: 'spring', stiffness: 220, damping: 18 }}
             className="relative bg-white rounded-[1.75rem] shadow-2xl ring-1 ring-amber-900/5 p-6 sm:p-8 max-w-xl w-full text-center max-h-[95vh] overflow-y-auto"
           >
-            <div className={`text-7xl sm:text-8xl mb-2 inline-block ${
+            <div ref={stampRef} className={`text-7xl sm:text-8xl mb-2 inline-block ${
               win ? 'juice-stamp' : ''
             } ${
               result.timeout ? 'text-orange-500' : result.correct ? 'text-emerald-500' : 'text-rose-500'
@@ -73,6 +75,19 @@ export default function ResultBanner({ result, onClose }) {
               <div className="text-amber-700 mt-3 text-lg sm:text-xl font-semibold">
                 <MathText>{result.message}</MathText>
               </div>
+            )}
+            {win && !result.combo && streak >= 2 && (
+              <motion.div
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.3, type: 'spring', stiffness: 380, damping: 14 }}
+                className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-100 text-orange-700 font-black text-base"
+              >
+                🔥 {streak}연속 정답! 한 번 더 맞히면 콤보 보너스
+              </motion.div>
+            )}
+            {broken > 0 && (
+              <div className="mt-2 text-sm font-bold text-gray-500">💨 {broken}연속 정답 기록이 끊겼어요. 다시 시작!</div>
             )}
             {result.combo && (
               <motion.div

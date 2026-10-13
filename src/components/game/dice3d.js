@@ -2,16 +2,23 @@
 // WebGL 캔버스는 하나만 만들어 두고, 주사위 칸이 다시 나타나면 그 칸에 옮겨 붙인다.
 // (차례마다 새로 만들면 브라우저의 WebGL 개수 제한에 걸려 화면이 깨질 수 있다.)
 import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
   CanvasTexture,
   Color,
   DirectionalLight,
   HemisphereLight,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   PCFSoftShadowMap,
   PerspectiveCamera,
   PlaneGeometry,
+  Points,
+  PointsMaterial,
   Quaternion,
+  RingGeometry,
   SRGBColorSpace,
   Scene,
   ShadowMaterial,
@@ -72,6 +79,33 @@ function faceTexture(value) {
   return tex
 }
 
+// 반짝이 한 알 — 가운데가 밝은 십자 별
+function sparkTexture() {
+  const S = 64
+  const c = document.createElement('canvas')
+  c.width = c.height = S
+  const g = c.getContext('2d')
+  const glow = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2)
+  glow.addColorStop(0, 'rgba(255,255,255,1)')
+  glow.addColorStop(0.25, 'rgba(255,236,160,0.9)')
+  glow.addColorStop(1, 'rgba(255,190,40,0)')
+  g.fillStyle = glow
+  g.fillRect(0, 0, S, S)
+  g.fillStyle = 'rgba(255,255,255,0.95)'
+  g.beginPath()
+  g.moveTo(S / 2, 2)
+  g.quadraticCurveTo(S / 2 + 3, S / 2 - 3, S - 2, S / 2)
+  g.quadraticCurveTo(S / 2 + 3, S / 2 + 3, S / 2, S - 2)
+  g.quadraticCurveTo(S / 2 - 3, S / 2 + 3, 2, S / 2)
+  g.quadraticCurveTo(S / 2 - 3, S / 2 - 3, S / 2, 2)
+  g.fill()
+  const tex = new CanvasTexture(c)
+  tex.colorSpace = SRGBColorSpace
+  return tex
+}
+
+const SPARKS = 70
+
 let ctx = null
 let failed = false
 
@@ -118,13 +152,38 @@ function build() {
     return m
   })
 
+  // 더블 연출 — 반짝이 알갱이들과 바닥에 퍼지는 금빛 고리 (평소엔 숨겨 둔다)
+  const sparkGeo = new BufferGeometry()
+  sparkGeo.setAttribute('position', new BufferAttribute(new Float32Array(SPARKS * 3), 3))
+  const sparks = new Points(
+    sparkGeo,
+    new PointsMaterial({
+      map: sparkTexture(),
+      size: 0.32,
+      transparent: true,
+      depthWrite: false,
+      blending: AdditiveBlending,
+      color: new Color('#ffe08a'),
+    }),
+  )
+  sparks.visible = false
+  scene.add(sparks)
+  const ring = new Mesh(
+    new RingGeometry(0.82, 1, 48),
+    new MeshBasicMaterial({ color: new Color('#ffc83d'), transparent: true, depthWrite: false, blending: AdditiveBlending }),
+  )
+  ring.rotation.x = -Math.PI / 2
+  ring.position.y = 0.01
+  ring.visible = false
+  scene.add(ring)
+
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault()
     failed = true
     listeners.forEach((fn) => fn())
   })
 
-  return { renderer, canvas, scene, camera, dice, host: null, ro: null, anim: null, raf: 0 }
+  return { renderer, canvas, scene, camera, dice, mats, sparks, ring, host: null, ro: null, raf: 0 }
 }
 
 const listeners = new Set()
@@ -192,16 +251,106 @@ export function detach(host) {
   ctx.ro?.disconnect()
   ctx.ro = null
   cancelAnimationFrame(ctx.raf)
-  ctx.anim = null
+  clearFx()
   if (ctx.canvas.parentNode === host) host.removeChild(ctx.canvas)
   ctx.host = null
 }
 
 const jitter = (n) => (Math.random() * 2 - 1) * n
 
+// 더블 연출을 지운다 (다음 굴림·자리 옮김 전에)
+function clearFx() {
+  if (!ctx) return
+  ctx.mats.forEach((m) => {
+    m.emissiveIntensity = 0
+  })
+  ctx.sparks.visible = false
+  ctx.ring.visible = false
+  if (ctx.camera.zoom !== 1) {
+    ctx.camera.zoom = 1
+    ctx.camera.updateProjectionMatrix()
+  }
+}
+
+const CELEBRATE_MS = 1500
+const GOLD = new Color('#ffb21f')
+
+// 더블! — 두 주사위가 금빛으로 빛나며 콩 뛰고, 반짝이가 솟고, 바닥에 금빛 고리가 퍼지고,
+// 카메라가 살짝 다가갔다 돌아온다. 끝나면 true.
+function celebrateFrame(c, state) {
+  const u = Math.min(1, c / CELEBRATE_MS)
+  if (!state.started) {
+    state.started = true
+    state.base = ctx.dice.map((m) => m.position.y)
+    const pos = ctx.sparks.geometry.attributes.position.array
+    state.vel = new Float32Array(SPARKS * 3)
+    for (let i = 0; i < SPARKS; i++) {
+      const die = ctx.dice[i % 2].position
+      pos[i * 3] = die.x + jitter(0.45)
+      pos[i * 3 + 1] = die.y + 0.3 + Math.random() * 0.3
+      pos[i * 3 + 2] = die.z + jitter(0.45)
+      const a = Math.random() * Math.PI * 2
+      const sp = 0.8 + Math.random() * 1.6
+      state.vel[i * 3] = Math.cos(a) * sp
+      state.vel[i * 3 + 1] = 2.2 + Math.random() * 2.2
+      state.vel[i * 3 + 2] = Math.sin(a) * sp * 0.6
+    }
+    ctx.mats.forEach((m) => m.emissive.copy(GOLD))
+    ctx.sparks.visible = true
+    ctx.ring.visible = true
+    state.last = c
+  }
+  const dt = Math.min(0.05, (c - state.last) / 1000)
+  state.last = c
+
+  // 금빛: 확 켜졌다가 두 번 숨 쉬듯 깜빡이며 꺼진다
+  const glow = u < 0.12 ? u / 0.12 : Math.pow(1 - (u - 0.12) / 0.88, 1.4) * (0.75 + 0.25 * Math.cos(u * Math.PI * 6))
+  ctx.mats.forEach((m) => {
+    m.emissiveIntensity = 0.85 * glow
+  })
+
+  // 콩! 하고 같이 뛴다
+  const hop = c < 380 ? Math.sin((Math.PI * c) / 380) * 0.38 : 0
+  ctx.dice.forEach((m, i) => {
+    m.position.y = state.base[i] + hop
+  })
+
+  // 반짝이
+  const pos = ctx.sparks.geometry.attributes.position.array
+  for (let i = 0; i < SPARKS; i++) {
+    state.vel[i * 3 + 1] -= 5.5 * dt
+    pos[i * 3] += state.vel[i * 3] * dt
+    pos[i * 3 + 1] = Math.max(0.05, pos[i * 3 + 1] + state.vel[i * 3 + 1] * dt)
+    pos[i * 3 + 2] += state.vel[i * 3 + 2] * dt
+  }
+  ctx.sparks.geometry.attributes.position.needsUpdate = true
+  ctx.sparks.material.opacity = 1 - u * u
+  ctx.sparks.material.size = 0.34 * (1 - 0.5 * u)
+
+  // 바닥 고리
+  const r = Math.min(1, c / 750)
+  ctx.ring.scale.setScalar(0.6 + 1.3 * (1 - Math.pow(1 - r, 3)))
+  ctx.ring.material.opacity = 0.9 * (1 - r)
+  ctx.ring.visible = r < 1
+
+  // 카메라가 살짝 다가갔다 돌아온다
+  ctx.camera.zoom = 1 + 0.12 * Math.sin(Math.PI * Math.min(1, c / 700))
+  ctx.camera.updateProjectionMatrix()
+
+  if (u >= 1) {
+    ctx.dice.forEach((m, i) => {
+      m.position.y = state.base[i]
+    })
+    clearFx()
+    return true
+  }
+  return false
+}
+
 // 굴리지 않고 그 눈이 위를 보게 놓아 둔다
 export function setRest(d1, d2) {
   if (!ctx) return
+  clearFx()
   ;[d1, d2].forEach((v, i) => {
     const m = ctx.dice[i]
     m.position.set(REST_X[i] + jitter(0.05), HALF, jitter(0.08))
@@ -237,10 +386,20 @@ export function roll(d1, d2, { durationS = 1.3, staggerS = 0.1, onSlow } = {}) {
   let frames = 0
   let measureFrom = 0
   let slowSent = false
+  const isDouble = d1 === d2
+  const party = {}
   cancelAnimationFrame(ctx.raf)
+  clearFx()
 
   const step = (now) => {
     if (!ctx?.host) return
+    // 다 멈춘 뒤 더블이면 축하 연출
+    if (party.doneAt) {
+      const finished = celebrateFrame(now - party.doneAt, party)
+      render()
+      if (!finished) ctx.raf = requestAnimationFrame(step)
+      return
+    }
     let done = true
     plans.forEach((p, i) => {
       const t = Math.min(1, Math.max(0, (now - start - p.delay) / (durationS * 1000)))
@@ -264,6 +423,10 @@ export function roll(d1, d2, { durationS = 1.3, staggerS = 0.1, onSlow } = {}) {
     }
     const elapsed = now - start
     if (!done && elapsed < total + 200) ctx.raf = requestAnimationFrame(step)
+    else if (isDouble) {
+      party.doneAt = now
+      ctx.raf = requestAnimationFrame(step)
+    }
   }
   ctx.raf = requestAnimationFrame(step)
 }

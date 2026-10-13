@@ -71,6 +71,25 @@ export const sfx = {
     const notes = [523, 659, 784, 1047, 1319]
     notes.forEach((f, i) => tone(f, 200, 'triangle', 0.1, i * 130))
   },
+  // 더블 — 반짝이는 높은 아르페지오
+  double() {
+    ;[1047, 1319, 1568, 2093, 2637].forEach((f, i) => tone(f, 140, 'triangle', 0.07, i * 60))
+  },
+  // 동전 하나가 지갑에 닿을 때 — 짧고 맑은 딩 (여러 개가 이어지면 촤르륵)
+  coinTick(i = 0) {
+    tone(1400 + (i % 5) * 90, 55, 'sine', 0.05)
+  },
+  // 카드가 휙 뒤집힐 때
+  flip() {
+    tone(500, 60, 'triangle', 0.05)
+    tone(900, 90, 'triangle', 0.05, 60)
+  },
+  // 건물이 쑥 솟을 때
+  rise() {
+    tone(392, 90, 'triangle', 0.07)
+    tone(523, 90, 'triangle', 0.07, 80)
+    tone(784, 160, 'triangle', 0.08, 160)
+  },
   bankrupt() {
     tone(330, 200, 'sawtooth', 0.08)
     tone(220, 300, 'sawtooth', 0.08, 200)

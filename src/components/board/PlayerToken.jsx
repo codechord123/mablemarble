@@ -203,6 +203,7 @@ export default function PlayerToken({ player, index, onLanded, onStep, startDela
   return (
     <motion.div
       ref={rootRef}
+      data-token={player.id}
       initial={{ left: `${start.left}%`, top: `${start.top}%` }}
       animate={controls}
       style={{ zIndex: 20 + index }}

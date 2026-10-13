@@ -7,6 +7,7 @@ import PlayerCard from './components/game/PlayerCard.jsx'
 import DiceRoller, { DICE_SETTLE_MS, preloadDice3d } from './components/game/DiceRoller.jsx'
 import TurnAnnouncement from './components/game/TurnAnnouncement.jsx'
 import BigEvent from './components/game/BigEvent.jsx'
+import useGameFx from './hooks/useGameFx.js'
 import { duckMusic } from './utils/bgm.js'
 import GameSetup from './components/game/GameSetup.jsx'
 import TileActionPanel from './components/game/TileActionPanel.jsx'
@@ -118,6 +119,8 @@ export default function App() {
   const spaceMode = useGameStore((s) => s.spaceMode)
   const salaryNote = useGameStore((s) => s.salaryNote)
   const clearBigEvent = useGameStore((s) => s.clearBigEvent)
+  // 통행료 동전·환급 동전·땅과 건물 축하 같은 화면 효과
+  useGameFx(bigEvent, lastResult)
   const [showAnnouncement, setShowAnnouncement] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [showBoardHint, setShowBoardHint] = useState(false)

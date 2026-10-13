@@ -232,6 +232,8 @@ export const useGameStore = create((set, get) => ({
         amount: toll,
         payer: players[currentTurn].name,
         receiver: players[owner.ownerId].name,
+        payerId: currentTurn,
+        receiverId: owner.ownerId,
         tileName: tile.name,
       }),
     })
@@ -478,6 +480,7 @@ export const useGameStore = create((set, get) => ({
     let message = ''
     let postAction = 'end-turn'
     let event = null
+    let refundPaid = 0
     let updatedPlayers = [...players]
     let updatedOwnership = ownership
 
@@ -508,7 +511,7 @@ export const useGameStore = create((set, get) => ({
         const group = monopolyGroupOf(updatedOwnership, tile.id)
         if (group) {
           message += ' 👑 라인 독점 — 이 줄 통행료 2배!'
-          event = { kind: 'monopoly', group, tileName: tile.name, owner: players[currentTurn].name }
+          event = { kind: 'monopoly', group, tileName: tile.name, tileId: tile.id, owner: players[currentTurn].name }
         }
       } else {
         message = '구매 실패 — 다음 기회에!'
@@ -546,6 +549,7 @@ export const useGameStore = create((set, get) => ({
     } else if (pendingAction.type === 'toll-quiz') {
       // 맞히면 낸 통행료의 30%를 은행에서 돌려받는다 (땅 주인 돈은 그대로)
       const refund = correct ? tollRefund(pendingAction.paid) : 0
+      refundPaid = refund
       if (refund > 0) {
         updatedPlayers[currentTurn] = { ...updatedPlayers[currentTurn], money: updatedPlayers[currentTurn].money + refund }
       }
@@ -583,6 +587,7 @@ export const useGameStore = create((set, get) => ({
     }
 
     // 연속 정답 콤보 — 3연속부터 보너스
+    const prevStreak = updatedPlayers[currentTurn].streak || 0
     const streak = correct ? (updatedPlayers[currentTurn].streak || 0) + 1 : 0
     const bonus = comboBonus(streak)
     updatedPlayers[currentTurn] = {
@@ -619,6 +624,10 @@ export const useGameStore = create((set, get) => ({
         postAction,
         event,
         combo,
+        streak,
+        prevStreak,
+        refund: refundPaid,
+        playerId: currentTurn,
       },
       hotelFirstBuilt,
     })
