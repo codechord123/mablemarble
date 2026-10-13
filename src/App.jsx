@@ -4,7 +4,7 @@ import { getTile } from './utils/gameEngine.js'
 import useViewport from './hooks/useViewport.js'
 import Board from './components/board/Board.jsx'
 import PlayerCard from './components/game/PlayerCard.jsx'
-import DiceRoller, { DICE_SETTLE_MS } from './components/game/DiceRoller.jsx'
+import DiceRoller, { DICE_SETTLE_MS, preloadDice3d } from './components/game/DiceRoller.jsx'
 import TurnAnnouncement from './components/game/TurnAnnouncement.jsx'
 import BigEvent from './components/game/BigEvent.jsx'
 import { duckMusic } from './utils/bgm.js'
@@ -241,9 +241,16 @@ export default function App() {
   // 설정 화면은 세로로 길어서 '게임 시작!'을 누르려면 아래로 스크롤해야 한다.
   // 그 스크롤 위치가 그대로 남아 게임에 들어오면 보드 윗줄(출발 칸 — 시작 시
   // 말 전원이 모여 있는 곳)이 화면 위로 잘린다. 진입 시 맨 위로 되돌린다.
+  // 3D 주사위는 처음 화면이 뜬 뒤 조용히 미리 불러 둔다
+  useEffect(() => {
+    const id = setTimeout(preloadDice3d, 1500)
+    return () => clearTimeout(id)
+  }, [])
+
   useEffect(() => {
     if (phase === 'setup' || phase === 'gameover') return
     window.scrollTo({ top: 0, behavior: 'auto' })
+    preloadDice3d()
     // 게임에 들어올 때 한 번만
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase === 'setup'])

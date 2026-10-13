@@ -346,6 +346,24 @@ body {
   border: 2px solid #fff;
   box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.45), 0 2px 3px rgba(0, 0, 0, 0.35);
 }
+.token-dust-host {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.token-dust {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, rgba(255, 250, 238, 0.98) 0%, rgba(205, 180, 138, 0.85) 55%, rgba(176, 146, 104, 0) 100%);
+  will-change: transform, opacity;
+}
 .token-head {
   filter: drop-shadow(0 2px 1.5px rgba(0, 0, 0, 0.35));
 }
@@ -353,6 +371,16 @@ body {
 /* ─── 3D 주사위 ─── */
 .dice-roller { --die: clamp(40px, 15cqi, 72px); --half: calc(var(--die) / 2); }
 .die-stage { perspective: 600px; padding: 4px; }
+/* 3D 주사위 캔버스 — 두 주사위와 그림자가 들어가는 크기 */
+.dice3d { width: calc(var(--die) * 2.9); height: calc(var(--die) * 1.7); }
+/* 던져서 날아오는 동안 칸 밖까지 보이게 캔버스만 조금 크게 (클릭은 통과) */
+.dice3d canvas {
+  position: relative;
+  margin: calc(var(--die) * -0.5) calc(var(--die) * -0.6) 0;
+  width: calc(100% + var(--die) * 1.2) !important;
+  height: calc(100% + var(--die) * 0.5) !important;
+  pointer-events: none;
+}
 .die-tilt {
   /* 비스듬히 세워 윗면·오른쪽 면이 보이게 */
   transform-style: preserve-3d;

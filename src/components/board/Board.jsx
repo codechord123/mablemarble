@@ -26,6 +26,23 @@ export default function Board({
   const [landing, setLanding] = useState(null)
   const landingKey = useRef(0)
 
+  const gridRef = useRef(null)
+
+  // 말이 지나가는 칸이 발에 밟혀 살짝 눌렸다 올라온다. 마지막 칸은 더 깊게.
+  const handleStep = (tileId, last) => {
+    const el = gridRef.current?.querySelector(`[data-tile="${tileId}"]`)
+    if (!el || typeof el.animate !== 'function') return
+    const d = last ? 3 : 1.5
+    el.animate(
+      [
+        { transform: 'translateY(0) scale(1)', filter: 'brightness(1)' },
+        { transform: `translateY(${d}px) scale(${last ? 0.95 : 0.975})`, filter: `brightness(${last ? 0.9 : 0.95})`, offset: 0.3 },
+        { transform: 'translateY(0) scale(1)', filter: 'brightness(1)' },
+      ],
+      { duration: last ? 420 : 260, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+    )
+  }
+
   const handleLanded = (tileId) => {
     setLanding({ tileId, key: ++landingKey.current })
     onTokenLanded?.(tileId)
@@ -59,6 +76,7 @@ export default function Board({
         <div className="board-plane absolute inset-x-0 bottom-0 aspect-square p-1.5 sm:p-3">
         <div className="board-felt relative h-full w-full p-0.5 sm:p-1.5 preserve-3d">
         <div
+          ref={gridRef}
           className="grid gap-[2px] sm:gap-1 h-full w-full preserve-3d"
           style={{ gridTemplateColumns: GRID_TEMPLATE, gridTemplateRows: GRID_TEMPLATE }}
         >
@@ -73,6 +91,7 @@ export default function Board({
               <button
                 key={tile.id}
                 type="button"
+                data-tile={tile.id}
                 onClick={() => setSelectedTile(tile.id)}
                 style={{ gridColumn: x + 1, gridRow: y + 1 }}
                 className="p-0 min-h-0 min-w-0 border-0 bg-transparent focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-md"
@@ -140,6 +159,7 @@ export default function Board({
               player={p}
               index={i}
               onLanded={p.id === currentPlayer?.id ? handleLanded : undefined}
+              onStep={handleStep}
               startDelay={p.id === currentPlayer?.id ? moveDelay : 0}
             />
           ))}

@@ -33,9 +33,55 @@ function buildPath(from, to) {
   return path
 }
 
+// 발밑에서 먼지가 피어오른다 — 칸에 닿을 때마다 조금, 마지막 칸에서는 크게.
+// 말은 계속 다음 칸으로 가므로 먼지는 말이 아니라 '닿은 자리'에 남겨야 한다:
+// 그 순간 말의 위치를 복사한 빈 받침을 보드에 잠깐 놓고 거기서 피운다.
+// 리렌더 없이 Web Animations로 띄웠다 지운다.
+function puffDust(root, offset, big) {
+  const layer = root?.parentElement
+  if (!layer || typeof root.animate !== 'function') return
+  const anchor = document.createElement('div')
+  anchor.className = 'absolute -translate-x-1/2 -translate-y-1/2 preserve-3d pointer-events-none'
+  anchor.style.left = root.style.left
+  anchor.style.top = root.style.top
+  anchor.style.zIndex = root.style.zIndex
+  anchor.setAttribute('aria-hidden', 'true')
+  anchor.innerHTML =
+    `<div class="relative preserve-3d" style="transform: ${offset}"><div class="stand-up">` +
+    '<div class="relative h-7 w-7 sm:h-10 sm:w-10"><div class="token-dust-host"></div></div></div></div>'
+  layer.appendChild(anchor)
+  const host = anchor.querySelector('.token-dust-host')
+  const n = big ? 6 : 2
+  const life = big ? 600 : 420
+  setTimeout(() => anchor.remove(), life + 100)
+  for (let k = 0; k < n; k++) {
+    const s = document.createElement('span')
+    s.className = 'token-dust'
+    host.appendChild(s)
+    const side = k % 2 ? 1 : -1
+    const spread = big ? 0.5 + (k >> 1) * 0.35 : 0.45
+    const dx = side * (big ? 9 + Math.random() * 9 : 6 + Math.random() * 4) * (0.7 + spread)
+    const dy = -(big ? 2 + Math.random() * 7 : 1 + Math.random() * 3)
+    const size = big ? 0.9 + Math.random() * 0.6 : 0.7
+    const a = s.animate(
+      [
+        { transform: `translate(-50%, -50%) scale(${0.35 * size})`, opacity: 0.95 },
+        {
+          transform: `translate(calc(-50% + ${dx * 0.7}px), calc(-50% + ${dy * 0.6}px)) scale(${size})`,
+          opacity: 0.8,
+          offset: 0.4,
+        },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${1.3 * size})`, opacity: 0 },
+      ],
+      { duration: life, easing: 'ease-out' },
+    )
+  }
+}
+
 // startDelay(초): 위치가 바뀐 뒤 출발까지 기다리는 시간. 주사위를 굴린 경우
 // 주사위가 멈추고 합이 뜬 다음에 말이 출발하도록 App이 넘겨준다.
-export default function PlayerToken({ player, index, onLanded, startDelay = 0 }) {
+// onStep(tileId, isLast): 칸에 한 번 닿을 때마다 — 보드가 그 칸을 살짝 눌러 준다.
+export default function PlayerToken({ player, index, onLanded, onStep, startDelay = 0 }) {
   const controls = useAnimation()
   const bobControls = useAnimation()
   const shadowControls = useAnimation()
@@ -45,6 +91,10 @@ export default function PlayerToken({ player, index, onLanded, startDelay = 0 })
   landedRef.current = onLanded
   const delayRef = useRef(startDelay)
   delayRef.current = startDelay
+  const stepRef = useRef(onStep)
+  stepRef.current = onStep
+  const rootRef = useRef(null)
+  const offsetRef = useRef('')
 
   useEffect(() => {
     const path = buildPath(prevPos.current, player.position)
@@ -106,6 +156,15 @@ export default function PlayerToken({ player, index, onLanded, startDelay = 0 })
       push(at(1), 0, 1.18, 0.82, 0, 1.1, 0.95)
     }
 
+    // 칸에 닿는 순간마다 먼지 + 칸 눌림 (애니메이션 시간표와 같은 시각에)
+    const timers = path.map((tileId, i) => {
+      const last = i === path.length - 1
+      return setTimeout(() => {
+        puffDust(rootRef.current, offsetRef.current, last)
+        stepRef.current?.(tileId, last)
+      }, Math.round((delay + (duration * (i + 1)) / path.length) * 1000))
+    })
+
     // 마지막 칸에 닿는 순간의 반동. 이게 없으면 이동이 '멈춘다'가 아니라 '사라진다'.
     bobControls
       .start({ y, scaleX: sx, scaleY: sy, rotate: rot, transition: { duration, ease: 'linear', times, delay } })
@@ -133,13 +192,17 @@ export default function PlayerToken({ player, index, onLanded, startDelay = 0 })
       .catch(() => {})
 
     prevPos.current = player.position
+    return () => timers.forEach(clearTimeout)
   }, [player.position, controls, bobControls, shadowControls, reduce])
 
   const start = tileCenterPct(prevPos.current)
   const pos = POSITIONS[index % POSITIONS.length]
+  const offset = `translate(calc(${pos.dx} * 1.2cqi), calc(${pos.dy} * 1.2cqi))`
+  offsetRef.current = offset
 
   return (
     <motion.div
+      ref={rootRef}
       initial={{ left: `${start.left}%`, top: `${start.top}%` }}
       animate={controls}
       style={{ zIndex: 20 + index }}
@@ -148,7 +211,7 @@ export default function PlayerToken({ player, index, onLanded, startDelay = 0 })
       {/* 펜타곤 분산 — 각 셀 안에서 위치 차이 */}
       <div
         className="relative preserve-3d"
-        style={{ transform: `translate(calc(${pos.dx} * 1.2cqi), calc(${pos.dy} * 1.2cqi))` }}
+        style={{ transform: offset }}
       >
         {/* 그림자 — 점프 높이에 맞춰 작아지고 흐려진다. 무게감의 핵심. */}
         <motion.div

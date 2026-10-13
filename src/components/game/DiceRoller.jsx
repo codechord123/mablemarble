@@ -120,11 +120,93 @@ function Die({ value, roll, delay = 0 }) {
   )
 }
 
+// ─── Three.js 3D 주사위 ───
+// 이 기기에서 3D를 써도 되는지 — 움직임 줄이기, 느린 기기, 직접 끈 경우엔 예전 주사위
+const DICE3D_KEY = 'boomarble_dice3d'
+function want3d() {
+  try {
+    if (localStorage.getItem(DICE3D_KEY) === 'off' || sessionStorage.getItem(DICE3D_KEY) === 'slow') return false
+  } catch {
+    /* 저장소를 못 쓰면 그냥 판단 */
+  }
+  if (typeof window === 'undefined' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false
+  const mem = navigator.deviceMemory
+  const cores = navigator.hardwareConcurrency
+  if ((mem && mem <= 2) || (cores && cores <= 2)) return false
+  return true
+}
+
+let dice3d = null
+let dice3dLoading = null
+// 게임이 시작되면 미리 불러 둔다 — 첫 굴림부터 3D로 나오게
+export function preloadDice3d() {
+  if (dice3d || dice3dLoading || !want3d()) return dice3dLoading
+  dice3dLoading = import('./dice3d.js')
+    .then((m) => {
+      if (m.init()) dice3d = m
+      return dice3d
+    })
+    .catch(() => null)
+  return dice3dLoading
+}
+
+function markSlow(ms) {
+  if (import.meta.env.DEV) console.info(`[dice3d] 프레임이 느려서(${Math.round(ms)}ms) 다음부터 예전 주사위로`)
+  try {
+    sessionStorage.setItem(DICE3D_KEY, 'slow')
+  } catch {
+    /* 무시 */
+  }
+}
+
+function Dice3D({ api, lastRoll }) {
+  const hostRef = useRef(null)
+  const lastSeen = useRef(lastRoll)
+
+  useEffect(() => {
+    const host = hostRef.current
+    api.attach(host)
+    api.setRest(lastSeen.current?.d1 || 5, lastSeen.current?.d2 || 2)
+    return () => api.detach(host)
+  }, [api])
+
+  useEffect(() => {
+    if (!lastRoll || lastRoll === lastSeen.current) return
+    lastSeen.current = lastRoll
+    api.roll(lastRoll.d1, lastRoll.d2, { durationS: ROLL_S, staggerS: STAGGER_S, onSlow: markSlow })
+  }, [lastRoll, api])
+
+  return (
+    <div
+      ref={hostRef}
+      className="dice3d"
+      role="img"
+      aria-label={lastRoll ? `주사위 ${lastRoll.d1}, ${lastRoll.d2}` : '주사위'}
+    />
+  )
+}
+
 // showResult: 굴린 뒤 말이 이동하는 동안. 버튼 대신 눈의 합을 보여 준다.
 export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = false }) {
   const [rolling, setRolling] = useState(false)
   const rollingRef = useRef(false)
   const rowRef = useRef(null)
+  const [api, setApi] = useState(() => (want3d() ? dice3d : null))
+
+  // 아직 안 불러왔으면 불러오고, 굴리는 중이 아닐 때만 3D로 바꾼다(굴리다 바뀌면 어색하다)
+  useEffect(() => {
+    if (api || !want3d()) return
+    let alive = true
+    preloadDice3d()?.then((m) => {
+      if (alive && m && !rollingRef.current) setApi(m)
+    })
+    return () => {
+      alive = false
+    }
+  }, [api])
+
+  // WebGL이 끊기면 예전 주사위로
+  useEffect(() => api?.onLost(() => setApi(null)), [api])
 
   const handleClick = () => {
     if (rollingRef.current || disabled) return
@@ -132,8 +214,9 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
     setRolling(true)
     // 누르는 순간 결과가 정해지고 주사위는 그 눈을 향해 한 번에 굴러간다
     onRoll()
-    // 두 주사위가 바닥에 닿는 순간 한 번 울린다
-    setTimeout(() => impactEl(rowRef.current, { px: 4 }), Math.round((ROLL_S * 0.8 + STAGGER_S) * 1000))
+    // 두 주사위가 바닥에 닿는 순간 한 번 울린다 (3D 주사위는 처음 떨어질 때 닿는다)
+    const hit = api ? ROLL_S * 0.42 + STAGGER_S : ROLL_S * 0.8 + STAGGER_S
+    setTimeout(() => impactEl(rowRef.current, { px: 4 }), Math.round(hit * 1000))
     setTimeout(() => {
       rollingRef.current = false
       setRolling(false)
@@ -143,9 +226,11 @@ export default function DiceRoller({ lastRoll, onRoll, disabled, showResult = fa
   return (
     <div className="dice-roller">
       <div ref={rowRef} className="flex gap-3">
-        {[lastRoll?.d1, lastRoll?.d2].map((v, i) => (
-          <Die key={i} value={v} roll={lastRoll} delay={i * STAGGER_S} />
-        ))}
+        {api ? (
+          <Dice3D api={api} lastRoll={lastRoll} />
+        ) : (
+          [lastRoll?.d1, lastRoll?.d2].map((v, i) => <Die key={i} value={v} roll={lastRoll} delay={i * STAGGER_S} />)
+        )}
       </div>
       {showResult ? (
         <motion.div
