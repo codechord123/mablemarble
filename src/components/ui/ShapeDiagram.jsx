@@ -306,7 +306,12 @@ const TONES = {
   b: { fill: '#dbeafe', stroke: '#1d4ed8' },
 }
 // grid:[w,h]면 0~w, 0~h 모눈을 깔고(한 칸 = 1), points:[{at:[x,y], label, color}]는 이름이나 값을 그 자리에 쓴다.
-function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, points = [] }) {
+// 길이는 교과서처럼 '길이 표시선'(양 끝이 꺾인 짧은 선, ├──┤)과 함께, 각은 꼭짓점의 '각 표시(호)'와 함께 쓴다.
+//   dims:[{a:[x,y], b:[x,y], t:'12 cm', away:[x,y], far}] — 변이 아닌 선분(대각선·접기 전 변 등)의 길이. away 반대쪽에 표시,
+//     far(px)를 주면 그만큼 바깥으로 빼서 점선 보조선으로 잇는다
+//   arcs:[{at:[x,y], from:[x,y], to:[x,y], t:'?'}] — 도형의 꼭짓점 각이 아닌 각(접은 뒤 생긴 각 등)
+const ANGLE = '#7c3aed'
+function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, points = [], dims = [], arcs = [] }) {
   const all = []
   if (grid) all.push([0, 0], [grid[0], grid[1]])
   polys.forEach((p) => all.push(...p.pts))
@@ -314,18 +319,84 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
   if (axis) all.push(...axis)
   if (center) all.push(center)
   segs.forEach((sg) => all.push(...sg))
+  dims.forEach((d) => all.push(d.a, d.b))
   const xs = all.map((q) => q[0]), ys = all.map((q) => q[1])
   const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys)
   const w = Math.max(maxX - minX, 1e-6), h = Math.max(maxY - minY, 1e-6)
-  const k = Math.min(156 / w, 104 / h)
+  const k = Math.min(150 / w, 98 / h)
   const ox = 100 - ((minX + maxX) / 2) * k
   const oy = 76 + ((minY + maxY) / 2) * k
   const P = ([x, y]) => [ox + x * k, oy - y * k]
   const out = []
+  const marks = []
+  const labels = []
   const unit = (dx, dy) => {
     const l = Math.hypot(dx, dy) || 1
     return [dx / l, dy / l]
   }
+  // 글자 뒤에 흰 테두리 — 선 위에 놓여도 읽히게
+  const halo = { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' }
+
+  // 길이 표시선 + 길이 — a, b는 화면 좌표, (nx, ny)는 표시선을 그을 바깥쪽 방향
+  const dimension = (a, b, nx, ny, text, key, far = 0) => {
+    const color = text === '?' ? DIM : STROKE
+    const [ux, uy] = unit(b[0] - a[0], b[1] - a[1])
+    const g = far || 6 // 변에서 표시선까지 거리 — 도형 안쪽이 붐비면 바깥으로 멀리 빼고 보조선으로 잇는다
+    if (far) {
+      marks.push(
+        <path key={'e' + key} d={`M ${a[0]} ${a[1]} L ${a[0] + nx * (g + 3)} ${a[1] + ny * (g + 3)} M ${b[0]} ${b[1]} L ${b[0] + nx * (g + 3)} ${b[1] + ny * (g + 3)}`} stroke={color} strokeWidth="0.8" strokeDasharray="2 2" fill="none" opacity="0.7" />,
+      )
+    }
+    const sa = [a[0] + nx * g + ux * 2.5, a[1] + ny * g + uy * 2.5]
+    const sb = [b[0] + nx * g - ux * 2.5, b[1] + ny * g - uy * 2.5]
+    const tick = (q) => `M ${q[0] - nx * 3} ${q[1] - ny * 3} L ${q[0] + nx * 3} ${q[1] + ny * 3}`
+    marks.push(
+      <path key={'d' + key} d={`${tick(sa)} M ${sa[0]} ${sa[1]} L ${sb[0]} ${sb[1]} ${tick(sb)}`} stroke={color} strokeWidth="1.1" fill="none" opacity="0.85" />,
+    )
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2
+    const hw = String(text).length * 3.3
+    // 비스듬한 선분은 글자를 선분과 나란히 기울인다. 가로·세로에 가까우면 그대로(세로 글씨는 읽기 어렵다).
+    let deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI
+    if (deg > 90) deg -= 180
+    if (deg <= -90) deg += 180
+    const slanted = Math.abs(deg) > 12 && Math.abs(deg) < 72 && text !== '?'
+    const off = g + (slanted ? 8 : 6 + Math.abs(nx) * hw + Math.abs(ny) * 4)
+    const x = slanted ? mx + nx * off : clamp(mx + nx * off, hw + 2, 198 - hw)
+    const y = slanted ? my + ny * off : clamp(my + ny * off, 8, 144)
+    labels.push(
+      <text key={'dt' + key} x={x} y={y} transform={slanted ? `rotate(${deg.toFixed(1)} ${x} ${y})` : undefined} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill={color} {...halo}>
+        {text}
+      </text>,
+    )
+  }
+
+  // 각 표시 — 꼭짓점 v에서 a·b 쪽으로 호(직각이면 ㄴ자)를 그리고 그 안쪽에 각도를 쓴다
+  const angleMark = (v, a, b, text, key) => {
+    const color = text === '?' ? DIM : ANGLE
+    const u1 = unit(a[0] - v[0], a[1] - v[1]), u2 = unit(b[0] - v[0], b[1] - v[1])
+    const deg = (Math.acos(Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1]))) * 180) / Math.PI
+    const r = deg < 40 ? 16 : 12
+    if (text === '90°' && Math.abs(deg - 90) < 4) {
+      const q = 9
+      marks.push(
+        <path key={'r' + key} d={`M ${v[0] + u1[0] * q} ${v[1] + u1[1] * q} L ${v[0] + (u1[0] + u2[0]) * q} ${v[1] + (u1[1] + u2[1]) * q} L ${v[0] + u2[0] * q} ${v[1] + u2[1] * q}`} stroke={color} strokeWidth="1.4" fill="none" />,
+      )
+    } else {
+      const A = [v[0] + u1[0] * r, v[1] + u1[1] * r], B = [v[0] + u2[0] * r, v[1] + u2[1] * r]
+      const sweep = u1[0] * u2[1] - u1[1] * u2[0] > 0 ? 1 : 0
+      marks.push(
+        <path key={'r' + key} d={`M ${A[0]} ${A[1]} A ${r} ${r} 0 0 ${sweep} ${B[0]} ${B[1]}`} stroke={color} strokeWidth="1.5" fill="none" />,
+      )
+    }
+    const [bx, by] = unit(u1[0] + u2[0], u1[1] + u2[1])
+    const d = r + (deg < 40 ? 12 : deg > 100 ? 4 : 9)
+    labels.push(
+      <text key={'at' + key} x={v[0] + bx * d} y={v[1] + by * d} textAnchor="middle" dominantBaseline="middle" fontSize="10.5" fontWeight="700" fill={color} {...halo}>
+        {text}
+      </text>,
+    )
+  }
+
   if (grid) {
     for (let i = 0; i <= grid[0]; i++) {
       const [a, b] = [P([i, 0]), P([i, grid[1]])]
@@ -336,14 +407,12 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
       out.push(<line key={'gy' + j} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#cbd5e1" strokeWidth="1" />)
     }
   }
-  // 글자 뒤에 흰 테두리 — 선 위에 놓여도 읽히게
-  const halo = { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' }
-  const labels = []
   polys.forEach((poly, pi) => {
     const t = TONES[poly.tone] || TONES[pi % 2 ? 'b' : 'a']
     const pts = poly.pts.map(P)
-    const cx = pts.reduce((s2, q) => s2 + q[0], 0) / pts.length
-    const cy = pts.reduce((s2, q) => s2 + q[1], 0) / pts.length
+    const n = pts.length
+    const cx = pts.reduce((s2, q) => s2 + q[0], 0) / n
+    const cy = pts.reduce((s2, q) => s2 + q[1], 0) / n
     out.push(
       <polygon key={'p' + pi} points={pts.map((q) => q.join(',')).join(' ')} fill={t.fill} stroke={t.stroke} strokeWidth="2.2" strokeLinejoin="round" />,
     )
@@ -360,37 +429,29 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
       // 값은 글자 또는 { t, flip } — flip이면 도형 안쪽에 쓴다(두 도형이 맞닿은 변 등)
       const text = typeof spec === 'object' ? spec.t : spec
       const i = Number(key)
-      const a = pts[i], b = pts[(i + 1) % pts.length]
+      const a = pts[i], b = pts[(i + 1) % n]
       const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2
       let [nx, ny] = unit(-(b[1] - a[1]), b[0] - a[0])
       if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny }
       if (typeof spec === 'object' && spec.flip) { nx = -nx; ny = -ny }
-      const hw = String(text).length * 3.3
-      // 비스듬한 변은 길이 글자를 변과 나란히 기울여 변 바로 옆에 쓴다 — 어느 변의 길이인지 바로 보이게.
-      // 가로·세로에 가까운 변은 그대로 바로 쓴다(세로 글씨는 아이들이 읽기 어렵다).
-      let deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI
-      if (deg > 90) deg -= 180
-      if (deg <= -90) deg += 180
-      const slanted = Math.abs(deg) > 12 && Math.abs(deg) < 72 && text !== '?'
-      const off = slanted ? 8 : 7 + Math.abs(nx) * hw + Math.abs(ny) * 5
-      const x = slanted ? mx + nx * off : clamp(mx + nx * off, hw + 2, 198 - hw)
-      const y = slanted ? my + ny * off : clamp(my + ny * off, 8, 144)
-      labels.push(
-        <text key={`e${pi}-${i}`} x={x} y={y} transform={slanted ? `rotate(${deg.toFixed(1)} ${x} ${y})` : undefined} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill={text === '?' ? DIM : STROKE} {...halo}>
-          {text}
-        </text>,
-      )
+      dimension(a, b, nx, ny, text, `${pi}-${i}`)
     })
     Object.entries(poly.angles || {}).forEach(([key, text]) => {
       const i = Number(key)
-      const [ux, uy] = unit(cx - pts[i][0], cy - pts[i][1])
-      labels.push(
-        <text key={`a${pi}-${i}`} x={pts[i][0] + ux * 19} y={pts[i][1] + uy * 19} textAnchor="middle" dominantBaseline="middle" fontSize="10.5" fontWeight="700" fill={text === '?' ? DIM : '#7c3aed'} {...halo}>
-          {text}
-        </text>,
-      )
+      angleMark(pts[i], pts[(i + n - 1) % n], pts[(i + 1) % n], text, `${pi}-${i}`)
     })
   })
+  dims.forEach((d, i) => {
+    const a = P(d.a), b = P(d.b)
+    let [nx, ny] = unit(-(b[1] - a[1]), b[0] - a[0])
+    if (d.away) {
+      const q = P(d.away)
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2
+      if ((q[0] - mx) * nx + (q[1] - my) * ny > 0) { nx = -nx; ny = -ny }
+    }
+    dimension(a, b, nx, ny, d.t, 'x' + i, d.far || 0)
+  })
+  arcs.forEach((ac, i) => angleMark(P(ac.at), P(ac.from), P(ac.to), ac.t, 'y' + i))
   // 보조선(대각선·대응점 잇기)은 도형 위에 그려야 보인다
   segs.forEach((sg, i) => {
     const [a, b] = sg.map(P)
@@ -406,7 +467,7 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
   if (center) {
     const [x, y] = P(center)
     out.push(<circle key="c" cx={x} cy={y} r="2.8" fill={DIM} />)
-    out.push(
+    labels.push(
       <text key="cl" x={x + 8} y={y - 7} fontSize="11" fontWeight="800" fill={DIM} {...halo}>
         {centerLabel}
       </text>,
@@ -423,6 +484,7 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
   return (
     <>
       {out}
+      {marks}
       {labels}
     </>
   )
@@ -442,7 +504,7 @@ export default function ShapeDiagram({ figure, className = '' }) {
     case 'grid': body = <Grid gw={figure.gw} gh={figure.gh} poly={figure.poly} unit={unit} />; break
     case 'fracArea': body = <FracArea an={figure.an} ad={figure.ad} bn={figure.bn} bd={figure.bd} unit={figure.unit} />; break
     case 'array': body = <DotArray rows={figure.rows} cols={figure.cols} group={figure.group} />; break
-    case 'geo': body = <Geo polys={figure.polys} axis={figure.axis} center={figure.center} centerLabel={figure.centerLabel} segs={figure.segs} grid={figure.grid} points={figure.points} />; break
+    case 'geo': body = <Geo polys={figure.polys} axis={figure.axis} center={figure.center} centerLabel={figure.centerLabel} segs={figure.segs} grid={figure.grid} points={figure.points} dims={figure.dims} arcs={figure.arcs} />; break
     default: return null
   }
   return (
