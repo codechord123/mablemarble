@@ -32,6 +32,7 @@ const QuestionManager = lazy(() => import('./components/questions/QuestionManage
 const FractionDrill = lazy(() => import('./components/drill/FractionDrill.jsx'))
 const WrongReview = lazy(() => import('./components/account/WrongReview.jsx'))
 const TeacherStats = lazy(() => import('./components/account/TeacherStats.jsx'))
+const QuestionBrowser = lazy(() => import('./components/account/QuestionBrowser.jsx'))
 
 // 굴리기를 누른 순간부터 주사위가 멈추고 합이 뜨기까지(ms). 말은 그다음에 출발한다.
 const DICE_LAND_MS = DICE_SETTLE_MS + 100
@@ -268,6 +269,7 @@ export default function App() {
           onDrill={() => setView('drill')}
           onReview={() => setView('review')}
           onTeacherStats={() => setView('teacher-stats')}
+          onCheckQuestions={() => setView('question-check')}
           onResume={() => { resumeGame() }}
         />
       )
@@ -282,7 +284,14 @@ export default function App() {
     if (view === 'teacher-stats') {
       return (
         <Suspense fallback={<FullScreenSpinner label="우리 반 기록 불러오는 중…" />}>
-          <TeacherStats onBack={() => setView('menu')} />
+          <TeacherStats onBack={() => setView('menu')} onCheckQuestions={() => setView('question-check')} />
+        </Suspense>
+      )
+    }
+    if (view === 'question-check') {
+      return (
+        <Suspense fallback={<FullScreenSpinner label="문제 불러오는 중…" />}>
+          <QuestionBrowser onBack={() => setView('menu')} />
         </Suspense>
       )
     }

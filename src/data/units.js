@@ -18,3 +18,17 @@ export function unitOfQuestion(q) {
   if (q.unit) return q.unit
   return bundledIndex().get(q.id) || OTHER_UNIT
 }
+
+// 예전에 저장된 문제(오답 노트 등)를 지금 내장 세트의 같은 번호 문제로 바꿔 보여 준다 —
+// 그림이나 풀이를 고친 뒤에도 고친 모습이 보이게. 내장 세트에 없는 문제(업로드 문제)는 그대로.
+let qById = null
+export function latestQuestion(q) {
+  if (!q?.id) return q
+  if (!qById) {
+    qById = new Map()
+    for (const s of BUNDLED_SETS) for (const x of s.questions) if (!qById.has(x.id)) qById.set(x.id, x)
+  }
+  const cur = qById.get(q.id)
+  // 같은 번호라도 문제 글이 완전히 다른 업로드 문제와 섞이지 않게, 정답 형식이 같을 때만 바꾼다
+  return cur && cur.type === q.type ? cur : q
+}

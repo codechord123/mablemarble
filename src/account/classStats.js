@@ -1,7 +1,7 @@
 // 반 통계 계산 — 학생들 기록(boomarble_progress)을 모아 선생님 화면에 보여 줄 숫자로.
 // unit을 주면 그 단원만 계산한다 (단원별 보기).
 import { levelFromXp } from '../utils/fractionDrill.js'
-import { unitOfQuestion } from '../data/units.js'
+import { unitOfQuestion, latestQuestion } from '../data/units.js'
 
 const rate = (c, a) => (a ? Math.round((c / a) * 100) : null)
 
@@ -75,7 +75,7 @@ export function summarize(rows, unit = null) {
   const qs = {}
   for (const r of rows) {
     for (const { key, w, q, unit: u } of items(r)) {
-      qs[key] = qs[key] || { key, question: q, unit: u, students: 0, misses: 0, names: [] }
+      qs[key] = qs[key] || { key, question: latestQuestion(q), unit: u, students: 0, misses: 0, names: [] }
       qs[key].students += 1
       qs[key].misses += w.count || 1
       qs[key].names.push(r.name || r.uid)

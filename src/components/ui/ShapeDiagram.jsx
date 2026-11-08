@@ -366,9 +366,17 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
       if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny }
       if (typeof spec === 'object' && spec.flip) { nx = -nx; ny = -ny }
       const hw = String(text).length * 3.3
-      const off = 7 + Math.abs(nx) * hw + Math.abs(ny) * 5
+      // 비스듬한 변은 길이 글자를 변과 나란히 기울여 변 바로 옆에 쓴다 — 어느 변의 길이인지 바로 보이게.
+      // 가로·세로에 가까운 변은 그대로 바로 쓴다(세로 글씨는 아이들이 읽기 어렵다).
+      let deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI
+      if (deg > 90) deg -= 180
+      if (deg <= -90) deg += 180
+      const slanted = Math.abs(deg) > 12 && Math.abs(deg) < 72 && text !== '?'
+      const off = slanted ? 8 : 7 + Math.abs(nx) * hw + Math.abs(ny) * 5
+      const x = slanted ? mx + nx * off : clamp(mx + nx * off, hw + 2, 198 - hw)
+      const y = slanted ? my + ny * off : clamp(my + ny * off, 8, 144)
       labels.push(
-        <text key={`e${pi}-${i}`} x={clamp(mx + nx * off, hw + 2, 198 - hw)} y={clamp(my + ny * off, 8, 144)} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill={text === '?' ? DIM : STROKE} {...halo}>
+        <text key={`e${pi}-${i}`} x={x} y={y} transform={slanted ? `rotate(${deg.toFixed(1)} ${x} ${y})` : undefined} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill={text === '?' ? DIM : STROKE} {...halo}>
           {text}
         </text>,
       )

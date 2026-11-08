@@ -1,6 +1,6 @@
 // 학생별 오답 노트 — 틀린 문제를 모아 두었다가 다시 풀게 한다.
 // 다시 풀어서 '연속 2번' 맞히면 졸업(노트에서 빠진다). 틀리면 연속 기록이 0으로.
-import { unitOfQuestion } from '../data/units.js'
+import { unitOfQuestion, latestQuestion } from '../data/units.js'
 
 export const MASTER_STREAK = 2
 export const MAX_WRONG = 100
@@ -74,7 +74,7 @@ export function applyStats(stats, question, correct, now = Date.now()) {
 export function reviewList(book) {
   return Object.entries(book?.wrong || {})
     .map(([key, w]) => {
-      const question = JSON.parse(w.q)
+      const question = latestQuestion(JSON.parse(w.q))
       return { key, ...w, question, unit: unitOfQuestion(question) }
     })
     .sort((a, b) => b.count - a.count || a.lastAt - b.lastAt)

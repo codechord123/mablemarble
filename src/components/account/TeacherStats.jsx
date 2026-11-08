@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { accountApi, useAccount } from '../../account/store.js'
 import { summarize, unitsOf } from '../../account/classStats.js'
-import { formatAnswer } from '../game/ResultBanner.jsx'
 import MathText from '../ui/MathText.jsx'
 import GameButton from '../ui/GameButton.jsx'
 import PrintSheet from './PrintSheet.jsx'
+import QuestionCard from './QuestionCard.jsx'
 
 const pct = (r) => (r == null ? '–' : `${r}%`)
 const rateColor = (r) => (r == null ? 'bg-gray-300' : r >= 80 ? 'bg-emerald-500' : r >= 50 ? 'bg-amber-400' : 'bg-rose-400')
@@ -15,7 +15,7 @@ const ago = (t) => {
 }
 
 // 선생님 — 우리 반 부르마블 통계 (정답률·영역별·많이 틀린 문제·학생별 오답 노트)
-export default function TeacherStats({ onBack }) {
+export default function TeacherStats({ onBack, onCheckQuestions }) {
   const me = useAccount((s) => s.me)
   const [rows, setRows] = useState(null)
   const [unit, setUnit] = useState(null) // null = 전체 단원
@@ -46,9 +46,14 @@ export default function TeacherStats({ onBack }) {
       <div className="mx-auto max-w-3xl rounded-[1.75rem] bg-white p-5 sm:p-6 card-soft ring-1 ring-amber-900/5">
         <div className="flex items-center justify-between gap-2">
           <button onClick={onBack} className="text-sm font-semibold text-amber-700 hover:underline">← 메인 메뉴</button>
-          {data && (
-            <button onClick={load} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">↻ 새로고침</button>
-          )}
+          <span className="flex items-center gap-1.5">
+            {onCheckQuestions && (
+              <button onClick={onCheckQuestions} className="rounded-full bg-amber-600 px-3 py-1 text-xs font-bold text-white">📋 문제 점검</button>
+            )}
+            {data && (
+              <button onClick={load} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">↻ 새로고침</button>
+            )}
+          </span>
         </div>
         <h2 className="mt-2 text-2xl font-black text-amber-900">👩‍🏫 우리 반 부르마블 통계</h2>
         <p className="mt-1 text-sm font-semibold text-amber-700">
@@ -142,15 +147,18 @@ export default function TeacherStats({ onBack }) {
                           <span className="flex-1 font-semibold text-slate-800">
                             {!unit && <span className="mr-1 text-[11px] font-bold text-rose-500">[{w.unit}]</span>}
                             <MathText>{w.question.question}</MathText>
+                            {w.question.figure && <span className="ml-1">🖼️</span>}
+                            <span className="ml-1 text-[11px] font-bold text-rose-400">{openQ === w.key ? '▲' : '▼ 눌러서 보기'}</span>
                           </span>
                           <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-black text-rose-700">{w.students}명</span>
                         </div>
                       </button>
                       {openQ === w.key && (
-                        <div className="mt-2 border-t border-rose-100 pt-2 text-xs font-semibold text-slate-600">
-                          <div className="text-emerald-700">정답: <MathText>{formatAnswer(w.question)}</MathText></div>
-                          {w.question.explanation && <div className="mt-1">💡 <MathText>{w.question.explanation}</MathText></div>}
-                          <div className="mt-1 text-rose-700">틀린 학생: {w.names.join(', ')}</div>
+                        <div className="mt-2 border-t border-rose-100 pt-2">
+                          {/* 펼치면 문제 전체(그림·보기·정답·풀이)를 보여 준다 */}
+                          <QuestionCard q={w.question} compact />
+                          {w.question.id && <div className="mt-1 text-[11px] font-bold text-slate-400">문제 번호 {w.question.id}</div>}
+                          <div className="mt-1 text-xs font-bold text-rose-700">틀린 학생: {w.names.join(', ')}</div>
                         </div>
                       )}
                     </li>

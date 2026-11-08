@@ -6,7 +6,7 @@ import Toast from '../ui/Toast.jsx'
 import { useAccount, logoutMe, clearNotice } from '../../account/store.js'
 import { goToLogin } from '../../account/site.js'
 
-export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDrill, onReview, onTeacherStats }) {
+export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDrill, onReview, onTeacherStats, onCheckQuestions }) {
   const [savedInfo, setSavedInfo] = useState(null)
   const me = useAccount((s) => s.me)
   const checking = useAccount((s) => s.checking)
@@ -87,6 +87,12 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDri
             <GameButton color="green" onClick={onTeacherStats} className="w-full py-4 text-lg">
               👩‍🏫 우리 반 부르마블 통계
               <div className="text-xs font-semibold opacity-90 mt-0.5">정답률 · 많이 틀린 문제 · 오답 노트</div>
+            </GameButton>
+          )}
+          {me?.role === 'teacher' && onCheckQuestions && (
+            <GameButton color="yellow" onClick={onCheckQuestions} className="w-full py-4 text-lg">
+              📋 문제 점검
+              <div className="text-xs font-semibold opacity-90 mt-0.5">단원 문제를 그림·정답·풀이와 함께 확인</div>
             </GameButton>
           )}
           {me && me.role !== 'teacher' && onReview && (
