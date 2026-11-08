@@ -305,9 +305,12 @@ const TONES = {
   a: { fill: '#fef3c7', stroke: '#b45309' },
   b: { fill: '#dbeafe', stroke: '#1d4ed8' },
 }
-function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [] }) {
+// grid:[w,h]면 0~w, 0~h 모눈을 깔고(한 칸 = 1), points:[{at:[x,y], label, color}]는 이름이나 값을 그 자리에 쓴다.
+function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, points = [] }) {
   const all = []
+  if (grid) all.push([0, 0], [grid[0], grid[1]])
   polys.forEach((p) => all.push(...p.pts))
+  points.forEach((pt) => all.push(pt.at))
   if (axis) all.push(...axis)
   if (center) all.push(center)
   segs.forEach((sg) => all.push(...sg))
@@ -322,6 +325,16 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [] }) {
   const unit = (dx, dy) => {
     const l = Math.hypot(dx, dy) || 1
     return [dx / l, dy / l]
+  }
+  if (grid) {
+    for (let i = 0; i <= grid[0]; i++) {
+      const [a, b] = [P([i, 0]), P([i, grid[1]])]
+      out.push(<line key={'gx' + i} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#cbd5e1" strokeWidth="1" />)
+    }
+    for (let j = 0; j <= grid[1]; j++) {
+      const [a, b] = [P([0, j]), P([grid[0], j])]
+      out.push(<line key={'gy' + j} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#cbd5e1" strokeWidth="1" />)
+    }
   }
   // 글자 뒤에 흰 테두리 — 선 위에 놓여도 읽히게
   const halo = { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' }
@@ -388,6 +401,14 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [] }) {
       </text>,
     )
   }
+  points.forEach((pt, i) => {
+    const [x, y] = P(pt.at)
+    labels.push(
+      <text key={'pt' + i} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="800" fill={pt.color || (pt.label === '?' ? DIM : LABEL)} {...halo}>
+        {pt.label}
+      </text>,
+    )
+  })
   return (
     <>
       {out}
@@ -410,7 +431,7 @@ export default function ShapeDiagram({ figure, className = '' }) {
     case 'grid': body = <Grid gw={figure.gw} gh={figure.gh} poly={figure.poly} unit={unit} />; break
     case 'fracArea': body = <FracArea an={figure.an} ad={figure.ad} bn={figure.bn} bd={figure.bd} unit={figure.unit} />; break
     case 'array': body = <DotArray rows={figure.rows} cols={figure.cols} group={figure.group} />; break
-    case 'geo': body = <Geo polys={figure.polys} axis={figure.axis} center={figure.center} centerLabel={figure.centerLabel} segs={figure.segs} />; break
+    case 'geo': body = <Geo polys={figure.polys} axis={figure.axis} center={figure.center} centerLabel={figure.centerLabel} segs={figure.segs} grid={figure.grid} points={figure.points} />; break
     default: return null
   }
   return (
