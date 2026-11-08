@@ -58,7 +58,15 @@ export default function PlayerCard({ player, isCurrent, underdog = false }) {
           <AnimalFace emoji={player.avatar} className="w-[86%] h-[86%]" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="t-body text-amber-800/70 truncate leading-tight">{player.name}</div>
+          <div className="t-body text-amber-800/70 truncate leading-tight">
+            {/* 📒 = 아이디가 연결돼 틀린 문제가 오답 노트에 저장되는 사람 */}
+            {player.account && (
+              <span title={`${player.account.name || player.account.username} 오답 노트에 저장 중`} className="mr-0.5">
+                📒
+              </span>
+            )}
+            {player.name}
+          </div>
           <div data-money className="t-title text-amber-900 tabular-nums flex items-center gap-1 leading-tight">
             <CoinIcon size={15} /> <AnimatedNumber value={player.money} />원
           </div>

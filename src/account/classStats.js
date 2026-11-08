@@ -18,6 +18,20 @@ function wrongItems(r) {
   return out
 }
 
+// 정리(졸업)한 문제들
+function doneItems(r) {
+  const out = []
+  for (const [key, d] of Object.entries(r.done || {})) {
+    try {
+      const q = JSON.parse(d.q)
+      out.push({ key, d, q, unit: unitOfQuestion(q) })
+    } catch {
+      /* 깨진 기록은 건너뛴다 */
+    }
+  }
+  return out
+}
+
 // 기록에 나오는 단원 목록 (푼 문제가 많은 순)
 export function unitsOf(rows) {
   const n = {}
@@ -38,6 +52,7 @@ export function summarize(rows, unit = null) {
     return { a: u.a || 0, c: u.c || 0, cats: u.cats || {} }
   }
   const items = (r) => wrongItems(r).filter((it) => !unit || it.unit === unit)
+  const dones = (r) => doneItems(r).filter((it) => !unit || it.unit === unit)
 
   const students = rows
     .map((r) => {
@@ -50,6 +65,13 @@ export function summarize(rows, unit = null) {
         rate: rate(s.c, s.a),
         wrongLeft: items(r).length,
         mastered: r.mastered || 0,
+        // 학생을 누르면 보이는 목록 — 남은 오답(다시 풀기 진행)과 정리한 문제
+        wrongList: items(r)
+          .map(({ key, w, q, unit: u }) => ({ key, q: latestQuestion(q), unit: u, count: w.count || 1, streak: w.streak || 0, lastAt: w.lastAt || 0, firstAt: w.firstAt || w.lastAt || 0 }))
+          .sort((a, b) => b.count - a.count || b.lastAt - a.lastAt),
+        doneList: dones(r)
+          .map(({ key, d, q, unit: u }) => ({ key, q: latestQuestion(q), unit: u, count: d.count || 1, at: d.at || 0 }))
+          .sort((a, b) => b.at - a.at),
         drillLevel: r.drill?.xp ? levelFromXp(r.drill.xp).level : null,
         drillSolved: r.drill?.solved || 0,
         updatedAt: r.updatedAt || 0,
@@ -75,11 +97,15 @@ export function summarize(rows, unit = null) {
   const qs = {}
   for (const r of rows) {
     for (const { key, w, q, unit: u } of items(r)) {
-      qs[key] = qs[key] || { key, question: latestQuestion(q), unit: u, students: 0, misses: 0, names: [] }
+      qs[key] = qs[key] || { key, question: latestQuestion(q), unit: u, students: 0, misses: 0, names: [], doneNames: [] }
       qs[key].students += 1
       qs[key].misses += w.count || 1
       qs[key].names.push(r.name || r.uid)
     }
+  }
+  // 같은 문제를 이미 정리한 학생도 함께 보여 준다
+  for (const r of rows) {
+    for (const { key } of dones(r)) if (qs[key]) qs[key].doneNames.push(r.name || r.uid)
   }
   const topWrong = Object.values(qs)
     .sort((a, b) => b.students - a.students || b.misses - a.misses)

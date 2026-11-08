@@ -21,28 +21,37 @@ export default function WrongReview({ onBack }) {
   const [feedback, setFeedback] = useState(null) // { correct, item, graduated }
   const [score, setScore] = useState({ right: 0, graduated: 0 })
 
+  const [reloadKey, setReloadKey] = useState(0)
+  const [reloading, setReloading] = useState(false)
   useEffect(() => {
     let alive = true
     setError(null)
     // 인터넷이 느리면 '불러오는 중'에서 멈춘 것처럼 보이지 않게 15초 뒤엔 안내
     const slow = setTimeout(() => alive && setError('오답 노트를 불러오는 데 오래 걸려요. 인터넷을 확인하고 다시 들어와 주세요'), 15000)
     accountApi()
-      .then((a) => a.loadProgress(a.ME))
+      // 들어올 때마다 서버에서 새로 읽는다 — 방금 다른 기기(교실 게임)에서 틀린 문제도 바로 보이게
+      .then((a) => a.loadProgress(a.ME, { fresh: true }))
       .then((p) => {
         clearTimeout(slow)
+        setReloading(false)
         if (!alive) return
         if (p) setBook(p)
         else setError('로그인 정보를 확인하지 못했어요. 메뉴에서 다시 로그인해 주세요')
       })
       .catch(() => {
         clearTimeout(slow)
+        setReloading(false)
         if (alive) setError('오답 노트를 불러오지 못했어요. 인터넷을 확인해 주세요')
       })
     return () => {
       alive = false
       clearTimeout(slow)
     }
-  }, [me?.username])
+  }, [me?.username, reloadKey])
+  const reload = () => {
+    setReloading(true)
+    setReloadKey((k) => k + 1)
+  }
 
   const allList = useMemo(() => (book ? reviewList(book) : []), [book])
   // 단원별 보기 — 단원(문제 세트)마다 남은 문제 수
@@ -175,6 +184,13 @@ export default function WrongReview({ onBack }) {
         <p className="mt-1 text-sm font-semibold text-amber-700">
           틀린 문제를 다시 풀어요. 연속 {MASTER_STREAK}번 맞히면 졸업!
         </p>
+        <button
+          onClick={reload}
+          disabled={reloading}
+          className="mt-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-extrabold text-violet-700 ring-1 ring-violet-200 disabled:opacity-60"
+        >
+          <span className={reloading ? 'inline-block animate-spin' : ''}>↻</span> {reloading ? '불러오는 중…' : '새로고침 (방금 틀린 문제 불러오기)'}
+        </button>
       </div>
       {error && <p className="mt-4 text-center font-bold text-rose-600">{error}</p>}
       {!book && !error && <p className="mt-6 animate-pulse text-center font-bold text-amber-700">불러오는 중…</p>}

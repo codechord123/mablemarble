@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyResult, reviewList, emptyBook, MAX_WRONG, keyOf } from '../src/account/wrongBook.js'
+import { applyResult, reviewList, emptyBook, MAX_WRONG, MAX_DONE, keyOf } from '../src/account/wrongBook.js'
 
 const q = (id, extra = {}) => ({ id, type: 'multiple_choice', question: `문제 ${id}`, choices: ['1', '2'], answer: 1, category: '분수', ...extra })
 
@@ -16,6 +16,31 @@ describe('오답 노트', () => {
     b = applyResult(b, q('a'), true, 5)
     expect(b.wrong[keyOf(q('a'))]).toBeUndefined()
     expect(b.mastered).toBe(1)
+  })
+  it('정리(졸업)한 문제는 무엇을 언제 정리했는지 남고, 다시 틀리면 오답으로 돌아간다', () => {
+    let b = applyResult(emptyBook(), q('a'), false, 10)
+    b = applyResult(b, q('a'), false, 20)
+    expect(b.wrong[keyOf(q('a'))].firstAt).toBe(10)
+    b = applyResult(b, q('a'), true, 30)
+    b = applyResult(b, q('a'), true, 40)
+    const d = b.done[keyOf(q('a'))]
+    expect(d).toMatchObject({ count: 2, firstAt: 10, at: 40 })
+    expect(JSON.parse(d.q).question).toBe('문제 a')
+    b = applyResult(b, q('a'), false, 50)
+    expect(b.done[keyOf(q('a'))]).toBeUndefined()
+    expect(b.wrong[keyOf(q('a'))].count).toBe(1)
+    expect(b.mastered).toBe(1) // 지금까지 정리한 횟수는 그대로
+  })
+  it('정리 기록은 최근 것만 남는다', () => {
+    let b = emptyBook()
+    for (let i = 0; i < MAX_DONE + 5; i++) {
+      b = applyResult(b, q('d' + i), false, i * 10)
+      b = applyResult(b, q('d' + i), true, i * 10 + 1)
+      b = applyResult(b, q('d' + i), true, i * 10 + 2)
+    }
+    expect(Object.keys(b.done)).toHaveLength(MAX_DONE)
+    expect(b.done[keyOf(q('d0'))]).toBeUndefined()
+    expect(b.mastered).toBe(MAX_DONE + 5)
   })
   it('노트에 없는 문제를 맞히면 그대로', () => {
     const b = emptyBook()

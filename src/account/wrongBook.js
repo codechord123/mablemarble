@@ -4,6 +4,7 @@ import { unitOfQuestion, latestQuestion } from '../data/units.js'
 
 export const MASTER_STREAK = 2
 export const MAX_WRONG = 100
+export const MAX_DONE = 60 // 정리(졸업)한 문제 기록 — 선생님이 '무엇을 정리했는지' 볼 수 있게 최근 것만 남긴다
 
 // 문제 모양 그대로 저장 (Firestore는 배열 속 배열을 못 담아서 글자로 바꿔 둔다)
 function snapshot(q) {
@@ -20,9 +21,10 @@ function textHash(s) {
 export const keyOf = (q) => `${clean(q.id ?? 'q').slice(0, 60)}~${textHash(q.question)}`
 const legacyKeyOf = (q) => clean(q.id ?? q.question).slice(0, 120) // 예전 열쇠 (이어받기용)
 
-export const emptyBook = () => ({ wrong: {}, mastered: 0 })
+export const emptyBook = () => ({ wrong: {}, mastered: 0, done: {} })
 
-// book: { wrong: { [key]: { q, count, streak, lastAt } }, mastered }
+// book: { wrong: { [key]: { q, count, streak, lastAt, firstAt } }, mastered, done: { [key]: { q, count, firstAt, at } } }
+// mastered는 지금까지 정리한 문제 수(예전 기록 포함), done은 그중 최근에 정리한 문제들.
 export function applyResult(book, question, correct, now = Date.now()) {
   let b = book || emptyBook()
   const key = keyOf(question)
@@ -38,18 +40,33 @@ export function applyResult(book, question, correct, now = Date.now()) {
     const streak = (cur.streak || 0) + 1
     if (streak >= MASTER_STREAK) {
       const { [key]: _gone, ...rest } = b.wrong
-      return { ...b, wrong: rest, mastered: (b.mastered || 0) + 1 }
+      let done = { ...(b.done || {}), [key]: { q: cur.q, count: cur.count || 1, firstAt: cur.firstAt || cur.lastAt || now, at: now } }
+      const dk = Object.keys(done)
+      if (dk.length > MAX_DONE) {
+        dk.sort((a, c) => done[a].at - done[c].at)
+        done = Object.fromEntries(dk.slice(dk.length - MAX_DONE).map((k) => [k, done[k]]))
+      }
+      return { ...b, wrong: rest, mastered: (b.mastered || 0) + 1, done }
     }
     return { ...b, wrong: { ...b.wrong, [key]: { ...cur, streak, lastAt: now } } }
   }
-  let wrong = { ...b.wrong, [key]: { q: snapshot(question), count: (cur?.count || 0) + 1, streak: 0, lastAt: now } }
+  let wrong = {
+    ...b.wrong,
+    [key]: { q: snapshot(question), count: (cur?.count || 0) + 1, streak: 0, lastAt: now, firstAt: cur?.firstAt || now },
+  }
+  // 정리했던 문제를 다시 틀리면 '정리 완료'에서 빼고 다시 오답으로
+  let done = b.done
+  if (done?.[key]) {
+    const { [key]: _back, ...restDone } = done
+    done = restDone
+  }
   const keys = Object.keys(wrong)
   if (keys.length > MAX_WRONG) {
     // 가장 오래된 것부터 뺀다
     keys.sort((a, c) => wrong[a].lastAt - wrong[c].lastAt)
     wrong = Object.fromEntries(keys.slice(keys.length - MAX_WRONG).map((k) => [k, wrong[k]]))
   }
-  return { ...b, wrong }
+  return done === b.done ? { ...b, wrong } : { ...b, wrong, done }
 }
 
 // 푼 문제 통계 — 선생님 통계 화면용 (전체·단원별·영역별 푼 수와 맞힌 수)
