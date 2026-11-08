@@ -1,6 +1,6 @@
 // 넓이 문제용 도형 그림(SVG). figure 스펙을 받아 치수 라벨과 함께 그린다.
 // figure 예: { shape:'triangle', base:8, height:5, unit:'cm' }
-// shape: rectangle | parallelogram | triangle | rhombus | house | paratri | array
+// shape: rectangle | parallelogram | triangle | rhombus | house | paratri | array | geo(합동과 대칭)
 // 그림은 개념 설명용이라 실제 비율과 정확히 일치하지 않을 수 있음(교과서식).
 
 const FILL = '#fef3c7'
@@ -296,6 +296,106 @@ function DotArray({ rows, cols, group }) {
   )
 }
 
+// 합동과 대칭용 일반 도형 그림.
+// figure 예: { shape:'geo', polys:[{ pts:[[0,0],[6,0],[2,4]], labels:['ㄱ','ㄴ','ㄷ'],
+//   edges:{0:'6 cm'}, angles:{2:'70°'}, tone:'a' }], axis:[[x1,y1],[x2,y2]], center:[x,y], segs:[[[x,y],[x,y]]] }
+// 좌표는 수학처럼 위로 갈수록 y가 크다. 그림 크기에 맞게 알아서 늘이고 줄인다.
+// edges의 i는 pts[i]→pts[i+1] 변, angles의 i는 pts[i] 꼭짓점. 값이 '?'면 빨갛게 강조한다.
+const TONES = {
+  a: { fill: '#fef3c7', stroke: '#b45309' },
+  b: { fill: '#dbeafe', stroke: '#1d4ed8' },
+}
+function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [] }) {
+  const all = []
+  polys.forEach((p) => all.push(...p.pts))
+  if (axis) all.push(...axis)
+  if (center) all.push(center)
+  segs.forEach((sg) => all.push(...sg))
+  const xs = all.map((q) => q[0]), ys = all.map((q) => q[1])
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys)
+  const w = Math.max(maxX - minX, 1e-6), h = Math.max(maxY - minY, 1e-6)
+  const k = Math.min(156 / w, 104 / h)
+  const ox = 100 - ((minX + maxX) / 2) * k
+  const oy = 76 + ((minY + maxY) / 2) * k
+  const P = ([x, y]) => [ox + x * k, oy - y * k]
+  const out = []
+  const unit = (dx, dy) => {
+    const l = Math.hypot(dx, dy) || 1
+    return [dx / l, dy / l]
+  }
+  // 글자 뒤에 흰 테두리 — 선 위에 놓여도 읽히게
+  const halo = { stroke: '#fff', strokeWidth: 3, paintOrder: 'stroke', strokeLinejoin: 'round' }
+  const labels = []
+  polys.forEach((poly, pi) => {
+    const t = TONES[poly.tone] || TONES[pi % 2 ? 'b' : 'a']
+    const pts = poly.pts.map(P)
+    const cx = pts.reduce((s2, q) => s2 + q[0], 0) / pts.length
+    const cy = pts.reduce((s2, q) => s2 + q[1], 0) / pts.length
+    out.push(
+      <polygon key={'p' + pi} points={pts.map((q) => q.join(',')).join(' ')} fill={t.fill} stroke={t.stroke} strokeWidth="2.2" strokeLinejoin="round" />,
+    )
+    ;(poly.labels || []).forEach((lb, i) => {
+      if (!lb) return
+      const [ux, uy] = unit(pts[i][0] - cx, pts[i][1] - cy)
+      labels.push(
+        <text key={`v${pi}-${i}`} x={pts[i][0] + ux * 10} y={pts[i][1] + uy * 10} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="800" fill={LABEL} {...halo}>
+          {lb}
+        </text>,
+      )
+    })
+    Object.entries(poly.edges || {}).forEach(([key, text]) => {
+      const i = Number(key)
+      const a = pts[i], b = pts[(i + 1) % pts.length]
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2
+      let [nx, ny] = unit(-(b[1] - a[1]), b[0] - a[0])
+      if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny }
+      const hw = String(text).length * 3.3
+      const off = 7 + Math.abs(nx) * hw + Math.abs(ny) * 5
+      labels.push(
+        <text key={`e${pi}-${i}`} x={clamp(mx + nx * off, hw + 2, 198 - hw)} y={clamp(my + ny * off, 8, 144)} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill={text === '?' ? DIM : STROKE} {...halo}>
+          {text}
+        </text>,
+      )
+    })
+    Object.entries(poly.angles || {}).forEach(([key, text]) => {
+      const i = Number(key)
+      const [ux, uy] = unit(cx - pts[i][0], cy - pts[i][1])
+      labels.push(
+        <text key={`a${pi}-${i}`} x={pts[i][0] + ux * 19} y={pts[i][1] + uy * 19} textAnchor="middle" dominantBaseline="middle" fontSize="10.5" fontWeight="700" fill={text === '?' ? DIM : '#7c3aed'} {...halo}>
+          {text}
+        </text>,
+      )
+    })
+  })
+  // 보조선(대각선·대응점 잇기)은 도형 위에 그려야 보인다
+  segs.forEach((sg, i) => {
+    const [a, b] = sg.map(P)
+    out.push(<line key={'s' + i} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#475569" strokeWidth="1.4" strokeDasharray="4 3" />)
+  })
+  if (axis) {
+    const [a, b] = axis.map(P)
+    const [ux, uy] = unit(b[0] - a[0], b[1] - a[1])
+    out.push(
+      <line key="axis" x1={a[0] - ux * 10} y1={a[1] - uy * 10} x2={b[0] + ux * 10} y2={b[1] + uy * 10} stroke={DIM} strokeWidth="1.8" strokeDasharray="6 4" />,
+    )
+  }
+  if (center) {
+    const [x, y] = P(center)
+    out.push(<circle key="c" cx={x} cy={y} r="2.8" fill={DIM} />)
+    out.push(
+      <text key="cl" x={x + 8} y={y - 7} fontSize="11" fontWeight="800" fill={DIM} {...halo}>
+        {centerLabel}
+      </text>,
+    )
+  }
+  return (
+    <>
+      {out}
+      {labels}
+    </>
+  )
+}
+
 export default function ShapeDiagram({ figure, className = '' }) {
   if (!figure) return null
   const unit = figure.unit || 'cm'
@@ -310,6 +410,7 @@ export default function ShapeDiagram({ figure, className = '' }) {
     case 'grid': body = <Grid gw={figure.gw} gh={figure.gh} poly={figure.poly} unit={unit} />; break
     case 'fracArea': body = <FracArea an={figure.an} ad={figure.ad} bn={figure.bn} bd={figure.bd} unit={figure.unit} />; break
     case 'array': body = <DotArray rows={figure.rows} cols={figure.cols} group={figure.group} />; break
+    case 'geo': body = <Geo polys={figure.polys} axis={figure.axis} center={figure.center} centerLabel={figure.centerLabel} segs={figure.segs} />; break
     default: return null
   }
   return (

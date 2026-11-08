@@ -1,0 +1,3542 @@
+[
+ {
+  "id": "cg001",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "모양과 크기가 같아서 포개었을 때 완전히 겹치는 두 도형을 서로 무엇이라고 할까요?",
+  "choices": [
+   "합동",
+   "평행",
+   "수직",
+   "대칭"
+  ],
+  "answer": 0,
+  "explanation": "모양과 크기가 같아서 포개었을 때 완전히 겹치는 두 도형을 서로 합동이라고 해요."
+ },
+ {
+  "id": "cg002",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "모양이 같으면 크기가 달라도 서로 합동인 도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "합동은 모양과 크기가 모두 같아야 해요. 크기가 다르면 포개었을 때 완전히 겹치지 않아요."
+ },
+ {
+  "id": "cg003",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "서로 합동인 두 도형은 넓이가 같다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "합동인 두 도형은 완전히 겹치므로 넓이도 같아요."
+ },
+ {
+  "id": "cg004",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "한 변의 길이가 같은 두 정사각형은 서로 합동이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "정사각형은 네 변의 길이가 모두 같아서, 한 변의 길이가 같으면 모양과 크기가 같아요."
+ },
+ {
+  "id": "cg005",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "종이 두 장을 겹쳐 놓고 한꺼번에 오렸어요. 오려 낸 두 도형은 서로 어떤 관계일까요?",
+  "choices": [
+   "서로 합동이다",
+   "크기만 같다",
+   "아무 관계가 없다",
+   "모양만 같다"
+  ],
+  "answer": 0,
+  "explanation": "겹쳐서 함께 오리면 모양과 크기가 똑같아 포개었을 때 완전히 겹쳐요. 그래서 합동이에요."
+ },
+ {
+  "id": "cg006",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "반지름이 같은 두 원은 서로 합동이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "원은 반지름이 같으면 모양과 크기가 같아서 포개면 완전히 겹쳐요."
+ },
+ {
+  "id": "cg007",
+  "category": "도형의 합동",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "두 도형은 서로 합동입니다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "왼쪽 삼각형을 반 바퀴 돌리면 오른쪽 삼각형과 완전히 겹쳐요. 모양과 크기가 같으니 합동이에요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {},
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg008",
+  "category": "도형의 합동",
+  "difficulty": 2,
+  "type": "true_false",
+  "question": "넓이가 같은 두 직사각형은 항상 서로 합동이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "가로 4 cm·세로 9 cm 직사각형과 가로 6 cm·세로 6 cm 직사각형은 넓이가 36 cm²로 같지만 모양이 달라 겹치지 않아요."
+ },
+ {
+  "id": "cg009",
+  "category": "도형의 합동",
+  "difficulty": 2,
+  "type": "true_false",
+  "question": "둘레가 같은 두 정삼각형은 서로 합동이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "정삼각형은 세 변이 같아서 둘레가 같으면 한 변의 길이도 같아요. 그래서 합동이에요."
+ },
+ {
+  "id": "cg010",
+  "category": "도형의 합동",
+  "difficulty": 2,
+  "type": "true_false",
+  "question": "한 변이 4 cm인 정삼각형과 한 변이 4 cm인 정사각형은 서로 합동이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "한 변의 길이가 같아도 모양(삼각형과 사각형)이 달라서 합동이 아니에요."
+ },
+ {
+  "id": "cg011",
+  "category": "도형의 합동",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 중 서로 합동이 아닌 두 도형은 어느 것일까요?",
+  "choices": [
+   "한 변이 3 cm인 정사각형 두 개",
+   "반지름이 2 cm인 원 두 개",
+   "가로 4 cm, 세로 6 cm인 직사각형과 가로 6 cm, 세로 4 cm인 직사각형",
+   "가로 3 cm, 세로 8 cm인 직사각형과 가로 4 cm, 세로 6 cm인 직사각형"
+  ],
+  "answer": 3,
+  "explanation": "가로 3·세로 8 직사각형과 가로 4·세로 6 직사각형은 넓이는 24 cm²로 같지만 모양이 달라요. 가로 4·세로 6과 가로 6·세로 4는 돌리면 겹치므로 합동이에요."
+ },
+ {
+  "id": "cg012",
+  "category": "도형의 합동",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "평행사변형에 대각선을 하나 그어 잘랐을 때 생기는 두 삼각형은 어떤 관계일까요?",
+  "choices": [
+   "넓이가 서로 다르다",
+   "서로 합동이다",
+   "모양이 서로 다르다",
+   "하나가 다른 하나의 두 배이다"
+  ],
+  "answer": 1,
+  "explanation": "평행사변형을 대각선 하나로 자르면 두 삼각형은 반 바퀴 돌려 포갰을 때 완전히 겹쳐요."
+ },
+ {
+  "id": "cg013",
+  "category": "도형의 합동",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정사각형 모양 종이를 두 대각선을 따라 잘랐어요. 모양과 크기가 똑같은 삼각형이 모두 몇 개 생길까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "정사각형의 두 대각선은 길이가 같고 서로를 똑같이 나누므로, 자르면 서로 합동인 삼각형 4개가 생겨요."
+ },
+ {
+  "id": "cg014",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "true_false",
+  "question": "세 변의 길이가 각각 3 cm, 4 cm, 5 cm인 두 삼각형은 서로 합동이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "세 변의 길이가 각각 같으면 모양과 크기가 같은 삼각형이 돼서 서로 합동이에요."
+ },
+ {
+  "id": "cg015",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직사각형을 대각선 하나로 잘라 만든 삼각형 한 개의 넓이가 12 cm²입니다. 처음 직사각형의 넓이는 몇 cm²일까요?",
+  "choices": [],
+  "answer": "24",
+  "explanation": "대각선으로 자른 두 삼각형은 서로 합동이라 넓이가 같아요. 12 × 2 = 24 (cm²)"
+ },
+ {
+  "id": "cg016",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정사각형이 아닌 직사각형을 두 대각선을 따라 잘라 삼각형 4개를 만들었어요. 서로 합동인 삼각형은 모두 몇 쌍일까요?",
+  "choices": [],
+  "answer": "2",
+  "explanation": "마주 보는 위·아래 삼각형끼리 1쌍, 왼쪽·오른쪽 삼각형끼리 1쌍이 합동이에요. 모두 2쌍이에요."
+ },
+ {
+  "id": "cg017",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정육각형의 마주 보는 꼭짓점끼리 선분 3개로 이어 나누었어요. 서로 합동인 삼각형이 모두 몇 개 생길까요?",
+  "choices": [],
+  "answer": "6",
+  "explanation": "정육각형을 가운데에서 나누면 모양과 크기가 같은 정삼각형 6개가 생겨요."
+ },
+ {
+  "id": "cg018",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "가로 7 cm, 세로 4 cm인 직사각형과 서로 합동인 직사각형의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "22",
+  "explanation": "합동인 직사각형도 가로 7 cm, 세로 4 cm예요. 둘레 = (7 + 4) × 2 = 22 (cm)"
+ },
+ {
+  "id": "cg019",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "서로 합동인 두 삼각형이 있어요. 한 삼각형의 넓이가 15 cm²일 때, 두 삼각형의 넓이를 더하면 몇 cm²일까요?",
+  "choices": [],
+  "answer": "30",
+  "explanation": "합동인 두 삼각형은 넓이가 같아요. 15 + 15 = 30 (cm²)"
+ },
+ {
+  "id": "cg020",
+  "category": "도형의 합동",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "둘레가 36 cm인 정사각형과 서로 합동인 정사각형의 한 변은 몇 cm일까요?",
+  "choices": [],
+  "answer": "9",
+  "explanation": "합동인 정사각형의 둘레도 36 cm예요. 한 변 = 36 ÷ 4 = 9 (cm)"
+ },
+ {
+  "id": "cg021",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "서로 합동인 두 도형을 포개었을 때 완전히 겹치는 점을 무엇이라고 할까요?",
+  "choices": [
+   "대응변",
+   "대응점",
+   "대칭의 중심",
+   "대응각"
+  ],
+  "answer": 1,
+  "explanation": "포개었을 때 겹치는 점은 대응점, 겹치는 변은 대응변, 겹치는 각은 대응각이에요."
+ },
+ {
+  "id": "cg022",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "서로 합동인 두 도형을 포개었을 때 완전히 겹치는 변을 무엇이라고 할까요?",
+  "choices": [
+   "대응각",
+   "대칭축",
+   "대응변",
+   "대응점"
+  ],
+  "answer": 2,
+  "explanation": "포개었을 때 겹치는 변을 대응변이라고 해요."
+ },
+ {
+  "id": "cg023",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "서로 합동인 두 도형을 포개었을 때 완전히 겹치는 각을 무엇이라고 할까요?",
+  "choices": [
+   "대응변",
+   "대응각",
+   "직각",
+   "대응점"
+  ],
+  "answer": 1,
+  "explanation": "포개었을 때 겹치는 각을 대응각이라고 해요."
+ },
+ {
+  "id": "cg024",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "서로 합동인 두 도형에서 대응변의 길이는 서로 같다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "합동인 도형은 완전히 겹치므로 대응변의 길이가 서로 같아요."
+ },
+ {
+  "id": "cg025",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "서로 합동인 두 도형에서 대응각의 크기는 서로 다를 수 있다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "합동인 도형에서 대응각의 크기는 항상 서로 같아요."
+ },
+ {
+  "id": "cg026",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "서로 합동인 두 삼각형에서 대응점은 모두 몇 쌍일까요?",
+  "choices": [],
+  "answer": "3",
+  "explanation": "삼각형은 꼭짓점이 3개라서 대응점도 3쌍이에요. (대응변 3쌍, 대응각 3쌍)"
+ },
+ {
+  "id": "cg027",
+  "category": "합동인 도형의 성질",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "서로 합동인 두 사각형에서 대응변은 모두 몇 쌍일까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "사각형은 변이 4개라서 대응변도 4쌍이에요."
+ },
+ {
+  "id": "cg028",
+  "category": "합동인 도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 변 ㅁㅂ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "8",
+  "explanation": "변 ㅁㅂ의 대응변은 변 ㄴㄷ이에요. 대응변의 길이는 같으니 8 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {
+      "0": "7 cm",
+      "1": "8 cm",
+      "2": "5 cm"
+     },
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {
+      "1": "?"
+     },
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg029",
+  "category": "합동인 도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 변 ㄹㅁ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "9",
+  "explanation": "변 ㄹㅁ의 대응변은 변 ㄱㄴ이에요. 그래서 9 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {
+      "0": "9 cm",
+      "1": "10 cm",
+      "2": "6 cm"
+     },
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {
+      "0": "?"
+     },
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg030",
+  "category": "합동인 도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 각 ㄹㅁㅂ은 몇 도일까요?",
+  "choices": [],
+  "answer": "65",
+  "explanation": "각 ㄹㅁㅂ의 대응각은 각 ㄱㄴㄷ이에요. 대응각의 크기는 같으니 65°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "65°"
+     },
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "?"
+     },
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg031",
+  "category": "합동인 도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 각 ㅁㅂㄹ은 몇 도일까요?",
+  "choices": [],
+  "answer": "75",
+  "explanation": "각 ㅁㅂㄹ의 대응각은 각 ㄴㄷㄱ이에요. 그래서 75°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {},
+     "angles": {
+      "2": "75°"
+     },
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {
+      "2": "?"
+     },
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg032",
+  "category": "합동인 도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "사각형 ㄱㄴㄷㄹ과 사각형 ㅁㅂㅅㅇ은 서로 합동입니다. (점 ㄱ↔ㅁ, ㄴ↔ㅂ, ㄷ↔ㅅ, ㄹ↔ㅇ이 대응점) 변 ㅅㅇ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "6",
+  "explanation": "변 ㅅㅇ의 대응변은 변 ㄷㄹ이에요. 그래서 6 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       5,
+       4
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {
+      "0": "10 cm",
+      "2": "6 cm"
+     },
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       9.2,
+       0
+      ],
+      [
+       13.2,
+       1
+      ]
+     ],
+     "labels": [
+      "ㅁ",
+      "ㅂ",
+      "ㅅ",
+      "ㅇ"
+     ],
+     "edges": {
+      "2": "?"
+     },
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg033",
+  "category": "합동인 도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "사각형 ㄱㄴㄷㄹ과 사각형 ㅁㅂㅅㅇ은 서로 합동입니다. (점 ㄱ↔ㅁ, ㄴ↔ㅂ, ㄷ↔ㅅ, ㄹ↔ㅇ이 대응점) 각 ㅁㅂㅅ은 몇 도일까요?",
+  "choices": [],
+  "answer": "80",
+  "explanation": "각 ㅁㅂㅅ의 대응각은 각 ㄱㄴㄷ이에요. 그래서 80°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       5,
+       4
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "80°"
+     },
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       9.2,
+       0
+      ],
+      [
+       13.2,
+       1
+      ]
+     ],
+     "labels": [
+      "ㅁ",
+      "ㅂ",
+      "ㅅ",
+      "ㅇ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "?"
+     },
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg034",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 각 ㄱㄴㄷ이 50°, 각 ㄴㄱㄷ이 70°일 때, 각 ㄹㅂㅁ은 몇 도일까요?",
+  "choices": [],
+  "answer": "60",
+  "explanation": "삼각형 세 각의 합은 180°라서 각 ㄴㄷㄱ = 180° − 50° − 70° = 60°예요. 각 ㄹㅂㅁ은 각 ㄱㄷㄴ의 대응각이라 60°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {},
+     "angles": {
+      "0": "70°",
+      "1": "50°"
+     },
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {
+      "2": "?"
+     },
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg035",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 삼각형 ㄹㅁㅂ의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "24",
+  "explanation": "합동인 도형은 대응변의 길이가 같아서 둘레도 같아요. 6 + 8 + 10 = 24 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {
+      "0": "6 cm",
+      "1": "8 cm",
+      "2": "10 cm"
+     },
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg036",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "삼각형 ㄱㄴㄷ과 삼각형 ㄹㅁㅂ은 서로 합동입니다. (점 ㄱ과 점 ㄹ, 점 ㄴ과 점 ㅁ, 점 ㄷ과 점 ㅂ이 대응점) 삼각형 ㄱㄴㄷ의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "21",
+  "explanation": "변 ㄱㄴ = 9 cm, 변 ㄴㄷ = 변 ㅁㅂ = 7 cm, 변 ㄷㄱ = 변 ㅂㄹ = 5 cm예요. 둘레 = 9 + 7 + 5 = 21 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       2,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {
+      "0": "9 cm"
+     },
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       12.2,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {
+      "1": "7 cm",
+      "2": "5 cm"
+     },
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg037",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "사각형 ㄱㄴㄷㄹ과 사각형 ㅁㅂㅅㅇ은 서로 합동입니다. (점 ㄱ↔ㅁ, ㄴ↔ㅂ, ㄷ↔ㅅ, ㄹ↔ㅇ이 대응점) 각 ㄱ이 80°, 각 ㄴ이 110°, 각 ㄷ이 70°일 때, 각 ㅇ(각 ㅅㅇㅁ)은 몇 도일까요?",
+  "choices": [],
+  "answer": "100",
+  "explanation": "사각형 네 각의 합은 360°라서 각 ㄹ = 360° − 80° − 110° − 70° = 100°예요. 각 ㅇ은 각 ㄹ의 대응각이라 100°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       5,
+       4
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {
+      "0": "80°",
+      "1": "110°",
+      "2": "70°"
+     },
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       9.2,
+       0
+      ],
+      [
+       13.2,
+       1
+      ]
+     ],
+     "labels": [
+      "ㅁ",
+      "ㅂ",
+      "ㅅ",
+      "ㅇ"
+     ],
+     "edges": {},
+     "angles": {
+      "3": "?"
+     },
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg038",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "사각형 ㄱㄴㄷㄹ과 사각형 ㅁㅂㅅㅇ은 서로 합동입니다. (점 ㄱ↔ㅁ, ㄴ↔ㅂ, ㄷ↔ㅅ, ㄹ↔ㅇ이 대응점) 사각형 ㄱㄴㄷㄹ의 둘레가 30 cm이고 변 ㅁㅂ이 10 cm, 변 ㅂㅅ이 7 cm, 변 ㅅㅇ이 6 cm일 때, 변 ㄹㄱ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "7",
+  "explanation": "대응변의 길이가 같으니 변 ㄱㄴ = 10, 변 ㄴㄷ = 7, 변 ㄷㄹ = 6 cm예요. 변 ㄹㄱ = 30 − (10 + 7 + 6) = 7 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       5,
+       4
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {},
+     "tone": "a"
+    },
+    {
+     "pts": [
+      [
+       14.2,
+       4
+      ],
+      [
+       8.2,
+       4
+      ],
+      [
+       9.2,
+       0
+      ],
+      [
+       13.2,
+       1
+      ]
+     ],
+     "labels": [
+      "ㅁ",
+      "ㅂ",
+      "ㅅ",
+      "ㅇ"
+     ],
+     "edges": {
+      "0": "10 cm",
+      "1": "7 cm",
+      "2": "6 cm"
+     },
+     "angles": {},
+     "tone": "b"
+    }
+   ]
+  }
+ },
+ {
+  "id": "cg039",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "서로 합동인 두 삼각형에 대한 설명으로 옳지 않은 것은 어느 것일까요?",
+  "choices": [
+   "넓이가 같다",
+   "대응각의 크기가 같다",
+   "둘레가 서로 다를 수 있다",
+   "대응변의 길이가 같다"
+  ],
+  "answer": 2,
+  "explanation": "합동인 두 삼각형은 대응변의 길이가 모두 같아서 둘레도 항상 같아요. 대응각의 크기와 넓이도 같아요."
+ },
+ {
+  "id": "cg040",
+  "category": "합동인 도형의 성질",
+  "difficulty": 3,
+  "type": "true_false",
+  "question": "서로 합동인 두 사각형에서 한 사각형의 네 각의 크기를 더하면 360°이므로, 다른 사각형의 네 각의 크기를 더해도 360°이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "사각형의 네 각의 합은 언제나 360°예요. 합동인 사각형은 대응각까지 같아요."
+ },
+ {
+  "id": "cg041",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "한 직선을 따라 접었을 때 완전히 겹치는 도형을 무엇이라고 할까요?",
+  "choices": [
+   "선대칭도형",
+   "점대칭도형",
+   "정다각형",
+   "합동인 도형"
+  ],
+  "answer": 0,
+  "explanation": "한 직선을 따라 접었을 때 완전히 겹치는 도형을 선대칭도형이라고 해요."
+ },
+ {
+  "id": "cg042",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "선대칭도형에서 접는 기준이 되는 직선을 무엇이라고 할까요?",
+  "choices": [
+   "대각선",
+   "대칭의 중심",
+   "대칭축",
+   "대응변"
+  ],
+  "answer": 2,
+  "explanation": "선대칭도형을 접는 기준이 되는 직선을 대칭축이라고 해요."
+ },
+ {
+  "id": "cg043",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "선대칭도형의 대칭축은 항상 1개뿐이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "정사각형은 대칭축이 4개, 원은 셀 수 없이 많아요. 도형에 따라 대칭축이 여러 개일 수 있어요."
+ },
+ {
+  "id": "cg044",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정사각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "가로·세로 가운데를 지나는 선 2개와 대각선 2개, 모두 4개예요."
+ },
+ {
+  "id": "cg045",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정삼각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "3",
+  "explanation": "각 꼭짓점에서 마주 보는 변의 가운데를 지나는 직선 3개가 대칭축이에요."
+ },
+ {
+  "id": "cg046",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정사각형이 아닌 직사각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "2",
+  "explanation": "가로의 가운데와 세로의 가운데를 지나는 직선 2개예요. 대각선으로 접으면 겹치지 않아요."
+ },
+ {
+  "id": "cg047",
+  "category": "선대칭도형",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "그림의 빨간 점선을 따라 접으면 도형이 완전히 겹친다. 이 도형은 선대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "점선을 따라 접었을 때 완전히 겹치므로 선대칭도형이고, 점선은 대칭축이에요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       3
+      ],
+      [
+       0,
+       5.5
+      ],
+      [
+       -3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     5.8
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg048",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정오각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "5",
+  "explanation": "정다각형의 대칭축 수는 변의 수와 같아요. 정오각형은 5개예요."
+ },
+ {
+  "id": "cg049",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정육각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "6",
+  "explanation": "정다각형의 대칭축 수는 변의 수와 같아요. 정육각형은 6개예요."
+ },
+ {
+  "id": "cg050",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정사각형이 아닌 마름모의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "2",
+  "explanation": "마름모는 두 대각선을 따라 접으면 완전히 겹쳐요. 대칭축은 2개예요."
+ },
+ {
+  "id": "cg051",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정삼각형이 아닌 이등변삼각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "1",
+  "explanation": "길이가 같은 두 변 사이의 꼭짓점에서 밑변의 가운데를 지나는 직선 1개뿐이에요."
+ },
+ {
+  "id": "cg052",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "원의 대칭축은 몇 개일까요?",
+  "choices": [
+   "1개",
+   "4개",
+   "셀 수 없이 많다",
+   "2개"
+  ],
+  "answer": 2,
+  "explanation": "원의 중심을 지나는 직선은 모두 대칭축이라서 셀 수 없이 많아요."
+ },
+ {
+  "id": "cg053",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 중 선대칭도형이 아닌 것은 어느 것일까요?",
+  "choices": [
+   "직사각형도 마름모도 아닌 평행사변형",
+   "이등변삼각형",
+   "정사각형",
+   "원"
+  ],
+  "answer": 0,
+  "explanation": "직사각형도 마름모도 아닌 평행사변형은 어느 직선으로 접어도 완전히 겹치지 않아요."
+ },
+ {
+  "id": "cg054",
+  "category": "선대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 알파벳 중 선대칭도형이 아닌 것은 어느 것일까요?",
+  "choices": [
+   "T",
+   "F",
+   "M",
+   "A"
+  ],
+  "answer": 1,
+  "explanation": "A, M, T는 세로로 가운데를 접으면 겹치지만 F는 어느 쪽으로 접어도 겹치지 않아요."
+ },
+ {
+  "id": "cg055",
+  "category": "선대칭도형",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "다음 중 대칭축이 가장 많은 도형은 어느 것일까요?",
+  "choices": [
+   "직사각형",
+   "정사각형",
+   "정삼각형",
+   "정육각형"
+  ],
+  "answer": 3,
+  "explanation": "정삼각형 3개, 정사각형 4개, 직사각형 2개, 정육각형 6개라서 정육각형이 가장 많아요."
+ },
+ {
+  "id": "cg056",
+  "category": "선대칭도형",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정팔각형의 대칭축은 모두 몇 개일까요?",
+  "choices": [],
+  "answer": "8",
+  "explanation": "정다각형의 대칭축 수는 변의 수와 같아요. 정팔각형은 8개예요."
+ },
+ {
+  "id": "cg057",
+  "category": "선대칭도형",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정사각형의 대칭축 수와 정삼각형의 대칭축 수를 더하면 몇 개일까요?",
+  "choices": [],
+  "answer": "7",
+  "explanation": "정사각형 4개 + 정삼각형 3개 = 7개"
+ },
+ {
+  "id": "cg058",
+  "category": "선대칭도형",
+  "difficulty": 3,
+  "type": "true_false",
+  "question": "모든 삼각형은 선대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "세 변의 길이가 모두 다른 삼각형은 어느 직선으로 접어도 겹치지 않아 선대칭도형이 아니에요."
+ },
+ {
+  "id": "cg059",
+  "category": "선대칭도형",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "다음 중 대칭축이 1개뿐인 도형은 어느 것일까요?",
+  "choices": [
+   "정사각형",
+   "정삼각형이 아닌 이등변삼각형",
+   "원",
+   "직사각형"
+  ],
+  "answer": 1,
+  "explanation": "이등변삼각형(정삼각형 제외) 1개, 직사각형 2개, 정사각형 4개, 원은 셀 수 없이 많아요."
+ },
+ {
+  "id": "cg060",
+  "category": "선대칭도형",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "정육각형의 대칭축 수에서 직사각형(정사각형 아님)의 대칭축 수를 빼면 몇 개일까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "정육각형 6개 − 직사각형 2개 = 4개"
+ },
+ {
+  "id": "cg061",
+  "category": "선대칭도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "선대칭도형에서 대칭축을 따라 접었을 때 겹치는 대응변의 길이는 서로 같다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "선대칭도형은 대칭축으로 접으면 완전히 겹쳐서 대응변의 길이가 같아요."
+ },
+ {
+  "id": "cg062",
+  "category": "선대칭도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "선대칭도형에서 대응각의 크기는 서로 같다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "대칭축으로 접으면 대응각이 완전히 겹치므로 크기가 같아요."
+ },
+ {
+  "id": "cg063",
+  "category": "선대칭도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "선대칭도형에서 대응점끼리 이은 선분과 대칭축은 어떻게 만날까요?",
+  "choices": [
+   "비스듬히 만난다",
+   "만나지 않는다",
+   "수직으로 만난다",
+   "평행하다"
+  ],
+  "answer": 2,
+  "explanation": "대응점끼리 이은 선분은 대칭축과 수직으로 만나요."
+ },
+ {
+  "id": "cg064",
+  "category": "선대칭도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "선대칭도형에서 대칭축은 대응점끼리 이은 선분을 어떻게 나눌까요?",
+  "choices": [
+   "나누지 않는다",
+   "셋으로 똑같이 나눈다",
+   "1 : 2로 나눈다",
+   "둘로 똑같이 나눈다"
+  ],
+  "answer": 3,
+  "explanation": "대칭축은 대응점끼리 이은 선분을 둘로 똑같이 나눠요."
+ },
+ {
+  "id": "cg065",
+  "category": "선대칭도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "선대칭도형에서 대응점끼리 이은 선분은 대칭축과 평행하다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "대응점끼리 이은 선분은 대칭축과 수직으로 만나요."
+ },
+ {
+  "id": "cg066",
+  "category": "선대칭도형의 성질",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "선대칭도형에서 대응점끼리 이은 선분과 대칭축이 만나서 이루는 각은 몇 도일까요?",
+  "choices": [],
+  "answer": "90",
+  "explanation": "대응점끼리 이은 선분과 대칭축은 수직으로 만나서 90°를 이뤄요."
+ },
+ {
+  "id": "cg067",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 변 ㄱㄹ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "5",
+  "explanation": "변 ㄱㄹ의 대응변은 변 ㄱㄴ이에요. 대응변의 길이가 같으니 5 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {
+      "0": "5 cm",
+      "3": "?"
+     },
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg068",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 각 ㄱㄹㄷ은 몇 도일까요?",
+  "choices": [],
+  "answer": "105",
+  "explanation": "각 ㄱㄹㄷ의 대응각은 각 ㄱㄴㄷ이에요. 그래서 105°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "105°",
+      "3": "?"
+     }
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg069",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 선분 ㄴㄹ이 12 cm일 때 선분 ㄴㅁ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "6",
+  "explanation": "대칭축은 대응점끼리 이은 선분을 둘로 똑같이 나눠요. 12 ÷ 2 = 6 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ],
+   "segs": [
+    [
+     [
+      -3,
+      3
+     ],
+     [
+      3,
+      3
+     ]
+    ]
+   ],
+   "center": [
+    0,
+    3
+   ],
+   "centerLabel": "ㅁ"
+  }
+ },
+ {
+  "id": "cg070",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 선분 ㄹㅁ이 4 cm일 때 선분 ㄴㄹ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "8",
+  "explanation": "선분 ㄴㅁ과 선분 ㄹㅁ의 길이가 같아요. 4 × 2 = 8 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ],
+   "segs": [
+    [
+     [
+      -3,
+      3
+     ],
+     [
+      3,
+      3
+     ]
+    ]
+   ],
+   "center": [
+    0,
+    3
+   ],
+   "centerLabel": "ㅁ"
+  }
+ },
+ {
+  "id": "cg071",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "빨간 점선을 대칭축으로 하는 선대칭도형입니다. 변 ㄷㄹ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "변 ㄷㄹ의 대응변은 변 ㅁㄹ이에요. 그래서 4 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       3
+      ],
+      [
+       0,
+       5.5
+      ],
+      [
+       -3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ"
+     ],
+     "edges": {
+      "2": "?",
+      "3": "4 cm"
+     },
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     5.8
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg072",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "빨간 점선을 대칭축으로 하는 선대칭도형입니다. 각 ㄴㄷㄹ은 몇 도일까요?",
+  "choices": [],
+  "answer": "125",
+  "explanation": "각 ㄴㄷㄹ의 대응각은 각 ㄱㅁㄹ이에요. 그래서 125°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       3
+      ],
+      [
+       0,
+       5.5
+      ],
+      [
+       -3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ"
+     ],
+     "edges": {},
+     "angles": {
+      "2": "?",
+      "4": "125°"
+     }
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     5.8
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg073",
+  "category": "선대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "선대칭도형에서 한 점과 대칭축 사이의 거리가 7 cm입니다. 이 점과 대응점 사이의 거리는 몇 cm일까요?",
+  "choices": [],
+  "answer": "14",
+  "explanation": "대응점은 대칭축을 사이에 두고 같은 거리만큼 떨어져 있어요. 7 × 2 = 14 (cm)"
+ },
+ {
+  "id": "cg074",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 사각형 ㄱㄴㄷㄹ의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "26",
+  "explanation": "변 ㄱㄹ = 변 ㄱㄴ = 8 cm, 변 ㄹㄷ = 변 ㄴㄷ = 5 cm예요. 둘레 = (8 + 5) × 2 = 26 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {
+      "0": "8 cm",
+      "1": "5 cm"
+     },
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg075",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 각 ㄴㄱㄹ이 60°, 각 ㄱㄴㄷ이 110°일 때 각 ㄴㄷㄹ은 몇 도일까요?",
+  "choices": [],
+  "answer": "80",
+  "explanation": "각 ㄱㄹㄷ = 각 ㄱㄴㄷ = 110°예요. 사각형 네 각의 합은 360°라서 360° − 60° − 110° − 110° = 80°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {
+      "0": "60°",
+      "1": "110°",
+      "2": "?"
+     }
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg076",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄹ을 대칭축으로 하는 선대칭도형입니다. 각 ㄱㄴㄷ이 65°일 때 각 ㄴㄱㄷ은 몇 도일까요? (ㄹ은 변 ㄴㄷ 위의 점)",
+  "choices": [],
+  "answer": "50",
+  "explanation": "각 ㄱㄷㄴ = 각 ㄱㄴㄷ = 65°예요. 삼각형 세 각의 합은 180°라서 180° − 65° − 65° = 50°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       5
+      ],
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "65°",
+      "0": "?"
+     }
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     5.3
+    ]
+   ],
+   "center": [
+    0,
+    0
+   ],
+   "centerLabel": "ㄹ"
+  }
+ },
+ {
+  "id": "cg077",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "빨간 점선을 대칭축으로 하는 선대칭도형입니다. 변 ㄱㄴ이 6 cm, 변 ㄴㄷ이 3 cm, 변 ㄷㄹ이 4 cm일 때 오각형의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "20",
+  "explanation": "변 ㄱㅁ = 변 ㄴㄷ = 3 cm, 변 ㅁㄹ = 변 ㄷㄹ = 4 cm예요. 둘레 = 6 + 3 + 4 + 4 + 3 = 20 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       3
+      ],
+      [
+       0,
+       5.5
+      ],
+      [
+       -3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ"
+     ],
+     "edges": {
+      "0": "6 cm",
+      "1": "3 cm",
+      "2": "4 cm"
+     },
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     5.8
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg078",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "이등변삼각형 ㄱㄴㄷ은 직선 ㄱㄹ을 대칭축으로 하는 선대칭도형입니다. 변 ㄴㄷ이 10 cm일 때 선분 ㄴㄹ은 몇 cm일까요? (ㄹ은 변 ㄴㄷ 위의 점)",
+  "choices": [],
+  "answer": "5",
+  "explanation": "대칭축은 대응점 ㄴ과 ㄷ을 이은 선분을 둘로 똑같이 나눠요. 10 ÷ 2 = 5 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       5
+      ],
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       0
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ"
+     ],
+     "edges": {
+      "1": "10 cm"
+     },
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     5.3
+    ]
+   ],
+   "center": [
+    0,
+    0
+   ],
+   "centerLabel": "ㄹ"
+  }
+ },
+ {
+  "id": "cg079",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "선대칭도형에 대한 설명으로 옳지 않은 것은 어느 것일까요?",
+  "choices": [
+   "대응점끼리 이은 선분들은 모두 한 점에서 만난다",
+   "대응변의 길이가 같다",
+   "대응각의 크기가 같다",
+   "대응점끼리 이은 선분은 대칭축과 수직이다"
+  ],
+  "answer": 0,
+  "explanation": "대응점끼리 이은 선분들은 모두 대칭축에 수직이라 서로 평행해요. 한 점에서 만나는 것은 점대칭도형의 성질이에요."
+ },
+ {
+  "id": "cg080",
+  "category": "선대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "직선 ㄱㄷ을 대칭축으로 하는 선대칭도형입니다. 선분 ㄴㄹ이 10 cm, 선분 ㄱㄷ이 9 cm일 때 사각형 ㄱㄴㄷㄹ의 넓이는 몇 cm²일까요?",
+  "choices": [],
+  "answer": "45",
+  "explanation": "대칭축 ㄱㄷ은 선분 ㄴㄹ과 수직이에요. 삼각형 ㄱㄴㄷ과 ㄱㄹㄷ의 넓이는 각각 9 × 5 ÷ 2 = 22.5 cm²라서 합은 45 cm²예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       0,
+       6
+      ],
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       3,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "axis": [
+    [
+     0,
+     -0.3
+    ],
+    [
+     0,
+     6.3
+    ]
+   ],
+   "segs": [
+    [
+     [
+      -3,
+      3
+     ],
+     [
+      3,
+      3
+     ]
+    ]
+   ],
+   "center": [
+    0,
+    3
+   ],
+   "centerLabel": "ㅁ"
+  }
+ },
+ {
+  "id": "cg081",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "한 도형을 어떤 점을 중심으로 180° 돌렸을 때 처음 도형과 완전히 겹치는 도형을 무엇이라고 할까요?",
+  "choices": [
+   "선대칭도형",
+   "정다각형",
+   "점대칭도형",
+   "합동인 도형"
+  ],
+  "answer": 2,
+  "explanation": "한 점을 중심으로 180° 돌렸을 때 처음 도형과 완전히 겹치면 점대칭도형이에요."
+ },
+ {
+  "id": "cg082",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "점대칭도형에서 돌리는 중심이 되는 점을 무엇이라고 할까요?",
+  "choices": [
+   "대응점",
+   "대칭의 중심",
+   "대칭축",
+   "꼭짓점"
+  ],
+  "answer": 1,
+  "explanation": "점대칭도형에서 180° 돌릴 때 중심이 되는 점을 대칭의 중심이라고 해요."
+ },
+ {
+  "id": "cg083",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점대칭도형은 대칭의 중심을 중심으로 몇 도 돌렸을 때 처음 도형과 완전히 겹칠까요?",
+  "choices": [],
+  "answer": "180",
+  "explanation": "점대칭도형은 180°(반 바퀴) 돌렸을 때 처음 도형과 겹쳐요."
+ },
+ {
+  "id": "cg084",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "점대칭도형에서 대칭의 중심은 항상 1개이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "점대칭도형의 대칭의 중심은 하나뿐이에요."
+ },
+ {
+  "id": "cg085",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "정삼각형은 점대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "정삼각형을 180° 돌리면 꼭짓점이 아래로 가서 처음 도형과 겹치지 않아요."
+ },
+ {
+  "id": "cg086",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "원은 점대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "원은 중심을 기준으로 180° 돌리면 처음과 완전히 겹쳐요."
+ },
+ {
+  "id": "cg087",
+  "category": "점대칭도형",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "점 ㅇ을 중심으로 180° 돌리면 처음 도형과 완전히 겹친다. 이 평행사변형은 점대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "평행사변형은 두 대각선이 만나는 점 ㅇ을 중심으로 180° 돌리면 완전히 겹쳐요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ],
+   "segs": [
+    [
+     [
+      1.5,
+      4
+     ],
+     [
+      6,
+      0
+     ]
+    ],
+    [
+     [
+      0,
+      0
+     ],
+     [
+      7.5,
+      4
+     ]
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg088",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 중 점대칭도형인 것은 어느 것일까요?",
+  "choices": [
+   "이등변삼각형",
+   "정오각형",
+   "평행사변형",
+   "정삼각형"
+  ],
+  "answer": 2,
+  "explanation": "평행사변형은 두 대각선이 만나는 점을 중심으로 180° 돌리면 겹쳐요. 나머지는 겹치지 않아요."
+ },
+ {
+  "id": "cg089",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 알파벳 중 점대칭도형인 것은 어느 것일까요?",
+  "choices": [
+   "A",
+   "S",
+   "K",
+   "E"
+  ],
+  "answer": 1,
+  "explanation": "S는 가운데 점을 중심으로 180° 돌리면 처음 모양과 같아요."
+ },
+ {
+  "id": "cg090",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 중 점대칭도형이 아닌 것은 어느 것일까요?",
+  "choices": [
+   "직사각형",
+   "정사각형",
+   "정오각형",
+   "마름모"
+  ],
+  "answer": 2,
+  "explanation": "정오각형은 180° 돌리면 꼭짓점이 반대쪽으로 가서 겹치지 않아요."
+ },
+ {
+  "id": "cg091",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "true_false",
+  "question": "정육각형은 점대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "정육각형은 가운데 점을 중심으로 180° 돌리면 완전히 겹쳐요."
+ },
+ {
+  "id": "cg092",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "다음 중 선대칭도형도 되고 점대칭도형도 되는 것은 어느 것일까요?",
+  "choices": [
+   "정삼각형이 아닌 이등변삼각형",
+   "정삼각형",
+   "정사각형",
+   "직사각형도 마름모도 아닌 평행사변형"
+  ],
+  "answer": 2,
+  "explanation": "정사각형은 대칭축이 4개이고, 가운데 점을 중심으로 180° 돌려도 겹쳐요."
+ },
+ {
+  "id": "cg093",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "multiple_choice",
+  "question": "평행사변형에서 대칭의 중심은 어디일까요?",
+  "choices": [
+   "두 대각선이 만나는 점",
+   "짧은 변의 가운데",
+   "긴 변의 가운데",
+   "한 꼭짓점"
+  ],
+  "answer": 0,
+  "explanation": "평행사변형의 대칭의 중심은 두 대각선이 만나는 점이에요."
+ },
+ {
+  "id": "cg094",
+  "category": "점대칭도형",
+  "difficulty": 2,
+  "type": "true_false",
+  "question": "정오각형은 점대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "변의 수가 홀수인 정다각형은 180° 돌리면 겹치지 않아 점대칭도형이 아니에요."
+ },
+ {
+  "id": "cg095",
+  "category": "점대칭도형",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "다음 중 점대칭도형인 정다각형끼리 짝 지은 것은 어느 것일까요?",
+  "choices": [
+   "정삼각형, 정오각형",
+   "정삼각형, 정사각형",
+   "정오각형, 정육각형",
+   "정사각형, 정육각형"
+  ],
+  "answer": 3,
+  "explanation": "변의 수가 짝수인 정다각형(정사각형, 정육각형, 정팔각형…)이 점대칭도형이에요."
+ },
+ {
+  "id": "cg096",
+  "category": "점대칭도형",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "다음 알파벳 중 선대칭도형도 되고 점대칭도형도 되는 것은 어느 것일까요?",
+  "choices": [
+   "A",
+   "S",
+   "N",
+   "H"
+  ],
+  "answer": 3,
+  "explanation": "H는 세로·가로로 접어도 겹치고 180° 돌려도 겹쳐요. N·S는 점대칭만, A는 선대칭만 돼요."
+ },
+ {
+  "id": "cg097",
+  "category": "점대칭도형",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "다음 중 점대칭도형이지만 선대칭도형은 아닌 것은 어느 것일까요?",
+  "choices": [
+   "원",
+   "정사각형",
+   "직사각형",
+   "직사각형도 마름모도 아닌 평행사변형"
+  ],
+  "answer": 3,
+  "explanation": "이런 평행사변형은 180° 돌리면 겹치지만 어느 직선으로 접어도 겹치지 않아요."
+ },
+ {
+  "id": "cg098",
+  "category": "점대칭도형",
+  "difficulty": 3,
+  "type": "true_false",
+  "question": "점대칭도형을 대칭의 중심을 중심으로 90° 돌리면 항상 처음 도형과 겹친다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "점대칭도형은 180° 돌렸을 때 겹치는 도형이에요. 평행사변형처럼 90° 돌리면 겹치지 않는 것도 많아요."
+ },
+ {
+  "id": "cg099",
+  "category": "점대칭도형",
+  "difficulty": 3,
+  "type": "true_false",
+  "question": "정팔각형은 점대칭도형이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "변의 수가 짝수인 정팔각형은 가운데 점을 중심으로 180° 돌리면 겹쳐요."
+ },
+ {
+  "id": "cg100",
+  "category": "점대칭도형",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "정다각형이 점대칭도형이 되는 것은 어떤 경우일까요?",
+  "choices": [
+   "항상",
+   "변의 수가 홀수일 때",
+   "변의 수가 짝수일 때",
+   "절대 되지 않는다"
+  ],
+  "answer": 2,
+  "explanation": "정사각형·정육각형처럼 변의 수가 짝수일 때 점대칭도형이에요. 정삼각형·정오각형은 아니에요."
+ },
+ {
+  "id": "cg101",
+  "category": "점대칭도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "점대칭도형에서 대응변의 길이는 서로 같다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "대칭의 중심으로 180° 돌리면 완전히 겹치므로 대응변의 길이가 같아요."
+ },
+ {
+  "id": "cg102",
+  "category": "점대칭도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "점대칭도형에서 대응각의 크기는 서로 같다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "180° 돌려 겹치는 대응각은 크기가 같아요."
+ },
+ {
+  "id": "cg103",
+  "category": "점대칭도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "점대칭도형에서 대응점끼리 이은 선분은 어느 점을 지날까요?",
+  "choices": [
+   "대칭축 밖의 점",
+   "대칭의 중심",
+   "어느 점도 지나지 않는다",
+   "한 꼭짓점"
+  ],
+  "answer": 1,
+  "explanation": "대응점끼리 이은 선분은 모두 대칭의 중심을 지나요."
+ },
+ {
+  "id": "cg104",
+  "category": "점대칭도형의 성질",
+  "difficulty": 1,
+  "type": "multiple_choice",
+  "question": "점대칭도형에서 대칭의 중심은 대응점끼리 이은 선분을 어떻게 나눌까요?",
+  "choices": [
+   "둘로 똑같이 나눈다",
+   "1 : 2로 나눈다",
+   "나누지 않는다",
+   "셋으로 똑같이 나눈다"
+  ],
+  "answer": 0,
+  "explanation": "대칭의 중심은 대응점끼리 이은 선분을 둘로 똑같이 나눠요."
+ },
+ {
+  "id": "cg105",
+  "category": "점대칭도형의 성질",
+  "difficulty": 1,
+  "type": "true_false",
+  "question": "점대칭도형에서 대칭의 중심부터 두 대응점까지의 거리는 서로 다르다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 1,
+  "explanation": "대칭의 중심부터 두 대응점까지의 거리는 항상 같아요."
+ },
+ {
+  "id": "cg106",
+  "category": "점대칭도형의 성질",
+  "difficulty": 1,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점대칭도형에서 대응점끼리 이은 선분들은 모두 몇 개의 점에서 만날까요?",
+  "choices": [],
+  "answer": "1",
+  "explanation": "대응점끼리 이은 선분은 모두 대칭의 중심 한 점을 지나요."
+ },
+ {
+  "id": "cg107",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 변 ㄷㄹ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "9",
+  "explanation": "변 ㄷㄹ의 대응변은 변 ㄱㄴ이에요. 그래서 9 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {
+      "0": "9 cm",
+      "2": "?"
+     },
+     "angles": {}
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ]
+  }
+ },
+ {
+  "id": "cg108",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 각 ㄷㄹㄱ은 몇 도일까요?",
+  "choices": [],
+  "answer": "70",
+  "explanation": "각 ㄷㄹㄱ의 대응각은 각 ㄱㄴㄷ이에요. 그래서 70°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "70°",
+      "3": "?"
+     }
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ]
+  }
+ },
+ {
+  "id": "cg109",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 선분 ㄱㅇ이 5 cm일 때 선분 ㄱㄷ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "10",
+  "explanation": "대칭의 중심은 선분 ㄱㄷ을 둘로 똑같이 나눠요. 5 × 2 = 10 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ],
+   "segs": [
+    [
+     [
+      1.5,
+      4
+     ],
+     [
+      6,
+      0
+     ]
+    ],
+    [
+     [
+      0,
+      0
+     ],
+     [
+      7.5,
+      4
+     ]
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg110",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 선분 ㄴㄹ이 14 cm일 때 선분 ㅇㄹ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "7",
+  "explanation": "대칭의 중심은 선분 ㄴㄹ을 둘로 똑같이 나눠요. 14 ÷ 2 = 7 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ],
+   "segs": [
+    [
+     [
+      1.5,
+      4
+     ],
+     [
+      6,
+      0
+     ]
+    ],
+    [
+     [
+      0,
+      0
+     ],
+     [
+      7.5,
+      4
+     ]
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg111",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 변 ㄹㅁ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "변 ㄹㅁ의 대응변은 변 ㄱㄴ이에요. 그래서 4 cm예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -2,
+       3
+      ],
+      [
+       -4,
+       0
+      ],
+      [
+       -1,
+       -3
+      ],
+      [
+       2,
+       -3
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {
+      "0": "4 cm",
+      "3": "?"
+     },
+     "angles": {}
+    }
+   ],
+   "center": [
+    0,
+    0
+   ]
+  }
+ },
+ {
+  "id": "cg112",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 점 ㄴ과 점 ㅇ 사이의 거리가 6 cm일 때 점 ㄴ과 대응점 사이의 거리는 몇 cm일까요?",
+  "choices": [],
+  "answer": "12",
+  "explanation": "점 ㄴ의 대응점은 점 ㅁ이에요. 선분 ㄴㅁ = 6 × 2 = 12 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -2,
+       3
+      ],
+      [
+       -4,
+       0
+      ],
+      [
+       -1,
+       -3
+      ],
+      [
+       2,
+       -3
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "center": [
+    0,
+    0
+   ]
+  }
+ },
+ {
+  "id": "cg113",
+  "category": "점대칭도형의 성질",
+  "difficulty": 2,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 각 ㄹㅁㅂ은 몇 도일까요?",
+  "choices": [],
+  "answer": "110",
+  "explanation": "각 ㄹㅁㅂ의 대응각은 각 ㄱㄴㄷ이에요. 그래서 110°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -2,
+       3
+      ],
+      [
+       -4,
+       0
+      ],
+      [
+       -1,
+       -3
+      ],
+      [
+       2,
+       -3
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "110°",
+      "4": "?"
+     }
+    }
+   ],
+   "center": [
+    0,
+    0
+   ]
+  }
+ },
+ {
+  "id": "cg114",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 평행사변형 ㄱㄴㄷㄹ의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "26",
+  "explanation": "변 ㄷㄹ = 변 ㄱㄴ = 5 cm, 변 ㄹㄱ = 변 ㄴㄷ = 8 cm예요. 둘레 = (5 + 8) × 2 = 26 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {
+      "0": "5 cm",
+      "1": "8 cm"
+     },
+     "angles": {}
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ]
+  }
+ },
+ {
+  "id": "cg115",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 육각형 ㄱㄴㄷㄹㅁㅂ의 둘레는 몇 cm일까요?",
+  "choices": [],
+  "answer": "24",
+  "explanation": "변 ㄹㅁ = 변 ㄱㄴ = 4 cm, 변 ㅁㅂ = 변 ㄴㄷ = 5 cm, 변 ㅂㄱ = 변 ㄷㄹ = 3 cm예요. 둘레 = (4 + 5 + 3) × 2 = 24 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -2,
+       3
+      ],
+      [
+       -4,
+       0
+      ],
+      [
+       -1,
+       -3
+      ],
+      [
+       2,
+       -3
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {
+      "0": "4 cm",
+      "1": "5 cm",
+      "2": "3 cm"
+     },
+     "angles": {}
+    }
+   ],
+   "center": [
+    0,
+    0
+   ]
+  }
+ },
+ {
+  "id": "cg116",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 각 ㄱㄴㄷ이 65°일 때 각 ㄴㄷㄹ은 몇 도일까요?",
+  "choices": [],
+  "answer": "115",
+  "explanation": "각 ㄷㄹㄱ = 각 ㄱㄴㄷ = 65°, 각 ㄴㄷㄹ = 각 ㄹㄱㄴ이에요. 네 각의 합 360°에서 (360° − 65° − 65°) ÷ 2 = 115°예요.",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {
+      "1": "65°",
+      "2": "?"
+     }
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ]
+  }
+ },
+ {
+  "id": "cg117",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 선분 ㄱㄷ과 선분 ㄴㄹ의 길이를 더하면 30 cm이고, 선분 ㄱㅇ이 6 cm입니다. 선분 ㄴㅇ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "9",
+  "explanation": "선분 ㄱㄷ = 6 × 2 = 12 cm, 선분 ㄴㄹ = 30 − 12 = 18 cm예요. 선분 ㄴㅇ = 18 ÷ 2 = 9 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       1.5,
+       4
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       6,
+       0
+      ],
+      [
+       7.5,
+       4
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ"
+     ],
+     "edges": {},
+     "angles": {}
+    }
+   ],
+   "center": [
+    3.75,
+    2
+   ],
+   "segs": [
+    [
+     [
+      1.5,
+      4
+     ],
+     [
+      6,
+      0
+     ]
+    ],
+    [
+     [
+      0,
+      0
+     ],
+     [
+      7.5,
+      4
+     ]
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cg118",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "short_answer",
+  "inputMode": "integer",
+  "question": "점 ㅇ을 대칭의 중심으로 하는 점대칭도형입니다. 육각형의 둘레가 30 cm이고 변 ㄱㄴ이 6 cm, 변 ㄴㄷ이 5 cm일 때 변 ㅂㄱ은 몇 cm일까요?",
+  "choices": [],
+  "answer": "4",
+  "explanation": "대응변의 길이가 같으니 둘레의 절반 15 cm = 변 ㄱㄴ + 변 ㄴㄷ + 변 ㄷㄹ이에요. 변 ㄷㄹ = 15 − 6 − 5 = 4 cm, 변 ㅂㄱ = 변 ㄷㄹ = 4 (cm)",
+  "figure": {
+   "shape": "geo",
+   "polys": [
+    {
+     "pts": [
+      [
+       -2,
+       3
+      ],
+      [
+       -4,
+       0
+      ],
+      [
+       -1,
+       -3
+      ],
+      [
+       2,
+       -3
+      ],
+      [
+       4,
+       0
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "labels": [
+      "ㄱ",
+      "ㄴ",
+      "ㄷ",
+      "ㄹ",
+      "ㅁ",
+      "ㅂ"
+     ],
+     "edges": {
+      "0": "6 cm",
+      "1": "5 cm",
+      "5": "?"
+     },
+     "angles": {}
+    }
+   ],
+   "center": [
+    0,
+    0
+   ]
+  }
+ },
+ {
+  "id": "cg119",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "multiple_choice",
+  "question": "점대칭도형에 대한 설명으로 옳지 않은 것은 어느 것일까요?",
+  "choices": [
+   "대응각의 크기가 같다",
+   "대응점끼리 이은 선분들은 모두 서로 평행하다",
+   "대응변의 길이가 같다",
+   "대응점끼리 이은 선분은 대칭의 중심에서 둘로 똑같이 나뉜다"
+  ],
+  "answer": 1,
+  "explanation": "점대칭도형에서 대응점끼리 이은 선분은 모두 대칭의 중심에서 만나요. 서로 평행한 것은 선대칭도형의 성질이에요."
+ },
+ {
+  "id": "cg120",
+  "category": "점대칭도형의 성질",
+  "difficulty": 3,
+  "type": "true_false",
+  "question": "점대칭도형에서 대응점끼리 이은 선분의 길이가 16 cm이면, 대칭의 중심부터 한 대응점까지의 거리는 8 cm이다.",
+  "choices": [
+   "O",
+   "X"
+  ],
+  "answer": 0,
+  "explanation": "대칭의 중심은 대응점끼리 이은 선분을 둘로 똑같이 나눠요. 16 ÷ 2 = 8 (cm)"
+ }
+]

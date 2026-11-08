@@ -7,8 +7,15 @@ import polygonAreaQuestions from './polygonAreaQuestions.json'
 import fractionMultiplyQuestions from './fractionMultiplyQuestions.json'
 import multiplicationQuestions from './multiplicationQuestions.json'
 import dialectQuestions from './dialectQuestions.json'
+import congruenceQuestions from './congruenceQuestions.json'
 
 export const BUNDLED_SETS = [
+  {
+    id: 'bundled:congruence-symmetry-5-2-ch3',
+    name: '🔷 수학 5-2 · 3단원 합동과 대칭',
+    subject: '수학',
+    questions: congruenceQuestions,
+  },
   {
     id: 'bundled:fraction-multiply-5-2-ch1',
     name: '✖️ 수학 5-2 · 분수의 곱셈',
