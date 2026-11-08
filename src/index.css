@@ -328,9 +328,11 @@ body {
   filter: drop-shadow(0 2px 1px rgba(69, 26, 3, 0.25));
 }
 
-/* 문제 창의 그림 — 폰에선 높이를 줄여 입력칸·키패드가 한 화면에 들어오게 */
-@media (max-width: 639px) {
-  .question-figure svg { width: auto; height: 108px; }
+/* 문제 창의 그림 — 칸 너비만큼 크게(꼭짓점 이름·길이가 잘 보이게).
+   폰에선 화면 높이의 40%까지만 — 답 입력칸이 너무 멀어지지 않게 */
+.question-figure svg { width: 100%; height: auto; max-height: 40dvh; }
+@media (min-width: 1024px) {
+  .question-figure svg { max-height: 62dvh; }
 }
 
 /* 주사위 영역 — 무대가 좁으면 버튼을 주사위 아래로 내리고 주사위도 줄인다 */

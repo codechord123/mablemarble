@@ -114,7 +114,7 @@ export default function QuestionModal({ question, intent, player, onSubmit, stak
         animate={{ scale: 1, rotateX: 0, opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 230, damping: 19 }}
         style={{ transformPerspective: 900 }}
-        className={`question-card bg-white rounded-[1.75rem] max-w-2xl w-full relative max-h-[96dvh] overflow-y-auto overscroll-contain ${
+        className={`question-card bg-white rounded-[1.75rem] max-w-3xl ${question.figure ? 'lg:max-w-5xl' : ''} w-full relative max-h-[96dvh] overflow-y-auto overscroll-contain ${
           urgent ? 'ring-4 ring-rose-400/80' : ''
         }`}
       >
@@ -173,18 +173,24 @@ export default function QuestionModal({ question, intent, player, onSubmit, stak
 
         {/* 본문 — 머리띠 위로 살짝 겹쳐 올린 카드 */}
         <div className="relative -mt-4 bg-white rounded-t-[1.5rem] px-5 sm:px-8 pt-5 sm:pt-7">
-        <div className="question-text text-[1.25rem] sm:text-3xl font-bold text-slate-800 mb-3 leading-[1.75] break-keep tabular-nums">
+        {/* 그림 문제는 넓은 화면(디벗 가로 화면 등)에서 그림을 왼쪽, 문제·답을 오른쪽에 둔다 —
+            그림을 크게 보여 주면서도 답 입력칸이 화면 아래로 밀리지 않게 */}
+        <div className={question.figure ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-x-7 lg:items-start' : ''}>
+        <div className={`question-text text-[1.35rem] sm:text-[2rem] font-bold text-slate-800 mb-3 leading-[1.75] break-keep tabular-nums ${
+          question.figure ? 'lg:col-start-2 lg:row-start-1 lg:text-[1.45rem] lg:leading-[1.65]' : ''
+        }`}>
           <MathText>{question.question}</MathText>
         </div>
 
         {question.figure && (
-          <div className="question-figure mb-3 sm:mb-5 flex justify-center">
-            <div className="bg-amber-50/70 rounded-2xl px-3 py-2 ring-1 ring-amber-200">
+          <div className="question-figure mb-3 sm:mb-5 flex justify-center lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-2">
+            <div className="w-full max-w-[360px] sm:max-w-[480px] lg:max-w-none bg-amber-50/70 rounded-2xl px-2 py-2 ring-1 ring-amber-200">
               <ShapeDiagram figure={question.figure} />
             </div>
           </div>
         )}
 
+        <div className={question.figure ? 'lg:col-start-2 lg:row-start-2' : ''}>
         {question.type === 'multiple_choice' && (
           <div className="space-y-3">
             {question.choices.map((c, i) => {
@@ -261,6 +267,9 @@ export default function QuestionModal({ question, intent, player, onSubmit, stak
             onEnter={submit}
           />
         )}
+
+        </div>
+        </div>
 
         {/* 제출 버튼은 창 아래에 붙여 둔다. 작은 폰에서 창이 넘쳐도 버튼은 늘 보이고
             내용만 스크롤된다. (창 자체의 아래 여백은 이 띠가 대신 가진다) */}

@@ -356,12 +356,15 @@ function Geo({ polys = [], axis, center, centerLabel = 'ㅇ', segs = [], grid, p
         </text>,
       )
     })
-    Object.entries(poly.edges || {}).forEach(([key, text]) => {
+    Object.entries(poly.edges || {}).forEach(([key, spec]) => {
+      // 값은 글자 또는 { t, flip } — flip이면 도형 안쪽에 쓴다(두 도형이 맞닿은 변 등)
+      const text = typeof spec === 'object' ? spec.t : spec
       const i = Number(key)
       const a = pts[i], b = pts[(i + 1) % pts.length]
       const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2
       let [nx, ny] = unit(-(b[1] - a[1]), b[0] - a[0])
       if ((mx - cx) * nx + (my - cy) * ny < 0) { nx = -nx; ny = -ny }
+      if (typeof spec === 'object' && spec.flip) { nx = -nx; ny = -ny }
       const hw = String(text).length * 3.3
       const off = 7 + Math.abs(nx) * hw + Math.abs(ny) * 5
       labels.push(
