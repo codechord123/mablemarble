@@ -1,8 +1,8 @@
 // 학생별 오답 노트 — 틀린 문제를 모아 두었다가 다시 풀게 한다.
-// 다시 풀어서 '연속 2번' 맞히면 졸업(노트에서 빠진다). 틀리면 연속 기록이 0으로.
+// 다시 풀어서 맞히면 노트에서 없어진다. (예전엔 '연속 2번'이었는데, 다 풀어도 남아 있어 헷갈려서 한 번으로)
 import { unitOfQuestion, latestQuestion, isBundledId } from '../data/units.js'
 
-export const MASTER_STREAK = 2
+export const MASTER_STREAK = 1
 export const MAX_WRONG = 100
 export const MAX_DONE = 60 // 정리(졸업)한 문제 기록 — 선생님이 '무엇을 정리했는지' 볼 수 있게 최근 것만 남긴다
 

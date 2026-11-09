@@ -27,13 +27,13 @@ describe('선생님 통계', () => {
   })
   it('학생별 남은 오답(다시 풀기 진행)과 정리한 문제, 문제별 정리한 학생', () => {
     const rows = [
-      // 민지: a를 틀렸다가 두 번 맞혀 정리, b는 틀리고 한 번 맞힘(1/2)
-      play('민지', [[q('a', '뜻'), false], [q('a', '뜻'), true], [q('a', '뜻'), true], [q('b', '뜻'), false], [q('b', '뜻'), true]]),
+      // 민지: a를 틀렸다가 맞혀서 없어짐, b는 틀린 채
+      play('민지', [[q('a', '뜻'), false], [q('a', '뜻'), true], [q('b', '뜻'), false]]),
       play('준호', [[q('a', '뜻'), false]]),
     ]
     const s = summarize(rows)
     const minji = s.students.find((x) => x.name === '민지')
-    expect(minji.wrongList.map((w) => [w.q.id, w.streak])).toEqual([['b', 1]])
+    expect(minji.wrongList.map((w) => w.q.id)).toEqual(['b'])
     expect(minji.doneList.map((d) => d.q.id)).toEqual(['a'])
     const a = s.topWrong.find((w) => w.key === keyOf(q('a')))
     expect(a.names).toEqual(['준호'])

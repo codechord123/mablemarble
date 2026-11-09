@@ -11,7 +11,7 @@ import { sfx } from '../../utils/sounds.js'
 import { formatAnswer } from '../game/ResultBanner.jsx'
 import PrintSheet from './PrintSheet.jsx'
 
-// 오답 다시 풀기 — 내 오답 노트의 문제를 하나씩. 연속 2번 맞히면 노트에서 졸업.
+// 오답 다시 풀기 — 내 오답 노트의 문제를 하나씩. 맞히면 노트에서 없어진다.
 export default function WrongReview({ onBack }) {
   const me = useAccount((s) => s.me)
   const [book, setBook] = useState(null)
@@ -85,11 +85,8 @@ export default function WrongReview({ onBack }) {
     const correct = ans !== '__TIMEOUT__' && isCorrect(item.question, ans)
     correct ? sfx.correct() : sfx.wrong()
     const graduated = correct && (item.streak || 0) + 1 >= MASTER_STREAK
-    setFeedback({ correct, item, graduated, again: correct && !graduated && !item.again })
+    setFeedback({ correct, item, graduated })
     setScore((s) => ({ right: s.right + (correct ? 1 : 0), graduated: s.graduated + (graduated ? 1 : 0) }))
-    // 한 번 맞힌 문제는 이번 판 뒤쪽에 한 번 더 — 그 자리에서 연속 2번 맞혀 졸업할 수 있게
-    // (예전엔 한 판에 한 번씩만 나와서, 다 맞혀도 졸업하려면 다시 들어와야 했다)
-    if (correct && !graduated && !item.again) setQueue((q) => [...q, { ...item, streak: (item.streak || 0) + 1, again: true }])
     try {
       const a = await accountApi()
       const next = await a.recordResult(a.ME, item.question, correct, { key: item.key })
@@ -116,7 +113,7 @@ export default function WrongReview({ onBack }) {
             intent="review"
             player={player}
             onSubmit={answer}
-            stake={`${idx + 1} / ${queue.length} · 연속 ${MASTER_STREAK}번 맞히면 노트에서 없어져요`}
+            stake={`${idx + 1} / ${queue.length} · 맞히면 오답 노트에서 없어져요`}
           />
         )}
         {feedback && (
@@ -131,9 +128,7 @@ export default function WrongReview({ onBack }) {
                 {feedback.graduated
                   ? '완벽해요! 오답 노트에서 없어졌어요'
                   : feedback.correct
-                    ? feedback.again
-                      ? '정답! 조금 뒤에 한 번 더 나와요 — 또 맞히면 노트에서 없어져요'
-                      : '정답! 한 번 더 맞히면 노트에서 없어져요'
+                    ? '정답!'
                     : '아쉬워요'}
               </h3>
               {!feedback.correct && (
@@ -165,7 +160,7 @@ export default function WrongReview({ onBack }) {
         <div className="text-center">
           <div className="text-5xl">🏁</div>
           <h3 className="mt-2 text-xl font-black text-amber-900">
-            {queue.filter((q) => !q.again).length}문제를 {queue.length}번 풀어서 {score.right}번 맞혔어요
+            {queue.length}문제 중 {score.right}개 맞혔어요
           </h3>
           {score.graduated > 0 && <p className="mt-1 font-bold text-violet-700">✨ 오답 {score.graduated}문제가 노트에서 없어졌어요!</p>}
           <p className="mt-1 text-sm font-semibold text-amber-700">노트에 남은 문제 {list.length}개</p>
@@ -180,7 +175,7 @@ export default function WrongReview({ onBack }) {
   }
 
   function start() {
-    setQueue(list.slice(0, 10))
+    setQueue(list) // 남은 오답을 모두 — '다 풀었는데 남아 있다'가 없게
     setIdx(0)
     setScore({ right: 0, graduated: 0 })
   }
@@ -191,7 +186,7 @@ export default function WrongReview({ onBack }) {
       <div className="text-center">
         <h2 className="text-2xl font-black text-amber-900">📒 {player.name}의 오답 노트</h2>
         <p className="mt-1 text-sm font-semibold text-amber-700">
-          틀린 문제를 다시 풀어요. 연속 {MASTER_STREAK}번 맞히면 노트에서 없어져요!
+          틀린 문제를 다시 풀어요. 맞히면 노트에서 없어져요!
         </p>
         <button
           onClick={reload}
@@ -223,7 +218,7 @@ export default function WrongReview({ onBack }) {
           )}
           <div className="mt-3 rounded-2xl bg-rose-50 p-3 text-center">
             <div className="text-2xl font-black text-rose-600">{list.length}</div>
-            <div className="text-xs font-bold text-rose-700">다시 풀 문제{unit ? ' (이 단원)' : ''} · 연속 {MASTER_STREAK}번 맞히면 노트에서 없어져요</div>
+            <div className="text-xs font-bold text-rose-700">다시 풀 문제{unit ? ' (이 단원)' : ''} · 맞히면 노트에서 없어져요</div>
           </div>
           {list.length === 0 ? (
             <p className="mt-6 text-center font-bold text-emerald-700">
@@ -237,7 +232,7 @@ export default function WrongReview({ onBack }) {
                     <div className="flex items-center justify-between gap-2 text-[11px] font-bold text-amber-700">
                       <span className="truncate">{unit ? '' : `${w.unit} · `}{w.question.category || '문제'}</span>
                       <span>
-                        {w.count}번 틀림{w.streak ? ` · ⭕${w.streak}/${MASTER_STREAK}` : ''}
+                        {w.count}번 틀림
                       </span>
                     </div>
                     <div className="mt-0.5 line-clamp-2">
@@ -247,7 +242,7 @@ export default function WrongReview({ onBack }) {
                 ))}
               </ul>
               <GameButton color="violet" onClick={start} className="mt-5 w-full py-3.5 text-lg">
-                다시 풀기 시작 ({Math.min(10, list.length)}문제)
+                다시 풀기 시작 ({list.length}문제)
               </GameButton>
               <button onClick={() => setPrinting(true)} className="mt-3 w-full text-sm font-bold text-amber-700 hover:underline">
                 🖨️ 오답 노트 인쇄하기 ({list.length}문제)

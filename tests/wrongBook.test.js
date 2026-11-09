@@ -4,24 +4,19 @@ import { applyResult, reviewList, emptyBook, MAX_WRONG, MAX_DONE, keyOf } from '
 const q = (id, extra = {}) => ({ id, type: 'multiple_choice', question: `문제 ${id}`, choices: ['1', '2'], answer: 1, category: '분수', ...extra })
 
 describe('오답 노트', () => {
-  it('틀리면 들어가고, 연속 2번 맞히면 졸업', () => {
+  it('틀리면 들어가고, 맞히면 없어진다', () => {
     let b = applyResult(emptyBook(), q('a'), false, 1)
     expect(Object.keys(b.wrong)).toEqual([keyOf(q('a'))])
-    b = applyResult(b, q('a'), true, 2)
-    expect(b.wrong[keyOf(q('a'))].streak).toBe(1)
-    b = applyResult(b, q('a'), false, 3) // 다시 틀리면 처음부터
-    expect(b.wrong[keyOf(q('a'))].streak).toBe(0)
+    b = applyResult(b, q('a'), false, 2) // 또 틀리면 횟수만 는다
     expect(b.wrong[keyOf(q('a'))].count).toBe(2)
-    b = applyResult(b, q('a'), true, 4)
-    b = applyResult(b, q('a'), true, 5)
+    b = applyResult(b, q('a'), true, 3)
     expect(b.wrong[keyOf(q('a'))]).toBeUndefined()
     expect(b.mastered).toBe(1)
   })
-  it('정리(졸업)한 문제는 무엇을 언제 정리했는지 남고, 다시 틀리면 오답으로 돌아간다', () => {
+  it('없어진 문제는 언제 맞혔는지 남고, 다시 틀리면 오답으로 돌아간다', () => {
     let b = applyResult(emptyBook(), q('a'), false, 10)
     b = applyResult(b, q('a'), false, 20)
     expect(b.wrong[keyOf(q('a'))].firstAt).toBe(10)
-    b = applyResult(b, q('a'), true, 30)
     b = applyResult(b, q('a'), true, 40)
     const d = b.done[keyOf(q('a'))]
     expect(d).toMatchObject({ count: 2, firstAt: 10, at: 40 })
@@ -29,29 +24,26 @@ describe('오답 노트', () => {
     b = applyResult(b, q('a'), false, 50)
     expect(b.done[keyOf(q('a'))]).toBeUndefined()
     expect(b.wrong[keyOf(q('a'))].count).toBe(1)
-    expect(b.mastered).toBe(1) // 지금까지 정리한 횟수는 그대로
   })
   it('정리 기록은 최근 것만 남는다', () => {
     let b = emptyBook()
     for (let i = 0; i < MAX_DONE + 5; i++) {
       b = applyResult(b, q('d' + i), false, i * 10)
       b = applyResult(b, q('d' + i), true, i * 10 + 1)
-      b = applyResult(b, q('d' + i), true, i * 10 + 2)
     }
     expect(Object.keys(b.done)).toHaveLength(MAX_DONE)
     expect(b.done[keyOf(q('d0'))]).toBeUndefined()
     expect(b.mastered).toBe(MAX_DONE + 5)
   })
-  it('다시 풀기는 노트에 저장된 원래 기록에 쌓인다(문제 글이 고쳐져도 졸업)', () => {
+  it('다시 풀기는 노트에 저장된 원래 기록에 쌓인다(문제 글이 고쳐져도 맞히면 없어진다)', () => {
     const old = { id: 'cg149', type: 'short_answer', question: '예전 문제 글', answer: '100', category: '응용' }
     let b = applyResult(emptyBook(), old, false, 1)
     const key = keyOf(old)
     const fixed = { ...old, question: '고친 문제 글' } // 화면엔 고친 최신 문제가 보인다
-    b = applyResult(b, fixed, true, 2, key)
-    expect(b.wrong[key].streak).toBe(1)
+    b = applyResult(b, fixed, false, 2, key) // 다시 틀려도 같은 기록에
+    expect(Object.keys(b.wrong)).toEqual([key])
+    expect(b.wrong[key].count).toBe(2)
     b = applyResult(b, fixed, true, 3, key)
-    expect(b.wrong[key]).toBeUndefined()
-    expect(b.mastered).toBe(1)
     expect(Object.keys(b.wrong)).toHaveLength(0)
   })
   it('내장 문제가 글 때문에 둘로 갈라진 기록은 하나로 합친다', () => {

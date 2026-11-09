@@ -16,7 +16,7 @@ const ago = (t) => {
 
 const day = (t) => (t ? `${new Date(t).getMonth() + 1}/${new Date(t).getDate()}` : '')
 
-// 학생 한 명 — 남은 오답(틀린 횟수·다시 풀기 진행). 다시 풀어 연속 2번 맞히면 목록에서 없어진다.
+// 학생 한 명 — 남은 오답(틀린 횟수·마지막 날짜). 다시 풀어 맞히면 목록에서 없어진다.
 // 문제를 누르면 그림·정답까지 펼친다.
 function StudentDetail({ s }) {
   const [openK, setOpenK] = useState(null)
@@ -39,7 +39,7 @@ function StudentDetail({ s }) {
   return (
     <div className="space-y-3 border-t border-amber-200 px-3 pb-3 pt-2">
       <div>
-        <div className="text-xs font-black text-rose-700">❌ 남은 오답 {s.wrongList.length}개 <span className="font-bold text-rose-400">(많이 틀린 것부터 · 다시 풀어 연속 2번 맞히면 없어져요)</span></div>
+        <div className="text-xs font-black text-rose-700">❌ 남은 오답 {s.wrongList.length}개 <span className="font-bold text-rose-400">(많이 틀린 것부터 · 다시 풀어 맞히면 없어져요)</span></div>
         {s.wrongList.length === 0 ? (
           <p className="mt-1 text-xs font-bold text-slate-400">남은 오답이 없어요 👍</p>
         ) : (
@@ -50,9 +50,7 @@ function StudentDetail({ s }) {
                 w.q,
                 <span className="shrink-0 text-right text-[11px] font-bold leading-tight text-slate-500">
                   <span className="text-rose-600">{w.count}번 틀림</span>
-                  <br />
-                  다시 풀기 <span className="text-emerald-600">{'●'.repeat(w.streak)}</span>
-                  <span className="text-slate-300">{'●'.repeat(Math.max(0, 2 - w.streak))}</span>
+
                   <br />
                   {day(w.lastAt)}
                 </span>,
@@ -284,7 +282,7 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                 })}
               </div>
               <p className="mt-2 text-[11px] font-semibold text-slate-400">
-                남은 오답은 학생이 '오답 다시 풀기'에서 연속 2번 맞히면 목록에서 없어져요(●● 진행). 다시 틀리면 또 들어와요.
+                남은 오답은 학생이 '오답 다시 풀기'(또는 게임)에서 맞히면 목록에서 없어져요. 다시 틀리면 또 들어와요.
               </p>
             </section>
           </>
