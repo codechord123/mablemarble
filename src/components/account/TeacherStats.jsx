@@ -103,6 +103,12 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
   const [loading, setLoading] = useState(false)
   const [loadedAt, setLoadedAt] = useState(null)
 
+  // 학생 이름을 누르면 아래 '학생별'에서 그 학생을 펼치고 그 자리로 간다
+  function showStudent(uid) {
+    setOpenS(uid)
+    setTimeout(() => document.getElementById(`stu-${uid}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
+
   // 새로고침은 보던 화면을 그대로 둔 채 새 기록을 받아 와서 바꾼다
   async function load() {
     if (loading) return
@@ -255,11 +261,26 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                           <QuestionCard q={w.question} compact />
                           {w.question.id && <div className="mt-1 text-[11px] font-bold text-slate-400">문제 번호 {w.question.id}</div>}
                           <div className="mt-2 grid gap-1 text-xs font-bold sm:grid-cols-2">
-                            <div className="rounded-lg bg-white p-2 text-rose-700">❌ 아직 오답으로 남은 학생 ({w.names.length}): {w.names.join(', ')}</div>
+                            <div className="rounded-lg bg-white p-2 text-rose-700">
+                              ❌ 아직 오답으로 남은 학생 ({w.who.length}):{' '}
+                              {w.who.map((x) => (
+                                <button key={x.uid} onClick={() => showStudent(x.uid)} className="mr-1 underline decoration-dotted underline-offset-2">
+                                  {x.name}
+                                </button>
+                              ))}
+                            </div>
                             <div className="rounded-lg bg-white p-2 text-emerald-700">
-                              ✅ 다시 풀어 정리한 학생 ({w.doneNames.length}): {w.doneNames.length ? w.doneNames.join(', ') : '아직 없어요'}
+                              ✅ 다시 풀어 정리한 학생 ({w.doneWho.length}):{' '}
+                              {w.doneWho.length
+                                ? w.doneWho.map((x) => (
+                                    <button key={x.uid} onClick={() => showStudent(x.uid)} className="mr-1 underline decoration-dotted underline-offset-2">
+                                      {x.name}
+                                    </button>
+                                  ))
+                                : '아직 없어요'}
                             </div>
                           </div>
+                          <p className="mt-1 text-[11px] font-bold text-slate-400">학생 이름을 누르면 그 학생의 오답 노트로 가요</p>
                         </div>
                       )}
                     </li>
@@ -277,9 +298,9 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                 {data.students.map((s) => {
                   const open = openS === s.uid
                   return (
-                    <div key={s.uid} className={`rounded-xl ring-1 ${open ? 'ring-amber-300 bg-amber-50/50' : 'ring-amber-100'}`}>
+                    <div key={s.uid} id={`stu-${s.uid}`} className={`scroll-mt-4 rounded-xl ring-1 ${open ? 'ring-amber-300 bg-amber-50/50' : 'ring-amber-100'}`}>
                       <button className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5 text-left text-sm" onClick={() => setOpenS(open ? null : s.uid)}>
-                        <span className="w-20 shrink-0 truncate font-black text-slate-800">{s.name}</span>
+                        <span className="w-24 shrink-0 truncate font-black text-amber-800 underline decoration-dotted underline-offset-4">{s.name}</span>
                         <span className="text-xs font-bold text-slate-500">푼 문제 {s.answered}</span>
                         <span className="text-xs font-bold text-slate-600">
                           <span className={`mr-1 inline-block h-2 w-2 rounded-full ${rateColor(s.rate)}`} />

@@ -42,6 +42,28 @@ describe('오답 노트', () => {
     expect(b.done[keyOf(q('d0'))]).toBeUndefined()
     expect(b.mastered).toBe(MAX_DONE + 5)
   })
+  it('다시 풀기는 노트에 저장된 원래 기록에 쌓인다(문제 글이 고쳐져도 졸업)', () => {
+    const old = { id: 'cg149', type: 'short_answer', question: '예전 문제 글', answer: '100', category: '응용' }
+    let b = applyResult(emptyBook(), old, false, 1)
+    const key = keyOf(old)
+    const fixed = { ...old, question: '고친 문제 글' } // 화면엔 고친 최신 문제가 보인다
+    b = applyResult(b, fixed, true, 2, key)
+    expect(b.wrong[key].streak).toBe(1)
+    b = applyResult(b, fixed, true, 3, key)
+    expect(b.wrong[key]).toBeUndefined()
+    expect(b.mastered).toBe(1)
+    expect(Object.keys(b.wrong)).toHaveLength(0)
+  })
+  it('내장 문제가 글 때문에 둘로 갈라진 기록은 하나로 합친다', () => {
+    const v1 = { id: 'cg149', type: 'short_answer', question: '예전 글', answer: '100', category: '응용' }
+    const v2 = { ...v1, question: '고친 글' }
+    let b = applyResult(emptyBook(), v1, false, 1)
+    b = { ...b, wrong: { ...b.wrong, [keyOf(v2)]: { q: JSON.stringify(v2), count: 1, streak: 0, lastAt: 2, firstAt: 2 } } }
+    b = applyResult(b, v2, false, 3)
+    expect(Object.keys(b.wrong)).toEqual([keyOf(v2)])
+    expect(b.wrong[keyOf(v2)].count).toBe(3)
+    expect(b.wrong[keyOf(v2)].firstAt).toBe(1)
+  })
   it('노트에 없는 문제를 맞히면 그대로', () => {
     const b = emptyBook()
     expect(applyResult(b, q('x'), true)).toBe(b)

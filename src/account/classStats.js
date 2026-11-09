@@ -97,15 +97,20 @@ export function summarize(rows, unit = null) {
   const qs = {}
   for (const r of rows) {
     for (const { key, w, q, unit: u } of items(r)) {
-      qs[key] = qs[key] || { key, question: latestQuestion(q), unit: u, students: 0, misses: 0, names: [], doneNames: [] }
+      qs[key] = qs[key] || { key, question: latestQuestion(q), unit: u, students: 0, misses: 0, names: [], doneNames: [], who: [], doneWho: [] }
       qs[key].students += 1
       qs[key].misses += w.count || 1
       qs[key].names.push(r.name || r.uid)
+      qs[key].who.push({ uid: r.uid, name: r.name || r.uid })
     }
   }
   // 같은 문제를 이미 정리한 학생도 함께 보여 준다
   for (const r of rows) {
-    for (const { key } of dones(r)) if (qs[key]) qs[key].doneNames.push(r.name || r.uid)
+    for (const { key } of dones(r)) {
+      if (!qs[key]) continue
+      qs[key].doneNames.push(r.name || r.uid)
+      qs[key].doneWho.push({ uid: r.uid, name: r.name || r.uid })
+    }
   }
   const topWrong = Object.values(qs)
     .sort((a, b) => b.students - a.students || b.misses - a.misses)

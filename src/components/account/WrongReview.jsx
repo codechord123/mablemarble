@@ -85,11 +85,14 @@ export default function WrongReview({ onBack }) {
     const correct = ans !== '__TIMEOUT__' && isCorrect(item.question, ans)
     correct ? sfx.correct() : sfx.wrong()
     const graduated = correct && (item.streak || 0) + 1 >= MASTER_STREAK
-    setFeedback({ correct, item, graduated })
+    setFeedback({ correct, item, graduated, again: correct && !graduated && !item.again })
     setScore((s) => ({ right: s.right + (correct ? 1 : 0), graduated: s.graduated + (graduated ? 1 : 0) }))
+    // 한 번 맞힌 문제는 이번 판 뒤쪽에 한 번 더 — 그 자리에서 연속 2번 맞혀 졸업할 수 있게
+    // (예전엔 한 판에 한 번씩만 나와서, 다 맞혀도 졸업하려면 다시 들어와야 했다)
+    if (correct && !graduated && !item.again) setQueue((q) => [...q, { ...item, streak: (item.streak || 0) + 1, again: true }])
     try {
       const a = await accountApi()
-      const next = await a.recordResult(a.ME, item.question, correct)
+      const next = await a.recordResult(a.ME, item.question, correct, { key: item.key })
       if (next) setBook(next)
     } catch {
       setError('결과를 저장하지 못했어요. 인터넷을 확인해 주세요')
@@ -125,7 +128,13 @@ export default function WrongReview({ onBack }) {
             >
               <div className="text-5xl">{feedback.graduated ? '🎓' : feedback.correct ? '⭕' : '❌'}</div>
               <h3 className={`mt-2 text-2xl font-black ${feedback.correct ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {feedback.graduated ? '졸업! 이제 이 문제는 자신 있어요' : feedback.correct ? '정답! 한 번 더 맞히면 졸업' : '아쉬워요'}
+                {feedback.graduated
+                  ? '졸업! 이제 이 문제는 자신 있어요'
+                  : feedback.correct
+                    ? feedback.again
+                      ? '정답! 조금 뒤에 한 번 더 나와요 — 또 맞히면 졸업'
+                      : '정답! 한 번 더 맞히면 졸업'
+                    : '아쉬워요'}
               </h3>
               {!feedback.correct && (
                 <div className="mt-3 rounded-xl bg-amber-50 p-3 text-left text-sm font-semibold text-amber-950">
@@ -156,7 +165,7 @@ export default function WrongReview({ onBack }) {
         <div className="text-center">
           <div className="text-5xl">🏁</div>
           <h3 className="mt-2 text-xl font-black text-amber-900">
-            {queue.length}문제 중 {score.right}개 맞혔어요
+            {queue.filter((q) => !q.again).length}문제를 {queue.length}번 풀어서 {score.right}번 맞혔어요
           </h3>
           {score.graduated > 0 && <p className="mt-1 font-bold text-violet-700">🎓 {score.graduated}문제 졸업!</p>}
           <p className="mt-1 text-sm font-semibold text-amber-700">노트에 남은 문제 {list.length}개</p>
@@ -234,7 +243,7 @@ export default function WrongReview({ onBack }) {
                     <div className="flex items-center justify-between gap-2 text-[11px] font-bold text-amber-700">
                       <span className="truncate">{unit ? '' : `${w.unit} · `}{w.question.category || '문제'}</span>
                       <span>
-                        {w.count}번 틀림{w.streak ? ` · ⭕${w.streak}` : ''}
+                        {w.count}번 틀림{w.streak ? ` · ⭕${w.streak}/${MASTER_STREAK}` : ''}
                       </span>
                     </div>
                     <div className="mt-0.5 line-clamp-2">

@@ -1,6 +1,6 @@
 // 학생별 오답 노트 — 틀린 문제를 모아 두었다가 다시 풀게 한다.
 // 다시 풀어서 '연속 2번' 맞히면 졸업(노트에서 빠진다). 틀리면 연속 기록이 0으로.
-import { unitOfQuestion, latestQuestion } from '../data/units.js'
+import { unitOfQuestion, latestQuestion, isBundledId } from '../data/units.js'
 
 export const MASTER_STREAK = 2
 export const MAX_WRONG = 100
@@ -25,14 +25,47 @@ export const emptyBook = () => ({ wrong: {}, mastered: 0, done: {} })
 
 // book: { wrong: { [key]: { q, count, streak, lastAt, firstAt } }, mastered, done: { [key]: { q, count, firstAt, at } } }
 // mastered는 지금까지 정리한 문제 수(예전 기록 포함), done은 그중 최근에 정리한 문제들.
-export function applyResult(book, question, correct, now = Date.now()) {
+const storedId = (w) => {
+  try {
+    return JSON.parse(w.q).id
+  } catch {
+    return undefined
+  }
+}
+
+// forceKey: 오답 다시 풀기에서는 노트에 저장된 그 기록의 열쇠로 기록한다.
+// (화면엔 고친 최신 문제를 보여 줘서 문제 글이 달라도, 결과는 원래 기록에 쌓여야 졸업할 수 있다)
+export function applyResult(book, question, correct, now = Date.now(), forceKey = null) {
   let b = book || emptyBook()
-  const key = keyOf(question)
+  const key = forceKey || keyOf(question)
   // 예전 열쇠로 저장된 같은 문제가 있으면 새 열쇠로 옮긴다
   const old = legacyKeyOf(question)
-  if (!b.wrong[key] && old !== key && b.wrong[old] && JSON.parse(b.wrong[old].q).question === question.question) {
+  if (!forceKey && !b.wrong[key] && old !== key && b.wrong[old] && JSON.parse(b.wrong[old].q).question === question.question) {
     const { [old]: moved, ...rest } = b.wrong
     b = { ...b, wrong: { ...rest, [key]: moved } }
+  }
+  // 내장 문제는 글을 고쳐도 번호가 같으면 같은 문제 — 글이 달라 둘로 갈라진 기록을 하나로 합친다
+  if (isBundledId(question.id)) {
+    const same = Object.keys(b.wrong).filter((k) => k !== key && storedId(b.wrong[k]) === question.id)
+    if (same.length) {
+      const rest = { ...b.wrong }
+      let merged = rest[key] ? { ...rest[key] } : null
+      for (const k of same) {
+        const w = rest[k]
+        delete rest[k]
+        merged = merged
+          ? {
+              ...merged,
+              count: (merged.count || 1) + (w.count || 1),
+              firstAt: Math.min(merged.firstAt || merged.lastAt || now, w.firstAt || w.lastAt || now),
+              lastAt: Math.max(merged.lastAt || 0, w.lastAt || 0),
+              streak: 0,
+            }
+          : { ...w }
+      }
+      rest[key] = merged
+      b = { ...b, wrong: rest }
+    }
   }
   const cur = b.wrong[key]
   if (correct) {
@@ -52,7 +85,8 @@ export function applyResult(book, question, correct, now = Date.now()) {
   }
   let wrong = {
     ...b.wrong,
-    [key]: { q: snapshot(question), count: (cur?.count || 0) + 1, streak: 0, lastAt: now, firstAt: cur?.firstAt || now },
+    // 원래 기록의 문제 모양은 그대로 둔다(열쇠와 글이 어긋나지 않게)
+    [key]: { q: forceKey && cur ? cur.q : snapshot(question), count: (cur?.count || 0) + 1, streak: 0, lastAt: now, firstAt: cur?.firstAt || now },
   }
   // 정리했던 문제를 다시 틀리면 '정리 완료'에서 빼고 다시 오답으로
   let done = b.done

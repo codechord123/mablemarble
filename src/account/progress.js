@@ -69,8 +69,9 @@ async function update(slot, fn) {
 }
 
 // 문제 하나 풀 때마다 — 틀리면 노트에 넣고, 노트에 있던 문제를 맞히면 졸업에 가까워진다
-export function recordResult(slot, question, correct) {
-  return update(slot, (cur) => ({ ...cur, ...applyResult(cur, question, correct), stats: applyStats(cur.stats, question, correct) }))
+// key: 오답 다시 풀기에서 그 기록의 열쇠(노트에 저장된 원래 문제)로 기록할 때
+export function recordResult(slot, question, correct, { key = null } = {}) {
+  return update(slot, (cur) => ({ ...cur, ...applyResult(cur, question, correct, Date.now(), key), stats: applyStats(cur.stats, question, correct) }))
 }
 
 export function saveDrill(slot, drill) {
