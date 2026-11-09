@@ -16,7 +16,8 @@ const ago = (t) => {
 
 const day = (t) => (t ? `${new Date(t).getMonth() + 1}/${new Date(t).getDate()}` : '')
 
-// 학생 한 명 — 남은 오답(틀린 횟수·다시 풀기 진행)과 정리한 문제. 문제를 누르면 그림·정답까지 펼친다.
+// 학생 한 명 — 남은 오답(틀린 횟수·다시 풀기 진행). 다시 풀어 연속 2번 맞히면 목록에서 없어진다.
+// 문제를 누르면 그림·정답까지 펼친다.
 function StudentDetail({ s }) {
   const [openK, setOpenK] = useState(null)
   const row = (key, q, right) => (
@@ -35,11 +36,10 @@ function StudentDetail({ s }) {
       )}
     </li>
   )
-  const earlier = Math.max(0, s.mastered - s.doneList.length)
   return (
     <div className="space-y-3 border-t border-amber-200 px-3 pb-3 pt-2">
       <div>
-        <div className="text-xs font-black text-rose-700">❌ 남은 오답 {s.wrongList.length}개 <span className="font-bold text-rose-400">(많이 틀린 것부터)</span></div>
+        <div className="text-xs font-black text-rose-700">❌ 남은 오답 {s.wrongList.length}개 <span className="font-bold text-rose-400">(많이 틀린 것부터 · 다시 풀어 연속 2번 맞히면 없어져요)</span></div>
         {s.wrongList.length === 0 ? (
           <p className="mt-1 text-xs font-bold text-slate-400">남은 오답이 없어요 👍</p>
         ) : (
@@ -59,30 +59,6 @@ function StudentDetail({ s }) {
               ),
             )}
           </ul>
-        )}
-      </div>
-      <div>
-        <div className="text-xs font-black text-emerald-700">✅ 다시 풀어 정리한 문제 {s.doneList.length}개</div>
-        {s.doneList.length === 0 ? (
-          <p className="mt-1 text-xs font-bold text-slate-400">
-            {earlier ? `이번 업데이트 전에 정리한 ${earlier}문제는 목록이 남아 있지 않아요.` : '아직 정리한 문제가 없어요.'}
-          </p>
-        ) : (
-          <ul className="mt-1 space-y-1">
-            {s.doneList.map((d) =>
-              row(
-                d.key,
-                d.q,
-                <span className="shrink-0 text-right text-[11px] font-bold leading-tight text-emerald-600">
-                  정리 ✔<br />
-                  <span className="text-slate-400">{day(d.at)}</span>
-                </span>,
-              ),
-            )}
-          </ul>
-        )}
-        {s.doneList.length > 0 && earlier > 0 && (
-          <p className="mt-1 text-[11px] font-bold text-slate-400">이번 업데이트 전에 정리한 {earlier}문제는 목록이 남아 있지 않아요.</p>
         )}
       </div>
     </div>
@@ -200,7 +176,7 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                 ['학생', `${data.totals.students}명`],
                 ['푼 문제', `${data.totals.answered}개`],
                 ['정답률', pct(data.totals.rate)],
-                ['남은 오답 / 정리 완료', `${data.totals.wrongLeft} / ${data.totals.mastered}`],
+                ['남은 오답', `${data.totals.wrongLeft}개`],
               ].map(([k, v]) => (
                 <div key={k} className="rounded-2xl bg-amber-50 p-3 text-center">
                   <div className="text-[11px] font-bold text-amber-700">{k}</div>
@@ -251,7 +227,7 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                             <span className="ml-1 text-[11px] font-bold text-rose-400">{openQ === w.key ? '▲' : '▼ 눌러서 보기'}</span>
                           </span>
                           <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-black text-rose-700">
-                            {w.students}명{w.doneNames.length > 0 && <span className="text-emerald-600"> · 정리 {w.doneNames.length}</span>}
+                            {w.students}명
                           </span>
                         </div>
                       </button>
@@ -260,24 +236,14 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                           {/* 펼치면 문제 전체(그림·보기·정답·풀이)를 보여 준다 */}
                           <QuestionCard q={w.question} compact />
                           {w.question.id && <div className="mt-1 text-[11px] font-bold text-slate-400">문제 번호 {w.question.id}</div>}
-                          <div className="mt-2 grid gap-1 text-xs font-bold sm:grid-cols-2">
+                          <div className="mt-2 text-xs font-bold">
                             <div className="rounded-lg bg-white p-2 text-rose-700">
-                              ❌ 아직 오답으로 남은 학생 ({w.who.length}):{' '}
+                              ❌ 아직 오답 노트에 남은 학생 ({w.who.length}):{' '}
                               {w.who.map((x) => (
                                 <button key={x.uid} onClick={() => showStudent(x.uid)} className="mr-1 underline decoration-dotted underline-offset-2">
                                   {x.name}
                                 </button>
                               ))}
-                            </div>
-                            <div className="rounded-lg bg-white p-2 text-emerald-700">
-                              ✅ 다시 풀어 정리한 학생 ({w.doneWho.length}):{' '}
-                              {w.doneWho.length
-                                ? w.doneWho.map((x) => (
-                                    <button key={x.uid} onClick={() => showStudent(x.uid)} className="mr-1 underline decoration-dotted underline-offset-2">
-                                      {x.name}
-                                    </button>
-                                  ))
-                                : '아직 없어요'}
                             </div>
                           </div>
                           <p className="mt-1 text-[11px] font-bold text-slate-400">학생 이름을 누르면 그 학생의 오답 노트로 가요</p>
@@ -289,10 +255,10 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
               </section>
             )}
 
-            {/* 학생별 — 이름을 누르면 그 학생의 남은 오답과 정리한 문제 */}
+            {/* 학생별 — 이름을 누르면 그 학생의 남은 오답 */}
             <section className="mt-6">
               <h3 className="font-black text-amber-900">
-                학생별 <span className="text-xs font-bold text-amber-600">(이름을 누르면 어떤 문제를 틀렸고, 정리했는지 보여요)</span>
+                학생별 <span className="text-xs font-bold text-amber-600">(이름을 누르면 아직 남은 오답 문제가 보여요)</span>
               </h3>
               <div className="mt-2 space-y-1.5">
                 {data.students.map((s) => {
@@ -309,7 +275,6 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                         <span className={`rounded-full px-2 py-0.5 text-xs font-black ${s.wrongLeft ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-500'}`}>
                           ❌ 남은 오답 {s.wrongLeft}
                         </span>
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-black text-emerald-700">✅ 정리 {s.mastered}</span>
                         {s.drillLevel && <span className="text-xs font-bold text-violet-600">수련장 Lv.{s.drillLevel}</span>}
                         <span className="ml-auto text-[11px] font-bold text-slate-400">{ago(s.updatedAt)} {open ? '▲' : '▼'}</span>
                       </button>
@@ -319,7 +284,7 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
                 })}
               </div>
               <p className="mt-2 text-[11px] font-semibold text-slate-400">
-                남은 오답은 학생이 '오답 다시 풀기'에서 연속 2번 맞히면 정리돼요(●●). 정리한 문제를 다시 틀리면 남은 오답으로 돌아와요.
+                남은 오답은 학생이 '오답 다시 풀기'에서 연속 2번 맞히면 목록에서 없어져요(●● 진행). 다시 틀리면 또 들어와요.
               </p>
             </section>
           </>
