@@ -21,7 +21,6 @@ import MainMenu from './components/game/MainMenu.jsx'
 import GoldenKeyModal from './components/game/GoldenKeyModal.jsx'
 import IslandPanel from './components/game/IslandPanel.jsx'
 import SpaceTravelModal from './components/game/SpaceTravelModal.jsx'
-import MuteToggle from './components/ui/MuteToggle.jsx'
 import CoinIcon from './components/ui/CoinIcon.jsx'
 import Toast from './components/ui/Toast.jsx'
 import ConfirmDialog from './components/ui/ConfirmDialog.jsx'
@@ -349,7 +348,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen game-bg safe-padded">
-      <MuteToggle />
       <TurnAnnouncement player={current} show={showAnnouncement} />
       <BigEvent event={bigEvent} onDone={clearBigEvent} />
       <Toast show={!!noteToast} color={noteToast?.ok ? 'bg-violet-600' : 'bg-rose-600'} position="bottom">
