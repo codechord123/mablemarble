@@ -803,3 +803,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .shop-bop, .shop-sway, .shop-hop { animation: none; }
 }
+.shop-receipt {
+  -webkit-mask-image: linear-gradient(#000 0 0), radial-gradient(circle at 10px 0, transparent 9px, #000 9.5px);
+  -webkit-mask-size: 100% calc(100% - 10px), 20px 10px;
+  -webkit-mask-position: top, bottom;
+  -webkit-mask-repeat: no-repeat, repeat-x;
+  mask-image: linear-gradient(#000 0 0), radial-gradient(circle at 10px 0, transparent 9px, #000 9.5px);
+  mask-size: 100% calc(100% - 10px), 20px 10px;
+  mask-position: top, bottom;
+  mask-repeat: no-repeat, repeat-x;
+}

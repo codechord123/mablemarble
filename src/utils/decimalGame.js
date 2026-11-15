@@ -80,7 +80,7 @@ function mulSteps(a, b) {
 
 // ─── 문제 유형 ───
 // make(r, hard) → [a, b] 두 수. hard는 보스 문제(자리 수가 하나 더 많다).
-function mulProblem(type, a, b) {
+export function mulProblem(type, a, b) {
   return {
     type,
     a: norm(a),
