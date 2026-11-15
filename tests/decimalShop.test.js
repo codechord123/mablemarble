@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   LESSONS, SHOPS, MAP, ROWS, COLS, ENTRANCES, isRoad, roadSide, frontRoad, roadPath, unlocked,
   openShops, shopsIn, todaysPrices, makeCustomer, dayRules, tipFor, settle, addD, subD, gte,
-  emptyTown, QUESTS, popularityOf, upkeepOf, titleOf, productById, GOAL, starTimes, starsFor, clock,
+  makeFreshCustomer, orderKey, emptyTown, QUESTS, popularityOf, upkeepOf, titleOf, productById, GOAL, starTimes, starsFor, clock,
 } from '../src/utils/decimalShop.js'
 import { D, show, mul, norm } from '../src/utils/decimalGame.js'
 
@@ -61,7 +61,6 @@ describe('손님 주문 — 차시 모양', () => {
           if (t === 'dd1') expect([pa, pb]).toEqual([1, 1])
           if (t === 'dd2') expect([pa, pb]).toEqual([2, 1])
           if (t === 'shift') expect(['10', '100', '0.1', '0.01']).toContain(show(c.b))
-          if (!['mix', 'shift'].includes(l.type)) expect(show(c.a)).toBe(show(prices[c.product]))
           if (productById(c.product).kind === 'count') expect(c.b.p).toBe(0)
           expect(c.answer.p).toBeLessThanOrEqual(4)
         }
@@ -118,5 +117,23 @@ describe('타임 어택', () => {
     expect(clock(0)).toBe('0:00')
     expect(clock(545)).toBe('9:05')
     expect(dayRules(one, { ...t, ads: 2 }, false).gap).toBeLessThan(dayRules(one, t, false).gap)
+  })
+})
+
+describe('같은 식 반복 막기', () => {
+  it('어느 차시든 처음 가게만으로 30문제가 모두 다른 식', () => {
+    const t = emptyTown()
+    for (const l of LESSONS) {
+      const open = openShops(l, t)
+      for (let round = 0; round < 30; round++) {
+        const used = new Set()
+        for (let i = 0; i < 30; i++) {
+          const c = makeFreshCustomer(l, open[i % open.length].shop, {}, { recent: used })
+          const k = orderKey(c)
+          expect(used.has(k), `${l.lesson} ${k}`).toBe(false)
+          used.add(k)
+        }
+      }
+    }
   })
 })

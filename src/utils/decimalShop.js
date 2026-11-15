@@ -223,6 +223,18 @@ function helperOf(a, b, type) {
 
 let uid = 0
 // 손님 한 명 = 가게 하나에서 사는 주문 + 계산 문제
+// 같은 식이 다시 나오지 않게 — 오늘 이미 낸 식(recent: Set of '가격×양')과 겹치면 다시 만든다
+export const orderKey = (c) => `${c.price}×${show(c.b)}`
+export function makeFreshCustomer(lesson, shop, prices, opts = {}) {
+  const recent = opts.recent || new Set()
+  let c
+  for (let i = 0; i < 60; i++) {
+    c = makeCustomer(lesson, shop, prices, opts)
+    if (!recent.has(orderKey(c))) break
+  }
+  return c
+}
+
 export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChance = 0.1, met = {} } = {}) {
   const pr = productById(pick(rng, shop.products))
   const type = lesson.type === 'mix' ? pick(rng, TYPES_FOR[pr.kind]) : lesson.type

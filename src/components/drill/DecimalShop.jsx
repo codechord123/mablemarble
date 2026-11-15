@@ -9,7 +9,7 @@ import { grade, show, D } from '../../utils/decimalGame.js'
 import {
   SHOPS, DECOR, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, UPGRADE_COST, ENTRANCES, COST_RATE,
   shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
-  shopsIn, openShops, todaysPrices, makeCustomer, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
+  shopsIn, openShops, makeFreshCustomer, orderKey, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
   popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
@@ -317,7 +317,7 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
 // ─── 장사하는 하루 ───
 // 이어 하기용 진행 상황 (장사 도중 나가도 저장)
 function progressOf(lesson, s, elapsedMs) {
-  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, savedAt: Date.now() }
+  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, savedAt: Date.now() }
 }
 
 function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave }) {
@@ -325,13 +325,15 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
   const open = useMemo(() => openShops(lesson, town), []) // eslint-disable-line react-hooks/exhaustive-deps
   const openKeys = useMemo(() => new Set(open.map((s) => s.key)), [open])
   const closedKeys = useMemo(() => new Set(shopsIn(town).filter((s) => !openKeys.has(s.key)).map((s) => s.key)), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const prices = useMemo(() => todaysPrices(lesson.type, open.flatMap((s) => s.shop.products)), []) // eslint-disable-line react-hooks/exhaustive-deps
+  // 가격은 손님마다 새로 (하루 내내 같은 가격이면 같은 식이 자꾸 나온다)
+  const prices = useMemo(() => ({}), [])
 
   // 게임 상태는 ref에 두고 짧은 간격으로 다시 그린다 (걷는 손님이 여럿이라)
   const g = useRef({
     walkers: [], queues: {}, nextSpawn: 0, startAt: 0, rushUntil: 0,
     penalty: resume?.penalty || 0,
     rushDone: resume?.rushDone || [],
+    used: resume?.used || [], // 오늘 낸 식들
     stats: resume?.stats ? { ...resume.stats, met: { ...resume.stats.met } } : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {} },
   })
   const [, setFrame] = useState(0)
@@ -403,7 +405,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
           const weights = room.map((x) => x.lv)
           let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
           const target = room.find((x, i) => (roll -= weights[i]) < 0) || room[0]
-          const cust = { ...makeCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met } }) }
+          const cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used) }) }
+          s.used = [...s.used, orderKey(cust)] // 오늘 낸 식은 다시 안 낸다 (30문제 모두 다르게)
           s.walkers.push(walkerTo(cust, target.key))
           s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
           const rush = now < s.rushUntil ? 0.5 : 1
