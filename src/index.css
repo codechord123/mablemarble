@@ -813,3 +813,19 @@ body {
   mask-position: top, bottom;
   mask-repeat: no-repeat, repeat-x;
 }
+
+/* ─── 소수 마을 타이쿤 지도 ─── */
+.town-bg {
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(255, 255, 255, 0.75), transparent 70%),
+    linear-gradient(180deg, #bae6fd 0%, #e0f2fe 55%, #dcfce7 100%);
+}
+.town-pulse { animation: town-pulse 1s ease-in-out infinite; }
+@keyframes town-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.town-bob { animation: town-bob 1.4s ease-in-out infinite; }
+@keyframes town-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.town-walk { animation: town-walk 0.42s ease-in-out infinite; }
+@keyframes town-walk { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+@media (prefers-reduced-motion: reduce) {
+  .town-pulse, .town-bob, .town-walk { animation: none; }
+}

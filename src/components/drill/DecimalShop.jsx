@@ -1,50 +1,77 @@
-// 소수 가게 타이쿤 — 줄 선 손님들의 주문(가격 × 양)을 계산해서 팔고,
-// 하루가 끝나면 정산(매출 − 재료비 − 임대료 = 이익), 번 돈으로 상품·직원·광고·가게에 투자한다.
-// 계산대 앞 손님은 떠나지 않는다(계산 중엔 기다려 준다). 줄 뒤 손님만 너무 오래 기다리면 간다.
-// '느긋 모드'를 켜면 손님이 두 배 오래 기다리고 천천히 온다.
+// 소수 마을 타이쿤 — 마을 지도에 가게를 짓고, 길 따라 찾아오는 손님의 주문(가격 × 양)을 계산해 판다.
+// 하루가 끝나면 정산서(매출 + 팁 − 재료비 − 유지비 = 이익), 번 돈으로 가게·장식·땅에 투자한다.
+// 가게를 눌러 그 가게 손님을 맞는다. 계산 중인 손님은 기다려 주고, 다른 가게 앞 손님만 오래 기다리면 간다.
+// '느긋 모드'면 손님이 두 배 오래 기다리고 천천히 온다.
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { grade, show, D } from '../../utils/decimalGame.js'
 import {
-  PRODUCTS, PRODUCT_COST, productById, LESSONS, CUSTOMERS, LEVELS, STAFF, ADS, DECOR, QUESTS,
-  todaysPrices, shelfFor, makeCustomer, dayRules, moodOf, MOOD_FACE, tipFor, settle, reputationOf,
-  titleOf, addD, subD, gte, money, loadShop, saveShop, COST_RATE,
+  SHOPS, DECOR, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, UPGRADE_COST, ENTRANCES, COST_RATE,
+  shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
+  shopsIn, openShops, todaysPrices, makeCustomer, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
+  popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
 import { useAccount } from '../../account/store.js'
 import { sfx } from '../../utils/sounds.js'
-import { burstAt, cheer, flyCoins } from '../../utils/fx.js'
+import { cheer, flyCoins } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
 import { SoundMini, useHideSoundToggle } from '../ui/MuteToggle.jsx'
+import TownMap, { center } from './TownMap.jsx'
 
 const RELAX_KEY = 'boomarble_tycoon_relaxed'
+const STEP_MS = 420 // 손님이 한 칸 걷는 시간
 
-// ─── 가게 장면 ───
-function Scene({ shop, owner, children, tall = false }) {
-  const lv = LEVELS[shop.level]
-  const has = (id) => shop.decor.includes(id)
+const Stars = ({ n }) => (
+  <span className="tracking-tighter" aria-label={`인기 ${n.toFixed(1)}`}>
+    {[1, 2, 3, 4, 5].map((i) => (
+      <span key={i} className={n >= i - 0.25 ? 'text-amber-400' : 'text-amber-900/20'}>★</span>
+    ))}
+  </span>
+)
+function Money({ value, refEl, className = '' }) {
   return (
-    <div
-      className={`relative w-full overflow-hidden rounded-[1.5rem] shadow-xl ${tall ? 'h-[clamp(17rem,44dvh,24rem)]' : 'h-52'}`}
-      style={{ background: `linear-gradient(180deg, ${lv.wall[0]}, ${lv.wall[1]})` }}
+    <span ref={refEl} className={`shrink-0 rounded-full bg-amber-900 px-3 py-1 text-sm font-black text-amber-50 tabular-nums ${className}`}>
+      💰 {money(value)}G
+    </span>
+  )
+}
+
+function Sheet({ title, onClose, children, wide }) {
+  return (
+    <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+      <motion.div
+        initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }}
+        onClick={(e) => e.stopPropagation()}
+        className={`flex max-h-[85dvh] w-full ${wide ? 'max-w-lg' : 'max-w-md'} flex-col rounded-[1.5rem] bg-white p-4 shadow-2xl`}
+      >
+        <div className="flex items-center">
+          <h2 className="text-lg font-black text-slate-800">{title}</h2>
+          <button type="button" onClick={onClose} className="ml-auto h-8 w-8 rounded-full bg-slate-100 font-black text-slate-500" aria-label="닫기">✕</button>
+        </div>
+        <div className="mt-2 flex-1 overflow-y-auto">{children}</div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function Buy({ icon, title, desc, cost, can, done, locked, onClick }) {
+  return (
+    <button
+      type="button"
+      disabled={done || locked || !can}
+      onClick={onClick}
+      className={`mb-1.5 flex w-full items-center gap-3 rounded-2xl p-2.5 text-left ring-1 transition ${done ? 'bg-emerald-50 ring-emerald-300' : 'bg-slate-50 ring-slate-200 enabled:hover:bg-amber-50 disabled:opacity-55'}`}
     >
-      {lv.awning && (
-        <div className="absolute inset-x-0 top-0 h-7 shop-awning" style={{ backgroundImage: `repeating-linear-gradient(90deg, ${lv.awning[0]} 0 28px, ${lv.awning[1]} 28px 56px)` }} />
-      )}
-      <div className={`absolute left-1/2 ${lv.awning ? 'top-8' : 'top-2'} z-10 -translate-x-1/2 whitespace-nowrap rounded-xl px-3 py-1 text-sm font-black shadow ${has('rainbow') ? 'shop-rainbow text-white' : 'bg-amber-900 text-amber-50'}`}>
-        {has('light') && '✨ '}{owner}의 {lv.name}{has('light') && ' ✨'}
-      </div>
-      <div className="absolute inset-x-3 top-[40%] h-2 rounded bg-amber-800/60 shadow" />
-      {has('flag') && <span className="absolute left-2 top-8 text-3xl shop-sway">🎏</span>}
-      {has('art') && <span className="absolute right-2 top-9 text-2xl">🖼️</span>}
-      {has('fish') && <span className="absolute right-2 top-[22%] text-2xl">🐠</span>}
-      {has('trophy') && <span className="absolute left-2 top-[22%] text-2xl">🏆</span>}
-      {has('castle') && <span className="absolute left-10 top-[22%] text-2xl">🏰</span>}
-      {has('plant') && <span className="absolute bottom-10 left-0 z-10 text-4xl">🪴</span>}
-      {children}
-      <div className="absolute inset-x-0 bottom-0 h-11 shop-counter" />
-      {has('cat') && <span className="absolute bottom-8 left-[46%] z-10 text-2xl shop-bop">🐈</span>}
-    </div>
+      <span className="text-3xl">{locked ? '🔒' : icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-black text-slate-800">{title}</span>
+        <span className="block text-xs font-bold text-slate-500">{desc}</span>
+      </span>
+      <span className={`shrink-0 rounded-full px-2.5 py-1 text-sm font-black ${done ? 'bg-emerald-500 text-white' : can && !locked ? 'bg-amber-400 text-amber-950' : 'bg-slate-200 text-slate-500'}`}>
+        {done ? '✔' : `${cost}G`}
+      </span>
+    </button>
   )
 }
 
@@ -59,7 +86,7 @@ function Keypad({ onKey, disabled }) {
           disabled={disabled}
           onClick={() => onKey(k)}
           aria-label={k === '.' ? '소수점' : k === '⌫' ? '지우기' : k}
-          className={`h-11 rounded-xl text-2xl font-black shadow-[0_3px_0_rgba(0,0,0,0.15)] transition active:translate-y-[2px] active:shadow-none disabled:opacity-50 sm:h-12 ${
+          className={`h-11 rounded-xl text-2xl font-black shadow-[0_3px_0_rgba(0,0,0,0.15)] transition active:translate-y-[2px] active:shadow-none disabled:opacity-50 ${
             k === '.' ? 'bg-amber-300 text-amber-950' : k === '⌫' ? 'bg-slate-200 text-slate-600' : 'bg-white text-slate-800 ring-1 ring-slate-200'
           }`}
         >
@@ -70,359 +97,334 @@ function Keypad({ onKey, disabled }) {
   )
 }
 
-const Stars = ({ n }) => (
-  <span className="tracking-tighter" aria-label={`평판 ${n.toFixed(1)}`}>
-    {[1, 2, 3, 4, 5].map((i) => (
-      <span key={i} className={n >= i - 0.25 ? 'text-amber-400' : 'text-amber-900/20'}>★</span>
-    ))}
-  </span>
-)
+// ─── 마을 (장사 전·후) ───
+function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onUpdate, onModal }) {
+  const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
+  const pop = popularityOf(town)
+  const can = (c) => gte(town.money, D(c))
+  const ready = QUESTS.filter((q) => q.done(town) && !town.claimed.includes(q.id)).length
+  const builtIds = new Set(Object.values(town.built).map((b) => b.id))
 
-function Money({ value, className = '', refEl }) {
-  return (
-    <span ref={refEl} className={`shrink-0 rounded-full bg-amber-900 px-3 py-1 text-sm font-black text-amber-50 tabular-nums ${className}`}>
-      💰 {money(value)}G
-    </span>
-  )
-}
+  function onTile(r, c) {
+    const t = tileAt(r, c)
+    if (t === 'R') return
+    const k = tkey(r, c)
+    const b = town.built[k]
+    if (b) return setSheet({ type: b.kind, r, c })
+    if (!unlocked(town, r, c)) return setSheet({ type: 'zone', zone: t })
+    setSheet({ type: 'lot', r, c })
+  }
+  function pay(cost, patch, big) {
+    if (!can(cost)) return
+    sfx.coin()
+    if (big) setTimeout(() => cheer(4), 120)
+    onUpdate((s) => ({ ...patch(s), money: subD(s.money, D(cost)) }))
+    setSheet(null)
+  }
+  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null
+  const here = sk ? town.built[sk] : null
 
-// ─── 로비 ───
-function Lobby({ shop, owner, relaxed, setRelaxed, onOpen, onBack, onModal }) {
-  const ready = QUESTS.filter((q) => q.done(shop) && !shop.claimed.includes(q.id)).length
   return (
-    <div className="min-h-[100dvh] shop-bg safe-padded px-4 pt-4 pb-8">
-      <div className="mx-auto w-full max-w-xl">
+    <div className="min-h-[100dvh] town-bg safe-padded px-3 pt-3 pb-6">
+      <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-center gap-2">
-          <button type="button" onClick={onBack} className="text-sm font-bold text-amber-900/70">← 메인 메뉴</button>
+          <button type="button" onClick={onBack} className="text-sm font-bold text-sky-900/70">← 메뉴</button>
           <SoundMini className="ml-auto" />
-          <Money value={shop.money} />
+          <Money value={town.money} />
         </div>
-        <h1 className="mt-1 text-2xl font-black text-amber-950">🏪 소수 가게 타이쿤</h1>
-        <div className="flex flex-wrap items-center gap-x-2 text-sm font-black text-amber-900">
-          <span>{titleOf(shop.totalSales)}</span>
-          <Stars n={reputationOf(shop)} />
-          <span className="text-xs font-bold text-amber-900/60">· {shop.days}일째 · 총 매출 {money(shop.totalSales)}G</span>
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+          <h1 className="text-2xl font-black text-sky-950">🏘️ {owner}의 소수 마을</h1>
+          <span className="text-sm font-black text-sky-900">{titleOf(town.totalSales)} <Stars n={pop} /></span>
+        </div>
+        <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
+
+        <div className="relative mt-1">
+          <TownMap town={town} onTile={onTile} selectedKey={sk} />
         </div>
 
-        <div className="mt-2">
-          <Scene shop={shop} owner={owner}>
-            <div className="absolute left-1/2 top-[24%] flex -translate-x-1/2 gap-2 text-2xl">
-              {shop.products.map((id) => <span key={id}>{productById(id).icon}</span>)}
-            </div>
-            <span className="absolute bottom-9 left-1/2 -translate-x-1/2 text-5xl shop-bop">🧑‍🍳</span>
-            {shop.staff >= 1 && <span className="absolute bottom-9 left-[30%] text-4xl">{STAFF[shop.staff].icon}</span>}
-          </Scene>
-        </div>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          <GameButton color="violet" onClick={() => onModal('invest')} className="py-3 text-sm">🛒 투자하기</GameButton>
-          <GameButton color="orange" onClick={() => onModal('quests')} className="relative py-3 text-sm">
+        <div className="mt-1 grid grid-cols-4 gap-2">
+          <GameButton color="green" onClick={() => setSheet({ type: 'lessons' })} className="col-span-4 py-3.5 text-xl sm:col-span-1 sm:text-base">🌅 장사 시작</GameButton>
+          <GameButton color="orange" onClick={() => onModal('quests')} className="relative py-2.5 text-sm">
             🎯 목표
             {ready > 0 && <span className="absolute -right-1 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-rose-500 px-1 text-xs shop-bop">{ready}</span>}
           </GameButton>
-          <GameButton color="blue" onClick={() => onModal('book')} className="py-3 text-sm">📖 도감 {Object.keys(shop.met).length}</GameButton>
+          <GameButton color="blue" onClick={() => onModal('book')} className="py-2.5 text-sm">📖 도감 {Object.keys(town.met).length}</GameButton>
+          <GameButton color="violet" onClick={() => setSheet({ type: 'ads' })} className="py-2.5 text-sm">📣 광고</GameButton>
         </div>
-
-        <div className="mt-3 rounded-[1.25rem] bg-white/90 p-3 shadow">
-          <div className="flex items-center gap-2 px-1">
-            <span className="text-sm font-black text-amber-900">🌅 오늘 장사 시작 <span className="font-bold text-amber-700/70">(배운 차시)</span></span>
-            <label className="ml-auto flex cursor-pointer items-center gap-1.5 text-xs font-black text-sky-800">
-              <input type="checkbox" checked={relaxed} onChange={(e) => setRelaxed(e.target.checked)} className="h-4 w-4 accent-sky-600" />
-              🐢 느긋 모드
-            </label>
-          </div>
-          <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-            {LESSONS.map((l) => {
-              const shelf = shelfFor(l, shop.products)
-              return (
-                <button
-                  key={l.type}
-                  type="button"
-                  onClick={() => onOpen(l)}
-                  className="rounded-xl bg-amber-50 px-3 py-2 text-left ring-1 ring-amber-200 transition hover:bg-amber-100 active:scale-[0.98]"
-                >
-                  <span className="flex items-center gap-1 text-xs font-black text-orange-600">
-                    {l.lesson}
-                    <span className="ml-auto text-base leading-none">{shelf.map((p) => p.icon).join('')}</span>
-                  </span>
-                  <span className="block text-sm font-black text-slate-800">{l.name}</span>
-                  <span className="block text-[11px] font-bold text-slate-500">예) {l.ex}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-        <p className="mt-3 text-center text-xs font-bold text-amber-900/60">
-          손님 {shop.served}명 받음 · 놓친 손님 {shop.lost}명 · 최고 이익 {money(shop.bestProfit)}G
+        <p className="mt-2 text-center text-xs font-bold text-sky-900/60">
+          손님 {town.served}명 받음 · 놓친 손님 {town.lost}명 · 총 매출 {money(town.totalSales)}G · 최고 이익 {money(town.bestProfit)}G
         </p>
       </div>
+
+      <AnimatePresence>
+        {sheet?.type === 'lessons' && (
+          <Sheet title="🌅 오늘 장사 — 배운 차시 고르기" onClose={() => setSheet(null)} wide>
+            <label className="mb-2 flex cursor-pointer items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-900">
+              <input type="checkbox" checked={relaxed} onChange={(e) => setRelaxed(e.target.checked)} className="h-4 w-4 accent-sky-600" />
+              🐢 느긋 모드 <span className="font-bold text-sky-700/80">손님이 두 배 오래 기다리고 천천히 와요</span>
+            </label>
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {LESSONS.map((l) => {
+                const open = openShops(l, town)
+                return (
+                  <button
+                    key={l.type}
+                    type="button"
+                    disabled={!open.length}
+                    onClick={() => { setSheet(null); onStart(l) }}
+                    className="rounded-xl bg-amber-50 px-3 py-2 text-left ring-1 ring-amber-200 transition hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <span className="flex items-center gap-1 text-xs font-black text-orange-600">
+                      {l.lesson}
+                      <span className="ml-auto text-base leading-none">{open.map((s) => s.shop.icon).join('')}</span>
+                    </span>
+                    <span className="block text-sm font-black text-slate-800">{l.name}</span>
+                    <span className="block text-[11px] font-bold text-slate-500">{open.length ? `예) ${l.ex}` : '이 차시를 팔 가게가 없어요'}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-xs font-bold text-slate-500">개수로 파는 가게(🍭🍩🥐💎)는 2·3차시, 달아서 파는 가게(🍉🧵🐄🥩)는 4~7차시에 문을 열어요.</p>
+          </Sheet>
+        )}
+
+        {sheet?.type === 'lot' && (
+          <Sheet title="🏗️ 여기에 무엇을 지을까요?" onClose={() => setSheet(null)} wide>
+            {roadSide(sheet.r, sheet.c) ? (
+              <>
+                <div className="mb-1 text-xs font-black text-slate-500">가게 (길 옆이라 지을 수 있어요)</div>
+                {SHOPS.map((s) => {
+                  const locked = s.tier > 1 && !shopsIn(town).some((x) => x.shop.tier >= s.tier - 1)
+                  return (
+                    <Buy
+                      key={s.id}
+                      icon={s.icon}
+                      title={`${s.name} (${s.tier}등급)`}
+                      desc={`${s.products.map((id) => productById(id).icon + productById(id).name).join(' · ')} — ${s.kind === 'count' ? '개수로 팔아요' : '달아서 팔아요'}${locked ? ` · ${s.tier - 1}등급 가게부터` : ''}`}
+                      cost={s.cost}
+                      can={can(s.cost)}
+                      done={builtIds.has(s.id)}
+                      locked={locked}
+                      onClick={() => pay(s.cost, (t) => ({ built: { ...t.built, [tkey(sheet.r, sheet.c)]: { kind: 'shop', id: s.id, lv: 1 } } }), s.tier >= 3)}
+                    />
+                  )
+                })}
+              </>
+            ) : (
+              <p className="mb-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">길에서 떨어진 땅이라 가게는 못 지어요. 장식을 놓아 마을 인기를 올려 보세요!</p>
+            )}
+            <div className="mb-1 mt-2 text-xs font-black text-slate-500">장식 (마을 인기 ★ ↑ → 손님이 더 많이·오래)</div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {DECOR.map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  disabled={!can(d.cost)}
+                  onClick={() => pay(d.cost, (t) => ({ built: { ...t.built, [tkey(sheet.r, sheet.c)]: { kind: 'decor', id: d.id } } }), d.cost >= 300)}
+                  className="rounded-2xl bg-slate-50 p-1.5 text-center ring-1 ring-slate-200 enabled:hover:bg-amber-50 disabled:opacity-50"
+                >
+                  <div className="text-3xl">{d.icon}</div>
+                  <div className="text-[11px] font-black text-slate-700">{d.name}</div>
+                  <div className="text-[11px] font-black text-amber-600">{d.cost}G</div>
+                </button>
+              ))}
+            </div>
+          </Sheet>
+        )}
+
+        {sheet?.type === 'shop' && here && (() => {
+          const s = shopById(here.id)
+          const lv = here.lv || 1
+          const cost = UPGRADE_COST(s, lv)
+          return (
+            <Sheet title={`${s.icon} ${s.name} · Lv.${lv}`} onClose={() => setSheet(null)}>
+              <div className="rounded-2xl p-3" style={{ background: `linear-gradient(135deg, ${s.color[1]}, ${s.color[2]})` }}>
+                <div className="text-sm font-black text-slate-800">파는 물건: {s.products.map((id) => `${productById(id).icon} ${productById(id).name}`).join(', ')}</div>
+                <div className="mt-1 text-xs font-bold text-slate-600">{s.tier}등급 · {s.kind === 'count' ? '개수로 팔아요 (2·3·8차시)' : '달아서 팔아요 (4~8차시)'}</div>
+                <div className="mt-1 text-xs font-bold text-slate-600">가게 앞 줄 {slotsOf(lv)}칸 · 팁 +{lv - 1}G · 하루 유지비 {s.tier * lv}G</div>
+              </div>
+              {lv < MAX_LV ? (
+                <GameButton color={can(cost) ? 'green' : 'gray'} disabled={!can(cost)} className="mt-3 w-full py-3"
+                  onClick={() => pay(cost, (t) => ({ built: { ...t.built, [sk]: { ...here, lv: lv + 1 } } }), true)}>
+                  ⬆️ Lv.{lv + 1}로 키우기 · {cost}G
+                  <div className="text-xs font-semibold opacity-90">줄 {slotsOf(lv + 1)}칸 · 팁 +{lv}G · 건물이 커지고 마을 인기 ↑</div>
+                </GameButton>
+              ) : (
+                <div className="mt-3 rounded-xl bg-amber-50 py-3 text-center font-black text-amber-700">🏆 최고 레벨이에요!</div>
+              )}
+            </Sheet>
+          )
+        })()}
+
+        {sheet?.type === 'decor' && here && (
+          <Sheet title={`${decorById(here.id).icon} ${decorById(here.id).name}`} onClose={() => setSheet(null)}>
+            <p className="text-sm font-bold text-slate-600">마을 인기 +{decorById(here.id).pop}★ 를 주는 장식이에요.</p>
+            <GameButton color="gray" className="mt-3 w-full py-2.5" onClick={() => {
+              onUpdate((t) => { const b = { ...t.built }; delete b[sk]; return { built: b } })
+              setSheet(null)
+            }}>치우기 (돈은 돌려받지 않아요)</GameButton>
+          </Sheet>
+        )}
+
+        {sheet?.type === 'zone' && (
+          <Sheet title={`🗺️ ${ZONES[sheet.zone].name} 사기`} onClose={() => setSheet(null)}>
+            <p className="text-sm font-bold text-slate-600">땅을 사면 가게와 장식을 더 지을 수 있어요.</p>
+            <GameButton color={can(ZONES[sheet.zone].cost) ? 'green' : 'gray'} disabled={!can(ZONES[sheet.zone].cost)} className="mt-3 w-full py-3"
+              onClick={() => pay(ZONES[sheet.zone].cost, (t) => ({ zones: [...t.zones, sheet.zone] }), true)}>
+              🗺️ {ZONES[sheet.zone].cost}G에 사기
+            </GameButton>
+          </Sheet>
+        )}
+
+        {sheet?.type === 'ads' && (
+          <Sheet title="📣 광고" onClose={() => setSheet(null)}>
+            {ADS.slice(1).map((ad, i) => (
+              <Buy key={ad.name} icon={ad.icon} title={ad.name} desc={ad.desc} cost={ad.cost} can={can(ad.cost)} done={town.ads >= i + 1} locked={town.ads < i}
+                onClick={() => pay(ad.cost, () => ({ ads: i + 1 }))} />
+            ))}
+          </Sheet>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
-// ─── 투자 ───
-function Invest({ shop, onBuy, onClose }) {
-  const [tab, setTab] = useState('goods')
-  const can = (c) => gte(shop.money, D(c))
-  const Row = ({ icon, title, desc, cost, owned, locked, onClick }) => (
-    <button
-      type="button"
-      disabled={owned || locked || !can(cost)}
-      onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left ring-1 transition ${owned ? 'bg-emerald-50 ring-emerald-300' : 'bg-slate-50 ring-slate-200 enabled:hover:bg-amber-50 disabled:opacity-60'}`}
-    >
-      <span className="text-3xl">{locked ? '🔒' : icon}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block font-black text-slate-800">{title}</span>
-        <span className="block text-xs font-bold text-slate-500">{desc}</span>
-      </span>
-      <span className={`shrink-0 rounded-full px-2.5 py-1 text-sm font-black ${owned ? 'bg-emerald-500 text-white' : can(cost) && !locked ? 'bg-amber-400 text-amber-950' : 'bg-slate-200 text-slate-500'}`}>
-        {owned ? '✔' : `${cost}G`}
-      </span>
-    </button>
-  )
-  const nextLv = LEVELS[shop.level + 1]
-  return (
-    <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <motion.div initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }} className="flex max-h-[90dvh] w-full max-w-md flex-col rounded-[1.5rem] bg-white p-4 shadow-2xl">
-        <div className="flex items-center">
-          <h2 className="text-xl font-black text-slate-800">🛒 투자하기</h2>
-          <Money value={shop.money} className="ml-auto" />
-        </div>
-        <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl bg-slate-100 p-1 text-sm font-black">
-          {[['goods', '📦 상품'], ['people', '🧑‍💼 사람'], ['shop', '🏗️ 가게'], ['decor', '🎨 꾸미기']].map(([id, label]) => (
-            <button key={id} type="button" onClick={() => setTab(id)} className={`rounded-lg py-1.5 ${tab === id ? 'bg-white text-slate-800 shadow' : 'text-slate-500'}`}>{label}</button>
-          ))}
-        </div>
-        <div className="mt-3 flex-1 space-y-2 overflow-y-auto">
-          {tab === 'goods' && (
-            <>
-              <p className="text-xs font-bold text-slate-500">비싼 상품일수록 한 번에 많이 벌어요 (계산하는 수도 조금 커져요)</p>
-              {PRODUCTS.filter((p) => p.tier > 1).map((p) => {
-                const owned = shop.products.includes(p.id)
-                const locked = p.tier > 2 && !shop.products.some((id) => productById(id).tier === p.tier - 1)
-                return (
-                  <Row
-                    key={p.id}
-                    icon={p.icon}
-                    title={`${p.name} 들여오기`}
-                    desc={`${p.tier}등급 · ${p.kind === 'count' ? `개수로 팔아요 (1${p.unit}에 ○G)` : `${p.unit}로 달아서 팔아요`}${locked ? ` · ${p.tier - 1}등급 상품부터` : ''}`}
-                    cost={PRODUCT_COST[p.tier]}
-                    owned={owned}
-                    locked={locked}
-                    onClick={() => onBuy({ cost: PRODUCT_COST[p.tier], patch: (s) => ({ products: [...s.products, p.id] }) })}
-                  />
-                )
-              })}
-            </>
-          )}
-          {tab === 'people' && (
-            <>
-              {STAFF.slice(1).map((st, i) => (
-                <Row key={st.name} icon={st.icon} title={st.name} desc={st.desc} cost={st.cost} owned={shop.staff >= i + 1} locked={shop.staff < i}
-                  onClick={() => onBuy({ cost: st.cost, patch: () => ({ staff: i + 1 }) })} />
-              ))}
-              {ADS.slice(1).map((ad, i) => (
-                <Row key={ad.name} icon={ad.icon} title={ad.name} desc={ad.desc} cost={ad.cost} owned={shop.ads >= i + 1} locked={shop.ads < i}
-                  onClick={() => onBuy({ cost: ad.cost, patch: () => ({ ads: i + 1 }) })} />
-              ))}
-            </>
-          )}
-          {tab === 'shop' && (
-            <>
-              {LEVELS.map((lv, i) => (
-                <div key={lv.name} className={`rounded-2xl p-3 ring-1 ${i === shop.level ? 'bg-amber-50 ring-amber-300' : 'bg-slate-50 ring-slate-200'}`}>
-                  <div className="flex items-center gap-2">
-                    <span className="h-8 w-8 rounded-lg" style={{ background: `linear-gradient(135deg, ${lv.wall[0]}, ${lv.wall[1]})` }} />
-                    <span className="font-black text-slate-800">{lv.name}</span>
-                    {i === shop.level && <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs font-black text-white">지금</span>}
-                  </div>
-                  <div className="mt-1 text-xs font-bold text-slate-500">하루 손님 {lv.perDay}명 · 줄 {lv.slots}칸 · 임대료 하루 {lv.rent}G</div>
-                </div>
-              ))}
-              {nextLv && (
-                <GameButton color={can(nextLv.cost) ? 'green' : 'gray'} disabled={!can(nextLv.cost)} onClick={() => onBuy({ cost: nextLv.cost, patch: (s) => ({ level: s.level + 1 }), big: true })} className="w-full py-3">
-                  🏗️ {nextLv.name}(으)로 넓히기 · {nextLv.cost}G
-                </GameButton>
-              )}
-            </>
-          )}
-          {tab === 'decor' && (
-            <>
-              <p className="text-xs font-bold text-slate-500">꾸밀수록 평판 ★이 올라요 → 손님이 더 오래 기다리고 VIP가 자주 와요</p>
-              <div className="grid grid-cols-3 gap-2">
-                {DECOR.map((d) => {
-                  const own = shop.decor.includes(d.id)
-                  const locked = d.need && shop.level < d.need
-                  return (
-                    <button key={d.id} type="button" disabled={own || locked || !can(d.cost)} onClick={() => onBuy({ cost: d.cost, patch: (s) => ({ decor: [...s.decor, d.id] }) })}
-                      className={`rounded-2xl p-2 text-center ring-1 ${own ? 'bg-emerald-50 ring-emerald-300' : 'bg-slate-50 ring-slate-200 disabled:opacity-60'}`}>
-                      <div className="text-3xl">{locked ? '🔒' : d.icon}</div>
-                      <div className="text-xs font-black text-slate-800">{d.name}</div>
-                      <div className="text-[11px] font-black text-slate-500">{own ? '✔' : locked ? `${LEVELS[d.need].name}부터` : `${d.cost}G`}</div>
-                    </button>
-                  )
-                })}
-              </div>
-            </>
-          )}
-        </div>
-        <GameButton color="gray" onClick={onClose} className="mt-3 w-full py-2.5">닫기</GameButton>
-      </motion.div>
-    </motion.div>
-  )
-}
+// ─── 장사하는 하루 ───
+function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
+  const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const open = useMemo(() => openShops(lesson, town), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const openKeys = useMemo(() => new Set(open.map((s) => s.key)), [open])
+  const closedKeys = useMemo(() => new Set(shopsIn(town).filter((s) => !openKeys.has(s.key)).map((s) => s.key)), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const prices = useMemo(() => todaysPrices(lesson.type, open.flatMap((s) => s.shop.products)), []) // eslint-disable-line react-hooks/exhaustive-deps
 
-function Quests({ shop, onClaim, onClose }) {
-  return (
-    <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <motion.div initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }} className="flex max-h-[90dvh] w-full max-w-md flex-col rounded-[1.5rem] bg-white p-4 shadow-2xl">
-        <h2 className="text-xl font-black text-slate-800">🎯 사장님 목표</h2>
-        <ol className="mt-2 flex-1 space-y-1.5 overflow-y-auto">
-          {QUESTS.map((q) => {
-            const done = q.done(shop)
-            const claimed = shop.claimed.includes(q.id)
-            return (
-              <li key={q.id} className={`flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ${claimed ? 'bg-slate-50 ring-slate-200 opacity-60' : done ? 'bg-amber-50 ring-amber-300' : 'bg-white ring-slate-200'}`}>
-                <span>{claimed ? '✅' : done ? '🎁' : '⬜'}</span>
-                <span className="flex-1 text-sm font-black text-slate-800">{q.text}</span>
-                {done && !claimed ? (
-                  <button type="button" onClick={() => onClaim(q)} className="rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-amber-950 shadow shop-bop">+{q.reward}G 받기</button>
-                ) : (
-                  <span className="text-xs font-black text-slate-400">+{q.reward}G</span>
-                )}
-              </li>
-            )
-          })}
-        </ol>
-        <GameButton color="gray" onClick={onClose} className="mt-3 w-full py-2.5">닫기</GameButton>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-function CustomerBook({ shop, onClose }) {
-  return (
-    <motion.div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <motion.div initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }} className="w-full max-w-md rounded-[1.5rem] bg-white p-4 shadow-2xl">
-        <h2 className="text-xl font-black text-slate-800">📖 손님 도감</h2>
-        <p className="text-xs font-bold text-slate-500">반짝이는 손님은 아주 가끔 와요. 모두 만나 볼까요?</p>
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          {CUSTOMERS.map(([e, n, r]) => {
-            const seen = shop.met[e]
-            return (
-              <div key={e} className={`rounded-2xl p-2 text-center ${seen ? (r ? 'bg-amber-100 ring-2 ring-amber-300' : 'bg-sky-50') : 'bg-slate-100'}`}>
-                <div className={`text-4xl ${seen ? '' : 'opacity-30 grayscale'}`}>{seen ? e : '❔'}</div>
-                <div className="truncate text-[11px] font-black text-slate-700">{seen ? n : '???'}</div>
-                {seen ? <div className="text-[10px] font-bold text-slate-400">{seen}번 옴</div> : null}
-              </div>
-            )
-          })}
-        </div>
-        <GameButton color="gray" onClick={onClose} className="mt-3 w-full py-2.5">닫기</GameButton>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-// 기다림 고리 — 손님 머리 위
-function PatienceRing({ frac, size = 46, children }) {
-  const color = frac > 0.6 ? '#22c55e' : frac > 0.25 ? '#f59e0b' : '#ef4444'
-  return (
-    <span className="relative grid place-items-center rounded-full" style={{ width: size, height: size, background: `conic-gradient(${color} ${frac * 360}deg, rgba(0,0,0,0.12) 0)` }}>
-      <span className="grid place-items-center rounded-full bg-white/90" style={{ width: size - 8, height: size - 8 }}>{children}</span>
-    </span>
-  )
-}
-
-// ─── 하루 장사 ───
-function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
-  const rules = useMemo(() => dayRules(lesson, shop, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const shelf = useMemo(() => shelfFor(lesson, shop.products), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const prices = useMemo(() => todaysPrices(lesson.type, shelf.map((p) => p.id)), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const [queue, setQueue] = useState([]) // 줄 선 손님 (맨 앞 = 계산대)
-  const [arrivals, setArrivals] = useState(0)
-  const [now, setNow] = useState(Date.now())
+  // 게임 상태는 ref에 두고 짧은 간격으로 다시 그린다 (걷는 손님이 여럿이라)
+  const g = useRef({ walkers: [], queues: {}, spawned: 0, nextSpawn: Date.now() + 600, stats: { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {} } })
+  const [, setFrame] = useState(0)
+  const [sel, setSel] = useState(open[0]?.key || null)
   const [paused, setPaused] = useState(false)
   const [input, setInput] = useState('')
   const [tries, setTries] = useState(0)
   const [helper, setHelper] = useState(false)
   const [state, setState] = useState('ask') // ask | paid | explain | done
   const [streak, setStreak] = useState(0)
-  const [stats, setStats] = useState({ sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, best: 0, met: {}, first: 0 })
   const [toast, setToast] = useState(null)
   const [pop, setPop] = useState(null)
-  const nextSpawn = useRef(Date.now())
   const pausedAt = useRef(0)
-  const counterAt = useRef(Date.now()) // 지금 손님이 계산대에 온 시각
-  const regRef = useRef(null)
+  const shopRefs = useRef({})
   const moneyRef = useRef(null)
-  const custRef = useRef(null)
+  const servingSince = useRef(Date.now())
 
-  const active = queue[0]
-  const waiting = queue.slice(1)
+  const queues = g.current.queues
+  const active = sel ? queues[sel]?.[0] : null
+  const activeShop = sel ? shopById(town.built[sel]?.id) : null
 
   useEffect(() => {
     if (import.meta.env.DEV) window.__shopOrder = active
   }, [active])
 
-  // 시간 흐름 · 줄 뒤 손님 떠나기 (계산대 손님은 기다려 준다)
-  const queueRef = useRef(queue)
-  queueRef.current = queue
+  function walkerTo(cust, shopKey, from) {
+    const [r, c] = parseKey(shopKey)
+    const dest = frontRoad(r, c)
+    const start = from || ENTRANCES[Math.floor(Math.random() * ENTRANCES.length)]
+    return { id: cust.id, cust, shopKey, path: roadPath(start, dest), i: 0, next: Date.now() + STEP_MS, phase: 'in' }
+  }
+  function walkerAway(cust, shopKey, face) {
+    const [r, c] = parseKey(shopKey)
+    const start = frontRoad(r, c)
+    const exit = ENTRANCES[Math.floor(Math.random() * ENTRANCES.length)]
+    g.current.walkers.push({ id: `${cust.id}-out`, cust, shopKey, path: roadPath(start, exit), i: 0, next: Date.now() + STEP_MS, phase: 'out', face })
+  }
+
+  // 한 박자 — 손님 오기 · 걷기 · 줄 서기 · 기다리다 떠나기
   useEffect(() => {
     if (paused || state === 'done') return
     const t = setInterval(() => {
-      const n = Date.now()
-      setNow(n)
-      const gone = queueRef.current.slice(1).filter((c) => n - c.arrivedAt > rules.patience * 1000)
-      if (!gone.length) return
-      const ids = new Set(gone.map((c) => c.id))
-      setQueue((q) => q.filter((c, i) => i === 0 || !ids.has(c.id)))
-      setStats((st) => ({ ...st, lost: st.lost + gone.length }))
-      setToast(`😤 ${gone[0].customer.name} 손님이 기다리다 갔어요`)
-      sfx.wrong()
-    }, 400)
+      const now = Date.now()
+      const s = g.current
+      // 새 손님
+      if (s.spawned < rules.perDay && now >= s.nextSpawn && open.length) {
+        const weights = open.map((x) => x.lv)
+        let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
+        const target = open.find((x, i) => (roll -= weights[i]) < 0) || open[0]
+        const cust = { ...makeCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met } }) }
+        s.walkers.push(walkerTo(cust, target.key))
+        s.spawned += 1
+        s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
+        s.nextSpawn = now + (s.spawned < 2 ? 2500 : rules.gap * 1000 * (0.7 + Math.random() * 0.6))
+      }
+      // 걷기
+      for (const w of s.walkers) {
+        if (now >= w.next && w.i < w.path.length - 1) {
+          w.i += 1
+          w.next = now + STEP_MS
+        }
+      }
+      // 도착 → 줄 서기 (줄이 꽉 찼으면 그냥 간다)
+      const arrived = s.walkers.filter((w) => w.phase === 'in' && w.i >= w.path.length - 1 && now >= w.next)
+      for (const w of arrived) {
+        s.walkers = s.walkers.filter((x) => x !== w)
+        const q = (s.queues[w.shopKey] ||= [])
+        const lv = town.built[w.shopKey]?.lv || 1
+        if (q.length >= slotsOf(lv)) {
+          s.stats.lost += 1
+          walkerAway(w.cust, w.shopKey, '😤')
+          setToast(`😤 ${shopById(town.built[w.shopKey].id).name} 줄이 꽉 차서 ${w.cust.customer.name} 손님이 갔어요`)
+          sfx.wrong()
+        } else {
+          q.push({ ...w.cust, arrivedAt: now })
+          sfx.card?.()
+        }
+      }
+      // 떠나는 손님 지우기
+      s.walkers = s.walkers.filter((w) => !(w.phase === 'out' && w.i >= w.path.length - 1 && now >= w.next))
+      // 너무 오래 기다린 손님 (지금 계산 중인 손님은 빼고)
+      for (const [k, q] of Object.entries(s.queues)) {
+        const keep = []
+        q.forEach((c, i) => {
+          const serving = k === selRef.current && i === 0
+          if (!serving && now - c.arrivedAt > rules.patience * 1000) {
+            s.stats.lost += 1
+            walkerAway(c, k, '😤')
+            setToast(`😤 ${c.customer.name} 손님이 기다리다 갔어요`)
+            sfx.wrong()
+          } else keep.push(c)
+        })
+        s.queues[k] = keep
+      }
+      // 고른 가게에 손님이 없으면 가장 오래 기다린 가게로
+      const cur = s.queues[selRef.current]
+      if ((!cur || !cur.length) && !inputRef.current) {
+        let best = null
+        for (const [k, q] of Object.entries(s.queues)) if (q.length && (!best || q[0].arrivedAt < best[1])) best = [k, q[0].arrivedAt]
+        if (best && best[0] !== selRef.current) setSel(best[0])
+      }
+      // 하루 끝
+      const waiting = Object.values(s.queues).some((q) => q.length) || s.walkers.some((w) => w.phase === 'in')
+      if (s.spawned >= rules.perDay && !waiting && stateRef.current === 'ask') {
+        setState('done')
+        sfx.victory()
+        onFinish({ ...s.stats, upkeep: rules.upkeep })
+      }
+      setFrame((f) => f + 1)
+    }, 150)
     return () => clearInterval(t)
-  }, [paused, state, rules.patience])
+  }, [paused, state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selRef = useRef(sel)
+  selRef.current = sel
+  const inputRef = useRef(input)
+  inputRef.current = input
+  const stateRef = useRef(state)
+  stateRef.current = state
 
   useEffect(() => {
-    if (paused || state === 'done') return
-    if (arrivals >= rules.perDay || queue.length >= rules.slots || now < nextSpawn.current) return
-    const c = { ...makeCustomer(lesson, shelf, prices, { vipChance: rules.vipChance, met: { ...shop.met, ...stats.met } }), arrivedAt: Date.now() }
-    if (queue.length === 0) counterAt.current = Date.now()
-    setQueue((q) => [...q, c])
-    setArrivals((a) => a + 1)
-    setStats((s) => ({ ...s, met: { ...s.met, [c.customer.emoji]: (s.met[c.customer.emoji] || 0) + 1 } }))
-    // 처음 두 손님은 빨리, 그다음은 간격마다(조금씩 들쭉날쭉)
-    nextSpawn.current = Date.now() + (arrivals < 1 ? 2500 : rules.gap * 1000 * (0.75 + Math.random() * 0.5))
-    sfx.card?.()
-  }, [now, paused, state, arrivals, queue.length]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 줄이 비어 있으면 다음 손님을 바로 부른다
-  useEffect(() => {
-    if (queue.length === 0 && arrivals < rules.perDay && nextSpawn.current - Date.now() > 1500) nextSpawn.current = Date.now() + 1200
-  }, [queue.length, arrivals, rules.perDay])
-
-  // 하루 끝
-  useEffect(() => {
-    if (state !== 'done' && arrivals >= rules.perDay && queue.length === 0 && state !== 'paid') {
-      setState('done')
-      sfx.victory()
-      onFinish({ ...stats, rent: rules.rent, best: Math.max(stats.best, streak) })
-    }
-  }, [arrivals, queue.length, state]) // eslint-disable-line react-hooks/exhaustive-deps
-
+    servingSince.current = Date.now()
+  }, [active?.id])
   useEffect(() => {
     if (!toast) return
-    const t = setTimeout(() => setToast(null), 2200)
+    const t = setTimeout(() => setToast(null), 2400)
     return () => clearTimeout(t)
   }, [toast])
-
-  // VIP·희귀 손님이 계산대에 오면 반짝
-  useEffect(() => {
-    if (!active) return
-    counterAt.current = Date.now()
-    if (active.vip || active.customer.rare) setTimeout(() => burstAt(custRef.current, { count: 30 }), 300)
-  }, [active?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function togglePause() {
     if (!paused) {
@@ -431,10 +433,24 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
       return
     }
     const d = Date.now() - pausedAt.current
-    nextSpawn.current += d
-    counterAt.current += d
-    setQueue((q) => q.map((c) => ({ ...c, arrivedAt: c.arrivedAt + d })))
+    const s = g.current
+    s.nextSpawn += d
+    s.walkers.forEach((w) => { w.next += d })
+    Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt += d }))
+    servingSince.current += d
     setPaused(false)
+  }
+
+  function pick(k) {
+    if (state !== 'ask' || paused) return
+    if (!openKeys.has(k)) {
+      setToast('😴 오늘은 문을 닫은 가게예요 (차시에 맞는 가게만 열어요)')
+      return
+    }
+    setSel(k)
+    setInput('')
+    setTries(0)
+    setHelper(false)
   }
 
   function key(k) {
@@ -447,43 +463,42 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
     })
   }
 
-  function finishCustomer(paidTip) {
-    setTimeout(() => {
-      setQueue((q) => q.slice(1))
-      setInput('')
-      setTries(0)
-      setHelper(false)
-      setPop(null)
-      setState('ask')
-    }, paidTip == null ? 0 : 1300)
+  function done(face) {
+    const s = g.current
+    const q = s.queues[sel] || []
+    const c = q.shift()
+    if (c) walkerAway(c, sel, face)
+    setInput('')
+    setTries(0)
+    setHelper(false)
+    setPop(null)
+    setState('ask')
   }
 
   function pay() {
     if (state !== 'ask' || !active || !input || paused) return
     const r = grade(active, input)
     if (r === 'invalid') return
-    const waited = (Date.now() - counterAt.current) / 1000
-    const mood = moodOf(waited, rules.patience)
+    const s = g.current
+    const mood = moodOf((Date.now() - active.arrivedAt) / 1000, rules.patience)
     if (r === 'correct') {
       const firstTry = tries === 0
-      const s = firstTry ? streak + 1 : 0
-      const tip = helper && shop.staff < 2 ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: s, staff: shop.staff })
-      setStreak(s)
-      setStats((st) => ({
-        ...st,
-        sales: addD(st.sales, active.answer),
-        tips: addD(st.tips, D(tip)),
-        served: st.served + 1,
-        first: st.first + (firstTry ? 1 : 0),
-        vip: st.vip + (active.vip ? 1 : 0),
-        best: Math.max(st.best, s),
-      }))
+      const st = firstTry ? streak + 1 : 0
+      const lv = town.built[sel]?.lv || 1
+      const tip = helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })
+      setStreak(st)
+      s.stats.sales = addD(s.stats.sales, active.answer)
+      s.stats.tips = addD(s.stats.tips, D(tip))
+      s.stats.served += 1
+      s.stats.first += firstTry ? 1 : 0
+      s.stats.vip += active.vip ? 1 : 0
+      s.stats.best = Math.max(s.stats.best, st)
       setPop({ amount: show(active.answer), tip })
       setState('paid')
       sfx.correct()
-      flyCoins(regRef.current, moneyRef.current, { count: Math.min(12, 3 + Math.round(Number(show(active.answer)) / 10)), onEach: (i) => sfx.coinTick?.(i) })
-      if (s >= 3 && s % 3 === 0) cheer(Math.min(s, 6), custRef.current)
-      finishCustomer(tip)
+      flyCoins(shopRefs.current[sel], moneyRef.current, { count: Math.min(12, 3 + Math.round(Number(show(active.answer)) / 10)), onEach: (i) => sfx.coinTick?.(i) })
+      if (st >= 3 && st % 3 === 0) cheer(Math.min(st, 6))
+      setTimeout(() => done('😍'), 1100)
       return
     }
     sfx.wrong()
@@ -493,16 +508,15 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
       setHelper(true)
       setInput('')
     } else {
-      // 손님이 바로잡아 주고 값은 치른다 (팁 없음)
-      setStats((st) => ({ ...st, sales: addD(st.sales, active.answer), served: st.served + 1 }))
+      s.stats.sales = addD(s.stats.sales, active.answer)
+      s.stats.served += 1
       setState('explain')
     }
   }
 
-  // 키보드로도
   useEffect(() => {
     const onKey = (e) => {
-      if (state === 'explain' && e.key === 'Enter') return explainDone()
+      if (state === 'explain' && e.key === 'Enter') return done('🙂')
       if (state !== 'ask') return
       if (/^[0-9]$/.test(e.key)) key(e.key)
       else if (e.key === '.' || e.key === ',') key('.')
@@ -513,143 +527,134 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
     return () => window.removeEventListener('keydown', onKey)
   })
 
-  function explainDone() {
-    setState('ask')
-    finishCustomer(null)
-  }
+  const s = g.current
+  const now = Date.now()
+  const live = addD(addD(town.money, s.stats.sales), s.stats.tips)
+  const waitingTotal = Object.values(queues).reduce((a, q) => a + q.length, 0)
 
-  const live = addD(addD(shop.money, stats.sales), stats.tips)
-  const counterMood = active ? moodOf((now - counterAt.current) / 1000, rules.patience) : 'happy'
-  const face = state === 'paid' ? '😍' : state === 'explain' || tries > 0 ? '🤔' : MOOD_FACE[counterMood]
+  // 가게 머리 위 — 줄 선 손님과 기다림 고리
+  const overlay = (k, cx, cy) => {
+    const q = queues[k] || []
+    if (!q.length) return null
+    const front = q[0]
+    const serving = k === sel
+    const frac = serving ? 1 : Math.max(0, 1 - (now - front.arrivedAt) / (rules.patience * 1000))
+    const color = frac > 0.6 ? '#22c55e' : frac > 0.25 ? '#f59e0b' : '#ef4444'
+    const R = 13
+    const C = 2 * Math.PI * R
+    const y = cy - 78
+    return (
+      <g className={serving ? '' : 'town-bob'}>
+        <line x1={cx} y1={y + 14} x2={cx} y2={y + 24} stroke="#fff" strokeWidth="2" />
+        <circle cx={cx} cy={y} r={R + 3} fill={serving ? '#fde047' : '#fff'} stroke="rgba(0,0,0,0.15)" />
+        <circle cx={cx} cy={y} r={R} fill="none" stroke={color} strokeWidth="3.5" strokeDasharray={`${C * frac} ${C}`} transform={`rotate(-90 ${cx} ${y})`} />
+        <text x={cx} y={y + 6} textAnchor="middle" fontSize="16">{front.customer.emoji}</text>
+        {front.vip && <text x={cx - 12} y={y - 10} fontSize="11">👑</text>}
+        {q.length > 1 && (
+          <g>
+            <circle cx={cx + 15} cy={y - 10} r="7" fill="#e11d48" />
+            <text x={cx + 15} y={y - 7} textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{q.length}</text>
+          </g>
+        )}
+      </g>
+    )
+  }
+  const walkers = (
+    <g pointerEvents="none">
+      {s.walkers.map((w) => {
+        const [r, c] = w.path[Math.min(w.i, w.path.length - 1)]
+        const [x, y] = center(r, c)
+        const flip = w.i > 0 && w.path[w.i - 1] && (w.path[w.i][1] - w.path[w.i - 1][1] < 0 || w.path[w.i][0] - w.path[w.i - 1][0] > 0)
+        return (
+          <g key={w.id} style={{ transform: `translate(${x}px, ${y}px)`, transition: `transform ${STEP_MS}ms linear` }}>
+            <ellipse cx="0" cy="2" rx="7" ry="3" fill="rgba(0,0,0,0.18)" />
+            <text x="0" y="-2" textAnchor="middle" fontSize="18" className="town-walk" style={{ transform: flip ? 'scaleX(-1)' : undefined }}>{w.cust.customer.emoji}</text>
+            {w.face && <text x="9" y="-14" fontSize="10">{w.face}</text>}
+            {w.cust.vip && w.phase === 'in' && <text x="-4" y="-18" fontSize="9">👑</text>}
+          </g>
+        )
+      })}
+    </g>
+  )
+
+  const face = state === 'paid' ? '😍' : state === 'explain' || tries > 0 ? '🤔' : active ? MOOD_FACE[moodOf((now - active.arrivedAt) / 1000, rules.patience)] : ''
   const bubble = !active ? '' : state === 'paid' ? (active.vip ? '역시 최고의 가게! 👑' : '고마워요! 또 올게요~') : state === 'explain' ? '제가 계산해 볼게요!' : tries > 0 ? '어? 계산이 이상한데… 다시 해 주실래요?' : active.say
 
   return (
-    <div className="min-h-[100dvh] shop-bg safe-padded flex flex-col items-center px-3 pt-3 pb-6">
-      <div className="w-full max-w-xl">
-        {/* 위 띠 */}
-        <div className="flex items-center gap-1.5">
-          <button type="button" onClick={onQuit} className="h-9 w-9 shrink-0 rounded-full bg-amber-900/15 font-black text-amber-900" aria-label="그만하기">✕</button>
-          <button type="button" onClick={togglePause} className="h-9 w-9 shrink-0 rounded-full bg-amber-900/15 font-black text-amber-900" aria-label={paused ? '계속하기' : '잠깐 멈춤'}>{paused ? '▶' : '⏸'}</button>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-xs font-black text-amber-950">{lesson.lesson} · 손님 {stats.served + stats.lost}/{rules.perDay}{relaxed ? ' · 🐢' : ''}</div>
-            <div className="mt-0.5 flex gap-0.5">
-              {Array.from({ length: rules.perDay }, (_, i) => (
-                <span key={i} className={`h-1.5 flex-1 rounded-full ${i < stats.served ? 'bg-emerald-500' : i < stats.served + stats.lost ? 'bg-rose-400' : i < arrivals ? 'bg-amber-500' : 'bg-amber-900/15'}`} />
-              ))}
+    <div className="min-h-[100dvh] town-bg safe-padded px-2 pt-2 pb-4">
+      <div className="mx-auto w-full max-w-5xl lg:grid lg:grid-cols-[1fr_22rem] lg:gap-3">
+        <div>
+          {/* 위 띠 */}
+          <div className="flex items-center gap-1.5">
+            <button type="button" onClick={onQuit} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label="그만하기">✕</button>
+            <button type="button" onClick={togglePause} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label={paused ? '계속하기' : '잠깐 멈춤'}>{paused ? '▶' : '⏸'}</button>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs font-black text-sky-950">{lesson.lesson} · 손님 {s.stats.served + s.stats.lost}/{rules.perDay} · 기다리는 손님 {waitingTotal}{relaxed ? ' · 🐢' : ''}</div>
+              <div className="mt-0.5 flex gap-0.5">
+                {Array.from({ length: rules.perDay }, (_, i) => (
+                  <span key={i} className={`h-1.5 flex-1 rounded-full ${i < s.stats.served ? 'bg-emerald-500' : i < s.stats.served + s.stats.lost ? 'bg-rose-400' : i < s.spawned ? 'bg-amber-400' : 'bg-sky-900/15'}`} />
+                ))}
+              </div>
             </div>
+            <SoundMini />
+            <Money value={live} refEl={moneyRef} />
           </div>
-          <SoundMini />
-          <Money value={live} refEl={moneyRef} />
-        </div>
-
-        {/* 가게 */}
-        <div className="mt-2">
-          <Scene shop={shop} owner={owner} tall>
-            {/* 오늘의 가격표 */}
-            <div className="absolute inset-x-2 top-[19%] z-10 flex flex-wrap justify-center gap-1">
-              {shelf.map((p) => (
-                <span key={p.id} className={`rounded-lg bg-white/95 px-1.5 py-0.5 text-[11px] font-black shadow ring-1 ${active?.product === p.id ? 'text-rose-600 ring-rose-300 scale-110' : 'text-slate-600 ring-slate-200'} transition`}>
-                  {p.icon} {lesson.type === 'mix' || lesson.type === 'shift' ? p.name : `1${p.unit} ${show(prices[p.id])}G`}
-                </span>
-              ))}
-            </div>
-            {/* 줄 선 손님 */}
-            <div className="absolute bottom-10 right-1 z-10 flex items-end gap-0.5">
-              <AnimatePresence>
-                {waiting.map((c) => {
-                  const frac = Math.max(0, 1 - (now - c.arrivedAt) / (rules.patience * 1000))
-                  return (
-                    <motion.div key={c.id} layout initial={{ x: 80, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ y: -30, opacity: 0 }} className="flex flex-col items-center">
-                      <PatienceRing frac={frac} size={40}><span className="text-xl">{c.customer.emoji}</span></PatienceRing>
-                      <span className="mt-0.5 rounded bg-white/80 px-1 text-[10px] font-black text-slate-600">{c.icon}{c.vip ? '👑' : ''}</span>
-                    </motion.div>
-                  )
-                })}
-              </AnimatePresence>
-            </div>
-            {/* 계산대 손님 */}
-            <AnimatePresence mode="wait">
-              {active && (
-                <motion.div
-                  key={active.id}
-                  ref={custRef}
-                  initial={{ x: 160, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -200, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 170, damping: 18 }}
-                  className="absolute bottom-9 left-[30%] flex flex-col items-center"
-                >
-                  <div className={`relative text-[4rem] leading-none sm:text-[4.75rem] ${state === 'paid' ? 'shop-hop' : 'shop-bop'}`}>
-                    {active.customer.emoji}
-                    {active.vip && <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-2xl">👑</span>}
-                    <span className="absolute -right-3 -top-1 text-2xl">{face}</span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            {active && (
-              <motion.div
-                key={`${active.id}-${state}-${tries}`}
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="absolute left-[4%] top-[38%] z-20 max-w-[52%] rounded-2xl bg-white px-3 py-1.5 text-sm font-black text-slate-800 shadow-lg"
-              >
-                {bubble}
-                <span className="absolute -bottom-1.5 right-6 h-3 w-3 rotate-45 bg-white" />
-              </motion.div>
-            )}
-            {!active && state !== 'done' && (
-              <div className="absolute inset-x-0 top-[48%] text-center text-sm font-black text-amber-900/70">손님을 기다리는 중… 🎵</div>
-            )}
-            <span ref={regRef} className="absolute bottom-8 left-[12%] z-10 text-3xl">🧾</span>
-            {shop.staff >= 1 && <span className="absolute bottom-8 left-[58%] z-10 text-3xl">{STAFF[shop.staff].icon}</span>}
-            {pop && (
-              <span className="shop-pop absolute bottom-20 left-[8%] z-20 whitespace-nowrap text-xl font-black text-emerald-700 drop-shadow">
-                +{pop.amount}G{pop.tip ? ` 팁 +${pop.tip}` : ''}
-              </span>
-            )}
+          {/* 지도 */}
+          <div className="relative mt-1">
+            <TownMap town={town} onTile={(r, c) => town.built[tkey(r, c)]?.kind === 'shop' && pick(tkey(r, c))} selectedKey={sel} closedKeys={closedKeys} shopRefs={shopRefs} overlay={overlay} extra={walkers} />
             <AnimatePresence>
               {toast && (
-                <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-x-0 top-1 z-30 mx-auto w-fit rounded-full bg-rose-600 px-3 py-1 text-xs font-black text-white shadow">
+                <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-x-0 top-1 mx-auto w-fit max-w-[95%] rounded-full bg-rose-600 px-3 py-1 text-center text-xs font-black text-white shadow">
                   {toast}
                 </motion.div>
               )}
             </AnimatePresence>
             {paused && (
-              <div className="absolute inset-0 z-40 grid place-items-center bg-black/40">
+              <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/35">
                 <button type="button" onClick={togglePause} className="rounded-2xl bg-white px-6 py-3 text-xl font-black text-slate-800 shadow-xl">⏸ 잠깐 멈춤 · ▶ 계속</button>
               </div>
             )}
-          </Scene>
+          </div>
         </div>
 
-        {/* 계산서 */}
-        <div className="mt-2 rounded-[1.4rem] bg-white p-3 shadow-xl">
+        {/* 계산대 */}
+        <div className="mt-1 rounded-[1.4rem] bg-white p-3 shadow-xl lg:mt-11 lg:self-start">
           {active ? (
             <>
-              <div className="flex items-center justify-between text-xs font-black text-slate-500">
-                <span>🧾 {active.customer.name} 손님 · {active.item} {active.qty} · {active.tag}</span>
-                {streak >= 2 && <span className="rounded-full bg-orange-500 px-2 py-0.5 text-white combo-flame">🔥 {streak}</span>}
+              <div className="flex items-start gap-2">
+                <div className="relative shrink-0 text-5xl leading-none">
+                  {active.customer.emoji}
+                  <span className="absolute -right-2 -top-1 text-xl">{face}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11px] font-black text-slate-400">{activeShop?.icon} {activeShop?.name} · {active.customer.name} 손님{active.vip ? ' · 👑 VIP' : ''}</div>
+                  <div className="mt-0.5 rounded-2xl rounded-tl-sm bg-amber-50 px-3 py-1.5 text-sm font-black text-slate-800">{bubble}</div>
+                </div>
+                {streak >= 2 && <span className="shrink-0 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-black text-white combo-flame">🔥 {streak}</span>}
               </div>
-              <div className="mt-0.5 text-center font-black text-slate-800 tabular-nums shop-expr">{active.price} × {show(active.b)} =</div>
+              <div className="mt-1 text-center text-xs font-black text-rose-600">🏷️ {active.item} {active.tag}</div>
+              <div className="text-center font-black text-slate-800 tabular-nums shop-expr">{active.price} × {show(active.b)} =</div>
               <div className="mx-auto flex max-w-[18rem] items-center gap-2">
                 <div className={`flex h-12 flex-1 items-center justify-end rounded-2xl border-4 px-3 text-3xl font-black tabular-nums ${state === 'paid' ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : input ? 'border-amber-400 bg-amber-50 text-slate-900' : 'border-dashed border-slate-300 text-slate-300'}`}>
                   {state === 'paid' ? show(active.answer) : input || '0'}
                 </div>
                 <span className="text-2xl font-black text-amber-700">G</span>
               </div>
+              {pop && <div className="shop-pop mt-0.5 text-center text-lg font-black text-emerald-600">+{pop.amount}G{pop.tip ? ` · 팁 +${pop.tip}G` : ''}</div>}
               {helper && state === 'ask' && <div className="mt-1.5 rounded-xl bg-sky-50 px-3 py-1.5 text-center text-sm font-bold text-sky-900">💡 {active.helper}</div>}
             </>
           ) : (
-            <div className="py-6 text-center text-sm font-black text-slate-400">손님이 오면 여기에 계산서가 나와요</div>
+            <div className="py-5 text-center text-sm font-black text-slate-400">
+              {s.spawned >= rules.perDay && !waitingTotal ? '오늘 장사 마무리 중…' : '손님이 걸어오고 있어요 🚶 — 머리 위에 손님이 뜬 가게를 눌러요'}
+            </div>
           )}
           <div className="mt-2">
             <Keypad onKey={key} disabled={state !== 'ask' || !active || paused} />
           </div>
           <div className="mt-2 flex gap-2">
             {!helper && (
-              <button type="button" disabled={state !== 'ask' || !active} onClick={() => setHelper(true)} className="shrink-0 rounded-2xl bg-sky-100 px-3 text-sm font-black text-sky-800 disabled:opacity-50" title={shop.staff >= 2 ? '매니저가 도와줘요 (팁 그대로)' : '팁을 못 받아요'}>
-                💡 도우미{shop.staff >= 2 ? '' : ''}
+              <button type="button" disabled={state !== 'ask' || !active} onClick={() => setHelper(true)} className="shrink-0 rounded-2xl bg-sky-100 px-3 text-sm font-black text-sky-800 disabled:opacity-50" title="팁을 못 받아요">
+                💡 도우미
               </button>
             )}
             <GameButton color={input && state === 'ask' ? 'green' : 'gray'} disabled={!input || state !== 'ask' || paused} onClick={pay} className="flex-1 py-3 text-xl">
@@ -659,7 +664,6 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
         </div>
       </div>
 
-      {/* 두 번 틀렸을 때 */}
       <AnimatePresence>
         {state === 'explain' && active && (
           <motion.div className="fixed inset-0 z-40 flex items-end justify-center bg-black/35 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -669,10 +673,10 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
                 {active.price} × {show(active.b)} = <span className="text-emerald-600">{show(active.answer)}G</span>
               </div>
               <ol className="mt-3 space-y-1 rounded-xl bg-amber-50 p-3 text-[0.95rem] font-bold leading-relaxed text-amber-950">
-                {active.steps.map((s, i) => <li key={i}>✏️ {s}</li>)}
+                {active.steps.map((x, i) => <li key={i}>✏️ {x}</li>)}
               </ol>
               <p className="mt-2 text-center text-xs font-bold text-slate-500">값은 받았지만 팁은 없어요. 다음 손님은 꼭!</p>
-              <GameButton color="violet" onClick={explainDone} className="mt-3 w-full py-3 text-xl">알겠어요! 다음 손님 →</GameButton>
+              <GameButton color="violet" onClick={() => done('🙂')} className="mt-3 w-full py-3 text-xl">알겠어요! 다음 손님 →</GameButton>
             </motion.div>
           </motion.div>
         )}
@@ -682,24 +686,22 @@ function Day({ lesson, shop, owner, relaxed, onFinish, onQuit }) {
 }
 
 // ─── 정산서 ───
-function Settlement({ result, shop, newQuests, onInvest, onAgain, onLobby }) {
+function Settlement({ result, town, onTown, onAgain }) {
   const r = result.sheet
   const good = r.profit.v >= 0
   const rows = [
     ['💵 매출', `+${money(r.sales)}G`, 'text-slate-800'],
     ['💝 팁', `+${money(r.tips)}G`, 'text-slate-800'],
     [`📦 재료비 (매출 × ${show(COST_RATE)})`, `−${money(r.material)}G`, 'text-rose-600'],
-    ['🏠 임대료', `−${money(r.rent)}G`, 'text-rose-600'],
+    ['🔧 가게 유지비', `−${money(r.upkeep)}G`, 'text-rose-600'],
   ]
   return (
-    <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-amber-950/60 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/60 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <motion.div initial={{ y: 40, rotate: -2, scale: 0.9 }} animate={{ y: 0, rotate: 0, scale: 1 }} transition={{ type: 'spring', stiffness: 220, damping: 18 }} className="w-full max-w-sm">
         <div className="shop-receipt rounded-t-2xl bg-white px-5 pb-6 pt-5 text-slate-800 shadow-2xl">
           <div className="text-center text-xs font-black tracking-[0.3em] text-slate-400">RECEIPT</div>
-          <div className="text-center text-xl font-black">🧾 {shop.days}일째 정산서</div>
-          <div className="mt-1 text-center text-xs font-bold text-slate-500">
-            손님 {result.served}명 · 놓친 손님 {result.lost}명 · 한 번에 맞힘 {result.first} · VIP {result.vip}
-          </div>
+          <div className="text-center text-xl font-black">🧾 {town.days}일째 정산서</div>
+          <div className="mt-1 text-center text-xs font-bold text-slate-500">손님 {result.served}명 · 놓친 손님 {result.lost}명 · 한 번에 맞힘 {result.first} · VIP {result.vip}</div>
           <div className="mt-3 space-y-1.5 border-y-2 border-dashed border-slate-200 py-3">
             {rows.map(([k, v, c], i) => (
               <motion.div key={k} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.2 }} className="flex justify-between text-sm font-bold">
@@ -712,18 +714,61 @@ function Settlement({ result, shop, newQuests, onInvest, onAgain, onLobby }) {
             <span className="text-lg font-black">오늘 이익</span>
             <span className={`text-3xl font-black tabular-nums ${good ? 'text-emerald-600' : 'text-rose-600'}`}>{good ? '+' : ''}{money(r.profit)}G</span>
           </motion.div>
-          <div className="mt-1 text-right text-sm font-black text-slate-500">가진 돈 💰 {money(shop.money)}G</div>
-          {newQuests.length > 0 && (
-            <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-black text-amber-800">🎯 목표 달성! {newQuests.map((q) => q.text).join(', ')} — 목표에서 상금을 받아요</div>
+          <div className="mt-1 text-right text-sm font-black text-slate-500">가진 돈 💰 {money(town.money)}G</div>
+          {result.newQuests.length > 0 && (
+            <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-black text-amber-800">🎯 목표 달성! {result.newQuests.map((q) => q.text).join(', ')} — 마을의 🎯 목표에서 상금을 받아요</div>
           )}
         </div>
         <div className="mt-3 grid gap-2">
-          <GameButton color="violet" onClick={onInvest} className="w-full py-3 text-lg">🛒 번 돈으로 투자하기</GameButton>
-          <GameButton color="green" onClick={onAgain} className="w-full py-3 text-lg">🌅 다음 날 장사</GameButton>
-          <GameButton color="gray" onClick={onLobby} className="w-full py-2.5">가게로</GameButton>
+          <GameButton color="violet" onClick={onTown} className="w-full py-3 text-lg">🏘️ 마을로 — 가게 짓고 키우기</GameButton>
+          <GameButton color="green" onClick={onAgain} className="w-full py-3 text-lg">🌅 다음 날 장사 (같은 차시)</GameButton>
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+function Quests({ town, onClaim, onClose }) {
+  return (
+    <Sheet title="🎯 사장님 목표" onClose={onClose}>
+      <ol className="space-y-1.5">
+        {QUESTS.map((q) => {
+          const done = q.done(town)
+          const claimed = town.claimed.includes(q.id)
+          return (
+            <li key={q.id} className={`flex items-center gap-2 rounded-xl px-3 py-2 ring-1 ${claimed ? 'bg-slate-50 opacity-60 ring-slate-200' : done ? 'bg-amber-50 ring-amber-300' : 'bg-white ring-slate-200'}`}>
+              <span>{claimed ? '✅' : done ? '🎁' : '⬜'}</span>
+              <span className="flex-1 text-sm font-black text-slate-800">{q.text}</span>
+              {done && !claimed ? (
+                <button type="button" onClick={() => onClaim(q)} className="rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-amber-950 shadow shop-bop">+{q.reward}G 받기</button>
+              ) : (
+                <span className="text-xs font-black text-slate-400">+{q.reward}G</span>
+              )}
+            </li>
+          )
+        })}
+      </ol>
+    </Sheet>
+  )
+}
+
+function CustomerBook({ town, onClose }) {
+  return (
+    <Sheet title="📖 손님 도감" onClose={onClose}>
+      <p className="text-xs font-bold text-slate-500">반짝이는 손님은 아주 가끔 와요. 모두 만나 볼까요?</p>
+      <div className="mt-2 grid grid-cols-4 gap-2">
+        {CUSTOMERS.map(([e, n, r]) => {
+          const seen = town.met[e]
+          return (
+            <div key={e} className={`rounded-2xl p-2 text-center ${seen ? (r ? 'bg-amber-100 ring-2 ring-amber-300' : 'bg-sky-50') : 'bg-slate-100'}`}>
+              <div className={`text-4xl ${seen ? '' : 'opacity-30 grayscale'}`}>{seen ? e : '❔'}</div>
+              <div className="truncate text-[11px] font-black text-slate-700">{seen ? n : '???'}</div>
+              {seen ? <div className="text-[10px] font-bold text-slate-400">{seen}번 옴</div> : null}
+            </div>
+          )
+        })}
+      </div>
+    </Sheet>
   )
 }
 
@@ -732,7 +777,7 @@ export default function DecimalShop({ onBack }) {
   const me = useAccount((s) => s.me)
   const who = me?.username ? `acct:${me.username}` : 'device'
   const owner = me ? me.name || me.username : '나'
-  const [shop, setShop] = useState(() => loadShop(who))
+  const [town, setTown] = useState(() => loadTown(who))
   const [lesson, setLesson] = useState(null)
   const [dayKey, setDayKey] = useState(0)
   const [result, setResult] = useState(null)
@@ -745,42 +790,34 @@ export default function DecimalShop({ onBack }) {
     try { localStorage.setItem(RELAX_KEY, v ? '1' : '0') } catch { /* ignore */ }
   }
 
-  useEffect(() => setShop(loadShop(who)), [who])
+  useEffect(() => setTown(loadTown(who)), [who])
 
   function update(fn) {
-    setShop((cur) => {
+    setTown((cur) => {
       const n = { ...cur, ...fn(cur) }
-      saveShop(who, n)
+      saveTown(who, n)
       return n
     })
   }
 
   function finishDay(r) {
-    const sheet = settle({ sales: r.sales, tips: r.tips, rent: r.rent })
-    const before = QUESTS.filter((q) => q.done(shop)).map((q) => q.id)
+    const sheet = settle({ sales: r.sales, tips: r.tips, upkeep: r.upkeep })
+    const before = QUESTS.filter((q) => q.done(town)).map((q) => q.id)
     const next = {
-      ...shop,
-      money: addD(shop.money, sheet.profit),
-      days: shop.days + 1,
-      served: shop.served + r.served,
-      lost: shop.lost + r.lost,
-      bestStreak: Math.max(shop.bestStreak, r.best),
-      bestProfit: gte(sheet.profit, shop.bestProfit) ? sheet.profit : shop.bestProfit,
-      totalSales: addD(shop.totalSales, r.sales),
-      met: Object.entries(r.met).reduce((m, [e, c]) => ({ ...m, [e]: (m[e] || 0) + c }), shop.met),
+      ...town,
+      money: addD(town.money, sheet.profit),
+      days: town.days + 1,
+      served: town.served + r.served,
+      lost: town.lost + r.lost,
+      bestStreak: Math.max(town.bestStreak, r.best),
+      bestProfit: gte(sheet.profit, town.bestProfit) ? sheet.profit : town.bestProfit,
+      totalSales: addD(town.totalSales, r.sales),
+      met: Object.entries(r.met).reduce((m, [e, c]) => ({ ...m, [e]: (m[e] || 0) + c }), town.met),
     }
-    saveShop(who, next)
-    setShop(next)
-    const newQuests = QUESTS.filter((q) => q.done(next) && !before.includes(q.id))
-    if (gte(sheet.profit, D(1))) setTimeout(() => cheer(3), 900)
-    setResult({ ...r, sheet, newQuests })
-  }
-
-  function buy({ cost, patch, big }) {
-    if (!gte(shop.money, D(cost))) return
-    sfx.coin()
-    if (big) setTimeout(() => cheer(5), 100)
-    update((s) => ({ ...patch(s), money: subD(s.money, D(cost)) }))
+    saveTown(who, next)
+    setTown(next)
+    if (sheet.profit.v > 0) setTimeout(() => cheer(3), 900)
+    setResult({ ...r, sheet, newQuests: QUESTS.filter((q) => q.done(next) && !before.includes(q.id)) })
   }
 
   function claim(q) {
@@ -791,34 +828,31 @@ export default function DecimalShop({ onBack }) {
 
   const modals = (
     <AnimatePresence>
-      {modal === 'invest' && <Invest shop={shop} onBuy={buy} onClose={() => setModal(null)} />}
-      {modal === 'quests' && <Quests shop={shop} onClaim={claim} onClose={() => setModal(null)} />}
-      {modal === 'book' && <CustomerBook shop={shop} onClose={() => setModal(null)} />}
+      {modal === 'quests' && <Quests town={town} onClaim={claim} onClose={() => setModal(null)} />}
+      {modal === 'book' && <CustomerBook town={town} onClose={() => setModal(null)} />}
     </AnimatePresence>
   )
 
   if (!lesson)
     return (
       <>
-        <Lobby shop={shop} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onModal={setModal}
-          onOpen={(l) => { setLesson(l); setResult(null); setDayKey((k) => k + 1) }} />
+        <Town town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
+          onStart={(l) => { setLesson(l); setResult(null); setDayKey((k) => k + 1) }} />
         {modals}
       </>
     )
 
   return (
     <>
-      <Day key={dayKey} lesson={lesson} shop={shop} owner={owner} relaxed={relaxed} onFinish={finishDay}
+      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} onFinish={finishDay}
         onQuit={() => { if (result || window.confirm('오늘 장사를 그만할까요? 오늘 번 돈은 저장되지 않아요.')) { setLesson(null); setResult(null) } }} />
       <AnimatePresence>
         {result && (
           <Settlement
             result={result}
-            shop={shop}
-            newQuests={result.newQuests}
-            onInvest={() => { setResult(null); setLesson(null); setModal('invest') }}
+            town={town}
+            onTown={() => { setResult(null); setLesson(null) }}
             onAgain={() => { setResult(null); setDayKey((k) => k + 1) }}
-            onLobby={() => { setResult(null); setLesson(null) }}
           />
         )}
       </AnimatePresence>
