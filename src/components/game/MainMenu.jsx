@@ -6,7 +6,7 @@ import Toast from '../ui/Toast.jsx'
 import { useAccount, logoutMe, clearNotice } from '../../account/store.js'
 import { goToLogin } from '../../account/site.js'
 
-export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDrill, onReview, onTeacherStats, onCheckQuestions }) {
+export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDrill, onDecimal, onReview, onTeacherStats, onCheckQuestions }) {
   const [savedInfo, setSavedInfo] = useState(null)
   const me = useAccount((s) => s.me)
   const checking = useAccount((s) => s.checking)
@@ -81,6 +81,12 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDri
             <GameButton color="violet" onClick={onDrill} className="w-full py-4 text-lg">
               🧮 분수 곱셈 수련장
               <div className="text-xs font-semibold opacity-90 mt-0.5">혼자 연습하고 레벨 올리기</div>
+            </GameButton>
+          )}
+          {onDecimal && (
+            <GameButton color="red" onClick={onDecimal} className="w-full py-4 text-lg">
+              ⚔️ 소수 곱셈 몬스터 배틀
+              <div className="text-xs font-semibold opacity-90 mt-0.5">계산을 맞혀 몬스터를 물리쳐요</div>
             </GameButton>
           )}
           {me?.role === 'teacher' && onTeacherStats && (
