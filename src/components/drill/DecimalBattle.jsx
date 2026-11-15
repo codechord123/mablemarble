@@ -12,25 +12,27 @@ import GameButton from '../ui/GameButton.jsx'
 
 // ─── 스테이지 — 5-2 4단원 소수의 곱셈 차례 ───
 export const STAGES = [
-  { id: 1, type: 'small_n', place: '초록 숲', bg: ['#34d399', '#0f766e'], mobs: [['🐛', '애벌레'], ['🐌', '달팽이'], ['🐞', '무당벌레']], boss: ['🦂', '전갈 대장'], secs: 25 },
-  { id: 2, type: 'big_n', place: '바위 동굴', bg: ['#a8a29e', '#44403c'], mobs: [['🦇', '박쥐'], ['🐀', '동굴쥐'], ['🦔', '고슴도치']], boss: ['🐻', '동굴곰'], secs: 30 },
-  { id: 3, type: 'n_small', place: '푸른 바다', bg: ['#38bdf8', '#1e3a8a'], mobs: [['🐟', '물고기'], ['🦀', '꽃게'], ['🪼', '해파리']], boss: ['🦈', '상어 왕'], secs: 25 },
-  { id: 4, type: 'n_big', place: '모래 사막', bg: ['#fbbf24', '#b45309'], mobs: [['🐍', '모래뱀'], ['🦎', '도마뱀'], ['🐪', '낙타']], boss: ['🦁', '사막 사자'], secs: 30 },
-  { id: 5, type: 'small_small', place: '얼음 왕국', bg: ['#a5f3fc', '#1d4ed8'], mobs: [['🐧', '펭귄'], ['🦭', '물범'], ['⛄', '눈사람']], boss: ['🐻‍❄️', '북극곰 장군'], secs: 30 },
-  { id: 6, type: 'big_big', place: '불꽃 화산', bg: ['#fb923c', '#7f1d1d'], mobs: [['🦕', '목긴룡'], ['🦖', '티라노'], ['🐊', '악어']], boss: ['🐉', '불꽃 드래곤'], secs: 50 },
+  { id: 1, type: 'dn1', place: '초록 숲', bg: ['#34d399', '#0f766e'], mobs: [['🐛', '애벌레'], ['🐌', '달팽이'], ['🐞', '무당벌레']], boss: ['🦂', '전갈 대장'], secs: 25 },
+  { id: 2, type: 'dn2', place: '바위 동굴', bg: ['#a8a29e', '#44403c'], mobs: [['🦇', '박쥐'], ['🐀', '동굴쥐'], ['🦔', '고슴도치']], boss: ['🐻', '동굴곰'], secs: 35 },
+  { id: 3, type: 'nd1', place: '푸른 바다', bg: ['#38bdf8', '#1e3a8a'], mobs: [['🐟', '물고기'], ['🦀', '꽃게'], ['🪼', '해파리']], boss: ['🦈', '상어 왕'], secs: 25 },
+  { id: 4, type: 'nd2', place: '모래 사막', bg: ['#fbbf24', '#b45309'], mobs: [['🐍', '모래뱀'], ['🦎', '도마뱀'], ['🐪', '낙타']], boss: ['🦁', '사막 사자'], secs: 35 },
+  { id: 5, type: 'dd1', place: '얼음 왕국', bg: ['#a5f3fc', '#1d4ed8'], mobs: [['🐧', '펭귄'], ['🦭', '물범'], ['⛄', '눈사람']], boss: ['🐻‍❄️', '북극곰 장군'], secs: 40 },
+  { id: 6, type: 'dd2', place: '불꽃 화산', bg: ['#fb923c', '#7f1d1d'], mobs: [['🦕', '목긴룡'], ['🦖', '티라노'], ['🐊', '악어']], boss: ['🐉', '불꽃 드래곤'], secs: 55 },
   { id: 7, type: 'shift', place: '우주 정거장', bg: ['#818cf8', '#1e1b4b'], mobs: [['👾', '픽셀 괴물'], ['🛸', '비행접시'], ['🤖', '로봇']], boss: ['👽', '외계인 사령관'], secs: 30 },
   { id: 8, type: 'mix', place: '마왕의 성', bg: ['#c084fc', '#3b0764'], mobs: [['👻', '유령'], ['🎃', '호박 귀신'], ['🧙', '마법사']], boss: ['🐲', '소수점 마왕'], secs: 45, final: true },
 ]
+// 교과서 차시 (5-2 4단원 소수의 곱셈)
 const TYPE_NAME = {
-  small_n: '(1보다 작은 소수) × (자연수)',
-  big_n: '(1보다 큰 소수) × (자연수)',
-  n_small: '(자연수) × (1보다 작은 소수)',
-  n_big: '(자연수) × (1보다 큰 소수)',
-  small_small: '(1보다 작은 소수) × (1보다 작은 소수)',
-  big_big: '(1보다 큰 소수) × (1보다 큰 소수)',
+  dn1: '(소수)×(자연수) · 소수 한 자리',
+  dn2: '(소수)×(자연수) · 소수 두 자리',
+  nd1: '(자연수)×(소수) · 소수 한 자리',
+  nd2: '(자연수)×(소수) · 소수 두 자리',
+  dd1: '(소수)×(소수) · 소수 한 자리',
+  dd2: '(소수)×(소수) · 소수 두 자리',
   shift: '곱의 소수점 위치',
   mix: '모든 유형 섞어서',
 }
+const LESSON = { dn1: '2차시', dn2: '3차시', nd1: '4차시', nd2: '5차시', dd1: '6차시', dd2: '7차시', shift: '8차시', mix: '단원 정리' }
 const HP = [2, 2, 3, 5] // 몬스터 3마리 + 보스
 const HEARTS = 3
 
@@ -83,7 +85,7 @@ function StageMap({ rec, name, onPick, onBack }) {
                 >
                   <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/25 text-4xl">{s.boss[0]}</span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-black text-white/80">STAGE {s.id}{s.final ? ' · 최종' : ''}</span>
+                    <span className="block text-xs font-black text-white/80">STAGE {s.id} · {LESSON[s.type]}</span>
                     <span className="block text-lg font-black leading-tight">{s.place}</span>
                     <span className="block truncate text-[11px] font-bold text-white/85">{TYPE_NAME[s.type]}</span>
                   </span>
@@ -325,7 +327,7 @@ function Battle({ stage, onExit, onDone }) {
           <button type="button" onClick={onExit} className="h-9 w-9 shrink-0 rounded-full bg-black/25 font-black" aria-label="나가기">✕</button>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-black">STAGE {stage.id} · {stage.place}</div>
-            <div className="truncate text-[11px] font-bold text-white/80">{TYPE_NAME[stage.type]}</div>
+            <div className="truncate text-[11px] font-bold text-white/80">{LESSON[stage.type]} · {TYPE_NAME[stage.type]}</div>
           </div>
           <div className="shrink-0 text-xl tracking-tighter" aria-label={`하트 ${hearts}개`}>
             {Array.from({ length: HEARTS }, (_, i) => (

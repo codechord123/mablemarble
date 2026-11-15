@@ -89,30 +89,38 @@ function mulProblem(type, a, b) {
   }
 }
 
+// 교과서 차시(5-2 4단원 소수의 곱셈) 그대로:
+// 2차시 (소수)×(자연수) 소수 한 자리 · 3차시 두 자리 · 4·5차시 (자연수)×(소수) · 6·7차시 (소수)×(소수) · 8차시 곱의 소수점 위치
+// 보스(hard)는 같은 차시 안에서 수가 커진다(두 자리 자연수, 1보다 큰 소수 등).
+const swap = (r, a, b) => (r() < 0.5 ? [a, b] : [b, a])
 export const TYPES = {
-  small_n: {
-    name: '(1보다 작은 소수) × (자연수)',
-    make: (r, hard) => mulProblem('small_n', hard ? dec(r, 11, 99, 2) : dec(r, 1, 9, 1), nat(r, 2, 9)),
+  dn1: {
+    name: '(소수) × (자연수) · 소수 한 자리',
+    make: (r, hard) => mulProblem('dn1', hard ? dec(r, 11, 99, 1) : dec(r, 1, 59, 1), hard ? nat(r, 11, 25) : nat(r, 2, 9)),
   },
-  big_n: {
-    name: '(1보다 큰 소수) × (자연수)',
-    make: (r, hard) => mulProblem('big_n', hard ? dec(r, 101, 999, 2) : dec(r, 11, 99, 1), nat(r, 2, 9)),
+  dn2: {
+    name: '(소수) × (자연수) · 소수 두 자리',
+    make: (r, hard) => mulProblem('dn2', hard ? dec(r, 101, 499, 2) : dec(r, 11, 299, 2), hard ? nat(r, 11, 19) : nat(r, 2, 9)),
   },
-  n_small: {
-    name: '(자연수) × (1보다 작은 소수)',
-    make: (r, hard) => mulProblem('n_small', nat(r, 2, hard ? 9 : 15), hard ? dec(r, 11, 99, 2) : dec(r, 1, 9, 1)),
+  nd1: {
+    name: '(자연수) × (소수) · 소수 한 자리',
+    make: (r, hard) => mulProblem('nd1', hard ? nat(r, 11, 25) : nat(r, 2, 12), hard ? dec(r, 11, 59, 1) : dec(r, 1, 49, 1)),
   },
-  n_big: {
-    name: '(자연수) × (1보다 큰 소수)',
-    make: (r, hard) => mulProblem('n_big', nat(r, 2, 9), hard ? dec(r, 101, 499, 2) : dec(r, 11, 59, 1)),
+  nd2: {
+    name: '(자연수) × (소수) · 소수 두 자리',
+    make: (r, hard) => mulProblem('nd2', hard ? nat(r, 11, 19) : nat(r, 2, 9), hard ? dec(r, 101, 399, 2) : dec(r, 11, 299, 2)),
   },
-  small_small: {
-    name: '(1보다 작은 소수) × (1보다 작은 소수)',
-    make: (r, hard) => mulProblem('small_small', hard ? dec(r, 11, 99, 2) : dec(r, 1, 9, 1), dec(r, 1, 9, 1)),
+  dd1: {
+    name: '(소수) × (소수) · 소수 한 자리',
+    make: (r, hard) => mulProblem('dd1', hard ? dec(r, 11, 59, 1) : dec(r, 1, 39, 1), hard ? dec(r, 11, 39, 1) : dec(r, 1, 29, 1)),
   },
-  big_big: {
-    name: '(1보다 큰 소수) × (1보다 큰 소수)',
-    make: (r, hard) => mulProblem('big_big', hard ? dec(r, 101, 399, 2) : dec(r, 11, 39, 1), dec(r, 11, 29, 1)),
+  dd2: {
+    name: '(소수) × (소수) · 소수 두 자리',
+    make: (r, hard) => {
+      // 보통: 소수 두 자리 × 소수 한 자리 (0.25 × 0.3, 1.25 × 2.4) · 보스: 두 자리 × 두 자리 (0.45 × 0.32, 1.25 × 0.16)
+      const [a, b] = hard ? swap(r, dec(r, 11, 199, 2), dec(r, 11, 99, 2)) : swap(r, dec(r, 11, 299, 2), dec(r, 1, 29, 1))
+      return mulProblem('dd2', a, b)
+    },
   },
   shift: {
     name: '곱의 소수점 위치',

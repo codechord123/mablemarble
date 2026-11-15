@@ -53,6 +53,22 @@ describe('문제 유형', () => {
       }
     })
   }
+  it('차시에 맞는 자리 수: 한 자리 차시는 소수 한 자리만, 두 자리 차시는 두 자리 소수가 들어간다', () => {
+    const placesOf = (q) => q.text.split(' × ').map((t) => (t.split('.')[1] || '').length)
+    for (let i = 0; i < 300; i++) {
+      for (const hard of [false, true]) {
+        const [a, b] = placesOf(makeProblem('dn1', { hard }))
+        expect([a, b]).toEqual([1, 0])
+        expect(placesOf(makeProblem('dn2', { hard }))).toEqual([2, 0])
+        expect(placesOf(makeProblem('nd1', { hard }))).toEqual([0, 1])
+        expect(placesOf(makeProblem('nd2', { hard }))).toEqual([0, 2])
+        expect(placesOf(makeProblem('dd1', { hard }))).toEqual([1, 1])
+        const d2 = placesOf(makeProblem('dd2', { hard }))
+        expect(Math.max(...d2)).toBe(2)
+        expect(Math.min(...d2)).toBeGreaterThanOrEqual(1)
+      }
+    }
+  })
   it('자연수 곱 보고 소수 곱 구하기: 주어진 식이 맞다', () => {
     for (let i = 0; i < 300; i++) {
       const q = makeProblem('shift', { hard: true })
