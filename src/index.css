@@ -829,3 +829,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .town-pulse, .town-bob, .town-walk { animation: none; }
 }
+.town-rush { animation: town-rush 0.6s ease-in-out infinite; }
+@keyframes town-rush { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.town-shake { animation: town-shake 0.4s ease-out; }
+@keyframes town-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .town-rush, .town-shake { animation: none; } }

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   LESSONS, SHOPS, MAP, ROWS, COLS, ENTRANCES, isRoad, roadSide, frontRoad, roadPath, unlocked,
   openShops, shopsIn, todaysPrices, makeCustomer, dayRules, tipFor, settle, addD, subD, gte,
-  emptyTown, QUESTS, popularityOf, upkeepOf, titleOf, productById,
+  emptyTown, QUESTS, popularityOf, upkeepOf, titleOf, productById, GOAL, starTimes, starsFor, clock,
 } from '../src/utils/decimalShop.js'
 import { D, show, mul, norm } from '../src/utils/decimalGame.js'
 
@@ -99,5 +99,24 @@ describe('돈·정산·규칙', () => {
     expect(dayRules(l, t, true).patience).toBeCloseTo(dayRules(l, t, false).patience * 2)
     expect(QUESTS.filter((q) => q.done(t))).toHaveLength(0)
     expect(titleOf(t.totalSales)).toBe('꼬마 사장')
+  })
+})
+
+describe('타임 어택', () => {
+  it('하루는 손님 30명, 별 기준과 시계', () => {
+    const t = emptyTown()
+    const one = LESSONS.find((l) => l.type === 'dn1')
+    const two = LESSONS.find((l) => l.type === 'dd2')
+    expect(dayRules(one, t, false).goal).toBe(30)
+    expect(GOAL).toBe(30)
+    const [s3, s2] = starTimes(one, false)
+    expect(starsFor(s3, [s3, s2])).toBe(3)
+    expect(starsFor(s3 + 1, [s3, s2])).toBe(2)
+    expect(starsFor(s2 + 1, [s3, s2])).toBe(1)
+    expect(starTimes(two, false)[0]).toBeGreaterThan(s3)
+    expect(starTimes(one, true)[0]).toBe(s3 * 1.5)
+    expect(clock(0)).toBe('0:00')
+    expect(clock(545)).toBe('9:05')
+    expect(dayRules(one, { ...t, ads: 2 }, false).gap).toBeLessThan(dayRules(one, t, false).gap)
   })
 })

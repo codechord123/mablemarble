@@ -80,3 +80,11 @@ export function saveDrill(slot, drill) {
     return null
   })
 }
+
+// 소수 마을 타이쿤 — 마을 전체(돈·가게·기록·하던 장사)를 계정에 저장해 다른 기기에서도 이어 하게
+export function saveTown(slot, town) {
+  return update(slot, (cur) => ({ ...cur, town })).catch((e) => {
+    console.warn('마을 저장 실패', e)
+    return null
+  })
+}

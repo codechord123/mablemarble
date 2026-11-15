@@ -10,9 +10,10 @@ import {
   SHOPS, DECOR, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, UPGRADE_COST, ENTRANCES, COST_RATE,
   shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
   shopsIn, openShops, todaysPrices, makeCustomer, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
+  PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
   popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
-import { useAccount } from '../../account/store.js'
+import { useAccount, accountApi } from '../../account/store.js'
 import { sfx } from '../../utils/sounds.js'
 import { cheer, flyCoins } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
@@ -98,7 +99,7 @@ function Keypad({ onKey, disabled }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onUpdate, onModal }) {
+function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -138,6 +139,22 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onUpdate, onM
         </div>
         <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
 
+        {town.dayInProgress && (() => {
+          const d = town.dayInProgress
+          const l = LESSONS.find((x) => x.type === d.type)
+          return (
+            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-2xl bg-white/90 p-3 shadow ring-2 ring-amber-300">
+              <span className="text-2xl">🏪</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-black text-slate-800">하던 장사가 저장돼 있어요</div>
+                <div className="text-xs font-bold text-slate-500">{l?.lesson} · 손님 {d.stats.served}/30 · ⏱ {clock(d.elapsedMs / 1000 + d.penalty)} · 번 돈 {money(d.stats.sales)}G</div>
+              </div>
+              <GameButton color="green" onClick={() => onResume(l, d)} className="px-4 py-2 text-sm">▶ 이어서 장사</GameButton>
+              <button type="button" onClick={onSettleNow} className="text-xs font-bold text-slate-500 underline">여기서 정산하고 끝내기</button>
+            </div>
+          )
+        })()}
+
         <div className="relative mt-1">
           <TownMap town={town} onTile={onTile} selectedKey={sk} />
         </div>
@@ -159,6 +176,9 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onUpdate, onM
       <AnimatePresence>
         {sheet?.type === 'lessons' && (
           <Sheet title="🌅 오늘 장사 — 배운 차시 고르기" onClose={() => setSheet(null)} wide>
+            <p className="mb-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">
+              ⏱ 타임 어택: 손님 30명을 받으면 끝! 틀리면 +{PENALTY.wrong}초, 놓치면 +{PENALTY.lost}초 · 10·20명째 🔥러시 타임 · 중간에 나가도 저장돼요
+            </p>
             <label className="mb-2 flex cursor-pointer items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-900">
               <input type="checkbox" checked={relaxed} onChange={(e) => setRelaxed(e.target.checked)} className="h-4 w-4 accent-sky-600" />
               🐢 느긋 모드 <span className="font-bold text-sky-700/80">손님이 두 배 오래 기다리고 천천히 와요</span>
@@ -180,6 +200,11 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onUpdate, onM
                     </span>
                     <span className="block text-sm font-black text-slate-800">{l.name}</span>
                     <span className="block text-[11px] font-bold text-slate-500">{open.length ? `예) ${l.ex}` : '이 차시를 팔 가게가 없어요'}</span>
+                    {town.records?.[l.type] && (
+                      <span className="mt-0.5 block text-[11px] font-black text-amber-600">
+                        🏆 최고 {clock(town.records[l.type].secs)} {'★'.repeat(town.records[l.type].stars)}
+                      </span>
+                    )}
                   </button>
                 )
               })}
@@ -290,7 +315,12 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onUpdate, onM
 }
 
 // ─── 장사하는 하루 ───
-function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
+// 이어 하기용 진행 상황 (장사 도중 나가도 저장)
+function progressOf(lesson, s, elapsedMs) {
+  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, savedAt: Date.now() }
+}
+
+function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave }) {
   const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
   const open = useMemo(() => openShops(lesson, town), []) // eslint-disable-line react-hooks/exhaustive-deps
   const openKeys = useMemo(() => new Set(open.map((s) => s.key)), [open])
@@ -298,8 +328,14 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
   const prices = useMemo(() => todaysPrices(lesson.type, open.flatMap((s) => s.shop.products)), []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 게임 상태는 ref에 두고 짧은 간격으로 다시 그린다 (걷는 손님이 여럿이라)
-  const g = useRef({ walkers: [], queues: {}, spawned: 0, nextSpawn: Date.now() + 600, stats: { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {} } })
+  const g = useRef({
+    walkers: [], queues: {}, nextSpawn: 0, startAt: 0, rushUntil: 0,
+    penalty: resume?.penalty || 0,
+    rushDone: resume?.rushDone || [],
+    stats: resume?.stats ? { ...resume.stats, met: { ...resume.stats.met } } : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {} },
+  })
   const [, setFrame] = useState(0)
+  const [count, setCount] = useState(3) // 3·2·1 영업 시작!
   const [sel, setSel] = useState(open[0]?.key || null)
   const [paused, setPaused] = useState(false)
   const [input, setInput] = useState('')
@@ -309,6 +345,7 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
   const [streak, setStreak] = useState(0)
   const [toast, setToast] = useState(null)
   const [pop, setPop] = useState(null)
+  const [penaltyPop, setPenaltyPop] = useState(0)
   const pausedAt = useRef(0)
   const shopRefs = useRef({})
   const moneyRef = useRef(null)
@@ -335,22 +372,43 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
     g.current.walkers.push({ id: `${cust.id}-out`, cust, shopKey, path: roadPath(start, exit), i: 0, next: Date.now() + STEP_MS, phase: 'out', face })
   }
 
+  // 3·2·1 — 끝나면 시계 시작 (이어 하기면 그때까지 쓴 시간부터)
+  useEffect(() => {
+    if (count <= 0) return
+    sfx.tick?.()
+    const t = setTimeout(() => {
+      if (count === 1) {
+        g.current.startAt = Date.now() - (resume?.elapsedMs || 0)
+        g.current.nextSpawn = Date.now() + 300
+        sfx.double?.()
+      }
+      setCount((c) => c - 1)
+    }, 750)
+    return () => clearTimeout(t)
+  }, [count]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // 한 박자 — 손님 오기 · 걷기 · 줄 서기 · 기다리다 떠나기
   useEffect(() => {
-    if (paused || state === 'done') return
+    if (paused || state === 'done' || count > 0) return
     const t = setInterval(() => {
       const now = Date.now()
       const s = g.current
       // 새 손님
-      if (s.spawned < rules.perDay && now >= s.nextSpawn && open.length) {
-        const weights = open.map((x) => x.lv)
-        let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
-        const target = open.find((x, i) => (roll -= weights[i]) < 0) || open[0]
-        const cust = { ...makeCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met } }) }
-        s.walkers.push(walkerTo(cust, target.key))
-        s.spawned += 1
-        s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
-        s.nextSpawn = now + (s.spawned < 2 ? 2500 : rules.gap * 1000 * (0.7 + Math.random() * 0.6))
+      // 새 손님 — 30명을 다 받을 만큼만, 줄에 자리가 있는 가게로 (러시 타임엔 두 배 빨리)
+      const inFlight = s.walkers.filter((w) => w.phase === 'in').length + Object.values(s.queues).reduce((a, q) => a + q.length, 0)
+      if (s.stats.served + inFlight < rules.goal && now >= s.nextSpawn && open.length) {
+        const room = open.filter((x) => (s.queues[x.key]?.length || 0) + s.walkers.filter((w) => w.phase === 'in' && w.shopKey === x.key).length < slotsOf(x.lv))
+        if (!room.length) s.nextSpawn = now + 800
+        else {
+          const weights = room.map((x) => x.lv)
+          let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
+          const target = room.find((x, i) => (roll -= weights[i]) < 0) || room[0]
+          const cust = { ...makeCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met } }) }
+          s.walkers.push(walkerTo(cust, target.key))
+          s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
+          const rush = now < s.rushUntil ? 0.5 : 1
+          s.nextSpawn = now + (inFlight < 1 ? 1200 : rules.gap * 1000 * rush * (0.7 + Math.random() * 0.6))
+        }
       }
       // 걷기
       for (const w of s.walkers) {
@@ -367,8 +425,9 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
         const lv = town.built[w.shopKey]?.lv || 1
         if (q.length >= slotsOf(lv)) {
           s.stats.lost += 1
+          s.penalty += PENALTY.lost
           walkerAway(w.cust, w.shopKey, '😤')
-          setToast(`😤 ${shopById(town.built[w.shopKey].id).name} 줄이 꽉 차서 ${w.cust.customer.name} 손님이 갔어요`)
+          setToast(`😤 ${shopById(town.built[w.shopKey].id).name} 줄이 꽉 차서 ${w.cust.customer.name} 손님이 갔어요 · +${PENALTY.lost}초`)
           sfx.wrong()
         } else {
           q.push({ ...w.cust, arrivedAt: now })
@@ -384,8 +443,9 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
           const serving = k === selRef.current && i === 0
           if (!serving && now - c.arrivedAt > rules.patience * 1000) {
             s.stats.lost += 1
+            s.penalty += PENALTY.lost
             walkerAway(c, k, '😤')
-            setToast(`😤 ${c.customer.name} 손님이 기다리다 갔어요`)
+            setToast(`😤 ${c.customer.name} 손님이 기다리다 갔어요 · +${PENALTY.lost}초`)
             sfx.wrong()
           } else keep.push(c)
         })
@@ -398,17 +458,17 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
         for (const [k, q] of Object.entries(s.queues)) if (q.length && (!best || q[0].arrivedAt < best[1])) best = [k, q[0].arrivedAt]
         if (best && best[0] !== selRef.current) setSel(best[0])
       }
-      // 하루 끝
-      const waiting = Object.values(s.queues).some((q) => q.length) || s.walkers.some((w) => w.phase === 'in')
-      if (s.spawned >= rules.perDay && !waiting && stateRef.current === 'ask') {
+      // 하루 끝 — 손님 30명을 받으면
+      if (s.stats.served >= rules.goal && stateRef.current === 'ask') {
+        const secs = Math.round((now - s.startAt) / 1000 + s.penalty)
         setState('done')
         sfx.victory()
-        onFinish({ ...s.stats, upkeep: rules.upkeep })
+        onFinish({ ...s.stats, upkeep: rules.upkeep, secs, penalty: s.penalty, stars: starsFor(secs, rules.stars), starTimes: rules.stars })
       }
       setFrame((f) => f + 1)
     }, 150)
     return () => clearInterval(t)
-  }, [paused, state]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [paused, state, count]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const selRef = useRef(sel)
   selRef.current = sel
@@ -435,6 +495,8 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
     const d = Date.now() - pausedAt.current
     const s = g.current
     s.nextSpawn += d
+    s.startAt += d
+    s.rushUntil = s.rushUntil ? s.rushUntil + d : 0
     s.walkers.forEach((w) => { w.next += d })
     Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt += d }))
     servingSince.current += d
@@ -475,6 +537,19 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
     setState('ask')
   }
 
+  // 한 명 받을 때마다: 이어 하기 저장, 10·20명째 러시 타임
+  function afterServed() {
+    const s = g.current
+    const n = s.stats.served
+    if (RUSH_AT.includes(n) && !s.rushDone.includes(n)) {
+      s.rushDone = [...s.rushDone, n]
+      s.rushUntil = Date.now() + RUSH_MS
+      setToast('🔥 러시 타임! 1분 동안 손님이 두 배로 몰려와요 · 팁 두 배!')
+      cheer(2)
+    }
+    if (n < rules.goal) onSave?.(progressOf(lesson, s, Date.now() - s.startAt), n % 5 === 0)
+  }
+
   function pay() {
     if (state !== 'ask' || !active || !input || paused) return
     const r = grade(active, input)
@@ -485,7 +560,8 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
       const firstTry = tries === 0
       const st = firstTry ? streak + 1 : 0
       const lv = town.built[sel]?.lv || 1
-      const tip = helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })
+      const rush = Date.now() < s.rushUntil
+      const tip = (helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) * (rush ? 2 : 1)
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.tips = addD(s.stats.tips, D(tip))
@@ -493,6 +569,7 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
       s.stats.first += firstTry ? 1 : 0
       s.stats.vip += active.vip ? 1 : 0
       s.stats.best = Math.max(s.stats.best, st)
+      afterServed()
       setPop({ amount: show(active.answer), tip })
       setState('paid')
       sfx.correct()
@@ -503,6 +580,8 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
     }
     sfx.wrong()
     setStreak(0)
+    s.penalty += PENALTY.wrong
+    setPenaltyPop((n) => n + 1)
     if (tries === 0) {
       setTries(1)
       setHelper(true)
@@ -510,6 +589,7 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
     } else {
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.served += 1
+      afterServed()
       setState('explain')
     }
   }
@@ -531,6 +611,10 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
   const now = Date.now()
   const live = addD(addD(town.money, s.stats.sales), s.stats.tips)
   const waitingTotal = Object.values(queues).reduce((a, q) => a + q.length, 0)
+  const started = count <= 0 && s.startAt
+  const totalSecs = started ? ((paused ? pausedAt.current : now) - s.startAt) / 1000 + s.penalty : resume?.elapsedMs ? resume.elapsedMs / 1000 + s.penalty : 0
+  const liveStars = starsFor(totalSecs, rules.stars)
+  const rushing = started && now < s.rushUntil
 
   // 가게 머리 위 — 줄 선 손님과 기다림 고리
   const overlay = (k, cx, cy) => {
@@ -586,17 +670,29 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
         <div>
           {/* 위 띠 */}
           <div className="flex items-center gap-1.5">
-            <button type="button" onClick={onQuit} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label="그만하기">✕</button>
+            <button type="button" onClick={() => onQuit(started && state !== 'done' ? progressOf(lesson, s, (paused ? pausedAt.current : Date.now()) - s.startAt) : null)} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label="잠깐 나가기 (저장돼요)">✕</button>
             <button type="button" onClick={togglePause} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label={paused ? '계속하기' : '잠깐 멈춤'}>{paused ? '▶' : '⏸'}</button>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-black text-sky-950">{lesson.lesson} · 손님 {s.stats.served + s.stats.lost}/{rules.perDay} · 기다리는 손님 {waitingTotal}{relaxed ? ' · 🐢' : ''}</div>
-              <div className="mt-0.5 flex gap-0.5">
-                {Array.from({ length: rules.perDay }, (_, i) => (
-                  <span key={i} className={`h-1.5 flex-1 rounded-full ${i < s.stats.served ? 'bg-emerald-500' : i < s.stats.served + s.stats.lost ? 'bg-rose-400' : i < s.spawned ? 'bg-amber-400' : 'bg-sky-900/15'}`} />
+              <div className="flex items-baseline gap-1.5 truncate text-xs font-black text-sky-950">
+                <span>{lesson.lesson} · 손님 <b className="text-base">{s.stats.served}</b>/{rules.goal}</span>
+                {s.stats.lost > 0 && <span className="text-rose-600">놓침 {s.stats.lost}</span>}
+                {relaxed && <span>🐢</span>}
+              </div>
+              <div className="mt-0.5 flex gap-px">
+                {Array.from({ length: rules.goal }, (_, i) => (
+                  <span key={i} className={`h-1.5 flex-1 rounded-full ${i < s.stats.served ? 'bg-emerald-500' : 'bg-sky-900/15'}`} />
                 ))}
               </div>
             </div>
+            <div className={`shrink-0 rounded-xl px-2 py-0.5 text-center font-black tabular-nums leading-tight ${rushing ? 'bg-rose-600 text-white town-rush' : 'bg-slate-900 text-white'}`}>
+              <div className="text-lg">⏱ {clock(totalSecs)}</div>
+              <div className="text-[9px] opacity-80">{'★'.repeat(liveStars)}{'☆'.repeat(3 - liveStars)} {liveStars > 1 ? `~${clock(rules.stars[3 - liveStars])}` : ''}</div>
+            </div>
             <SoundMini />
+          </div>
+          <div className="mt-1 flex items-center justify-end gap-2">
+            {rushing && <span className="rounded-full bg-rose-600 px-2 py-0.5 text-xs font-black text-white town-rush">🔥 러시 타임 {Math.ceil((s.rushUntil - now) / 1000)}초</span>}
+            {s.penalty > 0 && <span key={penaltyPop} className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-black text-rose-700 town-shake">벌칙 +{s.penalty}초</span>}
             <Money value={live} refEl={moneyRef} />
           </div>
           {/* 지도 */}
@@ -609,6 +705,15 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
                 </motion.div>
               )}
             </AnimatePresence>
+            {count > 0 && (
+              <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/30">
+                <div className="text-center text-white">
+                  <div className="text-sm font-black">{resume ? '이어서 장사!' : `${lesson.lesson} · 손님 ${rules.goal}명 타임 어택`}</div>
+                  <motion.div key={count} initial={{ scale: 2.2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-8xl font-black drop-shadow-lg">{count}</motion.div>
+                  <div className="text-xs font-bold opacity-90">★★★ {clock(rules.stars[0])} 안에 · 틀리면 +{PENALTY.wrong}초 · 놓치면 +{PENALTY.lost}초</div>
+                </div>
+              </div>
+            )}
             {paused && (
               <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/35">
                 <button type="button" onClick={togglePause} className="rounded-2xl bg-white px-6 py-3 text-xl font-black text-slate-800 shadow-xl">⏸ 잠깐 멈춤 · ▶ 계속</button>
@@ -645,7 +750,7 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
             </>
           ) : (
             <div className="py-5 text-center text-sm font-black text-slate-400">
-              {s.spawned >= rules.perDay && !waitingTotal ? '오늘 장사 마무리 중…' : '손님이 걸어오고 있어요 🚶 — 머리 위에 손님이 뜬 가게를 눌러요'}
+              {count > 0 ? '곧 문을 열어요!' : '손님이 걸어오고 있어요 🚶 — 머리 위에 손님이 뜬 가게를 눌러요'}
             </div>
           )}
           <div className="mt-2">
@@ -687,6 +792,7 @@ function Day({ lesson, town, owner, relaxed, onFinish, onQuit }) {
 
 // ─── 정산서 ───
 function Settlement({ result, town, onTown, onAgain }) {
+  const timed = result.secs != null
   const r = result.sheet
   const good = r.profit.v >= 0
   const rows = [
@@ -701,6 +807,20 @@ function Settlement({ result, town, onTown, onAgain }) {
         <div className="shop-receipt rounded-t-2xl bg-white px-5 pb-6 pt-5 text-slate-800 shadow-2xl">
           <div className="text-center text-xs font-black tracking-[0.3em] text-slate-400">RECEIPT</div>
           <div className="text-center text-xl font-black">🧾 {town.days}일째 정산서</div>
+          {timed && (
+            <div className="mt-2 text-center">
+              <div className="text-4xl leading-none">
+                {[1, 2, 3].map((i) => (
+                  <motion.span key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 + i * 0.2, type: 'spring' }} className={i <= result.stars ? 'text-amber-400' : 'text-slate-200'}>★</motion.span>
+                ))}
+              </div>
+              <div className="mt-1 text-2xl font-black tabular-nums">⏱ {clock(result.secs)}</div>
+              <div className="text-[11px] font-bold text-slate-500">
+                벌칙 +{result.penalty}초 포함 · ★★★ {clock(result.starTimes[0])} · ★★ {clock(result.starTimes[1])}
+              </div>
+              {result.record && <div className="mt-1 inline-block rounded-full bg-amber-400 px-3 py-0.5 text-sm font-black text-amber-950 shop-bop">🏆 신기록!</div>}
+            </div>
+          )}
           <div className="mt-1 text-center text-xs font-bold text-slate-500">손님 {result.served}명 · 놓친 손님 {result.lost}명 · 한 번에 맞힘 {result.first} · VIP {result.vip}</div>
           <div className="mt-3 space-y-1.5 border-y-2 border-dashed border-slate-200 py-3">
             {rows.map(([k, v, c], i) => (
@@ -778,6 +898,7 @@ export default function DecimalShop({ onBack }) {
   const who = me?.username ? `acct:${me.username}` : 'device'
   const owner = me ? me.name || me.username : '나'
   const [town, setTown] = useState(() => loadTown(who))
+  const [resume, setResume] = useState(null)
   const [lesson, setLesson] = useState(null)
   const [dayKey, setDayKey] = useState(0)
   const [result, setResult] = useState(null)
@@ -790,18 +911,44 @@ export default function DecimalShop({ onBack }) {
     try { localStorage.setItem(RELAX_KEY, v ? '1' : '0') } catch { /* ignore */ }
   }
 
-  useEffect(() => setTown(loadTown(who)), [who])
+  // 로그인한 학생: 계정에 저장된 마을이 더 최근이면 그걸로 (다른 기기에서 하던 것 이어 하기)
+  useEffect(() => {
+    const local = loadTown(who)
+    setTown(local)
+    if (!me) return
+    let alive = true
+    accountApi()
+      .then((a) => a.loadProgress(a.ME, { fresh: true }))
+      .then((p) => {
+        const cloud = p?.town
+        if (alive && cloud && (cloud.savedAt || 0) > (local.savedAt || 0)) {
+          const t = { ...local, ...cloud }
+          saveTown(who, t)
+          setTown(t)
+        }
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [who]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function update(fn) {
-    setTown((cur) => {
-      const n = { ...cur, ...fn(cur) }
-      saveTown(who, n)
-      return n
-    })
+  // 저장: 이 기기에는 항상, 계정에는 cloud=true일 때 (장사 중엔 5명마다)
+  function persist(n, cloud = true) {
+    const t = { ...n, savedAt: Date.now() }
+    saveTown(who, t)
+    if (me && cloud) accountApi().then((a) => a.saveTown(a.ME, t)).catch(() => {})
+    return t
+  }
+  function update(fn, cloud = true) {
+    setTown((cur) => persist({ ...cur, ...fn(cur) }, cloud))
   }
 
   function finishDay(r) {
     const sheet = settle({ sales: r.sales, tips: r.tips, upkeep: r.upkeep })
+    const type = lesson?.type
+    const old = type && town.records?.[type]
+    const record = r.secs != null && type && (!old || r.secs < old.secs)
     const before = QUESTS.filter((q) => q.done(town)).map((q) => q.id)
     const next = {
       ...town,
@@ -813,11 +960,13 @@ export default function DecimalShop({ onBack }) {
       bestProfit: gte(sheet.profit, town.bestProfit) ? sheet.profit : town.bestProfit,
       totalSales: addD(town.totalSales, r.sales),
       met: Object.entries(r.met).reduce((m, [e, c]) => ({ ...m, [e]: (m[e] || 0) + c }), town.met),
+      records: record ? { ...(town.records || {}), [type]: { secs: r.secs, stars: r.stars } } : town.records || {},
+      dayInProgress: null,
     }
-    saveTown(who, next)
-    setTown(next)
+    setTown(persist(next))
     if (sheet.profit.v > 0) setTimeout(() => cheer(3), 900)
-    setResult({ ...r, sheet, newQuests: QUESTS.filter((q) => q.done(next) && !before.includes(q.id)) })
+    setResult({ ...r, record, sheet, newQuests: QUESTS.filter((q) => q.done(next) && !before.includes(q.id)) })
+    setResume(null)
   }
 
   function claim(q) {
@@ -837,22 +986,40 @@ export default function DecimalShop({ onBack }) {
     return (
       <>
         <Town town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
-          onStart={(l) => { setLesson(l); setResult(null); setDayKey((k) => k + 1) }} />
+          onStart={(l) => {
+            if (town.dayInProgress && !window.confirm('저장된 하던 장사가 있어요. 새로 시작하면 하던 장사는 없어져요. 새로 시작할까요?')) return
+            update(() => ({ dayInProgress: null }), false)
+            setResume(null); setLesson(l); setResult(null); setDayKey((k) => k + 1)
+          }}
+          onResume={(l, d) => { setResume(d); setLesson(l); setResult(null); setDayKey((k) => k + 1) }}
+          onSettleNow={() => {
+            const d = town.dayInProgress
+            if (!window.confirm(`손님 ${d.stats.served}명까지 받은 것으로 정산하고 끝낼까요? (30명을 못 채워서 기록·별은 없어요)`)) return
+            finishDay({ ...d.stats, upkeep: D(upkeepOf(town)), secs: null })
+          }} />
+        <AnimatePresence>
+          {result && <Settlement result={result} town={town} onTown={() => setResult(null)} onAgain={() => setResult(null)} />}
+        </AnimatePresence>
         {modals}
       </>
     )
 
   return (
     <>
-      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} onFinish={finishDay}
-        onQuit={() => { if (result || window.confirm('오늘 장사를 그만할까요? 오늘 번 돈은 저장되지 않아요.')) { setLesson(null); setResult(null) } }} />
+      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} resume={resume} onFinish={finishDay}
+        onSave={(progress, cloud) => update(() => ({ dayInProgress: progress }), cloud)}
+        onQuit={(progress) => {
+          // 나가도 하던 장사는 저장 — 마을에서 '이어서 장사'
+          if (progress && !result) update(() => ({ dayInProgress: progress }))
+          setLesson(null); setResult(null); setResume(null)
+        }} />
       <AnimatePresence>
         {result && (
           <Settlement
             result={result}
             town={town}
             onTown={() => { setResult(null); setLesson(null) }}
-            onAgain={() => { setResult(null); setDayKey((k) => k + 1) }}
+            onAgain={() => { setResult(null); setResume(null); setDayKey((k) => k + 1) }}
           />
         )}
       </AnimatePresence>

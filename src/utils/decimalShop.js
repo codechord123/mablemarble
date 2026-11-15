@@ -267,8 +267,8 @@ export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChanc
 // ─── 마을 인기 · 하루 규칙 ───
 export const ADS = [
   { cost: 0 },
-  { cost: 50, name: '전단지', icon: '📄', desc: '하루 손님 +2명' },
-  { cost: 180, name: '라디오 광고', icon: '📻', desc: '하루 손님 +2명 더, VIP 손님이 더 자주' },
+  { cost: 50, name: '전단지', icon: '📄', desc: '손님이 더 빨리 와요 → 기록 단축' },
+  { cost: 180, name: '라디오 광고', icon: '📻', desc: '손님이 더 빨리 오고, VIP 손님이 더 자주' },
 ]
 // 인기 ★(1~5): 장식과 가게 레벨이 올린다 → 손님이 더 많이 오고, 더 오래 기다리고, VIP가 자주
 export function popularityOf(town) {
@@ -282,20 +282,36 @@ export function popularityOf(town) {
 // 가게 유지비 (하루) = 등급 × 레벨
 export const upkeepOf = (town) => shopsIn(town).reduce((s, x) => s + x.shop.tier * x.lv, 0)
 
+// ─── 타임 어택 ───
+// 하루 = 손님 30명(계산 30문제)을 받으면 끝. 시계가 돌고, 틀리면 +5초, 손님을 놓치면 +10초.
+// 10명·20명째에 러시 타임(1분 동안 손님이 두 배 빨리 오고 팁 두 배).
+export const GOAL = 30
+export const PENALTY = { wrong: 5, lost: 10 }
+export const RUSH_AT = [10, 20]
+export const RUSH_MS = 60 * 1000
+// 별 기준 (초) — [★★★, ★★] 안에 끝내면. 그보다 늦어도 끝까지 하면 ★
+export function starTimes(lesson, relaxed) {
+  const base = TWO_PLACE.includes(lesson.type) ? [14 * 60, 20 * 60] : [9 * 60, 13 * 60]
+  return relaxed ? base.map((x) => x * 1.5) : base
+}
+export const starsFor = (secs, times) => (secs <= times[0] ? 3 : secs <= times[1] ? 2 : 1)
+export const clock = (secs) => `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`
+
 export function dayRules(lesson, town, relaxed) {
   const two = TWO_PLACE.includes(lesson.type)
   const pop = popularityOf(town)
   const open = openShops(lesson, town).length
-  let patience = (two ? 160 : 110) * (1 + (pop - 1) * 0.08)
-  let gap = (two ? 26 : 17) / Math.max(1, Math.sqrt(open) * 0.8)
+  let patience = (two ? 100 : 70) * (1 + (pop - 1) * 0.08)
+  let gap = ((two ? 10 : 6) * 0.85 ** town.ads) / Math.max(1, Math.sqrt(open) * 0.8)
   if (relaxed) {
     patience *= 2
     gap *= 1.5
   }
   return {
-    patience,
-    gap,
-    perDay: 6 + open * 2 + Math.floor(pop) + (town.ads >= 1 ? 2 : 0) + (town.ads >= 2 ? 2 : 0),
+    patience, // 손님이 기다리는 초
+    gap, // 새 손님 간격(초) — 러시 타임엔 절반
+    goal: GOAL,
+    stars: starTimes(lesson, relaxed),
     vipChance: 0.05 + pop * 0.025 + (town.ads >= 2 ? 0.05 : 0),
     upkeep: D(upkeepOf(town)),
   }
@@ -344,6 +360,8 @@ export const QUESTS = [
   { id: 'pop4', text: '마을 인기 ★4 만들기', reward: 120, done: (s) => popularityOf(s) >= 4 },
   { id: 'tier4', text: '4등급 가게 짓기', reward: 150, done: (s) => shopsIn(s).some((x) => x.shop.tier >= 4) },
   { id: 'all', text: '가게 8곳 모두 짓기', reward: 300, done: (s) => countShops(s) >= SHOPS.length },
+  { id: 'star3', text: '아무 차시나 ★★★ 기록 내기', reward: 80, done: (s) => Object.values(s.records || {}).some((r) => r.stars >= 3) },
+  { id: 'star3x4', text: '네 차시에서 ★★★ 기록 내기', reward: 200, done: (s) => Object.values(s.records || {}).filter((r) => r.stars >= 3).length >= 4 },
 ]
 export const TITLES = [
   [0, '꼬마 사장'], [200, '골목 사장님'], [600, '동네 사장님'], [1500, '시장 상인회장'], [4000, '마을 이장님'], [10000, '소수 마을 재벌'],
@@ -362,6 +380,7 @@ export const emptyTown = () => ({
   built: { '2,2': { kind: 'shop', id: 'candyshop', lv: 1 }, '2,4': { kind: 'shop', id: 'fruit', lv: 1 } },
   zones: [], ads: 0, met: {},
   days: 0, served: 0, lost: 0, bestStreak: 0, bestProfit: D(0), totalSales: D(0), claimed: [],
+  records: {}, // 차시별 최고 기록 { [type]: { secs, stars } }
 })
 export function loadTown(who) {
   try {
