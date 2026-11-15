@@ -29,7 +29,7 @@ import { initAccount, useAccount, clearNoteToast } from './account/store.js'
 
 const QuestionManager = lazy(() => import('./components/questions/QuestionManager.jsx'))
 const FractionDrill = lazy(() => import('./components/drill/FractionDrill.jsx'))
-const DecimalBattle = lazy(() => import('./components/drill/DecimalBattle.jsx'))
+const DecimalShop = lazy(() => import('./components/drill/DecimalShop.jsx'))
 const WrongReview = lazy(() => import('./components/account/WrongReview.jsx'))
 const TeacherStats = lazy(() => import('./components/account/TeacherStats.jsx'))
 const QuestionBrowser = lazy(() => import('./components/account/QuestionBrowser.jsx'))
@@ -284,8 +284,8 @@ export default function App() {
     }
     if (view === 'decimal') {
       return (
-        <Suspense fallback={<FullScreenSpinner label="몬스터 배틀 불러오는 중…" />}>
-          <DecimalBattle onBack={() => setView('menu')} />
+        <Suspense fallback={<FullScreenSpinner label="가게 여는 중…" />}>
+          <DecimalShop onBack={() => setView('menu')} />
         </Suspense>
       )
     }

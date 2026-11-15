@@ -83,6 +83,8 @@ function mulSteps(a, b) {
 function mulProblem(type, a, b) {
   return {
     type,
+    a: norm(a),
+    b: norm(b),
     text: `${show(a)} × ${show(b)}`,
     answer: norm(mul(a, b)),
     steps: mulSteps(a, b),
@@ -139,6 +141,8 @@ function shiftProblem(r) {
   const ans = norm(mul(x, m))
   return {
     type: 'shift',
+    a: norm(x),
+    b: norm(m),
     text: `${show(x)} × ${show(m)}`,
     answer: ans,
     steps: [
@@ -165,6 +169,8 @@ function givenProblem(r) {
     const raw = fmt(D(A * B, pa + pb))
     return {
       type: 'shift',
+      a,
+      b,
       given: `${A} × ${B} = ${A * B}`,
       text: `${show(a)} × ${show(b)}`,
       answer: ans,

@@ -84,9 +84,9 @@ export default function MainMenu({ onNewGame, onManageQuestions, onResume, onDri
             </GameButton>
           )}
           {onDecimal && (
-            <GameButton color="red" onClick={onDecimal} className="w-full py-4 text-lg">
-              ⚔️ 소수 곱셈 몬스터 배틀
-              <div className="text-xs font-semibold opacity-90 mt-0.5">계산을 맞혀 몬스터를 물리쳐요</div>
+            <GameButton color="amber" onClick={onDecimal} className="w-full py-4 text-lg">
+              🏪 소수 가게 키우기
+              <div className="text-xs font-semibold opacity-90 mt-0.5">손님 주문을 계산해 팔고 내 가게를 키워요</div>
             </GameButton>
           )}
           {me?.role === 'teacher' && onTeacherStats && (

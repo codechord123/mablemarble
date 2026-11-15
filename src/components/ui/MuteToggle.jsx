@@ -8,6 +8,61 @@ import { isMusicOff, setMusicOff, onMusicChange } from '../../utils/bgm.js'
 
 const SFX_KEY = 'boomarble_sfx_off'
 
+// 화면이 자기 위 띠에 작은 소리 버튼(SoundMini)을 둘 때는 왼쪽 아래 큰 버튼을 숨긴다
+// (휴대폰에서 아래 버튼이 '계산하기' 같은 버튼을 가리지 않게)
+let hidden = 0
+const hideListeners = new Set()
+export function useHideSoundToggle() {
+  useEffect(() => {
+    hidden += 1
+    hideListeners.forEach((fn) => fn(hidden))
+    return () => {
+      hidden -= 1
+      hideListeners.forEach((fn) => fn(hidden))
+    }
+  }, [])
+}
+
+const sfxListeners = new Set() // 큰 버튼·작은 버튼이 같은 상태를 보이게
+
+function useSoundState() {
+  const [sfxOn, setSfxOn] = useState(() => {
+    let saved = false
+    try { saved = localStorage.getItem(SFX_KEY) === '1' } catch { /* ignore */ }
+    if (saved) setMuted(true)
+    return !(saved || isMuted())
+  })
+  const [musicOn, setMusicOn] = useState(!isMusicOff())
+  useEffect(() => onMusicChange((off) => setMusicOn(!off)), [])
+  useEffect(() => {
+    sfxListeners.add(setSfxOn)
+    return () => sfxListeners.delete(setSfxOn)
+  }, [])
+  const toggleSfx = () => {
+    const next = isMuted() // 꺼져 있으면 켠다
+    setMuted(!next)
+    sfxListeners.forEach((fn) => fn(next))
+    try { localStorage.setItem(SFX_KEY, next ? '0' : '1') } catch { /* ignore */ }
+  }
+  return { sfxOn, musicOn, toggleSfx, toggleMusic: () => setMusicOff(!isMusicOff()) }
+}
+
+// 위 띠에 넣는 작은 소리 버튼 두 개
+export function SoundMini({ className = '' }) {
+  const { sfxOn, musicOn, toggleSfx, toggleMusic } = useSoundState()
+  const cls = (on) => `h-9 w-9 rounded-full text-lg transition ${on ? 'bg-white/90 shadow' : 'bg-black/10 opacity-60'}`
+  return (
+    <span className={`flex shrink-0 gap-1 ${className}`}>
+      <button type="button" onClick={toggleMusic} className={cls(musicOn)} aria-pressed={musicOn} aria-label={musicOn ? '배경음악 끄기' : '배경음악 켜기'} title={musicOn ? '음악 켜짐' : '음악 꺼짐'}>
+        {musicOn ? '🎵' : '🔕'}
+      </button>
+      <button type="button" onClick={toggleSfx} className={cls(sfxOn)} aria-pressed={sfxOn} aria-label={sfxOn ? '효과음 끄기' : '효과음 켜기'} title={sfxOn ? '효과음 켜짐' : '효과음 꺼짐'}>
+        {sfxOn ? '🔊' : '🔇'}
+      </button>
+    </span>
+  )
+}
+
 function Switch({ on, onClick, label, icon, iconOff, name }) {
   return (
     <button
@@ -31,26 +86,17 @@ function Switch({ on, onClick, label, icon, iconOff, name }) {
 }
 
 export default function MuteToggle() {
-  const [sfxOn, setSfxOn] = useState(() => {
-    let saved = false
-    try { saved = localStorage.getItem(SFX_KEY) === '1' } catch { /* ignore */ }
-    if (saved) setMuted(true)
-    return !(saved || isMuted())
-  })
-  const [musicOn, setMusicOn] = useState(!isMusicOff())
-
-  useEffect(() => onMusicChange((off) => setMusicOn(!off)), [])
-
-  const toggleSfx = () => {
-    const next = !sfxOn
-    setMuted(!next)
-    setSfxOn(next)
-    try { localStorage.setItem(SFX_KEY, next ? '0' : '1') } catch { /* ignore */ }
-  }
+  const { sfxOn, musicOn, toggleSfx, toggleMusic } = useSoundState()
+  const [isHidden, setHidden] = useState(hidden > 0)
+  useEffect(() => {
+    hideListeners.add(setHidden)
+    return () => hideListeners.delete(setHidden)
+  }, [])
+  if (isHidden) return null
 
   return (
     <div className="fixed bottom-3 left-3 z-30 flex flex-col items-start gap-1.5" style={{ marginBottom: 'env(safe-area-inset-bottom)' }}>
-      <Switch on={musicOn} onClick={() => setMusicOff(musicOn)} name="음악"
+      <Switch on={musicOn} onClick={toggleMusic} name="음악"
         label={musicOn ? '배경음악 끄기' : '배경음악 켜기'} icon="🎵" iconOff="🔕" />
       <Switch on={sfxOn} onClick={toggleSfx} name="효과음"
         label={sfxOn ? '효과음 끄기' : '효과음 켜기'} icon="🔊" iconOff="🔇" />
