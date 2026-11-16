@@ -1,7 +1,7 @@
 // 소수 마을 지도 — 비스듬히 내려다보는(아이소메트릭) 8×8 마을.
 // 땅·길 → 건물·장식(앞뒤 순서대로) → 걸어가는 손님·말풍선 순서로 그린다. 한 장의 SVG.
 import { forwardRef } from 'react'
-import { MAP, ROWS, COLS, ZONES, tileAt, unlocked, shopById, decorById, key } from '../../utils/decimalShop.js'
+import { MAP, ROWS, COLS, ZONES, tileAt, unlocked, shopById, decorById, key, mapById, BIG_DECOR } from '../../utils/decimalShop.js'
 
 export const TW = 64 // 칸 너비
 export const TH = 32 // 칸 높이
@@ -72,24 +72,34 @@ const SIGN_AT = (() => {
   return out
 })()
 
-const TownMap = forwardRef(function TownMap({ town, onTile, selectedKey, closedKeys, shopRefs, overlay, extra }, ref) {
+// 바다·얼음 호수 칸 장식 (칸마다 정해진 것)
+const SEA = ['🌊', '', '', '🐟', '', '🌊', '', '']
+const ICE = ['✨', '', '', '❄️', '', '', '✨', '']
+
+const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra }, ref) {
+  const M = mapById(mapId)
+  const col = M.colors
   const tiles = []
   const objects = []
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      const t = tileAt(r, c)
+      const t = tileAt(r, c, mapId)
       const [cx, cy] = center(r, c)
-      const k = key(r, c)
-      const open = t === 'R' || unlocked(town, r, c)
-      const fill = t === 'R' ? ((r + c) % 2 ? '#d6d3d1' : '#cfcac6') : open ? ((r + c) % 2 ? '#86d98f' : '#7ccf86') : (r + c) % 2 ? '#5f9a69' : '#578f61'
+      const k = key(r, c, mapId)
+      const scenery = t === '~' || t === 'I' // 바다·얼음 — 못 짓는 풍경
+      const open = t === 'R' || scenery || unlocked(town, r, c, mapId)
+      const alt = (r + c) % 2
+      const fill = t === 'R' ? col.road[alt] : scenery ? col.water[alt] : open ? col.land[alt] : (col.locked || col.land)[alt]
       tiles.push(
-        <g key={k} onClick={() => onTile?.(r, c)} className={t === 'R' ? '' : 'cursor-pointer'}>
-          <polygon points={diamond(cx, cy)} fill={fill} stroke={t === 'R' ? '#a8a29e' : 'rgba(0,0,0,0.08)'} strokeWidth="0.8" />
+        <g key={k} onClick={() => !scenery && onTile?.(r, c)} className={t === 'R' || scenery ? '' : 'cursor-pointer'}>
+          <polygon points={diamond(cx, cy)} fill={fill} stroke={t === 'R' ? 'rgba(0,0,0,0.18)' : 'rgba(0,0,0,0.08)'} strokeWidth="0.8" />
           {t === 'R' && <polygon points={diamond(cx, cy, 0.18)} fill="#fafaf9" opacity="0.8" />}
+          {t === '~' && SEA[(r * 3 + c) % 8] && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="13" className="town-bob">{SEA[(r * 3 + c) % 8]}</text>}
+          {t === 'I' && ICE[(r * 5 + c) % 8] && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="11" opacity="0.8">{ICE[(r * 5 + c) % 8]}</text>}
           {selectedKey === k && !town.built[k] && <polygon points={diamond(cx, cy)} fill="rgba(250,204,21,0.35)" stroke="#facc15" strokeWidth="2.5" />}
         </g>,
       )
-      if (!open) {
+      if (!open && mapId === 'main') {
         const sign = SIGN_AT[t] === k
         objects.push({
           depth: r + c,
@@ -131,7 +141,7 @@ const TownMap = forwardRef(function TownMap({ town, onTile, selectedKey, closedK
         })
       } else {
         const d = decorById(b.id)
-        const big = ['fountain', 'carousel', 'ferris', 'statue'].includes(d.id)
+        const big = BIG_DECOR.has(d.id)
         objects.push({
           depth: r + c,
           el: (

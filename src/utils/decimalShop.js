@@ -45,6 +45,19 @@ export const PRODUCTS = [
   { id: 'gift', icon: '🎁', name: '선물 상자', unit: '개', kind: 'count', tier: 4 },
   { id: 'beef', icon: '🥩', name: '한우', unit: 'kg', kind: 'measure', tier: 4 },
   { id: 'cheese', icon: '🧀', name: '치즈', unit: 'kg', kind: 'measure', tier: 4 },
+  // 새 지도 가게들
+  { id: 'icecream', icon: '🍦', name: '아이스크림', unit: '개', kind: 'count', tier: 2 },
+  { id: 'bingsu', icon: '🍧', name: '빙수', unit: '그릇', kind: 'count', tier: 2 },
+  { id: 'shrimp', icon: '🦐', name: '새우', unit: 'kg', kind: 'measure', tier: 3 },
+  { id: 'squid', icon: '🦑', name: '오징어', unit: 'kg', kind: 'measure', tier: 3 },
+  { id: 'cocoa', icon: '☕', name: '핫초코', unit: 'L', kind: 'measure', tier: 2 },
+  { id: 'yuzu', icon: '🍵', name: '유자차', unit: 'L', kind: 'measure', tier: 2 },
+  { id: 'mitten', icon: '🧤', name: '털장갑', unit: '켤레', kind: 'count', tier: 3 },
+  { id: 'scarf', icon: '🧣', name: '목도리', unit: '개', kind: 'count', tier: 3 },
+  { id: 'popcorn', icon: '🍿', name: '팝콘', unit: '봉지', kind: 'count', tier: 3 },
+  { id: 'hotdog', icon: '🌭', name: '핫도그', unit: '개', kind: 'count', tier: 3 },
+  { id: 'teddy', icon: '🧸', name: '곰 인형', unit: '개', kind: 'count', tier: 4 },
+  { id: 'keyring', icon: '🔑', name: '열쇠고리', unit: '개', kind: 'count', tier: 4 },
 ]
 export const productById = (id) => PRODUCTS.find((p) => p.id === id)
 
@@ -59,26 +72,71 @@ export const SHOPS = [
   { id: 'farm', icon: '🐄', name: '목장 가게', kind: 'measure', tier: 3, cost: 300, products: ['milk', 'honey'], color: ['#38bdf8', '#e0f2fe', '#bae6fd'] },
   { id: 'jewel', icon: '💎', name: '보석상', kind: 'count', tier: 4, cost: 700, products: ['ring', 'gift'], color: ['#6366f1', '#e0e7ff', '#c7d2fe'] },
   { id: 'deli', icon: '🥩', name: '고급 식품점', kind: 'measure', tier: 4, cost: 700, products: ['beef', 'cheese'], color: ['#ef4444', '#fee2e2', '#fecaca'] },
+  // 새 지도에서만 지을 수 있는 가게 (map)
+  { id: 'iceshop', icon: '🍦', name: '아이스크림 가게', kind: 'count', tier: 2, cost: 160, map: 'beach', products: ['icecream', 'bingsu'], color: ['#22d3ee', '#cffafe', '#a5f3fc'] },
+  { id: 'fishmarket', icon: '🐟', name: '수산시장', kind: 'measure', tier: 3, cost: 350, map: 'beach', products: ['shrimp', 'squid'], color: ['#0ea5e9', '#e0f2fe', '#bae6fd'] },
+  { id: 'cafe', icon: '☕', name: '핫초코 카페', kind: 'measure', tier: 2, cost: 200, map: 'snow', products: ['cocoa', 'yuzu'], color: ['#92400e', '#fde68a', '#fcd34d'] },
+  { id: 'winterwear', icon: '🧤', name: '겨울옷 가게', kind: 'count', tier: 3, cost: 400, map: 'snow', products: ['mitten', 'scarf'], color: ['#e11d48', '#ffe4e6', '#fecdd3'] },
+  { id: 'popcornshop', icon: '🍿', name: '팝콘 가게', kind: 'count', tier: 3, cost: 450, map: 'park', products: ['popcorn', 'hotdog'], color: ['#f59e0b', '#fef3c7', '#fde68a'] },
+  { id: 'souvenir', icon: '🧸', name: '기념품 가게', kind: 'count', tier: 4, cost: 900, map: 'park', products: ['teddy', 'keyring'], color: ['#a855f7', '#f3e8ff', '#e9d5ff'] },
 ]
 export const shopById = (id) => SHOPS.find((s) => s.id === id)
 export const UPGRADE_COST = (shop, lv) => shop.tier * (lv === 1 ? 60 : 150) // Lv1→2, Lv2→3
 export const MAX_LV = 3
 
 // ─── 장식 ───
+// theme: 어울리는 지도(보여 주는 순서용 — 어느 지도에나 놓을 수 있다)
 export const DECOR = [
-  { id: 'tree', icon: '🌳', name: '나무', cost: 15, pop: 0.15 },
-  { id: 'flower', icon: '🌷', name: '꽃밭', cost: 20, pop: 0.15 },
-  { id: 'bench', icon: '🪑', name: '벤치', cost: 30, pop: 0.2 },
-  { id: 'lamp', icon: '🏮', name: '가로등', cost: 40, pop: 0.2 },
-  { id: 'fountain', icon: '⛲', name: '분수', cost: 150, pop: 0.6 },
-  { id: 'statue', icon: '🗿', name: '조각상', cost: 220, pop: 0.7 },
-  { id: 'carousel', icon: '🎠', name: '회전목마', cost: 400, pop: 1.2 },
-  { id: 'ferris', icon: '🎡', name: '대관람차', cost: 800, pop: 2 },
+  { id: 'tree', icon: '🌳', name: '나무', cost: 15, pop: 0.15, theme: 'nature' },
+  { id: 'mushroom', icon: '🍄', name: '버섯', cost: 15, pop: 0.12, theme: 'nature' },
+  { id: 'flower', icon: '🌷', name: '꽃밭', cost: 20, pop: 0.15, theme: 'nature' },
+  { id: 'pine', icon: '🌲', name: '소나무', cost: 20, pop: 0.15, theme: 'nature' },
+  { id: 'sunflower', icon: '🌻', name: '해바라기', cost: 25, pop: 0.18, theme: 'nature' },
+  { id: 'bench', icon: '🪑', name: '벤치', cost: 30, pop: 0.2, theme: 'town' },
+  { id: 'lamp', icon: '🏮', name: '가로등', cost: 40, pop: 0.2, theme: 'town' },
+  { id: 'bike', icon: '🚲', name: '자전거', cost: 40, pop: 0.22, theme: 'town' },
+  { id: 'busstop', icon: '🚏', name: '버스 정류장', cost: 90, pop: 0.35, theme: 'town' },
+  { id: 'fountain', icon: '⛲', name: '분수', cost: 150, pop: 0.6, theme: 'town' },
+  { id: 'statue', icon: '🗿', name: '조각상', cost: 220, pop: 0.7, theme: 'town' },
+  { id: 'tower', icon: '🗼', name: '전망탑', cost: 700, pop: 1.6, theme: 'town' },
+  { id: 'shell', icon: '🐚', name: '조개', cost: 20, pop: 0.15, theme: 'beach' },
+  { id: 'umbrella', icon: '⛱️', name: '파라솔', cost: 35, pop: 0.2, theme: 'beach' },
+  { id: 'palm', icon: '🌴', name: '야자수', cost: 40, pop: 0.22, theme: 'beach' },
+  { id: 'crab', icon: '🦀', name: '꽃게', cost: 50, pop: 0.25, theme: 'beach' },
+  { id: 'yacht', icon: '⛵', name: '요트', cost: 160, pop: 0.6, theme: 'beach' },
+  { id: 'island', icon: '🏝️', name: '작은 섬', cost: 280, pop: 0.8, theme: 'beach' },
+  { id: 'snowman', icon: '⛄', name: '눈사람', cost: 30, pop: 0.2, theme: 'snow' },
+  { id: 'sled', icon: '🛷', name: '썰매', cost: 60, pop: 0.25, theme: 'snow' },
+  { id: 'xmastree', icon: '🎄', name: '반짝 트리', cost: 90, pop: 0.35, theme: 'snow' },
+  { id: 'penguin', icon: '🐧', name: '펭귄 가족', cost: 120, pop: 0.45, theme: 'snow' },
+  { id: 'snowmtn', icon: '🏔️', name: '눈 덮인 산', cost: 400, pop: 1.0, theme: 'snow' },
+  { id: 'balloons', icon: '🎈', name: '풍선 아치', cost: 60, pop: 0.25, theme: 'park' },
+  { id: 'teddybig', icon: '🧸', name: '큰 곰 인형', cost: 150, pop: 0.5, theme: 'park' },
+  { id: 'carousel', icon: '🎠', name: '회전목마', cost: 400, pop: 1.2, theme: 'park' },
+  { id: 'circus', icon: '🎪', name: '서커스 텐트', cost: 650, pop: 1.5, theme: 'park' },
+  { id: 'ferris', icon: '🎡', name: '대관람차', cost: 800, pop: 2, theme: 'park' },
+  { id: 'coaster', icon: '🎢', name: '롤러코스터', cost: 1200, pop: 2.6, theme: 'park' },
+  { id: 'castle', icon: '🏰', name: '동화 속 성', cost: 2000, pop: 3.5, theme: 'park' },
 ]
+export const DECOR_THEMES = [
+  ['nature', '🌳 자연'], ['town', '🏙️ 거리'], ['beach', '🏖️ 바닷가'], ['snow', '❄️ 겨울'], ['park', '🎡 놀이공원'],
+]
+export const BIG_DECOR = new Set(['fountain', 'statue', 'tower', 'yacht', 'island', 'snowmtn', 'carousel', 'circus', 'ferris', 'coaster', 'castle'])
+
+// ─── 장사 아이템 (사 두었다가 장사 중에 쓴다) ───
+export const ITEMS = [
+  { id: 'hourglass', icon: '⏳', name: '모래시계', cost: 60, desc: '장사 시계를 15초 되돌려요' },
+  { id: 'megaphone', icon: '📣', name: '확성기', cost: 30, desc: '손님 3명을 바로 불러요' },
+  { id: 'tipcoupon', icon: '💝', name: '팁 두 배 쿠폰', cost: 40, desc: '1분 동안 팁이 두 배' },
+  { id: 'candybasket', icon: '🍬', name: '사탕 바구니', cost: 35, desc: '줄 선 손님 모두 다시 기분 좋게 (기다림이 처음부터)' },
+]
+export const MAX_ITEM = 5
+export const itemById = (id) => ITEMS.find((x) => x.id === id)
 export const decorById = (id) => DECOR.find((d) => d.id === id)
 
-// ─── 마을 맵 ───
-// R 길 · . 처음부터 쓸 수 있는 땅 · a/b 사야 쓰는 땅
+// ─── 마을 지도 (여러 장) ───
+// R 길 · . 지을 수 있는 땅 · a/b 사야 쓰는 땅(시내) · ~ 바다 · I 얼음 호수 (지을 수 없는 풍경)
+// 칸 이름: 시내는 'r,c', 다른 지도는 '지도:r,c' (예: 'beach:2,3')
 export const MAP = [
   'bbbRbbbb',
   'b..R..bb',
@@ -89,31 +147,58 @@ export const MAP = [
   'aaaRaaaa',
   'aaaRaaaa',
 ]
+export const MAPS = [
+  { id: 'main', icon: '🏙️', name: '시내', cost: 0, desc: '처음 마을', layout: MAP,
+    colors: { land: ['#86d98f', '#7ccf86'], road: ['#d6d3d1', '#cfcac6'], locked: ['#5f9a69', '#578f61'] } },
+  { id: 'beach', icon: '🏖️', name: '바닷가 마을', cost: 600, desc: '파도 소리 들리는 모래사장 마을. 아이스크림 가게와 수산시장을 지을 수 있어요.',
+    layout: ['..R..~~~', '..R...~~', 'RRRRR..~', '..R.R..~', '..R.R...', 'RRRRRR..', '~~..R...', '~~~.R..~'],
+    colors: { land: ['#fde68a', '#fcd97a'], road: ['#e7d3b0', '#dcc7a0'], water: ['#38bdf8', '#2fb0ee'] } },
+  { id: 'snow', icon: '❄️', name: '눈꽃 마을', cost: 1500, desc: '얼음 호수가 있는 하얀 마을. 핫초코 카페와 겨울옷 가게를 지을 수 있어요.',
+    layout: ['...R....', '.IIR....', '.IIR..II', '...R..II', 'RRRRRRRR', '...R....', '..IR....', '...R....'],
+    colors: { land: ['#f1f5f9', '#e6edf5'], road: ['#cbd5e1', '#c3cedb'], water: ['#a5f3fc', '#99e9f4'] } },
+  { id: 'park', icon: '🎡', name: '놀이공원', cost: 3000, desc: '빙글빙글 길이 도는 놀이공원. 팝콘 가게와 기념품 가게를 지을 수 있어요.',
+    layout: ['........', '.RRRRRR.', '.R....R.', 'RR....RR', '.R....R.', '.R....R.', '.RRRRRR.', '....R...'],
+    colors: { land: ['#fbcfe8', '#f9c2e0'], road: ['#ddd6fe', '#d3cbfb'] } },
+]
+export const mapById = (id) => MAPS.find((m) => m.id === id) || MAPS[0]
 export const ROWS = MAP.length
 export const COLS = MAP[0].length
 export const ZONES = { a: { name: '마을 바깥 땅', cost: 150 }, b: { name: '북쪽 언덕', cost: 400 } }
-export const tileAt = (r, c) => (r < 0 || c < 0 || r >= ROWS || c >= COLS ? null : MAP[r][c])
-export const isRoad = (r, c) => tileAt(r, c) === 'R'
-export const key = (r, c) => `${r},${c}`
-export const parseKey = (k) => k.split(',').map(Number)
-export const ENTRANCES = [[3, 0], [3, COLS - 1], [0, 3], [ROWS - 1, 3]]
+export const tileAt = (r, c, m = 'main') => {
+  const L = mapById(m).layout
+  return r < 0 || c < 0 || r >= L.length || c >= L[0].length ? null : L[r][c]
+}
+export const isRoad = (r, c, m = 'main') => tileAt(r, c, m) === 'R'
+export const key = (r, c, m = 'main') => (m === 'main' ? `${r},${c}` : `${m}:${r},${c}`)
+export const mapOf = (k) => (k.includes(':') ? k.split(':')[0] : 'main')
+export const parseKey = (k) => (k.includes(':') ? k.split(':')[1] : k).split(',').map(Number)
+// 마을 입구 = 지도 가장자리의 길
+export function entrancesOf(m = 'main') {
+  const L = mapById(m).layout
+  const out = []
+  for (let r = 0; r < L.length; r++) for (let c = 0; c < L[0].length; c++)
+    if (L[r][c] === 'R' && (r === 0 || c === 0 || r === L.length - 1 || c === L[0].length - 1)) out.push([r, c])
+  return out
+}
+export const ENTRANCES = entrancesOf('main')
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
-export function unlocked(town, r, c) {
-  const t = tileAt(r, c)
+export function unlocked(town, r, c, m = 'main') {
+  const t = tileAt(r, c, m)
+  if (m !== 'main') return t === '.' && (town.maps || []).includes(m)
   if (t === '.') return true
   if (t === 'a' || t === 'b') return town.zones.includes(t)
   return false
 }
 // 길 옆 땅 = 가게를 지을 수 있는 땅
-export const roadSide = (r, c) => DIRS.some(([dr, dc]) => isRoad(r + dr, c + dc))
-export function frontRoad(r, c) {
-  for (const [dr, dc] of DIRS) if (isRoad(r + dr, c + dc)) return [r + dr, c + dc]
+export const roadSide = (r, c, m = 'main') => DIRS.some(([dr, dc]) => isRoad(r + dr, c + dc, m))
+export function frontRoad(r, c, m = 'main') {
+  for (const [dr, dc] of DIRS) if (isRoad(r + dr, c + dc, m)) return [r + dr, c + dc]
   return null
 }
 
 // 길 찾기 (길 칸만 밟는다)
-export function roadPath(from, to) {
+export function roadPath(from, to, m = 'main') {
   const seen = new Map([[key(...from), null]])
   const q = [from]
   while (q.length) {
@@ -121,7 +206,7 @@ export function roadPath(from, to) {
     if (cur[0] === to[0] && cur[1] === to[1]) break
     for (const [dr, dc] of DIRS) {
       const n = [cur[0] + dr, cur[1] + dc]
-      if (!isRoad(...n) || seen.has(key(...n))) continue
+      if (!isRoad(...n, m) || seen.has(key(...n))) continue
       seen.set(key(...n), cur)
       q.push(n)
     }
@@ -166,7 +251,7 @@ export function shopsIn(town) {
     .filter(([, b]) => b.kind === 'shop')
     .map(([k, b]) => {
       const [r, c] = parseKey(k)
-      return { key: k, r, c, shop: shopById(b.id), lv: b.lv || 1 }
+      return { key: k, map: mapOf(k), r, c, shop: shopById(b.id), lv: b.lv || 1 }
     })
 }
 // 오늘 문을 여는 가게 (차시가 개수/무게 중 무엇인지에 맞춰)
@@ -371,7 +456,11 @@ export const QUESTS = [
   { id: 'earn1000', text: '총 매출 1000G', reward: 100, done: (s) => gte(s.totalSales, D(1000)) },
   { id: 'pop4', text: '마을 인기 ★4 만들기', reward: 120, done: (s) => popularityOf(s) >= 4 },
   { id: 'tier4', text: '4등급 가게 짓기', reward: 150, done: (s) => shopsIn(s).some((x) => x.shop.tier >= 4) },
-  { id: 'all', text: '가게 8곳 모두 짓기', reward: 300, done: (s) => countShops(s) >= SHOPS.length },
+  { id: 'all', text: '시내 가게 8곳 모두 짓기', reward: 300, done: (s) => shopsIn(s).filter((x) => !x.shop.map).length >= 8 },
+  { id: 'all14', text: '가게 14곳 모두 짓기', reward: 800, done: (s) => countShops(s) >= SHOPS.length },
+  { id: 'map1', text: '새 지도 열기', reward: 100, done: (s) => (s.maps || []).length >= 1 },
+  { id: 'map3', text: '지도 세 곳 모두 열기', reward: 500, done: (s) => (s.maps || []).length >= 3 },
+  { id: 'item1', text: '장사 아이템 써 보기', reward: 20, done: (s) => (s.itemsUsed || 0) >= 1 },
   { id: 'star3', text: '아무 차시나 ★★★ 기록 내기', reward: 80, done: (s) => Object.values(s.records || {}).some((r) => r.stars >= 3) },
   { id: 'star3x4', text: '네 차시에서 ★★★ 기록 내기', reward: 200, done: (s) => Object.values(s.records || {}).filter((r) => r.stars >= 3).length >= 4 },
 ]
@@ -393,6 +482,8 @@ export const emptyTown = () => ({
   zones: [], ads: 0, met: {},
   days: 0, served: 0, lost: 0, bestStreak: 0, bestProfit: D(0), totalSales: D(0), claimed: [],
   records: {}, // 차시별 최고 기록 { [type]: { secs, stars } }
+  maps: [], // 산 지도 ('beach', 'snow', 'park')
+  items: {}, // 장사 아이템 { [id]: 개수 }
 })
 export function loadTown(who) {
   try {

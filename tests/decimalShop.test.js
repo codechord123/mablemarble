@@ -137,3 +137,57 @@ describe('같은 식 반복 막기', () => {
     }
   })
 })
+
+describe('새 지도 · 상점', () => {
+  it('지도마다 입구가 있고, 모든 길이 입구와 이어져 있다', async () => {
+    const { MAPS, entrancesOf } = await import('../src/utils/decimalShop.js')
+    for (const M of MAPS) {
+      const E = entrancesOf(M.id)
+      expect(E.length, M.id).toBeGreaterThan(0)
+      M.layout.forEach((row, r) => [...row].forEach((t, c) => {
+        if (t !== 'R') return
+        const p = roadPath(E[0], [r, c], M.id)
+        expect(p.at(-1), `${M.id} ${r},${c}`).toEqual([r, c])
+      }))
+    }
+  })
+  it('새 지도는 사야 짓고, 길 옆 땅이 넉넉하다', async () => {
+    const { MAPS } = await import('../src/utils/decimalShop.js')
+    const t = emptyTown()
+    for (const M of MAPS.slice(1)) {
+      let side = 0
+      M.layout.forEach((row, r) => [...row].forEach((tile, c) => {
+        if (tile !== '.') return
+        expect(unlocked(t, r, c, M.id)).toBe(false)
+        expect(unlocked({ ...t, maps: [M.id] }, r, c, M.id)).toBe(true)
+        if (roadSide(r, c, M.id)) side += 1
+      }))
+      expect(side, M.id).toBeGreaterThanOrEqual(8)
+      expect(SHOPS.filter((s) => s.map === M.id)).toHaveLength(2)
+    }
+  })
+  it('새 지도 가게도 손님·식이 나오고, 칸 이름에 지도가 붙는다', async () => {
+    const { key, mapOf, parseKey } = await import('../src/utils/decimalShop.js')
+    expect(key(2, 3, 'beach')).toBe('beach:2,3')
+    expect(mapOf('beach:2,3')).toBe('beach')
+    expect(parseKey('beach:2,3')).toEqual([2, 3])
+    expect(mapOf('2,3')).toBe('main')
+    const town = { ...emptyTown(), maps: ['beach'], built: { 'beach:1,1': { kind: 'shop', id: 'iceshop', lv: 1 } } }
+    expect(shopsIn(town)[0]).toMatchObject({ map: 'beach', r: 1, c: 1 })
+    for (const s of SHOPS.filter((x) => x.map)) {
+      for (const l of LESSONS.filter((x) => x.kind === 'any' || x.kind === s.kind)) {
+        const c = makeCustomer(l, s, {})
+        expect(gte(c.answer, D(0))).toBe(true)
+        s.products.forEach((id) => expect(productById(id), id).toBeTruthy())
+      }
+    }
+  })
+  it('장식 30종 · 아이템 4종', async () => {
+    const { DECOR, DECOR_THEMES, ITEMS } = await import('../src/utils/decimalShop.js')
+    expect(DECOR.length).toBeGreaterThanOrEqual(30)
+    const themes = new Set(DECOR_THEMES.map(([id]) => id))
+    DECOR.forEach((d) => expect(themes.has(d.theme), d.id).toBe(true))
+    expect(new Set(DECOR.map((d) => d.id)).size).toBe(DECOR.length)
+    expect(ITEMS.map((x) => x.id)).toEqual(['hourglass', 'megaphone', 'tipcoupon', 'candybasket'])
+  })
+})

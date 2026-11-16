@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { grade, show, D } from '../../utils/decimalGame.js'
 import {
-  SHOPS, DECOR, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, UPGRADE_COST, ENTRANCES, COST_RATE,
+  SHOPS, DECOR, DECOR_THEMES, ITEMS, MAX_ITEM, MAPS, mapById, mapOf, entrancesOf, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, UPGRADE_COST, COST_RATE,
   shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
   shopsIn, openShops, makeFreshCustomer, orderKey, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
@@ -101,20 +101,25 @@ function Keypad({ onKey, disabled }) {
 }
 
 // 땅을 눌렀을 때 열 창 (마을·장사 중 둘 다)
-function tileSheet(town, r, c) {
-  const t = tileAt(r, c)
-  if (t === 'R') return null
-  const b = town.built[tkey(r, c)]
-  if (b) return { type: b.kind, r, c }
-  if (!unlocked(town, r, c)) return { type: 'zone', zone: t }
-  return { type: 'lot', r, c }
+function tileSheet(town, r, c, m = 'main') {
+  const t = tileAt(r, c, m)
+  if (!t || t === 'R' || t === '~' || t === 'I') return null
+  if (m !== 'main' && !(town.maps || []).includes(m)) return { type: 'map', map: m }
+  const b = town.built[tkey(r, c, m)]
+  if (b) return { type: b.kind, r, c, m }
+  if (!unlocked(town, r, c, m)) return { type: 'zone', zone: t }
+  return { type: 'lot', r, c, m }
 }
 
 // 짓기·키우기·땅 사기·광고 창 — 마을 화면과 장사 중 '짓기'에서 같이 쓴다
 function BuildSheets({ town, sheet, setSheet, onUpdate }) {
   const can = (c) => gte(town.money, D(c))
   const builtIds = new Set(Object.values(town.built).map((b) => b.id))
-  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null
+  const sm = sheet?.m || 'main'
+  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c, sm) : null
+  const [decorTab, setDecorTab] = useState(null)
+  const theme = decorTab || (sm === 'main' ? 'nature' : sm)
+  useEffect(() => setDecorTab(null), [sk])
   const here = sk ? town.built[sk] : null
   function pay(cost, patch, big) {
     if (!can(cost)) return
@@ -127,22 +132,22 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
     <AnimatePresence>
         {sheet?.type === 'lot' && (
           <Sheet title="🏗️ 여기에 무엇을 지을까요?" onClose={() => setSheet(null)} wide>
-            {roadSide(sheet.r, sheet.c) ? (
+            {roadSide(sheet.r, sheet.c, sm) ? (
               <>
-                <div className="mb-1 text-xs font-black text-slate-500">가게 (길 옆이라 지을 수 있어요)</div>
-                {SHOPS.map((s) => {
+                <div className="mb-1 text-xs font-black text-slate-500">가게 (길 옆이라 지을 수 있어요{sm !== 'main' ? ` · ${mapById(sm).icon} 이 지도에만 있는 가게가 위에` : ''})</div>
+                {SHOPS.filter((s) => !s.map || s.map === sm).sort((a, b) => (b.map ? 1 : 0) - (a.map ? 1 : 0)).map((s) => {
                   const locked = s.tier > 1 && !shopsIn(town).some((x) => x.shop.tier >= s.tier - 1)
                   return (
                     <Buy
                       key={s.id}
                       icon={s.icon}
-                      title={`${s.name} (${s.tier}등급)`}
+                      title={`${s.map ? '✨ ' : ''}${s.name} (${s.tier}등급)`}
                       desc={`${s.products.map((id) => productById(id).icon + productById(id).name).join(' · ')} — ${s.kind === 'count' ? '개수로 팔아요' : '달아서 팔아요'}${locked ? ` · ${s.tier - 1}등급 가게부터` : ''}`}
                       cost={s.cost}
                       can={can(s.cost)}
                       done={builtIds.has(s.id)}
                       locked={locked}
-                      onClick={() => pay(s.cost, (t) => ({ built: { ...t.built, [tkey(sheet.r, sheet.c)]: { kind: 'shop', id: s.id, lv: 1 } } }), s.tier >= 3)}
+                      onClick={() => pay(s.cost, (t) => ({ built: { ...t.built, [sk]: { kind: 'shop', id: s.id, lv: 1 } } }), s.tier >= 3)}
                     />
                   )
                 })}
@@ -151,18 +156,26 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
               <p className="mb-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">길에서 떨어진 땅이라 가게는 못 지어요. 장식을 놓아 마을 인기를 올려 보세요!</p>
             )}
             <div className="mb-1 mt-2 text-xs font-black text-slate-500">장식 (마을 인기 ★ ↑ → 손님이 더 많이·오래)</div>
+            <div className="mb-1.5 flex gap-1 overflow-x-auto pb-0.5">
+              {DECOR_THEMES.map(([id, label]) => (
+                <button key={id} type="button" onClick={() => setDecorTab(id)}
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-black ${theme === id ? 'bg-amber-400 text-amber-950' : 'bg-slate-100 text-slate-500'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
             <div className="grid grid-cols-4 gap-1.5">
-              {DECOR.map((d) => (
+              {DECOR.filter((d) => d.theme === theme).map((d) => (
                 <button
                   key={d.id}
                   type="button"
                   disabled={!can(d.cost)}
-                  onClick={() => pay(d.cost, (t) => ({ built: { ...t.built, [tkey(sheet.r, sheet.c)]: { kind: 'decor', id: d.id } } }), d.cost >= 300)}
+                  onClick={() => pay(d.cost, (t) => ({ built: { ...t.built, [sk]: { kind: 'decor', id: d.id } } }), d.cost >= 300)}
                   className="rounded-2xl bg-slate-50 p-1.5 text-center ring-1 ring-slate-200 enabled:hover:bg-amber-50 disabled:opacity-50"
                 >
                   <div className="text-3xl">{d.icon}</div>
                   <div className="text-[11px] font-black text-slate-700">{d.name}</div>
-                  <div className="text-[11px] font-black text-amber-600">{d.cost}G</div>
+                  <div className="text-[11px] font-black text-amber-600">{d.cost}G · +{d.pop}★</div>
                 </button>
               ))}
             </div>
@@ -213,8 +226,41 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
           </Sheet>
         )}
 
-        {sheet?.type === 'ads' && (
-          <Sheet title="📣 광고" onClose={() => setSheet(null)}>
+        {sheet?.type === 'map' && (() => {
+          const M = mapById(sheet.map)
+          return (
+            <Sheet title={`${M.icon} ${M.name} 열기`} onClose={() => setSheet(null)}>
+              <p className="text-sm font-bold text-slate-600">{M.desc}</p>
+              <p className="mt-1 text-xs font-bold text-slate-500">이 지도에만 있는 가게: {SHOPS.filter((s) => s.map === M.id).map((s) => `${s.icon} ${s.name}`).join(', ')}</p>
+              <p className="mt-1 text-xs font-bold text-slate-500">장사할 때는 모든 지도의 가게에 손님이 와요. 지도 탭으로 오가며 맞아 주세요.</p>
+              <GameButton color={can(M.cost) ? 'green' : 'gray'} disabled={!can(M.cost)} className="mt-3 w-full py-3"
+                onClick={() => pay(M.cost, (t) => ({ maps: [...(t.maps || []), M.id] }), true)}>
+                🗺️ {M.cost}G에 열기
+              </GameButton>
+            </Sheet>
+          )
+        })()}
+
+        {sheet?.type === 'store' && (
+          <Sheet title="🛍️ 상점" onClose={() => setSheet(null)} wide>
+            <div className="mb-1 text-xs font-black text-slate-500">장사 아이템 (장사 중에 눌러 써요 · 종류마다 {MAX_ITEM}개까지)</div>
+            {ITEMS.map((it) => {
+              const have = (town.items || {})[it.id] || 0
+              return (
+                <Buy key={it.id} icon={it.icon} title={`${it.name} · 가진 것 ${have}개`} desc={it.desc} cost={it.cost} can={can(it.cost)} locked={have >= MAX_ITEM}
+                  onClick={() => {
+                    if (!can(it.cost)) return
+                    sfx.coin()
+                    onUpdate((t) => ({ items: { ...(t.items || {}), [it.id]: Math.min(MAX_ITEM, ((t.items || {})[it.id] || 0) + 1) }, money: subD(t.money, D(it.cost)) }))
+                  }} />
+              )
+            })}
+            <div className="mb-1 mt-3 text-xs font-black text-slate-500">새 지도</div>
+            {MAPS.slice(1).map((M) => (
+              <Buy key={M.id} icon={M.icon} title={M.name} desc={M.desc} cost={M.cost} can={can(M.cost)} done={(town.maps || []).includes(M.id)}
+                onClick={() => pay(M.cost, (t) => ({ maps: [...(t.maps || []), M.id] }), true)} />
+            ))}
+            <div className="mb-1 mt-3 text-xs font-black text-slate-500">광고 (한 번 사면 계속)</div>
             {ADS.slice(1).map((ad, i) => (
               <Buy key={ad.name} icon={ad.icon} title={ad.name} desc={ad.desc} cost={ad.cost} can={can(ad.cost)} done={town.ads >= i + 1} locked={town.ads < i}
                 onClick={() => pay(ad.cost, () => ({ ads: i + 1 }))} />
@@ -222,6 +268,27 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
           </Sheet>
         )}
     </AnimatePresence>
+  )
+}
+
+// 지도 탭 — 시내 + 새 지도들 (안 연 지도는 자물쇠, 장사 중엔 기다리는 손님 수)
+function MapTabs({ town, mapView, setMapView, waiting, hideLocked }) {
+  const maps = MAPS.filter((M) => !hideLocked || M.id === 'main' || (town.maps || []).includes(M.id))
+  if (maps.length < 2) return null
+  return (
+    <div className="mt-2 flex gap-1 overflow-x-auto pb-0.5">
+      {maps.map((M) => {
+        const open = M.id === 'main' || (town.maps || []).includes(M.id)
+        const w = waiting?.[M.id] || 0
+        return (
+          <button key={M.id} type="button" onClick={() => setMapView(M.id)}
+            className={`relative shrink-0 rounded-full px-3 py-1.5 text-xs font-black shadow-sm ${mapView === M.id ? 'bg-sky-700 text-white' : open ? 'bg-white/90 text-sky-900' : 'bg-white/50 text-slate-500'}`}>
+            {open ? M.icon : '🔒'} {M.name}
+            {w > 0 && mapView !== M.id && <span className="absolute -right-1 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10px] text-white shop-bop">{w}</span>}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -233,11 +300,14 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
   const ready = QUESTS.filter((q) => q.done(town) && !town.claimed.includes(q.id)).length
   const builtIds = new Set(Object.values(town.built).map((b) => b.id))
 
+  const [mapView, setMapView] = useState('main')
+  const mapOpen = mapView === 'main' || (town.maps || []).includes(mapView)
   function onTile(r, c) {
-    const sh = tileSheet(town, r, c)
+    const sh = tileSheet(town, r, c, mapView)
     if (sh) setSheet(sh)
   }
-  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null
+  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c, sheet.m || 'main') : null
+  const itemList = ITEMS.filter((it) => (town.items || {})[it.id])
 
   return (
     <div className="min-h-[100dvh] town-bg safe-padded px-3 pt-3 pb-6">
@@ -294,9 +364,32 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
           )
         })()}
 
+        <MapTabs town={town} mapView={mapView} setMapView={setMapView} />
         <div className="relative mt-1">
-          <TownMap town={town} onTile={onTile} selectedKey={sk} />
+          <TownMap town={town} mapId={mapView} onTile={onTile} selectedKey={sk} />
+          {!mapOpen && (() => {
+            const M = mapById(mapView)
+            return (
+              <div className="absolute inset-0 grid place-items-center">
+                <div className="max-w-xs rounded-2xl bg-white/95 p-4 text-center shadow-xl ring-2 ring-amber-300">
+                  <div className="text-4xl">{M.icon}</div>
+                  <div className="mt-1 font-black text-slate-800">{M.name}</div>
+                  <div className="mt-1 text-xs font-bold text-slate-500">{M.desc}</div>
+                  <GameButton color={can(M.cost) ? 'green' : 'gray'} onClick={() => setSheet({ type: 'map', map: M.id })} className="mt-2 w-full py-2.5">
+                    🔒 {M.cost}G에 열기
+                  </GameButton>
+                  {!can(M.cost) && <div className="mt-1 text-[11px] font-bold text-slate-400">장사로 {M.cost}G를 모아 보세요!</div>}
+                </div>
+              </div>
+            )
+          })()}
         </div>
+        {itemList.length > 0 && (
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5 text-xs font-black text-sky-900">
+            <span className="text-sky-900/60">가진 아이템</span>
+            {itemList.map((it) => <span key={it.id} className="rounded-full bg-white/80 px-2 py-0.5">{it.icon}×{town.items[it.id]}</span>)}
+          </div>
+        )}
 
         <div className="mt-1 grid grid-cols-4 gap-2">
           <GameButton color={locked ? 'gray' : 'green'} onClick={() => (locked ? onPair() : setSheet({ type: 'lessons' }))} className="col-span-4 py-3.5 text-xl sm:col-span-1 sm:text-base">
@@ -307,7 +400,7 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
             {ready > 0 && <span className="absolute -right-1 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-rose-500 px-1 text-xs shop-bop">{ready}</span>}
           </GameButton>
           <GameButton color="blue" onClick={() => onModal('book')} className="py-2.5 text-sm">📖 도감 {Object.keys(town.met).length}</GameButton>
-          <GameButton color="violet" onClick={() => setSheet({ type: 'ads' })} className="py-2.5 text-sm">📣 광고</GameButton>
+          <GameButton color="violet" onClick={() => setSheet({ type: 'store' })} className="py-2.5 text-sm">🛍️ 상점</GameButton>
         </div>
         {!locked && (
           <button type="button" onClick={onPair} className="mx-auto mt-2 block text-xs font-black text-teal-700 underline">🤝 짝꿍 계산 더 연습하기</button>
@@ -356,7 +449,7 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
                 )
               })}
             </div>
-            <p className="mt-2 text-xs font-bold text-slate-500">개수로 파는 가게(🍭🍩🥐💎)는 2·3차시, 달아서 파는 가게(🍉🧵🐄🥩)는 4~7차시에 문을 열어요.</p>
+            <p className="mt-2 text-xs font-bold text-slate-500">개수로 파는 가게({SHOPS.filter((x) => x.kind === 'count').map((x) => x.icon).join('')})는 2·3차시, 달아서 파는 가게({SHOPS.filter((x) => x.kind === 'measure').map((x) => x.icon).join('')})는 4~7차시에 문을 열어요. 모든 지도의 가게에 손님이 와요.</p>
           </Sheet>
         )}
 
@@ -399,6 +492,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   const [, setFrame] = useState(0)
   const [count, setCount] = useState(3) // 3·2·1 영업 시작!
   const [sel, setSel] = useState(open[0]?.key || null)
+  const [mapView, setMapView] = useState(open[0]?.map || 'main')
   const [paused, setPaused] = useState(false)
   const [input, setInput] = useState('')
   const [tries, setTries] = useState(0)
@@ -421,17 +515,22 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     if (import.meta.env.DEV) window.__shopOrder = active
   }, [active])
 
-  function walkerTo(cust, shopKey, from) {
+  // 손님은 가게가 있는 지도의 입구에서 들어와 길을 따라 걷는다
+  const randomEntrance = (m) => {
+    const E = entrancesOf(m)
+    return E[Math.floor(Math.random() * E.length)]
+  }
+  function walkerTo(cust, shopKey) {
+    const m = mapOf(shopKey)
     const [r, c] = parseKey(shopKey)
-    const dest = frontRoad(r, c)
-    const start = from || ENTRANCES[Math.floor(Math.random() * ENTRANCES.length)]
-    return { id: cust.id, cust, shopKey, path: roadPath(start, dest), i: 0, next: Date.now() + STEP_MS, phase: 'in' }
+    const dest = frontRoad(r, c, m)
+    return { id: cust.id, cust, shopKey, map: m, path: roadPath(randomEntrance(m), dest, m), i: 0, next: Date.now() + STEP_MS, phase: 'in' }
   }
   function walkerAway(cust, shopKey, face) {
+    const m = mapOf(shopKey)
     const [r, c] = parseKey(shopKey)
-    const start = frontRoad(r, c)
-    const exit = ENTRANCES[Math.floor(Math.random() * ENTRANCES.length)]
-    g.current.walkers.push({ id: `${cust.id}-out`, cust, shopKey, path: roadPath(start, exit), i: 0, next: Date.now() + STEP_MS, phase: 'out', face })
+    const start = frontRoad(r, c, m)
+    g.current.walkers.push({ id: `${cust.id}-out`, cust, shopKey, map: m, path: roadPath(start, randomEntrance(m), m), i: 0, next: Date.now() + STEP_MS, phase: 'out', face })
   }
 
   // 3·2·1 — 끝나면 시계 시작 (이어 하기면 그때까지 쓴 시간부터)
@@ -472,7 +571,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           s.walkers.push(walkerTo(cust, target.key))
           s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
           const rush = now < s.rushUntil ? 0.5 : 1
-          s.nextSpawn = now + (inFlight < 1 ? 1200 : rules.gap * 1000 * rush * (0.7 + Math.random() * 0.6))
+          if (s.burst > 0) { // 📣 확성기 — 손님 셋이 줄줄이
+            s.burst -= 1
+            s.nextSpawn = now + 450
+          } else s.nextSpawn = now + (inFlight < 1 ? 1200 : rules.gap * 1000 * rush * (0.7 + Math.random() * 0.6))
         }
       }
       // 걷기
@@ -521,7 +623,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       if ((!cur || !cur.length) && !inputRef.current) {
         let best = null
         for (const [k, q] of Object.entries(s.queues)) if (q.length && (!best || q[0].arrivedAt < best[1])) best = [k, q[0].arrivedAt]
-        if (best && best[0] !== selRef.current) setSel(best[0])
+        if (best && best[0] !== selRef.current) {
+          setSel(best[0])
+          setMapView(mapOf(best[0])) // 다른 지도 가게면 그 지도로
+        }
       }
       // 하루 끝 — 손님 30명을 받으면
       if (s.stats.served >= rules.goal && stateRef.current === 'ask') {
@@ -562,6 +667,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     s.nextSpawn += d
     s.startAt += d
     s.rushUntil = s.rushUntil ? s.rushUntil + d : 0
+    s.tipBoostUntil = s.tipBoostUntil ? s.tipBoostUntil + d : 0
     s.walkers.forEach((w) => { w.next += d })
     Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt += d }))
     servingSince.current += d
@@ -589,6 +695,32 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     setInput('')
     setTries(0)
     setHelper(false)
+  }
+
+  // 🛍️ 장사 아이템 쓰기
+  function applyItem(id) {
+    const s = g.current
+    const have = (townRef.current.items || {})[id] || 0
+    if (!have || !s.startAt || count > 0 || paused || state === 'done') return
+    const now = Date.now()
+    if (id === 'hourglass') {
+      s.startAt = Math.min(now, s.startAt + 15000)
+      setToast('⏳ 모래시계! 시계가 15초 뒤로 돌아갔어요')
+    } else if (id === 'megaphone') {
+      s.burst = 2
+      s.nextSpawn = now
+      setToast('📣 "소수 가게로 오세요~!" 손님 3명이 와요')
+    } else if (id === 'tipcoupon') {
+      s.tipBoostUntil = Math.max(now, s.tipBoostUntil || 0) + 60000
+      setToast('💝 1분 동안 팁이 두 배!')
+    } else if (id === 'candybasket') {
+      Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt = now }))
+      servingSince.current = now
+      setToast('🍬 사탕을 나눠 줬어요! 줄 선 손님 모두 기분 좋게 다시 기다려요')
+    }
+    sfx.coin()
+    onUpdate((t) => ({ items: { ...(t.items || {}), [id]: Math.max(0, ((t.items || {})[id] || 0) - 1) }, itemsUsed: (t.itemsUsed || 0) + 1 }), false)
+    setFrame((f) => f + 1)
   }
 
   function key(k) {
@@ -637,7 +769,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       const st = firstTry ? streak + 1 : 0
       const lv = town.built[sel]?.lv || 1
       const rush = Date.now() < s.rushUntil
-      const tip = (helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) * (rush ? 2 : 1)
+      const boost = Date.now() < (s.tipBoostUntil || 0)
+      const tip = (helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) * (rush ? 2 : 1) * (boost ? 2 : 1)
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.tips = addD(s.stats.tips, D(tip))
@@ -696,6 +829,12 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   const totalSecs = started ? ((paused ? pausedAt.current : now) - s.startAt) / 1000 + s.penalty : resume?.elapsedMs ? resume.elapsedMs / 1000 + s.penalty : 0
   const liveStars = starsFor(totalSecs, rules.stars)
   const rushing = started && now < s.rushUntil
+  const boosting = started && now < (s.tipBoostUntil || 0)
+  const inFlightNow = s.walkers.filter((w) => w.phase === 'in').length + waitingTotal
+  // 지도마다 기다리는 손님 수 (탭에 빨간 숫자)
+  const waitingByMap = {}
+  for (const [k, q] of Object.entries(queues)) if (q.length) waitingByMap[mapOf(k)] = (waitingByMap[mapOf(k)] || 0) + q.length
+  const ownedItems = ITEMS.filter((it) => (town.items || {})[it.id])
 
   // 가게 머리 위 — 줄 선 손님과 기다림 고리
   const overlay = (k, cx, cy) => {
@@ -726,7 +865,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   }
   const walkers = (
     <g pointerEvents="none">
-      {s.walkers.map((w) => {
+      {s.walkers.filter((w) => (w.map || 'main') === mapView).map((w) => {
         const [r, c] = w.path[Math.min(w.i, w.path.length - 1)]
         const [x, y] = center(r, c)
         const flip = w.i > 0 && w.path[w.i - 1] && (w.path[w.i][1] - w.path[w.i - 1][1] < 0 || w.path[w.i][0] - w.path[w.i - 1][0] > 0)
@@ -773,21 +912,37 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             <SoundMini />
           </div>
           <div className="mt-1 flex items-center justify-end gap-2">
+            {ownedItems.length > 0 && (
+              <div className="mr-auto flex gap-1">
+                {ownedItems.map((it) => (
+                  <button key={it.id} type="button" title={`${it.name} — ${it.desc}`} aria-label={`${it.name} 쓰기`}
+                    disabled={!started || paused || state === 'done' || (it.id === 'megaphone' && s.stats.served + inFlightNow >= rules.goal) || (it.id === 'candybasket' && !waitingTotal)}
+                    onClick={() => applyItem(it.id)}
+                    className="relative h-8 w-9 rounded-xl bg-white/90 text-lg shadow ring-1 ring-amber-300 active:scale-95 disabled:opacity-40">
+                    {it.icon}
+                    <span className="absolute -right-1.5 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-amber-600 px-1 text-[11px] font-black leading-none text-white ring-2 ring-white">{town.items[it.id]}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {boosting && <span className="rounded-full bg-pink-500 px-2 py-0.5 text-xs font-black text-white">💝 팁×2 {Math.ceil((s.tipBoostUntil - now) / 1000)}초</span>}
             {rushing && <span className="rounded-full bg-rose-600 px-2 py-0.5 text-xs font-black text-white town-rush">🔥 러시 타임 {Math.ceil((s.rushUntil - now) / 1000)}초</span>}
             {s.penalty > 0 && <span key={penaltyPop} className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-black text-rose-700 town-shake">벌칙 +{s.penalty}초</span>}
             <Money value={live} refEl={moneyRef} />
           </div>
           {/* 지도 */}
+          <MapTabs town={town} mapView={mapView} setMapView={setMapView} waiting={waitingByMap} hideLocked={!building} />
           <div className="relative mt-1">
             <TownMap
               town={town}
+              mapId={mapView}
               onTile={(r, c) => {
                 if (building) {
-                  const sh = tileSheet(town, r, c)
+                  const sh = tileSheet(town, r, c, mapView)
                   if (sh) setSheet(sh)
-                } else if (town.built[tkey(r, c)]?.kind === 'shop') pick(tkey(r, c))
+                } else if (town.built[tkey(r, c, mapView)]?.kind === 'shop') pick(tkey(r, c, mapView))
               }}
-              selectedKey={building ? (sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null) : sel}
+              selectedKey={building ? (sheet && sheet.r != null ? tkey(sheet.r, sheet.c, sheet.m || 'main') : null) : sel}
               closedKeys={closedKeys}
               shopRefs={shopRefs}
               overlay={building ? null : overlay}
