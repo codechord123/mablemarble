@@ -36,8 +36,41 @@ function StudentDetail({ s }) {
       )}
     </li>
   )
+  const t = s.town
+  const clockOf = (x) => `${Math.floor(x / 60)}:${String(Math.floor(x % 60)).padStart(2, '0')}`
   return (
     <div className="space-y-3 border-t border-amber-200 px-3 pb-3 pt-2">
+      {t && (
+        <div className="rounded-xl bg-sky-50 p-2.5 ring-1 ring-sky-100">
+          <div className="text-xs font-black text-sky-800">🏘️ 소수 마을</div>
+          <div className="mt-1 flex flex-wrap gap-1.5 text-[11px] font-black">
+            <span className={`rounded-full px-2 py-0.5 ${t.pairDone >= 50 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>🤝 짝꿍 {Math.min(t.pairDone, 50)}/50</span>
+            <span className="rounded-full bg-white px-2 py-0.5 text-slate-600">장사 {t.days}일</span>
+            <span className="rounded-full bg-white px-2 py-0.5 text-emerald-700">⭕ 처음에 맞힘 {t.shop.first}</span>
+            <span className="rounded-full bg-white px-2 py-0.5 text-amber-700">💡 힌트 후 맞힘 {t.shop.retry}</span>
+            <span className="rounded-full bg-white px-2 py-0.5 text-rose-600">😢 손님이 감 {t.shop.gone}</span>
+            {t.inProgress && <span className="rounded-full bg-white px-2 py-0.5 text-slate-600">하던 장사 {t.inProgress.lesson} {t.inProgress.served}/30</span>}
+          </div>
+          {t.records.length > 0 && (
+            <div className="mt-1 text-[11px] font-bold text-slate-500">
+              🏆 {t.records.map((r) => `${r.lesson} ${clockOf(r.secs)} ${'★'.repeat(r.stars)}`).join(' · ')}
+            </div>
+          )}
+          {t.hard.length > 0 && (
+            <div className="mt-1.5">
+              <div className="text-[11px] font-black text-slate-500">힌트가 필요했던 문제 (최근)</div>
+              <div className="mt-0.5 flex flex-wrap gap-1">
+                {t.hard.map((h, i) => (
+                  <span key={i} className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold tabular-nums ${h.r === 0 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}`}>
+                    {h.lesson} {h.q}{h.r === 0 ? ' 😢' : ''}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="mt-1 text-[10px] font-bold text-slate-400">문제별 기록은 2026-11-16 이후부터 남아요 · 학생이 로그인해서 할 때만 보여요</p>
+        </div>
+      )}
       <div>
         <div className="text-xs font-black text-rose-700">❌ 남은 오답 {s.wrongList.length}개 <span className="font-bold text-rose-400">(많이 틀린 것부터 · 다시 풀어 맞히면 없어져요)</span></div>
         {s.wrongList.length === 0 ? (

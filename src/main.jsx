@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import App from './App.jsx'
 import MuteToggle from './components/ui/MuteToggle.jsx'
+import UpdateNotice from './components/ui/UpdateNotice.jsx'
 import { initMusic } from './utils/bgm.js'
 import './index.css'
 
@@ -14,5 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
     {/* 음악·효과음 켜고 끄기 — 메뉴·설정·게임판·결과 어느 화면에서나 */}
     <MuteToggle />
+    {/* 새 버전이 배포되면 '새로고침' 알림 */}
+    <UpdateNotice />
   </React.StrictMode>,
 )

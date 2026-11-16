@@ -33,7 +33,7 @@ function Keypad({ onKey, disabled }) {
   )
 }
 
-export default function PairDrill({ done: start = 0, used: startUsed = [], onProgress, onExit, onComplete }) {
+export default function PairDrill({ done: start = 0, used: startUsed = [], onProgress, onExit, onComplete, onLog }) {
   const [done, setDone] = useState(start)
   const [used, setUsed] = useState(() => new Set(startUsed))
   const [q, setQ] = useState(() => makePairProblem(start, { used: new Set(startUsed) }))
@@ -78,6 +78,7 @@ export default function PairDrill({ done: start = 0, used: startUsed = [], onPro
       setUsed(nUsed)
       setState('right')
       sfx.correct()
+      onLog?.({ l: 'pair', q: q.text, r: tries === 0 ? 1 : 2 })
       if (s && s % 5 === 0) cheer(Math.min(6, s / 5 + 1))
       onProgress?.({ done: nDone, used: [...nUsed] })
       if (done < PAIR_GOAL && nDone >= PAIR_GOAL) { // 50번째를 막 맞혔을 때만 (더 연습할 땐 계속)

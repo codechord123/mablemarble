@@ -44,6 +44,24 @@ export function unitsOf(rows) {
     .map(([u]) => u)
 }
 
+// 소수 마을(타이쿤) — 짝꿍 계산 진행, 장사 기록, 문제별 기록(맞힘·힌트 후 맞힘·손님이 감)
+const LESSON_NAME = { pair: '짝꿍', dn1: '2차시', dn2: '3차시', nd1: '4차시', nd2: '5차시', dd1: '6차시', dd2: '7차시', shift: '8차시', mix: '단원 정리' }
+export function townSummary(t) {
+  if (!t) return null
+  const log = t.log || []
+  const count = (r, l) => log.filter((e) => e.r === r && (!l || (l === 'pair' ? e.l === 'pair' : e.l !== 'pair'))).length
+  return {
+    pairDone: t.pair?.done || 0,
+    days: t.days || 0,
+    records: Object.entries(t.records || {}).map(([l, v]) => ({ lesson: LESSON_NAME[l] || l, secs: v.secs, stars: v.stars })),
+    inProgress: t.dayInProgress ? { lesson: LESSON_NAME[t.dayInProgress.type] || t.dayInProgress.type, served: t.dayInProgress.stats?.served || 0 } : null,
+    shop: { first: count(1, 'shop'), retry: count(2, 'shop'), gone: count(0, 'shop') },
+    pair: { first: count(1, 'pair'), retry: count(2, 'pair') },
+    // 힌트를 봐야 했거나 세 번 틀린 문제 (최근 것부터)
+    hard: log.filter((e) => e.r !== 1).slice(-12).reverse().map((e) => ({ lesson: LESSON_NAME[e.l] || e.l, q: e.q, r: e.r, t: e.t })),
+  }
+}
+
 export function summarize(rows, unit = null) {
   const pick = (r) => {
     const st = r.stats || {}
@@ -72,6 +90,7 @@ export function summarize(rows, unit = null) {
         doneList: dones(r)
           .map(({ key, d, q, unit: u }) => ({ key, q: latestQuestion(q), unit: u, count: d.count || 1, at: d.at || 0 }))
           .sort((a, b) => b.at - a.at),
+        town: townSummary(r.town),
         drillLevel: r.drill?.xp ? levelFromXp(r.drill.xp).level : null,
         drillSolved: r.drill?.solved || 0,
         updatedAt: r.updatedAt || 0,

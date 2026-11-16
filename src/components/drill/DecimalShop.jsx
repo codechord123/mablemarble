@@ -373,7 +373,7 @@ function progressOf(lesson, s, elapsedMs) {
   return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, paidLive: true, savedAt: Date.now() }
 }
 
-function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, onUpdate }) {
+function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, onUpdate, onLog }) {
   const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
   // 장사 중에도 가게를 짓고 키울 수 있어서, 문 연 가게는 그때그때 마을에서 다시 본다
   const open = openShops(lesson, town)
@@ -641,6 +641,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.tips = addD(s.stats.tips, D(tip))
+      onLog?.({ l: lesson.type, q: `${active.price} × ${show(active.b)}`, r: firstTry ? 1 : 2 })
       const paid = addD(active.answer, D(tip))
       onUpdate((t) => ({ money: addD(t.money, paid) }), false) // 판 돈은 바로 내 돈 — 장사 중에도 지을 수 있게
       s.stats.served += 1
@@ -667,6 +668,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     setHelper(true)
     setInput('')
     if (t >= 3) {
+      onLog?.({ l: lesson.type, q: `${active.price} × ${show(active.b)}`, r: 0 })
       s.stats.lost += 1
       setState('gone')
       setToast(`😢 세 번 틀려서 ${active.customer.name} 손님이 그냥 갔어요 (30문제에 안 세요)`)
@@ -1036,6 +1038,23 @@ export default function DecimalShop({ onBack }) {
     setTown((cur) => persist({ ...cur, ...fn(cur) }, cloud))
   }
 
+  // 규칙이 바뀌기 전(두 번 틀리면 손님이 답을 알려 주고 그 문제도 셌다)에 저장된 하던 장사는
+  // 어떤 문제가 그랬는지 알 수 없어서, 처음에 맞힌 문제만 인정한다 (한 번만)
+  useEffect(() => {
+    if ((town.rulesV || 0) >= 2) return
+    update((t) => {
+      const d = t.dayInProgress
+      if (!d) return { rulesV: 2 }
+      const served = Math.min(d.stats.served || 0, d.stats.first || 0)
+      return { rulesV: 2, dayInProgress: { ...d, stats: { ...d.stats, served } } }
+    })
+  }, [town.rulesV]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 문제별 기록 — 선생님이 학생별로 확인 (r: 1 처음에 맞힘 · 2 힌트 후 맞힘 · 0 세 번 틀려 손님이 감)
+  function logProblem(e) {
+    update((t) => ({ log: [...(t.log || []), { ...e, t: Date.now() }].slice(-600) }), false)
+  }
+
   // 예전 방식으로 저장된 하던 장사(번 돈을 정산 때 한꺼번에 넣던 때)는 번 돈을 지금 넣어 둔다
   useEffect(() => {
     const d = town.dayInProgress
@@ -1087,6 +1106,7 @@ export default function DecimalShop({ onBack }) {
         done={pairDone}
         used={town.pair?.used || []}
         onProgress={(p) => update(() => ({ pair: p }), p.done % 5 === 0)}
+        onLog={logProblem}
         onExit={() => setPairOpen(false)}
         onComplete={() => {
           update((t) => ({ pair: { ...(t.pair || {}), done: Math.max(PAIR_GOAL, t.pair?.done || 0) } }))
@@ -1128,7 +1148,7 @@ export default function DecimalShop({ onBack }) {
 
   return (
     <>
-      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} resume={resume} onFinish={finishDay} onUpdate={update}
+      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} resume={resume} onFinish={finishDay} onUpdate={update} onLog={logProblem}
         onSave={(progress, cloud) => update(() => ({ dayInProgress: progress }), cloud)}
         onQuit={(progress) => {
           // 나가도 하던 장사는 저장 — 마을에서 '이어서 장사'
