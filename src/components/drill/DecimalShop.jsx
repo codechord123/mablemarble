@@ -146,10 +146,10 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
             <div className="mt-2 flex flex-wrap items-center gap-2 rounded-2xl bg-white/90 p-3 shadow ring-2 ring-amber-300">
               <span className="text-2xl">🏪</span>
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-black text-slate-800">하던 장사가 저장돼 있어요</div>
+                <div className="text-sm font-black text-slate-800">하던 장사가 저장돼 있어요 <span className="text-xs font-bold text-slate-500">(다른 차시는 아래 🌅 장사 시작에서)</span></div>
                 <div className="text-xs font-bold text-slate-500">{l?.lesson} · 손님 {d.stats.served}/30 · ⏱ {clock(d.elapsedMs / 1000 + d.penalty)} · 번 돈 {money(d.stats.sales)}G</div>
               </div>
-              <GameButton color="green" onClick={() => onResume(l, d)} className="px-4 py-2 text-sm">▶ 이어서 장사</GameButton>
+              <GameButton color="green" onClick={() => onResume(l, d)} className="px-4 py-2 text-sm">▶ {l?.lesson} 이어서 장사</GameButton>
               <button type="button" onClick={onSettleNow} className="text-xs font-bold text-slate-500 underline">여기서 정산하고 끝내기</button>
             </div>
           )
@@ -176,6 +176,9 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
       <AnimatePresence>
         {sheet?.type === 'lessons' && (
           <Sheet title="🌅 오늘 장사 — 배운 차시 고르기" onClose={() => setSheet(null)} wide>
+            <p className="mb-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
+              📘 교과서 4단원 차시 그대로예요. <b>1차시는 단원 도입</b>이라 계산이 없어서 <b>2차시부터</b> 시작해요. 오늘 배운 차시를 골라요!
+            </p>
             <p className="mb-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">
               ⏱ 타임 어택: 손님 30명을 받으면 끝! 틀리면 +{PENALTY.wrong}초, 놓치면 +{PENALTY.lost}초 · 10·20명째 🔥러시 타임 · 중간에 나가도 저장돼요
             </p>
