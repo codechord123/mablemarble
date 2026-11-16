@@ -19,6 +19,8 @@ import { cheer, flyCoins } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
 import { SoundMini, useHideSoundToggle } from '../ui/MuteToggle.jsx'
 import TownMap, { center } from './TownMap.jsx'
+import PairDrill from './PairDrill.jsx'
+import { PAIR_GOAL } from '../../utils/pairCalc.js'
 
 const RELAX_KEY = 'boomarble_tycoon_relaxed'
 const STEP_MS = 420 // 손님이 한 칸 걷는 시간
@@ -98,124 +100,31 @@ function Keypad({ onKey, disabled }) {
   )
 }
 
-// ─── 마을 (장사 전·후) ───
-function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal }) {
-  const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
-  const pop = popularityOf(town)
-  const can = (c) => gte(town.money, D(c))
-  const ready = QUESTS.filter((q) => q.done(town) && !town.claimed.includes(q.id)).length
-  const builtIds = new Set(Object.values(town.built).map((b) => b.id))
+// 땅을 눌렀을 때 열 창 (마을·장사 중 둘 다)
+function tileSheet(town, r, c) {
+  const t = tileAt(r, c)
+  if (t === 'R') return null
+  const b = town.built[tkey(r, c)]
+  if (b) return { type: b.kind, r, c }
+  if (!unlocked(town, r, c)) return { type: 'zone', zone: t }
+  return { type: 'lot', r, c }
+}
 
-  function onTile(r, c) {
-    const t = tileAt(r, c)
-    if (t === 'R') return
-    const k = tkey(r, c)
-    const b = town.built[k]
-    if (b) return setSheet({ type: b.kind, r, c })
-    if (!unlocked(town, r, c)) return setSheet({ type: 'zone', zone: t })
-    setSheet({ type: 'lot', r, c })
-  }
+// 짓기·키우기·땅 사기·광고 창 — 마을 화면과 장사 중 '짓기'에서 같이 쓴다
+function BuildSheets({ town, sheet, setSheet, onUpdate }) {
+  const can = (c) => gte(town.money, D(c))
+  const builtIds = new Set(Object.values(town.built).map((b) => b.id))
+  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null
+  const here = sk ? town.built[sk] : null
   function pay(cost, patch, big) {
     if (!can(cost)) return
     sfx.coin()
     if (big) setTimeout(() => cheer(4), 120)
-    onUpdate((s) => ({ ...patch(s), money: subD(s.money, D(cost)) }))
+    onUpdate((st) => ({ ...patch(st), money: subD(st.money, D(cost)) }))
     setSheet(null)
   }
-  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null
-  const here = sk ? town.built[sk] : null
-
   return (
-    <div className="min-h-[100dvh] town-bg safe-padded px-3 pt-3 pb-6">
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={onBack} className="text-sm font-bold text-sky-900/70">← 메뉴</button>
-          <SoundMini className="ml-auto" />
-          <Money value={town.money} />
-        </div>
-        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
-          <h1 className="text-2xl font-black text-sky-950">🏘️ {owner}의 소수 마을</h1>
-          <span className="text-sm font-black text-sky-900">{titleOf(town.totalSales)} <Stars n={pop} /></span>
-        </div>
-        <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
-
-        {town.dayInProgress && (() => {
-          const d = town.dayInProgress
-          const l = LESSONS.find((x) => x.type === d.type)
-          return (
-            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-2xl bg-white/90 p-3 shadow ring-2 ring-amber-300">
-              <span className="text-2xl">🏪</span>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-black text-slate-800">하던 장사가 저장돼 있어요 <span className="text-xs font-bold text-slate-500">(다른 차시는 아래 🌅 장사 시작에서)</span></div>
-                <div className="text-xs font-bold text-slate-500">{l?.lesson} · 손님 {d.stats.served}/30 · ⏱ {clock(d.elapsedMs / 1000 + d.penalty)} · 번 돈 {money(d.stats.sales)}G</div>
-              </div>
-              <GameButton color="green" onClick={() => onResume(l, d)} className="px-4 py-2 text-sm">▶ {l?.lesson} 이어서 장사</GameButton>
-              <button type="button" onClick={onSettleNow} className="text-xs font-bold text-slate-500 underline">여기서 정산하고 끝내기</button>
-            </div>
-          )
-        })()}
-
-        <div className="relative mt-1">
-          <TownMap town={town} onTile={onTile} selectedKey={sk} />
-        </div>
-
-        <div className="mt-1 grid grid-cols-4 gap-2">
-          <GameButton color="green" onClick={() => setSheet({ type: 'lessons' })} className="col-span-4 py-3.5 text-xl sm:col-span-1 sm:text-base">🌅 장사 시작</GameButton>
-          <GameButton color="orange" onClick={() => onModal('quests')} className="relative py-2.5 text-sm">
-            🎯 목표
-            {ready > 0 && <span className="absolute -right-1 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-rose-500 px-1 text-xs shop-bop">{ready}</span>}
-          </GameButton>
-          <GameButton color="blue" onClick={() => onModal('book')} className="py-2.5 text-sm">📖 도감 {Object.keys(town.met).length}</GameButton>
-          <GameButton color="violet" onClick={() => setSheet({ type: 'ads' })} className="py-2.5 text-sm">📣 광고</GameButton>
-        </div>
-        <p className="mt-2 text-center text-xs font-bold text-sky-900/60">
-          손님 {town.served}명 받음 · 놓친 손님 {town.lost}명 · 총 매출 {money(town.totalSales)}G · 최고 이익 {money(town.bestProfit)}G
-        </p>
-      </div>
-
-      <AnimatePresence>
-        {sheet?.type === 'lessons' && (
-          <Sheet title="🌅 오늘 장사 — 배운 차시 고르기" onClose={() => setSheet(null)} wide>
-            <p className="mb-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
-              📘 교과서 4단원 차시 그대로예요. <b>1차시는 단원 도입</b>이라 계산이 없어서 <b>2차시부터</b> 시작해요. 오늘 배운 차시를 골라요!
-            </p>
-            <p className="mb-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">
-              ⏱ 타임 어택: 손님 30명을 받으면 끝! 틀리면 +{PENALTY.wrong}초, 놓치면 +{PENALTY.lost}초 · 10·20명째 🔥러시 타임 · 중간에 나가도 저장돼요
-            </p>
-            <label className="mb-2 flex cursor-pointer items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-900">
-              <input type="checkbox" checked={relaxed} onChange={(e) => setRelaxed(e.target.checked)} className="h-4 w-4 accent-sky-600" />
-              🐢 느긋 모드 <span className="font-bold text-sky-700/80">손님이 두 배 오래 기다리고 천천히 와요</span>
-            </label>
-            <div className="grid gap-1.5 sm:grid-cols-2">
-              {LESSONS.map((l) => {
-                const open = openShops(l, town)
-                return (
-                  <button
-                    key={l.type}
-                    type="button"
-                    disabled={!open.length}
-                    onClick={() => { setSheet(null); onStart(l) }}
-                    className="rounded-xl bg-amber-50 px-3 py-2 text-left ring-1 ring-amber-200 transition hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50"
-                  >
-                    <span className="flex items-center gap-1 text-xs font-black text-orange-600">
-                      {l.lesson}
-                      <span className="ml-auto text-base leading-none">{open.map((s) => s.shop.icon).join('')}</span>
-                    </span>
-                    <span className="block text-sm font-black text-slate-800">{l.name}</span>
-                    <span className="block text-[11px] font-bold text-slate-500">{open.length ? `예) ${l.ex}` : '이 차시를 팔 가게가 없어요'}</span>
-                    {town.records?.[l.type] && (
-                      <span className="mt-0.5 block text-[11px] font-black text-amber-600">
-                        🏆 최고 {clock(town.records[l.type].secs)} {'★'.repeat(town.records[l.type].stars)}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-            <p className="mt-2 text-xs font-bold text-slate-500">개수로 파는 가게(🍭🍩🥐💎)는 2·3차시, 달아서 파는 가게(🍉🧵🐄🥩)는 4~7차시에 문을 열어요.</p>
-          </Sheet>
-        )}
-
+    <AnimatePresence>
         {sheet?.type === 'lot' && (
           <Sheet title="🏗️ 여기에 무엇을 지을까요?" onClose={() => setSheet(null)} wide>
             {roadSide(sheet.r, sheet.c) ? (
@@ -312,7 +221,138 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
             ))}
           </Sheet>
         )}
+    </AnimatePresence>
+  )
+}
+
+// ─── 마을 (장사 전·후) ───
+function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair }) {
+  const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
+  const pop = popularityOf(town)
+  const can = (c) => gte(town.money, D(c))
+  const ready = QUESTS.filter((q) => q.done(town) && !town.claimed.includes(q.id)).length
+  const builtIds = new Set(Object.values(town.built).map((b) => b.id))
+
+  function onTile(r, c) {
+    const sh = tileSheet(town, r, c)
+    if (sh) setSheet(sh)
+  }
+  const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null
+
+  return (
+    <div className="min-h-[100dvh] town-bg safe-padded px-3 pt-3 pb-6">
+      <div className="mx-auto w-full max-w-3xl">
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={onBack} className="text-sm font-bold text-sky-900/70">← 메뉴</button>
+          <SoundMini className="ml-auto" />
+          <Money value={town.money} />
+        </div>
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+          <h1 className="text-2xl font-black text-sky-950">🏘️ {owner}의 소수 마을</h1>
+          <span className="text-sm font-black text-sky-900">{titleOf(town.totalSales)} <Stars n={pop} /></span>
+        </div>
+        <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
+
+        {locked && (
+          <div className="mt-2 rounded-2xl border-2 border-rose-300 bg-rose-50 p-3 shadow">
+            <div className="flex items-start gap-2">
+              <span className="text-2xl">⚠️</span>
+              <div className="min-w-0 flex-1">
+                <div className="font-black text-rose-700">짝꿍 계산 {PAIR_GOAL}문제부터 풀어야 장사를 할 수 있어요!</div>
+                <div className="text-xs font-bold text-rose-600/90">곱하면 10·100·1이 되는 짝꿍 수로 빠르게 곱하기 — 처음에 맞힌 문제만 세요 · 지금 {pairDone}/{PAIR_GOAL}</div>
+                <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white ring-1 ring-rose-200">
+                  <div className="h-full rounded-full bg-gradient-to-r from-teal-400 to-emerald-500" style={{ width: `${(pairDone / PAIR_GOAL) * 100}%` }} />
+                </div>
+              </div>
+            </div>
+            <GameButton color="green" onClick={onPair} className="mt-2 w-full py-3 text-lg">🤝 짝꿍 계산 하러 가기 ({pairDone}/{PAIR_GOAL})</GameButton>
+          </div>
+        )}
+
+        {town.dayInProgress && !locked && (() => {
+          const d = town.dayInProgress
+          const l = LESSONS.find((x) => x.type === d.type)
+          return (
+            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-2xl bg-white/90 p-3 shadow ring-2 ring-amber-300">
+              <span className="text-2xl">🏪</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-black text-slate-800">하던 장사가 저장돼 있어요 <span className="text-xs font-bold text-slate-500">(다른 차시는 아래 🌅 장사 시작에서)</span></div>
+                <div className="text-xs font-bold text-slate-500">{l?.lesson} · 손님 {d.stats.served}/30 · ⏱ {clock(d.elapsedMs / 1000 + d.penalty)} · 번 돈 {money(d.stats.sales)}G</div>
+              </div>
+              <GameButton color="green" onClick={() => onResume(l, d)} className="px-4 py-2 text-sm">▶ {l?.lesson} 이어서 장사</GameButton>
+              <button type="button" onClick={onSettleNow} className="text-xs font-bold text-slate-500 underline">여기서 정산하고 끝내기</button>
+            </div>
+          )
+        })()}
+
+        <div className="relative mt-1">
+          <TownMap town={town} onTile={onTile} selectedKey={sk} />
+        </div>
+
+        <div className="mt-1 grid grid-cols-4 gap-2">
+          <GameButton color={locked ? 'gray' : 'green'} onClick={() => (locked ? onPair() : setSheet({ type: 'lessons' }))} className="col-span-4 py-3.5 text-xl sm:col-span-1 sm:text-base">
+            {locked ? `🔒 장사 (짝꿍 ${pairDone}/${PAIR_GOAL})` : '🌅 장사 시작'}
+          </GameButton>
+          <GameButton color="orange" onClick={() => onModal('quests')} className="relative py-2.5 text-sm">
+            🎯 목표
+            {ready > 0 && <span className="absolute -right-1 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-rose-500 px-1 text-xs shop-bop">{ready}</span>}
+          </GameButton>
+          <GameButton color="blue" onClick={() => onModal('book')} className="py-2.5 text-sm">📖 도감 {Object.keys(town.met).length}</GameButton>
+          <GameButton color="violet" onClick={() => setSheet({ type: 'ads' })} className="py-2.5 text-sm">📣 광고</GameButton>
+        </div>
+        {!locked && (
+          <button type="button" onClick={onPair} className="mx-auto mt-2 block text-xs font-black text-teal-700 underline">🤝 짝꿍 계산 더 연습하기</button>
+        )}
+        <p className="mt-2 text-center text-xs font-bold text-sky-900/60">
+          손님 {town.served}명 받음 · 놓친 손님 {town.lost}명 · 총 매출 {money(town.totalSales)}G · 최고 이익 {money(town.bestProfit)}G
+        </p>
+      </div>
+
+      <AnimatePresence>
+        {sheet?.type === 'lessons' && (
+          <Sheet title="🌅 오늘 장사 — 배운 차시 고르기" onClose={() => setSheet(null)} wide>
+            <p className="mb-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
+              📘 교과서 4단원 차시 그대로예요. <b>1차시는 단원 도입</b>이라 계산이 없어서 <b>2차시부터</b> 시작해요. 오늘 배운 차시를 골라요!
+            </p>
+            <p className="mb-2 rounded-xl bg-rose-50 px-3 py-2 text-xs font-black text-rose-700">
+              ⏱ 타임 어택: 손님 30명을 받으면 끝! 틀리면 +{PENALTY.wrong}초, 놓치면 +{PENALTY.lost}초 · 10·20명째 🔥러시 타임 · 중간에 나가도 저장돼요
+            </p>
+            <label className="mb-2 flex cursor-pointer items-center gap-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-900">
+              <input type="checkbox" checked={relaxed} onChange={(e) => setRelaxed(e.target.checked)} className="h-4 w-4 accent-sky-600" />
+              🐢 느긋 모드 <span className="font-bold text-sky-700/80">손님이 두 배 오래 기다리고 천천히 와요</span>
+            </label>
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {LESSONS.map((l) => {
+                const open = openShops(l, town)
+                return (
+                  <button
+                    key={l.type}
+                    type="button"
+                    disabled={!open.length}
+                    onClick={() => { setSheet(null); onStart(l) }}
+                    className="rounded-xl bg-amber-50 px-3 py-2 text-left ring-1 ring-amber-200 transition hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <span className="flex items-center gap-1 text-xs font-black text-orange-600">
+                      {l.lesson}
+                      <span className="ml-auto text-base leading-none">{open.map((s) => s.shop.icon).join('')}</span>
+                    </span>
+                    <span className="block text-sm font-black text-slate-800">{l.name}</span>
+                    <span className="block text-[11px] font-bold text-slate-500">{open.length ? `예) ${l.ex}` : '이 차시를 팔 가게가 없어요'}</span>
+                    {town.records?.[l.type] && (
+                      <span className="mt-0.5 block text-[11px] font-black text-amber-600">
+                        🏆 최고 {clock(town.records[l.type].secs)} {'★'.repeat(town.records[l.type].stars)}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-xs font-bold text-slate-500">개수로 파는 가게(🍭🍩🥐💎)는 2·3차시, 달아서 파는 가게(🍉🧵🐄🥩)는 4~7차시에 문을 열어요.</p>
+          </Sheet>
+        )}
+
       </AnimatePresence>
+      <BuildSheets town={town} sheet={sheet} setSheet={setSheet} onUpdate={onUpdate} />
     </div>
   )
 }
@@ -320,14 +360,22 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
 // ─── 장사하는 하루 ───
 // 이어 하기용 진행 상황 (장사 도중 나가도 저장)
 function progressOf(lesson, s, elapsedMs) {
-  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, savedAt: Date.now() }
+  // paidLive: 판 돈은 그때그때 이미 가진 돈에 들어갔다 (정산 때는 재료비·유지비만 뺀다)
+  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, paidLive: true, savedAt: Date.now() }
 }
 
-function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave }) {
+function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, onUpdate }) {
   const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const open = useMemo(() => openShops(lesson, town), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const openKeys = useMemo(() => new Set(open.map((s) => s.key)), [open])
-  const closedKeys = useMemo(() => new Set(shopsIn(town).filter((s) => !openKeys.has(s.key)).map((s) => s.key)), []) // eslint-disable-line react-hooks/exhaustive-deps
+  // 장사 중에도 가게를 짓고 키울 수 있어서, 문 연 가게는 그때그때 마을에서 다시 본다
+  const open = openShops(lesson, town)
+  const openKeys = new Set(open.map((x) => x.key))
+  const closedKeys = new Set(shopsIn(town).filter((x) => !openKeys.has(x.key)).map((x) => x.key))
+  const openRef = useRef(open)
+  openRef.current = open
+  const townRef = useRef(town)
+  townRef.current = town
+  const [building, setBuilding] = useState(false) // 🏗️ 짓기 모드 (시계 멈춤)
+  const [sheet, setSheet] = useState(null)
   // 가격은 손님마다 새로 (하루 내내 같은 가격이면 같은 식이 자꾸 나온다)
   const prices = useMemo(() => ({}), [])
 
@@ -401,6 +449,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
       // 새 손님
       // 새 손님 — 30명을 다 받을 만큼만, 줄에 자리가 있는 가게로 (러시 타임엔 두 배 빨리)
       const inFlight = s.walkers.filter((w) => w.phase === 'in').length + Object.values(s.queues).reduce((a, q) => a + q.length, 0)
+      const open = openRef.current
+      const town = townRef.current
       if (s.stats.served + inFlight < rules.goal && now >= s.nextSpawn && open.length) {
         const room = open.filter((x) => (s.queues[x.key]?.length || 0) + s.walkers.filter((w) => w.phase === 'in' && w.shopKey === x.key).length < slotsOf(x.lv))
         if (!room.length) s.nextSpawn = now + 800
@@ -509,6 +559,17 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
     setPaused(false)
   }
 
+  function toggleBuild() {
+    if (!building) {
+      if (!paused) togglePause()
+      setBuilding(true)
+    } else {
+      setSheet(null)
+      setBuilding(false)
+      if (paused) togglePause()
+    }
+  }
+
   function pick(k) {
     if (state !== 'ask' || paused) return
     if (!openKeys.has(k)) {
@@ -571,6 +632,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.tips = addD(s.stats.tips, D(tip))
+      const paid = addD(active.answer, D(tip))
+      onUpdate((t) => ({ money: addD(t.money, paid) }), false) // 판 돈은 바로 내 돈 — 장사 중에도 지을 수 있게
       s.stats.served += 1
       s.stats.first += firstTry ? 1 : 0
       s.stats.vip += active.vip ? 1 : 0
@@ -595,6 +658,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
     } else {
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.served += 1
+      onUpdate((t) => ({ money: addD(t.money, active.answer) }), false)
       afterServed()
       setState('explain')
     }
@@ -615,7 +679,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
 
   const s = g.current
   const now = Date.now()
-  const live = addD(addD(town.money, s.stats.sales), s.stats.tips)
+  const live = town.money
   const waitingTotal = Object.values(queues).reduce((a, q) => a + q.length, 0)
   const started = count <= 0 && s.startAt
   const totalSecs = started ? ((paused ? pausedAt.current : now) - s.startAt) / 1000 + s.penalty : resume?.elapsedMs ? resume.elapsedMs / 1000 + s.penalty : 0
@@ -677,7 +741,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
           {/* 위 띠 */}
           <div className="flex items-center gap-1.5">
             <button type="button" onClick={() => onQuit(started && state !== 'done' ? progressOf(lesson, s, (paused ? pausedAt.current : Date.now()) - s.startAt) : null)} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label="잠깐 나가기 (저장돼요)">✕</button>
-            <button type="button" onClick={togglePause} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label={paused ? '계속하기' : '잠깐 멈춤'}>{paused ? '▶' : '⏸'}</button>
+            <button type="button" onClick={() => (building ? toggleBuild() : togglePause())} className="h-9 w-9 shrink-0 rounded-full bg-sky-900/15 font-black text-sky-900" aria-label={paused ? '계속하기' : '잠깐 멈춤'}>{paused ? '▶' : '⏸'}</button>
+            <button type="button" onClick={toggleBuild} disabled={count > 0 || state === 'done'} className={`h-9 shrink-0 rounded-full px-2.5 text-sm font-black disabled:opacity-40 ${building ? 'bg-amber-400 text-amber-950' : 'bg-sky-900/15 text-sky-900'}`} aria-label="짓기">🏗️</button>
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-1.5 truncate text-xs font-black text-sky-950">
                 <span>{lesson.lesson} · 손님 <b className="text-base">{s.stats.served}</b>/{rules.goal}</span>
@@ -703,7 +768,26 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
           </div>
           {/* 지도 */}
           <div className="relative mt-1">
-            <TownMap town={town} onTile={(r, c) => town.built[tkey(r, c)]?.kind === 'shop' && pick(tkey(r, c))} selectedKey={sel} closedKeys={closedKeys} shopRefs={shopRefs} overlay={overlay} extra={walkers} />
+            <TownMap
+              town={town}
+              onTile={(r, c) => {
+                if (building) {
+                  const sh = tileSheet(town, r, c)
+                  if (sh) setSheet(sh)
+                } else if (town.built[tkey(r, c)]?.kind === 'shop') pick(tkey(r, c))
+              }}
+              selectedKey={building ? (sheet && sheet.r != null ? tkey(sheet.r, sheet.c) : null) : sel}
+              closedKeys={closedKeys}
+              shopRefs={shopRefs}
+              overlay={building ? null : overlay}
+              extra={building ? null : walkers}
+            />
+            {building && (
+              <div className="absolute inset-x-0 top-1 mx-auto flex w-fit max-w-[96%] items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-amber-950 shadow">
+                🏗️ 짓기 모드 — 땅·가게를 눌러요 (시계 멈춤)
+                <button type="button" onClick={toggleBuild} className="rounded-full bg-white px-2 py-0.5">▶ 장사 계속</button>
+              </div>
+            )}
             <AnimatePresence>
               {toast && (
                 <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-x-0 top-1 mx-auto w-fit max-w-[95%] rounded-full bg-rose-600 px-3 py-1 text-center text-xs font-black text-white shadow">
@@ -720,7 +804,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
                 </div>
               </div>
             )}
-            {paused && (
+            {paused && !building && (
               <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/35">
                 <button type="button" onClick={togglePause} className="rounded-2xl bg-white px-6 py-3 text-xl font-black text-slate-800 shadow-xl">⏸ 잠깐 멈춤 · ▶ 계속</button>
               </div>
@@ -775,6 +859,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave })
         </div>
       </div>
 
+      {building && <BuildSheets town={town} sheet={sheet} setSheet={setSheet} onUpdate={onUpdate} />}
       <AnimatePresence>
         {state === 'explain' && active && (
           <motion.div className="fixed inset-0 z-40 flex items-end justify-center bg-black/35 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -909,6 +994,12 @@ export default function DecimalShop({ onBack }) {
   const [dayKey, setDayKey] = useState(0)
   const [result, setResult] = useState(null)
   const [modal, setModal] = useState(null)
+  const [pairOpen, setPairOpen] = useState(false) // 🤝 짝꿍 계산 훈련 화면
+  const townRef = useRef(town)
+  townRef.current = town
+  // 짝꿍 계산 50문제를 맞혀야 장사가 열린다 (선생님 계정은 바로)
+  const pairDone = town.pair?.done || 0
+  const unlockedPlay = me?.role === 'teacher' || pairDone >= PAIR_GOAL
   const [relaxed, setRelaxedState] = useState(() => {
     try { return localStorage.getItem(RELAX_KEY) === '1' } catch { return false }
   })
@@ -950,15 +1041,22 @@ export default function DecimalShop({ onBack }) {
     setTown((cur) => persist({ ...cur, ...fn(cur) }, cloud))
   }
 
-  function finishDay(r) {
+  // 예전 방식으로 저장된 하던 장사(번 돈을 정산 때 한꺼번에 넣던 때)는 번 돈을 지금 넣어 둔다
+  useEffect(() => {
+    const d = town.dayInProgress
+    if (d && !d.paidLive) update((t) => ({ money: addD(addD(t.money, d.stats.sales), d.stats.tips), dayInProgress: { ...d, paidLive: true } }), false)
+  }, [town.dayInProgress]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function finishDay(r, type = lesson?.type) {
+    const town = townRef.current // 장사 중 판 돈이 계속 들어오므로 지금의 마을로
     const sheet = settle({ sales: r.sales, tips: r.tips, upkeep: r.upkeep })
-    const type = lesson?.type
     const old = type && town.records?.[type]
     const record = r.secs != null && type && (!old || r.secs < old.secs)
     const before = QUESTS.filter((q) => q.done(town)).map((q) => q.id)
     const next = {
       ...town,
-      money: addD(town.money, sheet.profit),
+      // 판 돈·팁은 이미 들어가 있으니 재료비·유지비만 뺀다
+      money: subD(town.money, addD(sheet.material, sheet.upkeep)),
       days: town.days + 1,
       served: town.served + r.served,
       lost: town.lost + r.lost,
@@ -988,20 +1086,40 @@ export default function DecimalShop({ onBack }) {
     </AnimatePresence>
   )
 
+  if (pairOpen)
+    return (
+      <PairDrill
+        done={pairDone}
+        used={town.pair?.used || []}
+        onProgress={(p) => update(() => ({ pair: p }), p.done % 5 === 0)}
+        onExit={() => setPairOpen(false)}
+        onComplete={() => {
+          update((t) => ({ pair: { ...(t.pair || {}), done: Math.max(PAIR_GOAL, t.pair?.done || 0) } }))
+          setTimeout(() => setPairOpen(false), 1800)
+        }}
+      />
+    )
+
   if (!lesson)
     return (
       <>
         <Town town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
+          locked={!unlockedPlay}
+          pairDone={pairDone}
+          onPair={() => setPairOpen(true)}
           onStart={(l) => {
-            if (town.dayInProgress && !window.confirm('저장된 하던 장사가 있어요. 새로 시작하면 하던 장사는 없어져요. 새로 시작할까요?')) return
-            update(() => ({ dayInProgress: null }), false)
+            if (town.dayInProgress) {
+              // 하던 장사는 먼저 정산 (번 돈은 이미 들어와 있으니 재료비·유지비를 빼야 한다)
+              window.alert('하던 장사가 있어요. 먼저 "이어서 장사"로 마치거나 "여기서 정산하고 끝내기"를 눌러 주세요.')
+              return
+            }
             setResume(null); setLesson(l); setResult(null); setDayKey((k) => k + 1)
           }}
           onResume={(l, d) => { setResume(d); setLesson(l); setResult(null); setDayKey((k) => k + 1) }}
           onSettleNow={() => {
             const d = town.dayInProgress
             if (!window.confirm(`손님 ${d.stats.served}명까지 받은 것으로 정산하고 끝낼까요? (30명을 못 채워서 기록·별은 없어요)`)) return
-            finishDay({ ...d.stats, upkeep: D(upkeepOf(town)), secs: null })
+            finishDay({ ...d.stats, upkeep: D(upkeepOf(town)), secs: null }, d.type)
           }} />
         <AnimatePresence>
           {result && <Settlement result={result} town={town} onTown={() => setResult(null)} onAgain={() => setResult(null)} />}
@@ -1012,7 +1130,7 @@ export default function DecimalShop({ onBack }) {
 
   return (
     <>
-      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} resume={resume} onFinish={finishDay}
+      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} resume={resume} onFinish={finishDay} onUpdate={update}
         onSave={(progress, cloud) => update(() => ({ dayInProgress: progress }), cloud)}
         onQuit={(progress) => {
           // 나가도 하던 장사는 저장 — 마을에서 '이어서 장사'

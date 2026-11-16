@@ -834,3 +834,11 @@ body {
 .town-shake { animation: town-shake 0.4s ease-out; }
 @keyframes town-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @media (prefers-reduced-motion: reduce) { .town-rush, .town-shake { animation: none; } }
+
+/* ─── 짝꿍 수 계산 훈련 ─── */
+.pair-bg {
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(255, 255, 255, 0.8), transparent 70%),
+    linear-gradient(180deg, #ccfbf1 0%, #fef9c3 100%);
+}
+.pair-expr { font-size: clamp(1.7rem, 8vw, 2.6rem); line-height: 1.2; }
