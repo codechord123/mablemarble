@@ -118,7 +118,8 @@ export default function PairDrill({ done: start = 0, used: startUsed = [], onPro
   }
 
   const pct = Math.round((Math.min(done, PAIR_GOAL) / PAIR_GOAL) * 100)
-  const steps = useMemo(() => q.steps, [q])
+  // 틀렸을 때는 방법만 — 첫 단계(짝꿍 찾기·쪼개기·빌려 오기)까지만, 답은 안 보여 준다
+  const hint = useMemo(() => (q.kind === 'direct' ? '짝꿍끼리 곱하면 10 · 100 · 1000 · 1 중 하나로 딱 떨어져요' : q.steps[0]), [q])
 
   return (
     <div className="min-h-[100dvh] pair-bg safe-padded px-3 pt-3 pb-6">
@@ -168,12 +169,9 @@ export default function PairDrill({ done: start = 0, used: startUsed = [], onPro
 
           {state === 'wrong' && (
             <div className="mt-3 rounded-2xl bg-amber-50 p-3">
-              <div className="text-sm font-black text-amber-800">💡 짝꿍으로 풀어 볼까요?</div>
-              <div className="mt-1 text-lg font-black tabular-nums text-slate-800">{q.text}</div>
-              {steps.map((s, i) => (
-                <div key={i} className="text-[0.95rem] font-bold leading-relaxed text-amber-950">{s}</div>
-              ))}
-              <GameButton color="violet" onClick={retry} className="mt-2 w-full py-2.5">알겠어요! 직접 다시 풀기</GameButton>
+              <div className="text-sm font-black text-amber-800">💡 이렇게 해 볼까요?</div>
+              <div className="mt-1 text-[0.95rem] font-bold leading-relaxed text-amber-950">{hint}</div>
+              <GameButton color="violet" onClick={retry} className="mt-2 w-full py-2.5">알겠어요! 다시 풀기</GameButton>
             </div>
           )}
 

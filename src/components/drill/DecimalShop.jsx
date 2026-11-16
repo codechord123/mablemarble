@@ -651,21 +651,22 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     setStreak(0)
     s.penalty += PENALTY.wrong
     setPenaltyPop((n) => n + 1)
-    // 틀려도 답은 바로 안 알려 준다: 1번 → 방법(도우미), 2번 → 마지막 줄만 뺀 풀이, 3번 → 답을 보여 주고 손님은 떠난다
-    // 세 번 틀린 문제는 30문제에 세지 않는다(직접 맞힌 문제만 센다) — 그만큼 손님이 더 온다
+    // 틀리면 방법(도우미)만 알려 준다 — 답·풀이는 보여 주지 않는다.
+    // 세 번 틀리면 손님이 저절로 떠난다 (30문제에 세지 않음) — 그만큼 손님이 더 온다
     const t = tries + 1
     setTries(t)
     setHelper(true)
     setInput('')
     if (t >= 3) {
       s.stats.lost += 1
-      setState('explain')
+      setState('gone')
+      setToast(`😢 세 번 틀려서 ${active.customer.name} 손님이 그냥 갔어요 (30문제에 안 세요)`)
+      setTimeout(() => done('😢'), 1400)
     }
   }
 
   useEffect(() => {
     const onKey = (e) => {
-      if (state === 'explain' && e.key === 'Enter') return done('😢')
       if (state !== 'ask') return
       if (/^[0-9]$/.test(e.key)) key(e.key)
       else if (e.key === '.' || e.key === ',') key('.')
@@ -730,8 +731,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     </g>
   )
 
-  const face = state === 'paid' ? '😍' : state === 'explain' || tries > 0 ? '🤔' : active ? MOOD_FACE[moodOf((now - active.arrivedAt) / 1000, rules.patience)] : ''
-  const bubble = !active ? '' : state === 'paid' ? (active.vip ? '역시 최고의 가게! 👑' : '고마워요! 또 올게요~') : state === 'explain' ? '제가 계산해 볼게요!' : tries > 0 ? '어? 계산이 이상한데… 다시 해 주실래요?' : active.say
+  const face = state === 'paid' ? '😍' : state === 'gone' ? '😢' : tries > 0 ? '🤔' : active ? MOOD_FACE[moodOf((now - active.arrivedAt) / 1000, rules.patience)] : ''
+  const bubble = !active ? '' : state === 'paid' ? (active.vip ? '역시 최고의 가게! 👑' : '고마워요! 또 올게요~') : state === 'gone' ? '음… 다음에 올게요 😢' : tries > 0 ? '어? 계산이 이상한데… 다시 해 주실래요?' : active.say
 
   return (
     <div className="min-h-[100dvh] town-bg safe-padded px-2 pt-2 pb-4">
@@ -835,14 +836,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
                 <span className="text-2xl font-black text-amber-700">G</span>
               </div>
               {pop && <div className="shop-pop mt-0.5 text-center text-lg font-black text-emerald-600">+{pop.amount}G{pop.tip ? ` · 팁 +${pop.tip}G` : ''}</div>}
-              {helper && state === 'ask' && tries < 2 && <div className="mt-1.5 rounded-xl bg-sky-50 px-3 py-1.5 text-center text-sm font-bold text-sky-900">💡 {active.helper}</div>}
-              {state === 'ask' && tries >= 2 && (
-                <div className="mt-1.5 rounded-xl bg-amber-50 px-3 py-1.5 text-sm font-bold text-amber-950">
-                  <div className="text-xs font-black text-amber-700">💡 풀이를 따라가요 — 마지막은 직접! (한 번 더 틀리면 손님이 가요)</div>
-                  {active.steps.slice(0, -1).map((x, i) => <div key={i}>✏️ {x}</div>)}
-                  <div>✏️ 그럼 답은? <b>소수점을 직접 찍어 보세요</b></div>
-                </div>
-              )}
+              {helper && state === 'ask' && <div className="mt-1.5 rounded-xl bg-sky-50 px-3 py-1.5 text-center text-sm font-bold text-sky-900">💡 {active.helper}</div>}
+
             </>
           ) : (
             <div className="py-5 text-center text-sm font-black text-slate-400">
@@ -866,23 +861,6 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       </div>
 
       {building && <BuildSheets town={town} sheet={sheet} setSheet={setSheet} onUpdate={onUpdate} />}
-      <AnimatePresence>
-        {state === 'explain' && active && (
-          <motion.div className="fixed inset-0 z-40 flex items-end justify-center bg-black/35 p-3 sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div initial={{ y: 60 }} animate={{ y: 0 }} className="w-full max-w-md rounded-[1.5rem] bg-white p-5 shadow-2xl">
-              <div className="text-center text-lg font-black text-slate-700">😢 세 번 틀려서 {active.customer.emoji} {active.customer.name} 손님이 그냥 갔어요</div>
-              <div className="mt-2 text-center text-2xl font-black text-slate-800 tabular-nums">
-                {active.price} × {show(active.b)} = <span className="text-emerald-600">{show(active.answer)}G</span>
-              </div>
-              <ol className="mt-3 space-y-1 rounded-xl bg-amber-50 p-3 text-[0.95rem] font-bold leading-relaxed text-amber-950">
-                {active.steps.map((x, i) => <li key={i}>✏️ {x}</li>)}
-              </ol>
-              <p className="mt-2 text-center text-xs font-bold text-rose-600">이 문제는 30문제에 세지 않아요 (돈도 못 받아요). 풀이를 잘 보고 다음 손님은 꼭 맞혀요!</p>
-              <GameButton color="violet" onClick={() => done('😢')} className="mt-3 w-full py-3 text-xl">알겠어요! 다음 손님 →</GameButton>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }
