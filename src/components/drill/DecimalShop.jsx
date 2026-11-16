@@ -226,7 +226,7 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair }) {
+function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -252,6 +252,15 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
           <span className="text-sm font-black text-sky-900">{titleOf(town.totalSales)} <Stars n={pop} /></span>
         </div>
         <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
+
+        {teacher && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-violet-50 px-3 py-2 text-xs font-bold text-violet-800 ring-1 ring-violet-200">
+            <span>👩‍🏫 {studentView ? '학생 화면 미리보기 중이에요 (짝꿍 계산 잠금이 보여요)' : '선생님 계정은 잠금 없이 바로 열려요. 학생 화면에는 짝꿍 계산 50문제 경고가 떠요.'}</span>
+            <button type="button" onClick={onStudentView} className="ml-auto rounded-full bg-violet-600 px-3 py-1 font-black text-white">
+              {studentView ? '선생님 화면으로' : '👀 학생 화면 미리보기'}
+            </button>
+          </div>
+        )}
 
         {locked && (
           <div className="mt-2 rounded-2xl border-2 border-rose-300 bg-rose-50 p-3 shadow">
@@ -983,7 +992,9 @@ export default function DecimalShop({ onBack }) {
   townRef.current = town
   // 짝꿍 계산 50문제를 맞혀야 장사가 열린다 (선생님 계정은 바로)
   const pairDone = town.pair?.done || 0
-  const unlockedPlay = me?.role === 'teacher' || pairDone >= PAIR_GOAL
+  const isTeacher = me?.role === 'teacher'
+  const [studentView, setStudentView] = useState(false) // 선생님: 학생 화면 미리보기
+  const unlockedPlay = (isTeacher && !studentView) || pairDone >= PAIR_GOAL
   const [relaxed, setRelaxedState] = useState(() => {
     try { return localStorage.getItem(RELAX_KEY) === '1' } catch { return false }
   })
@@ -1090,6 +1101,9 @@ export default function DecimalShop({ onBack }) {
         <Town town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
           locked={!unlockedPlay}
           pairDone={pairDone}
+          teacher={isTeacher}
+          studentView={studentView}
+          onStudentView={() => setStudentView((v) => !v)}
           onPair={() => setPairOpen(true)}
           onStart={(l) => {
             if (town.dayInProgress) {
