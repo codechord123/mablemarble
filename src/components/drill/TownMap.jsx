@@ -1,14 +1,16 @@
 // 소수 마을 지도 — 비스듬히 내려다보는(아이소메트릭) 8×8 마을.
 // 땅·길 → 건물·장식(앞뒤 순서대로) → 걸어가는 손님·말풍선 순서로 그린다. 한 장의 SVG.
-import { forwardRef } from 'react'
-import { MAP, ROWS, COLS, ZONES, tileAt, unlocked, shopById, decorById, key, mapById, BIG_DECOR } from '../../utils/decimalShop.js'
+import { forwardRef, useEffect } from 'react'
+import { MAP, ROWS, COLS, ZONES, tileAt, unlocked, shopById, decorById, key, BIG_DECOR } from '../../utils/decimalShop.js'
+import { SRC_W, GROUND_H, BUILDING_H, FLOOR_STEP, UPPER_X, GROUND, roadSrc, shopArt, MAP_FILTER, landKind, preloadTownArt } from './townArt.js'
 
 export const TW = 64 // 칸 너비
 export const TH = 32 // 칸 높이
 const OX = (ROWS * TW) / 2
 const OY = 62 // 위쪽 여유 (건물 높이)
 export const VIEW_W = ((ROWS + COLS) * TW) / 2
-export const VIEW_H = ((ROWS + COLS) * TH) / 2 + OY + 8
+export const VIEW_H = ((ROWS + COLS) * TH) / 2 + OY + 22 // 땅 타일 두께만큼 아래 여유
+const S = TW / SRC_W // 타일 그림 줄임 비율
 
 // 칸 가운데 좌표
 export function center(r, c) {
@@ -20,37 +22,43 @@ const diamond = (cx, cy, s = 1) => {
   return `${cx},${cy - h} ${cx + w},${cy} ${cx},${cy + h} ${cx - w},${cy}`
 }
 
-// 상자 모양 건물 (지붕·왼벽·오른벽 + 문·창문·차양)
+// 땅 한 칸 그림 (위 마름모를 칸 마름모에 맞춘다)
+function Tile({ cx, cy, src, h = GROUND_H, filter }) {
+  return <image href={src} x={cx - TW / 2} y={cy - TH / 2} width={TW + 0.6} height={h * S + 0.4} preserveAspectRatio="none" style={filter ? { filter } : undefined} />
+}
+
+// 가게 건물 — 1층 가게 그림 위에 Lv만큼 위층을 쌓고 지붕을 얹는다
 function Building({ r, c, shop, lv, selected, closed, onClick, refEl, children }) {
   const [cx, cy] = center(r, c)
-  const s = 0.74
-  const w = (TW / 2) * s
-  const h = (TH / 2) * s
-  const H = 18 + shop.tier * 5 + lv * 5
-  const [roof, left, right] = shop.color
-  const top = cy - H
+  const art = shopArt(shop.id, lv)
+  const groundTop = cy - TH / 2
+  const bodyTop = groundTop + (GROUND_H - BUILDING_H) * S
+  const ux = cx - TW / 2 + UPPER_X * S
+  const floorTops = art.floors.map((_, i) => bodyTop - FLOOR_STEP * (i + 1) * S)
+  const top = floorTops.length ? floorTops[floorTops.length - 1] : bodyTop
+  const roofTop = top - 7 * S
+  // 건물 밑받침의 옆면은 잘라 낸다 (앞쪽 칸의 땅·길을 덮지 않게)
+  const clip = `bclip-${r}-${c}`
   return (
-    <g ref={refEl} onClick={onClick} className="cursor-pointer" style={{ opacity: closed ? 0.55 : 1 }}>
-      {selected && <polygon points={diamond(cx, cy, 1)} fill="none" stroke="#facc15" strokeWidth="3" className="town-pulse" />}
-      {/* 그림자 */}
-      <polygon points={diamond(cx + 4, cy + 2, 0.86)} fill="rgba(0,0,0,0.18)" />
-      {/* 왼벽 */}
-      <polygon points={`${cx - w},${top} ${cx},${top + h} ${cx},${cy + h} ${cx - w},${cy}`} fill={left} stroke="rgba(0,0,0,0.12)" />
-      {/* 오른벽 */}
-      <polygon points={`${cx},${top + h} ${cx + w},${top} ${cx + w},${cy} ${cx},${cy + h}`} fill={right} stroke="rgba(0,0,0,0.12)" />
-      {/* 문 (왼벽) */}
-      <polygon points={`${cx - w * 0.62},${cy - 13 + h * 0.38} ${cx - w * 0.3},${cy - 13 + h * 0.7} ${cx - w * 0.3},${cy + h * 0.7} ${cx - w * 0.62},${cy + h * 0.38}`} fill="#7c2d12" opacity="0.85" />
-      {/* 창문 (오른벽) */}
-      <polygon points={`${cx + w * 0.25},${cy - H * 0.55 + h * 0.75} ${cx + w * 0.7},${cy - H * 0.55 + h * 0.3} ${cx + w * 0.7},${cy - H * 0.3 + h * 0.3} ${cx + w * 0.25},${cy - H * 0.3 + h * 0.75}`} fill="#e0f2fe" stroke="#0369a1" strokeWidth="0.8" />
-      {/* 지붕 (조금 튀어나오게) */}
-      <polygon points={diamond(cx, top, s * 1.12)} fill={roof} stroke="rgba(0,0,0,0.2)" />
-      <polygon points={diamond(cx, top - 3, s * 0.7)} fill="rgba(255,255,255,0.28)" />
+    <g ref={refEl} onClick={onClick} className="cursor-pointer" style={{ opacity: closed ? 0.6 : 1 }}>
+      <clipPath id={clip}>
+        <polygon points={`${cx - TW / 2},${cy - 200} ${cx + TW / 2},${cy - 200} ${cx + TW / 2},${cy} ${cx},${cy + TH / 2} ${cx - TW / 2},${cy}`} />
+      </clipPath>
+      <image clipPath={`url(#${clip})`} href={art.base} x={cx - TW / 2} y={groundTop + GROUND_H * S - BUILDING_H * S} width={TW} height={BUILDING_H * S} />
+      {art.floors.map((src, i) => (
+        <image key={i} href={src} x={ux} y={floorTops[i]} width={99 * S} height={85 * S} />
+      ))}
+      <image href={art.roof} x={ux} y={roofTop} width={99 * S} height={60 * S} />
+      {selected && <polygon points={diamond(cx, cy, 1)} fill="rgba(250,204,21,0.18)" stroke="#facc15" strokeWidth="3" className="town-pulse" />}
       {/* 간판 */}
-      <text x={cx} y={top - 6} textAnchor="middle" fontSize="20">{shop.icon}</text>
+      <g>
+        <circle cx={cx} cy={roofTop - 4} r="11" fill="#fff" stroke="rgba(0,0,0,0.15)" />
+        <text x={cx} y={roofTop + 1.5} textAnchor="middle" fontSize="15">{shop.icon}</text>
+      </g>
       {lv > 1 && (
         <g>
-          <rect x={cx + 8} y={top - 22} width="20" height="11" rx="5" fill="#f59e0b" />
-          <text x={cx + 18} y={top - 13.5} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">Lv{lv}</text>
+          <rect x={cx + 9} y={roofTop - 14} width="20" height="11" rx="5" fill="#f59e0b" />
+          <text x={cx + 19} y={roofTop - 5.5} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">Lv{lv}</text>
         </g>
       )}
       {closed && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="11">😴</text>}
@@ -77,8 +85,7 @@ const SEA = ['🌊', '', '', '🐟', '', '🌊', '', '']
 const ICE = ['✨', '', '', '❄️', '', '', '✨', '']
 
 const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra }, ref) {
-  const M = mapById(mapId)
-  const col = M.colors
+  useEffect(preloadTownArt, [])
   const tiles = []
   const objects = []
   for (let r = 0; r < ROWS; r++) {
@@ -88,12 +95,18 @@ const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, sele
       const k = key(r, c, mapId)
       const scenery = t === '~' || t === 'I' // 바다·얼음 — 못 짓는 풍경
       const open = t === 'R' || scenery || unlocked(town, r, c, mapId)
-      const alt = (r + c) % 2
-      const fill = t === 'R' ? col.road[alt] : scenery ? col.water[alt] : open ? col.land[alt] : (col.locked || col.land)[alt]
+      const road = (rr, cc) => { const n = tileAt(rr, cc, mapId); return n === null || n === 'R' } // 지도 밖으로 나가는 길도 이어지게
+      const F = MAP_FILTER[mapId] || {}
+      const g = GROUND[landKind(mapId)]
       tiles.push(
         <g key={k} onClick={() => !scenery && onTile?.(r, c)} className={t === 'R' || scenery ? '' : 'cursor-pointer'}>
-          <polygon points={diamond(cx, cy)} fill={fill} stroke={t === 'R' ? 'rgba(0,0,0,0.18)' : 'rgba(0,0,0,0.08)'} strokeWidth="0.8" />
-          {t === 'R' && <polygon points={diamond(cx, cy, 0.18)} fill="#fafaf9" opacity="0.8" />}
+          {t === 'R' ? (
+            <Tile cx={cx} cy={cy} src={roadSrc(road(r - 1, c), road(r, c + 1), road(r + 1, c), road(r, c - 1))} />
+          ) : scenery ? (
+            <Tile cx={cx} cy={cy} src={GROUND.water.src} h={GROUND.water.h} filter={t === 'I' ? 'saturate(0.35) brightness(1.3)' : F.water} />
+          ) : (
+            <Tile cx={cx} cy={cy} src={g.src} filter={open ? F.land : F.locked || F.land} />
+          )}
           {t === '~' && SEA[(r * 3 + c) % 8] && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="13" className="town-bob">{SEA[(r * 3 + c) % 8]}</text>}
           {t === 'I' && ICE[(r * 5 + c) % 8] && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="11" opacity="0.8">{ICE[(r * 5 + c) % 8]}</text>}
           {selectedKey === k && !town.built[k] && <polygon points={diamond(cx, cy)} fill="rgba(250,204,21,0.35)" stroke="#facc15" strokeWidth="2.5" />}

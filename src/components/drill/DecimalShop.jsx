@@ -408,6 +408,7 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
         <p className="mt-2 text-center text-xs font-bold text-sky-900/60">
           손님 {town.served}명 받음 · 놓친 손님 {town.lost}명 · 총 매출 {money(town.totalSales)}G · 최고 이익 {money(town.bestProfit)}G
         </p>
+        <p className="mt-1 text-center text-[10px] font-bold text-sky-900/40">마을 그림: Kenney (kenney.nl, CC0)</p>
       </div>
 
       <AnimatePresence>
