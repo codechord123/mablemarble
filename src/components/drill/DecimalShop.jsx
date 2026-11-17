@@ -11,6 +11,7 @@ import {
   shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
   shopsIn, openShops, makeFreshCustomer, orderKey, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
+  SELL_RATE, spentOn, sellPrice, canSell, neighborsOf, near, FAN_AT, fansOf, regularsOf, queueForecast, overflowRisk,
   forecastOf, demandOf, demandLevel, DEMAND_LABEL, repOf, repLabel, repChange, THOUGHTS, thoughtFor,
   popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
@@ -19,13 +20,13 @@ import { sfx } from '../../utils/sounds.js'
 import { cheer, flyCoins } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
 import { SoundMini, useHideSoundToggle } from '../ui/MuteToggle.jsx'
-import TownMap, { center } from './TownMap.jsx'
+import TownMap, { center, MapZoom } from './TownMap.jsx'
 import PairDrill from './PairDrill.jsx'
 import { PAIR_GOAL } from '../../utils/pairCalc.js'
 import { safeTown } from '../../utils/townGuard.js'
 
 const RELAX_KEY = 'boomarble_tycoon_relaxed'
-const STEP_MS = 420 // 손님이 한 칸 걷는 시간
+const STEP_MS = 330 // 손님이 한 칸 걷는 시간 (지도가 커져서 조금 빠르게)
 
 const Stars = ({ n }) => (
   <span className="tracking-tighter" aria-label={`인기 ${n.toFixed(1)}`}>
@@ -114,7 +115,7 @@ function tileSheet(town, r, c, m = 'main') {
 }
 
 // 짓기·키우기·땅 사기·광고 창 — 마을 화면과 장사 중 '짓기'에서 같이 쓴다
-function BuildSheets({ town, sheet, setSheet, onUpdate }) {
+function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
   const can = (c) => gte(town.money, D(c))
   const builtIds = new Set(Object.values(town.built).map((b) => b.id))
   const sm = sheet?.m || 'main'
@@ -123,6 +124,21 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
   const theme = decorTab || (sm === 'main' ? 'nature' : sm)
   useEffect(() => setDecorTab(null), [sk])
   const here = sk ? town.built[sk] : null
+  function sell(k) {
+    const b = town.built[k]
+    const price = sellPrice(b)
+    const name = b.kind === 'shop' ? shopById(b.id).name : decorById(b.id).name
+    if (!window.confirm(`${name}을(를) ${money(price)}G에 팔까요? (들인 돈 ${spentOn(b)}G × ${show(SELL_RATE)})`)) return
+    sfx.coin()
+    onUpdate((t) => {
+      const nb = { ...t.built }
+      delete nb[k]
+      return { built: nb, money: addD(t.money, price) }
+    })
+    setSheet(null)
+  }
+  // 이 자리에 장식을 놓으면 덕을 볼 근처 가게들
+  const nearShops = sk ? shopsIn(town).filter((x) => x.key !== sk && near(x.key, sk)) : []
   function pay(cost, patch, big) {
     if (!can(cost)) return
     sfx.coin()
@@ -158,6 +174,11 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
               <p className="mb-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">길에서 떨어진 땅이라 가게는 못 지어요. 장식을 놓아 마을 인기를 올려 보세요!</p>
             )}
             <div className="mb-1 mt-2 text-xs font-black text-slate-500">장식 (마을 인기 ★ ↑ → 손님이 더 많이·오래)</div>
+            {nearShops.length > 0 && (
+              <div className="mb-1.5 rounded-xl bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-800">
+                🌳 이웃 효과: 여기 장식을 놓으면 2칸 안의 {nearShops.map((x) => x.shop.icon).join('')} 가게에 손님이 더 와요 (노란 칸이 닿는 범위)
+              </div>
+            )}
             <div className="mb-1.5 flex gap-1 overflow-x-auto pb-0.5">
               {DECOR_THEMES.map(([id, label]) => (
                 <button key={id} type="button" onClick={() => setDecorTab(id)}
@@ -195,6 +216,16 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
                 <div className="mt-1 text-xs font-bold text-slate-600">{s.tier}등급 · {s.kind === 'count' ? '개수로 팔아요 (2·3·8차시)' : '달아서 팔아요 (4~8차시)'}</div>
                 <div className="mt-1 text-xs font-bold text-slate-600">가게 앞 줄 {slotsOf(lv)}칸 · 팁 +{lv - 1}G · 하루 유지비 {s.tier * lv}G</div>
               </div>
+              {(() => {
+                const nb = neighborsOf(town, sk)
+                return (
+                  <div className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">
+                    <div className="font-black">🌳 이웃 효과 +{Math.round(nb.bonus * 100)}% <span className="font-bold text-amber-700">(노란 칸 = 2칸 안)</span></div>
+                    <div>장식 {nb.decor.length}개{nb.decor.length ? ` ${nb.decor.map((id) => decorById(id).icon).join('')}` : ''} · 이웃 가게 {nb.shops.length}곳 → 손님이 더 오고 더 오래 기다려요</div>
+                    {nb.bonus < 1 && <div className="text-amber-700">가까이에 장식을 놓으면 더 올라가요 (최대 +100%)</div>}
+                  </div>
+                )
+              })()}
               {lv < MAX_LV ? (
                 <GameButton color={can(cost) ? 'green' : 'gray'} disabled={!can(cost)} className="mt-3 w-full py-3"
                   onClick={() => pay(cost, (t) => ({ built: { ...t.built, [sk]: { ...here, lv: lv + 1 } } }), true)}>
@@ -204,6 +235,17 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
               ) : (
                 <div className="mt-3 rounded-xl bg-amber-50 py-3 text-center font-black text-amber-700">🏆 최고 레벨이에요!</div>
               )}
+              {(() => {
+                const ok = canSell(town, sk)
+                if (inDay) return <p className="mt-2 text-center text-xs font-bold text-slate-400">가게 팔기는 장사가 끝난 뒤 마을에서 할 수 있어요</p>
+                return (
+                  <button type="button" disabled={!ok.ok} onClick={() => sell(sk)}
+                    className="mt-2 w-full rounded-2xl bg-slate-100 py-2.5 text-sm font-black text-slate-600 enabled:hover:bg-rose-50 enabled:hover:text-rose-700 disabled:opacity-50">
+                    💰 가게 팔기 · +{money(sellPrice(here))}G <span className="font-bold">(들인 돈 {spentOn(here)}G × {show(SELL_RATE)})</span>
+                    {!ok.ok && <span className="block text-[11px] font-bold text-rose-600">{ok.why}</span>}
+                  </button>
+                )
+              })()}
             </Sheet>
           )
         })()}
@@ -211,10 +253,10 @@ function BuildSheets({ town, sheet, setSheet, onUpdate }) {
         {sheet?.type === 'decor' && here && (
           <Sheet title={`${decorById(here.id).icon} ${decorById(here.id).name}`} onClose={() => setSheet(null)}>
             <p className="text-sm font-bold text-slate-600">마을 인기 +{decorById(here.id).pop}★ 를 주는 장식이에요.</p>
-            <GameButton color="gray" className="mt-3 w-full py-2.5" onClick={() => {
-              onUpdate((t) => { const b = { ...t.built }; delete b[sk]; return { built: b } })
-              setSheet(null)
-            }}>치우기 (돈은 돌려받지 않아요)</GameButton>
+            {nearShops.length > 0 && <p className="mt-1 text-xs font-bold text-amber-800">🌳 2칸 안의 {nearShops.map((x) => x.shop.icon).join('')} 가게에 이웃 효과를 주고 있어요</p>}
+            <GameButton color="gray" className="mt-3 w-full py-2.5" onClick={() => sell(sk)}>
+              💰 팔기 · +{money(sellPrice(here))}G (값 {spentOn(here)}G × {show(SELL_RATE)})
+            </GameButton>
           </Sheet>
         )}
 
@@ -425,7 +467,10 @@ function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onRe
 
         <MapTabs town={town} mapView={mapView} setMapView={setMapView} />
         <div className="relative mt-1">
-          <TownMap town={town} mapId={mapView} onTile={onTile} selectedKey={sk} />
+          <MapZoom>
+            <TownMap town={town} mapId={mapView} onTile={onTile} selectedKey={sk}
+              range={sheet && sheet.r != null && (sheet.m || 'main') === mapView ? { r: sheet.r, c: sheet.c } : null} />
+          </MapZoom>
           {!mapOpen && (() => {
             const M = mapById(mapView)
             return (
@@ -528,6 +573,9 @@ function progressOf(lesson, s, elapsedMs) {
 
 function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, onUpdate, onLog }) {
   const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const regulars = useMemo(() => regularsOf(town), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const nbBonus = (k) => neighborsOf(townRef.current, k).bonus // 이웃 효과 (장사 중 지어도 바로 반영)
+  const shopWeight = (x) => x.lv * demandOf(x.shop.id, rules.forecast) * (1 + nbBonus(x.key))
   // 장사 중에도 가게를 짓고 키울 수 있어서, 문 연 가게는 그때그때 마을에서 다시 본다
   const open = openShops(lesson, town)
   const openKeys = new Set(open.map((x) => x.key))
@@ -548,8 +596,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     rushDone: resume?.rushDone || [],
     used: resume?.used || [], // 오늘 낸 식들
     stats: resume?.stats
-      ? { ...resume.stats, met: { ...resume.stats.met }, thoughts: { ...(resume.stats.thoughts || {}) } }
-      : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {}, thoughts: {} },
+      ? { ...resume.stats, met: { ...resume.stats.met }, thoughts: { ...(resume.stats.thoughts || {}) }, fans: { ...(resume.stats.fans || {}) } }
+      : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {}, thoughts: {}, fans: {} },
+    avgSolve: 0, // 한 명 계산하는 데 걸린 시간(초) — 줄 예보에 쓴다
     bubbles: {}, // 가게 위 손님 생각 { [가게]: { key, text, until } }
   })
   const [, setFrame] = useState(0)
@@ -577,6 +626,13 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   useEffect(() => {
     if (import.meta.env.DEV) window.__shopOrder = active
   }, [active])
+
+  // 단골 정 — 처음에 정확히 계산해 주면 +1, 놓치면 −1 (하루를 마칠 때 마을에 더한다)
+  function fan(cust, d) {
+    const f = g.current.stats.fans
+    const e = cust.customer.emoji
+    f[e] = (f[e] || 0) + d
+  }
 
   // 손님 생각 말풍선 (가게 위에 3초) + 정산 때 보여 줄 횟수
   function think(shopKey, key, now) {
@@ -634,10 +690,11 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         const room = open.filter((x) => (s.queues[x.key]?.length || 0) + s.walkers.filter((w) => w.phase === 'in' && w.shopKey === x.key).length < slotsOf(x.lv))
         if (!room.length) s.nextSpawn = now + 800
         else {
-          const weights = room.map((x) => x.lv * demandOf(x.shop.id, rules.forecast)) // 수요 ▲ 가게로 손님이 몰린다
+          const weights = room.map(shopWeight) // 수요 ▲·이웃 효과 큰 가게로 손님이 몰린다
           let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
           const target = room.find((x, i) => (roll -= weights[i]) < 0) || room[0]
-          const cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used) }) }
+          const cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used), regulars }) }
+          s.spawnLog = [...(s.spawnLog || []).filter((t) => now - t < 60000), now] // 줄 예보용: 최근 1분에 온 손님
           s.used = [...s.used, orderKey(cust)] // 오늘 낸 식은 다시 안 낸다 (30문제 모두 다르게)
           s.walkers.push(walkerTo(cust, target.key))
           s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
@@ -664,11 +721,14 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         if (q.length >= slotsOf(lv)) {
           s.stats.lost += 1
           s.penalty += PENALTY.lost
+          fan(w.cust, -1)
           walkerAway(w.cust, w.shopKey, '😤')
           setToast(`😤 ${shopById(town.built[w.shopKey].id).name} 줄이 꽉 차서 ${w.cust.customer.name} 손님이 갔어요 · +${PENALTY.lost}초`)
           sfx.wrong()
         } else {
-          q.push({ ...w.cust, arrivedAt: now })
+          const nb = nbBonus(w.shopKey)
+          // 기다려 주는 시간: 이웃 효과 최대 +30%, 단골 +20%
+          q.push({ ...w.cust, arrivedAt: now, pat: rules.patience * (1 + nb * 0.3) * (w.cust.regular ? 1.2 : 1) })
           sfx.card?.()
           // 손님 생각 — 줄·수요·장식·평판·날씨를 보고 한마디
           const b = town.built[w.shopKey]
@@ -677,6 +737,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             queueLen: q.length, slots: slotsOf(b?.lv || 1), demand: demandOf(b?.id, rules.forecast),
             decorHere: Object.entries(town.built).filter(([k, x]) => x.kind === 'decor' && mapOf(k) === m).length,
             pop: popularityOf(town), lv: b?.lv || 1, rep: rules.rep, rush: now < s.rushUntil, weather: true,
+            regular: w.cust.regular, nearBonus: nb,
           })
           if (th) think(w.shopKey, th, now)
         }
@@ -688,12 +749,13 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         const keep = []
         q.forEach((c, i) => {
           const serving = k === selRef.current && i === 0
-          if (!serving && !c.slowThought && now - c.arrivedAt > rules.patience * 600) { // 기다림 60%를 넘으면 한 번
+          if (!serving && !c.slowThought && now - c.arrivedAt > (c.pat || rules.patience) * 600) { // 기다림 60%를 넘으면 한 번
             c.slowThought = true
             think(k, 'slow', now)
           }
-          if (!serving && now - c.arrivedAt > rules.patience * 1000) {
+          if (!serving && now - c.arrivedAt > (c.pat || rules.patience) * 1000) {
             s.stats.lost += 1
+            fan(c, -1)
             s.penalty += PENALTY.lost
             walkerAway(c, k, '😤')
             setToast(`😤 ${c.customer.name} 손님이 기다리다 갔어요 · +${PENALTY.lost}초`)
@@ -847,7 +909,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     const r = grade(active, input)
     if (r === 'invalid') return
     const s = g.current
-    const mood = moodOf((Date.now() - active.arrivedAt) / 1000, rules.patience)
+    const mood = moodOf((Date.now() - active.arrivedAt) / 1000, active.pat || rules.patience)
     if (r === 'correct') {
       const firstTry = tries === 0
       const st = firstTry ? streak + 1 : 0
@@ -855,7 +917,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       const rush = Date.now() < s.rushUntil
       const boost = Date.now() < (s.tipBoostUntil || 0)
       // 수요 ▲ 가게 +1G, 소문난 가게 +1G (처음에 스스로 맞혔을 때만)
-      const bonus = firstTry && !helper ? (demandLevel(demandOf(town.built[sel]?.id, rules.forecast)) >= 1 ? 1 : 0) + rules.repTip : 0
+      const bonus = firstTry && !helper ? (demandLevel(demandOf(town.built[sel]?.id, rules.forecast)) >= 1 ? 1 : 0) + rules.repTip + (active.regular ? 1 : 0) : 0
+      if (firstTry && !helper) fan(active, 1)
+      const took = (Date.now() - servingSince.current) / 1000
+      s.avgSolve = s.avgSolve ? s.avgSolve * 0.7 + took * 0.3 : took
       const tip = ((helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) + bonus) * (rush ? 2 : 1) * (boost ? 2 : 1)
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
@@ -889,6 +954,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     if (t >= 3) {
       onLog?.({ l: lesson.type, q: `${active.price} × ${show(active.b)}`, r: 0 })
       s.stats.lost += 1
+      fan(active, -1)
       setState('gone')
       setToast(`😢 세 번 틀려서 ${active.customer.name} 손님이 그냥 갔어요 (30문제에 안 세요)`)
       setTimeout(() => done('😢'), 1400)
@@ -918,6 +984,17 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   const boosting = started && now < (s.tipBoostUntil || 0)
   const inFlightNow = s.walkers.filter((w) => w.phase === 'in').length + waitingTotal
   // 지도마다 기다리는 손님 수 (탭에 빨간 숫자)
+  // 줄 예보 — 1분에 오는 손님 vs 1분에 계산하는 손님 (계산 속도는 오늘 내 기록으로)
+  const sinceStart = started ? Math.min(60, ((paused ? pausedAt.current : now) - s.startAt) / 1000) : 0
+  const recent = (s.spawnLog || []).filter((t) => now - t < 60000).length
+  const fc = queueForecast({ gapSec: rules.gap, avgSolveSec: s.avgSolve || 20, rush: rushing, arrivePerMin: sinceStart >= 20 ? recent / (sinceStart / 60) : null })
+  const openW = open.map((x) => [x.key, shopWeight(x), x])
+  const sumW = openW.reduce((a, [, w]) => a + w, 0) || 1
+  const riskKeys = new Set(
+    fc.growing
+      ? openW.filter(([k, w, x]) => overflowRisk({ arrivePerMin: fc.arrive, share: w / sumW, patienceSec: rules.patience * (1 + nbBonus(k) * 0.3), slots: slotsOf(x.lv) })).map(([k]) => k)
+      : [],
+  )
   const waitingByMap = {}
   for (const [k, q] of Object.entries(queues)) if (q.length) waitingByMap[mapOf(k)] = (waitingByMap[mapOf(k)] || 0) + q.length
   const ownedItems = ITEMS.filter((it) => (town.items || {})[it.id])
@@ -938,12 +1015,19 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       </g>
     )
   }
+  const riskBadge = (k, cx, cy) =>
+    riskKeys.has(k) ? (
+      <g pointerEvents="none">
+        <rect x={cx + 10} y={cy - 22} width="30" height="13" rx="6.5" fill="#f97316" />
+        <text x={cx + 25} y={cy - 12.5} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">⚠️줄</text>
+      </g>
+    ) : null
   const overlay = (k, cx, cy) => {
     const q = queues[k] || []
-    if (!q.length) return bubbleOf(k, cx, cy, false)
+    if (!q.length) return <>{riskBadge(k, cx, cy)}{bubbleOf(k, cx, cy, false)}</>
     const front = q[0]
     const serving = k === sel
-    const frac = serving ? 1 : Math.max(0, 1 - (now - front.arrivedAt) / (rules.patience * 1000))
+    const frac = serving ? 1 : Math.max(0, 1 - (now - front.arrivedAt) / ((front.pat || rules.patience) * 1000))
     const color = frac > 0.6 ? '#22c55e' : frac > 0.25 ? '#f59e0b' : '#ef4444'
     const R = 13
     const C = 2 * Math.PI * R
@@ -955,6 +1039,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         <circle cx={cx} cy={y} r={R} fill="none" stroke={color} strokeWidth="3.5" strokeDasharray={`${C * frac} ${C}`} transform={`rotate(-90 ${cx} ${y})`} />
         <text x={cx} y={y + 6} textAnchor="middle" fontSize="16">{front.customer.emoji}</text>
         {front.vip && <text x={cx - 12} y={y - 10} fontSize="11">👑</text>}
+        {front.regular && <text x={cx + 8} y={y + 14} fontSize="10">❤️</text>}
+        {riskBadge(k, cx, cy)}
         {q.length > 1 && (
           <g>
             <circle cx={cx + 15} cy={y - 10} r="7" fill="#e11d48" />
@@ -977,13 +1063,14 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             <text x="0" y="-2" textAnchor="middle" fontSize="18" className="town-walk" style={{ transform: flip ? 'scaleX(-1)' : undefined }}>{w.cust.customer.emoji}</text>
             {w.face && <text x="9" y="-14" fontSize="10">{w.face}</text>}
             {w.cust.vip && w.phase === 'in' && <text x="-4" y="-18" fontSize="9">👑</text>}
+            {w.cust.regular && w.phase === 'in' && <text x="4" y="-16" fontSize="8">❤️</text>}
           </g>
         )
       })}
     </g>
   )
 
-  const face = state === 'paid' ? '😍' : state === 'gone' ? '😢' : tries > 0 ? '🤔' : active ? MOOD_FACE[moodOf((now - active.arrivedAt) / 1000, rules.patience)] : ''
+  const face = state === 'paid' ? '😍' : state === 'gone' ? '😢' : tries > 0 ? '🤔' : active ? MOOD_FACE[moodOf((now - active.arrivedAt) / 1000, active.pat || rules.patience)] : ''
   const bubble = !active ? '' : state === 'paid' ? (active.vip ? '역시 최고의 가게! 👑' : '고마워요! 또 올게요~') : state === 'gone' ? '음… 다음에 올게요 😢' : tries > 0 ? '어? 계산이 이상한데… 다시 해 주실래요?' : active.say
 
   return (
@@ -1032,9 +1119,15 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             {s.penalty > 0 && <span key={penaltyPop} className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-black text-rose-700 town-shake">벌칙 +{s.penalty}초</span>}
             <Money value={live} refEl={moneyRef} />
           </div>
+          {started && state !== 'done' && (
+            <div className={`mt-1 rounded-xl px-2.5 py-1 text-[11px] font-black ${fc.growing ? 'bg-orange-100 text-orange-800' : 'bg-emerald-50 text-emerald-800'}`}>
+              📊 줄 예보: 1분에 손님 {fc.arrive}명 와요 · 나는 1분에 {fc.serve}명 계산 → {fc.growing ? '줄이 길어져요! ⚠️ 가게는 줄 칸을 늘리거나(Lv업) 빨리 계산' : '여유 있어요 😊'}
+            </div>
+          )}
           {/* 지도 */}
           <MapTabs town={town} mapView={mapView} setMapView={setMapView} waiting={waitingByMap} hideLocked={!building} />
           <div className="relative mt-1">
+            <MapZoom>
             <TownMap
               town={town}
               mapId={mapView}
@@ -1049,7 +1142,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
               shopRefs={shopRefs}
               overlay={building ? null : overlay}
               extra={building ? null : walkers}
+              range={building && sheet && sheet.r != null && (sheet.m || 'main') === mapView ? { r: sheet.r, c: sheet.c } : null}
             />
+            </MapZoom>
             {building && (
               <div className="absolute inset-x-0 top-1 mx-auto flex w-fit max-w-[96%] items-center gap-2 rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-amber-950 shadow">
                 🏗️ 짓기 모드 — 땅·가게를 눌러요 (시계 멈춤)
@@ -1128,7 +1223,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         </div>
       </div>
 
-      {building && <BuildSheets town={town} sheet={sheet} setSheet={setSheet} onUpdate={onUpdate} />}
+      {building && <BuildSheets town={town} sheet={sheet} setSheet={setSheet} onUpdate={onUpdate} inDay />}
     </div>
   )
 }
@@ -1244,7 +1339,7 @@ function Quests({ town, onClaim, onClose }) {
 function CustomerBook({ town, onClose }) {
   return (
     <Sheet title="📖 손님 도감" onClose={onClose}>
-      <p className="text-xs font-bold text-slate-500">반짝이는 손님은 아주 가끔 와요. 모두 만나 볼까요?</p>
+      <p className="text-xs font-bold text-slate-500">반짝이는 손님은 아주 가끔 와요. 처음에 정확히 계산해 주면 정이 들어(♡) {FAN_AT}이 되면 ❤️ 단골 — 자주 오고 팁도 더 줘요.</p>
       <div className="mt-2 grid grid-cols-4 gap-2">
         {CUSTOMERS.map(([e, n, r]) => {
           const seen = town.met[e]
@@ -1253,6 +1348,11 @@ function CustomerBook({ town, onClose }) {
               <div className={`text-4xl ${seen ? '' : 'opacity-30 grayscale'}`}>{seen ? e : '❔'}</div>
               <div className="truncate text-[11px] font-black text-slate-700">{seen ? n : '???'}</div>
               {seen ? <div className="text-[10px] font-bold text-slate-400">{seen}번 옴</div> : null}
+              {seen && (fansOf(town)[e] || 0) > 0 ? (
+                <div className={`text-[10px] font-black ${fansOf(town)[e] >= FAN_AT ? 'text-rose-600' : 'text-rose-400'}`}>
+                  {fansOf(town)[e] >= FAN_AT ? '❤️ 단골' : `♡ ${fansOf(town)[e]}/${FAN_AT}`}
+                </div>
+              ) : null}
             </div>
           )
         })}
@@ -1355,6 +1455,7 @@ export default function DecimalShop({ onBack }) {
       money: subD(addPaid ? addD(addD(town.money, r.sales), r.tips) : town.money, addD(sheet.material, sheet.upkeep)),
       days: town.days + 1,
       rep: Math.max(0, Math.min(100, repOf(town) + repChange(r))), // 평판 — 하루를 마칠 때만 바뀐다
+      fans: Object.entries(r.fans || {}).reduce((m, [e, n]) => ({ ...m, [e]: Math.max(0, (m[e] || 0) + n) }), fansOf(town)), // 단골 정
       served: town.served + r.served,
       lost: town.lost + r.lost,
       bestStreak: Math.max(town.bestStreak, r.best),

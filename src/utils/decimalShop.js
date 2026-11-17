@@ -137,33 +137,44 @@ export const decorById = (id) => DECOR.find((d) => d.id === id)
 // ─── 마을 지도 (여러 장) ───
 // R 길 · . 지을 수 있는 땅 · a/b 사야 쓰는 땅(시내) · ~ 바다 · I 얼음 호수 (지을 수 없는 풍경)
 // 칸 이름: 시내는 'r,c', 다른 지도는 '지도:r,c' (예: 'beach:2,3')
+// 지도는 12×12. 처음 8×8(왼쪽 위)은 예전 그대로 — 학생들이 지어 둔 가게 자리가 바뀌지 않게 오른쪽·아래로만 넓혔다.
 export const MAP = [
-  'bbbRbbbb',
-  'b..R..bb',
-  'a..R...a',
-  'RRRRRRRR',
-  'a..R...a',
-  'aa.R..aa',
-  'aaaRaaaa',
-  'aaaRaaaa',
+  'bbbRbbbbcccc',
+  'b..R..bbcccc',
+  'a..R...acccc',
+  'RRRRRRRRRRRR',
+  'a..R...acRcc',
+  'aa.R..aacRcc',
+  'aaaRaaaacRcc',
+  'aaaRaaaacRcc',
+  'dddRdddddRdd',
+  'RRRRRRRRRRRR',
+  'dddRdddddRdd',
+  'dddRdddddRdd',
 ]
 export const MAPS = [
   { id: 'main', icon: '🏙️', name: '시내', cost: 0, desc: '처음 마을', layout: MAP,
     colors: { land: ['#86d98f', '#7ccf86'], road: ['#d6d3d1', '#cfcac6'], locked: ['#5f9a69', '#578f61'] } },
   { id: 'beach', icon: '🏖️', name: '바닷가 마을', cost: 600, desc: '파도 소리 들리는 모래사장 마을. 아이스크림 가게와 수산시장을 지을 수 있어요.',
-    layout: ['..R..~~~', '..R...~~', 'RRRRR..~', '..R.R..~', '..R.R...', 'RRRRRR..', '~~..R...', '~~~.R..~'],
+    layout: ['..R..~~~~~~~', '..R...~~~~~~', 'RRRRR..~~~~~', '..R.R..~~~..', '..R.R....R..', 'RRRRRR...R..',
+      '~~..R....R..', '~~~.R..~.R..', '~~~.R....R..', '~~..RRRRRRRR', '~...R....R..', '~~..R....R~~'],
     colors: { land: ['#fde68a', '#fcd97a'], road: ['#e7d3b0', '#dcc7a0'], water: ['#38bdf8', '#2fb0ee'] } },
   { id: 'snow', icon: '❄️', name: '눈꽃 마을', cost: 1500, desc: '얼음 호수가 있는 하얀 마을. 핫초코 카페와 겨울옷 가게를 지을 수 있어요.',
-    layout: ['...R....', '.IIR....', '.IIR..II', '...R..II', 'RRRRRRRR', '...R....', '..IR....', '...R....'],
+    layout: ['...R........', '.IIR.....II.', '.IIR..II.II.', '...R..II....', 'RRRRRRRRRRRR', '...R.....R..',
+      '..IR.....R..', '...R.....R..', '...R..II.R..', 'RRRRRRRRRRRR', '..IR.....R..', '...R.....R..'],
     colors: { land: ['#f1f5f9', '#e6edf5'], road: ['#cbd5e1', '#c3cedb'], water: ['#a5f3fc', '#99e9f4'] } },
   { id: 'park', icon: '🎡', name: '놀이공원', cost: 3000, desc: '빙글빙글 길이 도는 놀이공원. 팝콘 가게와 기념품 가게를 지을 수 있어요.',
-    layout: ['........', '.RRRRRR.', '.R....R.', 'RR....RR', '.R....R.', '.R....R.', '.RRRRRR.', '....R...'],
+    layout: ['............', '.RRRRRR.....', '.R....R.....', 'RR....RRRRR.', '.R....R...R.', '.R....R...R.',
+      '.RRRRRR...R.', '....R.....R.', '....RRRRRRR.', '....R.....R.', '....R.....R.', '....R.....R.'],
     colors: { land: ['#fbcfe8', '#f9c2e0'], road: ['#ddd6fe', '#d3cbfb'] } },
 ]
 export const mapById = (id) => MAPS.find((m) => m.id === id) || MAPS[0]
 export const ROWS = MAP.length
 export const COLS = MAP[0].length
-export const ZONES = { a: { name: '마을 바깥 땅', cost: 150 }, b: { name: '북쪽 언덕', cost: 400 } }
+export const ZONES = {
+  a: { name: '마을 바깥 땅', cost: 150 }, b: { name: '북쪽 언덕', cost: 400 },
+  c: { name: '동쪽 새 동네', cost: 700 }, d: { name: '남쪽 큰길 동네', cost: 1000 },
+}
 export const tileAt = (r, c, m = 'main') => {
   const L = mapById(m).layout
   return r < 0 || c < 0 || r >= L.length || c >= L[0].length ? null : L[r][c]
@@ -187,7 +198,7 @@ export function unlocked(town, r, c, m = 'main') {
   const t = tileAt(r, c, m)
   if (m !== 'main') return t === '.' && (town.maps || []).includes(m)
   if (t === '.') return true
-  if (t === 'a' || t === 'b') return town.zones.includes(t)
+  if (ZONES[t]) return town.zones.includes(t)
   return false
 }
 // 길 옆 땅 = 가게를 지을 수 있는 땅
@@ -320,7 +331,7 @@ export function makeFreshCustomer(lesson, shop, prices, opts = {}) {
   return c
 }
 
-export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChance = 0.1, met = {} } = {}) {
+export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChance = 0.1, met = {}, regulars = [] } = {}) {
   const pr = productById(pick(rng, shop.products))
   const type = lesson.type === 'mix' ? pick(rng, TYPES_FOR[pr.kind]) : lesson.type
   const vip = rng() < vipChance
@@ -338,6 +349,8 @@ export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChanc
   const unseen = CUSTOMERS.filter((c) => !met[c[0]])
   let cust = pick(rng, unseen.length && rng() < 0.35 ? unseen : CUSTOMERS)
   if (cust[2] && rng() < 0.6) cust = pick(rng, CUSTOMERS.filter((c) => !c[2]))
+  if (regulars.length && rng() < 0.3) cust = CUSTOMERS.find((c) => c[0] === pick(rng, regulars)) || cust // 단골이 다시 찾아온다
+  const regular = regulars.includes(cust[0])
   const qty = `${show(b)}${pr.unit}`
   uid += 1
   return {
@@ -356,8 +369,9 @@ export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChanc
     steps,
     helper: helperOf(norm(a), norm(b), type),
     customer: { emoji: cust[0], name: cust[1], rare: !!cust[2] },
+    regular,
     vip,
-    say: (vip ? '👑 ' : '') + pick(rng, SAY)(pr.name, qty),
+    say: (regular ? '❤️ 또 왔어요! ' : vip ? '👑 ' : '') + pick(rng, SAY)(pr.name, qty),
   }
 }
 
@@ -378,6 +392,67 @@ export function popularityOf(town) {
 }
 // 가게 유지비 (하루) = 등급 × 레벨
 export const upkeepOf = (town) => shopsIn(town).reduce((s, x) => s + x.shop.tier * x.lv, 0)
+
+// ─── 가게·장식 팔기 ───
+// 판 값 = 들인 돈(짓기 + 키우기) × 0.5
+export const SELL_RATE = D(5, 1)
+export function spentOn(b) {
+  if (b.kind === 'decor') return decorById(b.id).cost
+  const s = shopById(b.id)
+  let n = s.cost
+  for (let l = 1; l < (b.lv || 1); l++) n += UPGRADE_COST(s, l)
+  return n
+}
+export const sellPrice = (b) => norm(mul(D(spentOn(b)), SELL_RATE))
+// 팔면 안 되는 가게: 그 종류(개수로/달아서) 마지막 가게 — 그 차시 장사를 못 하게 되니까
+export function canSell(town, k) {
+  const b = town.built[k]
+  if (!b) return { ok: false }
+  if (b.kind === 'decor') return { ok: true }
+  const kind = shopById(b.id).kind
+  const same = shopsIn(town).filter((x) => x.shop.kind === kind)
+  if (same.length <= 1) return { ok: false, why: `${kind === 'count' ? '개수로' : '달아서'} 파는 가게가 하나는 있어야 해요` }
+  return { ok: true }
+}
+
+// ─── 이웃 효과 (심시티처럼, 가까운 장식·가게가 손님을 끈다) ───
+export const NEAR = 2 // 가로·세로·대각선 2칸 안
+export const near = (k1, k2) => {
+  if (mapOf(k1) !== mapOf(k2)) return false
+  const [a, b] = parseKey(k1)
+  const [c, d] = parseKey(k2)
+  return Math.max(Math.abs(a - c), Math.abs(b - d)) <= NEAR
+}
+export function neighborsOf(town, shopKey) {
+  const decor = []
+  const shops = []
+  for (const [k, b] of Object.entries(town.built)) {
+    if (k === shopKey || !near(k, shopKey)) continue
+    ;(b.kind === 'decor' ? decor : shops).push(b.id)
+  }
+  const raw = decor.reduce((n, id) => n + decorById(id).pop * 0.5, 0) + shops.length * 0.1
+  return { decor, shops, bonus: Math.min(1, Math.round(raw * 100) / 100) } // 최대 +100%
+}
+
+// ─── 단골 손님 ───
+// 처음에 정확히 계산해 준 손님은 정이 들고(+1), 놓친 손님은 정이 떨어진다(−1). 5 이상이면 단골.
+export const FAN_AT = 5
+export const fansOf = (town) => town.fans || {}
+export const regularsOf = (town) => Object.entries(fansOf(town)).filter(([, n]) => n >= FAN_AT).map(([e]) => e)
+
+// ─── 줄 예보 (대기행렬: 오는 속도 vs 계산하는 속도) ───
+// 1분에 오는 손님(λ)이 1분에 계산하는 손님(μ)보다 많으면 줄이 계속 길어진다.
+// arrivePerMin을 주면(오늘 실제로 온 손님 수로 잰 값) 그걸 쓴다
+export function queueForecast({ gapSec, avgSolveSec, rush = false, arrivePerMin = null }) {
+  const arrive = Math.round((arrivePerMin ?? 60 / (gapSec * (rush ? 0.5 : 1))) * 10) / 10
+  const serve = Math.round((60 / avgSolveSec) * 10) / 10
+  return { arrive, serve, growing: arrive > serve }
+}
+// 이 가게 줄이 넘칠까: 기다려 주는 동안 올 손님 수 ≥ 줄 칸
+export function overflowRisk({ arrivePerMin, share, patienceSec, slots }) {
+  const expect = (arrivePerMin / 60) * share * patienceSec
+  return expect >= slots
+}
 
 // ─── 날씨와 수요 (심시티의 수요 막대처럼) ───
 // 날마다 날씨가 바뀌고, 날씨에 어울리는 가게에 손님이 몰린다. 여기에 '요즘 유행' 가게 하나.
@@ -450,13 +525,17 @@ export const THOUGHTS = {
   big: { text: '가게가 엄청 크네요! 🏢', hint: 'Lv3 가게는 팁이 많아요' },
   famous: { text: '소문 듣고 왔어요 🌟', hint: '좋은 소문은 VIP를 불러요' },
   crowd: { text: '사람이 정말 많네요 🔥', hint: '러시 타임엔 팁 두 배' },
+  regular: { text: '단골집이라 또 왔어요 ❤️', hint: '처음에 정확히 계산해 주면 단골이 생겨요' },
+  nice: { text: '가게 주변이 예뻐서 왔어요 🌳', hint: '가게 2칸 안에 장식을 놓으면 손님이 더 와요' },
   weather: { text: '', hint: '' },
 }
 // 손님이 줄에 섰을 때 떠올릴 생각 하나 (없으면 null)
 export function thoughtFor(ctx, rng = Math.random) {
-  const { queueLen, slots, demand, decorHere, pop, lv, rep, rush, weather } = ctx
+  const { queueLen, slots, demand, decorHere, pop, lv, rep, rush, weather, regular, nearBonus = 0 } = ctx
   if (queueLen >= slots) return 'line'
+  if (regular && rng() < 0.6) return 'regular'
   const pool = []
+  if (nearBonus >= 0.3) pool.push('nice', 'nice')
   if (demandLevel(demand) >= 1) pool.push('want', 'want')
   if (decorHere === 0) pool.push('bare')
   if (pop >= 3.5) pool.push('pretty')
@@ -556,6 +635,9 @@ export const QUESTS = [
   { id: 'map1', text: '새 지도 열기', reward: 100, done: (s) => (s.maps || []).length >= 1 },
   { id: 'map3', text: '지도 세 곳 모두 열기', reward: 500, done: (s) => (s.maps || []).length >= 3 },
   { id: 'item1', text: '장사 아이템 써 보기', reward: 20, done: (s) => (s.itemsUsed || 0) >= 1 },
+  { id: 'fan1', text: '단골 손님 만들기 (❤️5)', reward: 40, done: (s) => regularsOf(s).length >= 1 },
+  { id: 'fan5', text: '단골 손님 5명', reward: 150, done: (s) => regularsOf(s).length >= 5 },
+  { id: 'near50', text: '이웃 효과 +50% 가게 만들기', reward: 80, done: (s) => shopsIn(s).some((x) => neighborsOf(s, x.key).bonus >= 0.5) },
   { id: 'rep70', text: '평판 70 넘기기 (좋은 소문)', reward: 60, done: (s) => repOf(s) >= 70 },
   { id: 'rep90', text: '평판 90 넘기기 (소문난 가게)', reward: 200, done: (s) => repOf(s) >= 90 },
   { id: 'star3', text: '아무 차시나 ★★★ 기록 내기', reward: 80, done: (s) => Object.values(s.records || {}).some((r) => r.stars >= 3) },

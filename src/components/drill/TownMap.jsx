@@ -1,7 +1,7 @@
 // 소수 마을 지도 — 비스듬히 내려다보는(아이소메트릭) 8×8 마을.
 // 땅·길 → 건물·장식(앞뒤 순서대로) → 걸어가는 손님·말풍선 순서로 그린다. 한 장의 SVG.
-import { forwardRef, useEffect } from 'react'
-import { MAP, ROWS, COLS, ZONES, tileAt, unlocked, shopById, decorById, key, BIG_DECOR } from '../../utils/decimalShop.js'
+import { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { MAP, ROWS, COLS, ZONES, NEAR, tileAt, unlocked, shopById, decorById, key, BIG_DECOR } from '../../utils/decimalShop.js'
 import { SRC_W, GROUND_H, BUILDING_H, FLOOR_STEP, UPPER_X, GROUND, roadSrc, shopArt, MAP_FILTER, landKind, preloadTownArt } from './townArt.js'
 
 export const TW = 64 // 칸 너비
@@ -75,7 +75,7 @@ const SIGN_AT = (() => {
   const out = {}
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
     const t = MAP[r][c]
-    if (ZONES[t] && !out[t] && (r === 2 || r === 0)) out[t] = key(r, c)
+    if (ZONES[t] && !out[t] && c !== 3 && r !== 3) out[t] = key(r, c) // 땅마다 처음 나오는 칸에 팻말
   }
   return out
 })()
@@ -84,7 +84,42 @@ const SIGN_AT = (() => {
 const SEA = ['🌊', '', '', '🐟', '', '🌊', '', '']
 const ICE = ['✨', '', '', '❄️', '', '', '✨', '']
 
-const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra }, ref) {
+// 크게 보기 — 지도가 12×12라 휴대폰에선 작다. 확대하면 손가락으로 밀어서 본다 (보기 설정만, 학생 기록과 상관없음)
+const ZOOM_KEY = 'boomarble_town_zoom'
+export function MapZoom({ children }) {
+  const [z, setZ] = useState(() => {
+    try {
+      const v = Number(localStorage.getItem(ZOOM_KEY))
+      if (v) return v
+    } catch { /* ignore */ }
+    return typeof window !== 'undefined' && window.innerWidth < 600 ? 1.5 : 1
+  })
+  const box = useRef(null)
+  useLayoutEffect(() => {
+    const el = box.current
+    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
+  }, [z])
+  const set = (v) => {
+    setZ(v)
+    try { localStorage.setItem(ZOOM_KEY, String(v)) } catch { /* ignore */ }
+  }
+  return (
+    <div className="relative">
+      <div ref={box} className="overflow-auto rounded-2xl" style={{ maxHeight: z > 1 ? '64dvh' : undefined }}>
+        <div style={{ width: `${z * 100}%` }}>{children}</div>
+      </div>
+      <div className="absolute bottom-1 right-1 flex flex-col gap-1">
+        {[['＋', Math.min(2.5, z + 0.5), '크게 보기'], ['－', Math.max(1, z - 0.5), '작게 보기']].map(([t, v, l]) => (
+          <button key={t} type="button" aria-label={l} onClick={() => set(v)} disabled={v === z}
+            className="h-8 w-8 rounded-full bg-white/90 text-lg font-black text-sky-900 shadow ring-1 ring-sky-900/10 disabled:opacity-40">{t}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// range: { r, c } — 그 칸에서 이웃 효과가 닿는 범위(2칸)를 옅게 칠한다
+const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra, range }, ref) {
   useEffect(preloadTownArt, [])
   const tiles = []
   const objects = []
@@ -109,6 +144,7 @@ const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, sele
           )}
           {t === '~' && SEA[(r * 3 + c) % 8] && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="13" className="town-bob">{SEA[(r * 3 + c) % 8]}</text>}
           {t === 'I' && ICE[(r * 5 + c) % 8] && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="11" opacity="0.8">{ICE[(r * 5 + c) % 8]}</text>}
+          {range && Math.max(Math.abs(range.r - r), Math.abs(range.c - c)) <= NEAR && <polygon points={diamond(cx, cy, 0.92)} fill="rgba(250,204,21,0.22)" stroke="rgba(234,179,8,0.5)" strokeWidth="1" pointerEvents="none" />}
           {selectedKey === k && !town.built[k] && <polygon points={diamond(cx, cy)} fill="rgba(250,204,21,0.35)" stroke="#facc15" strokeWidth="2.5" />}
         </g>,
       )

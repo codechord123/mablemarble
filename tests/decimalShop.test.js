@@ -233,3 +233,72 @@ describe('날씨 수요 · 평판 · 손님 생각', () => {
     expect(thoughtFor({ ...base, rep: 10 }, () => 0)).toBe('rumor')
   })
 })
+
+describe('큰 지도 · 가게 팔기 · 이웃 효과 · 단골 · 줄 예보', () => {
+  // 넓히기 전 지도 — 학생들이 지어 둔 가게 자리가 그대로여야 한다
+  const OLD = {
+    main: ['bbbRbbbb', 'b..R..bb', 'a..R...a', 'RRRRRRRR', 'a..R...a', 'aa.R..aa', 'aaaRaaaa', 'aaaRaaaa'],
+    beach: ['..R..~~~', '..R...~~', 'RRRRR..~', '..R.R..~', '..R.R...', 'RRRRRR..', '~~..R...', '~~~.R..~'],
+    snow: ['...R....', '.IIR....', '.IIR..II', '...R..II', 'RRRRRRRR', '...R....', '..IR....', '...R....'],
+    park: ['........', '.RRRRRR.', '.R....R.', 'RR....RR', '.R....R.', '.R....R.', '.RRRRRR.', '....R...'],
+  }
+  it('넓힌 지도도 처음 8×8 칸은 예전과 똑같다', async () => {
+    const { MAPS } = await import('../src/utils/decimalShop.js')
+    for (const M of MAPS) {
+      expect(M.layout, M.id).toHaveLength(12)
+      M.layout.forEach((row) => expect(row).toHaveLength(12))
+      OLD[M.id].forEach((row, r) => expect(M.layout[r].slice(0, 8), `${M.id} ${r}`).toBe(row))
+    }
+  })
+  it('예전에 지은 가게·산 땅은 그대로 쓸 수 있다', () => {
+    const town = { ...emptyTown(), zones: ['a'], maps: ['beach'] }
+    expect(unlocked(town, 2, 0)).toBe(true) // a 땅
+    expect(unlocked(town, 0, 0)).toBe(false) // b는 안 샀음
+    expect(unlocked(town, 4, 1, 'beach')).toBe(true)
+    expect(unlocked(town, 0, 9)).toBe(false) // 새 땅 c
+    expect(unlocked({ ...town, zones: ['a', 'c'] }, 0, 9)).toBe(true)
+  })
+  it('가게 팔기: 들인 돈 × 0.5, 그 종류 마지막 가게는 못 판다', async () => {
+    const { sellPrice, spentOn, canSell } = await import('../src/utils/decimalShop.js')
+    expect(spentOn({ kind: 'shop', id: 'bakery', lv: 3 })).toBe(300 + 180 + 450)
+    expect(sellPrice({ kind: 'shop', id: 'bakery', lv: 3 })).toEqual(D(465))
+    expect(show(sellPrice({ kind: 'decor', id: 'tree' }))).toBe('7.5')
+    const t = emptyTown()
+    expect(canSell(t, '2,2').ok).toBe(false) // 개수로 파는 가게가 하나뿐
+    const t2 = { ...t, built: { ...t.built, '4,2': { kind: 'shop', id: 'donutshop', lv: 1 } } }
+    expect(canSell(t2, '2,2').ok).toBe(true)
+  })
+  it('이웃 효과: 2칸 안 장식·가게만, 최대 +100%', async () => {
+    const { neighborsOf } = await import('../src/utils/decimalShop.js')
+    const t = { ...emptyTown(), built: {
+      '2,2': { kind: 'shop', id: 'candyshop', lv: 1 },
+      '1,1': { kind: 'decor', id: 'fountain' }, // 가까움
+      '7,7': { kind: 'decor', id: 'tower' }, // 멀다
+      'beach:2,2': { kind: 'decor', id: 'tower' }, // 다른 지도
+      '2,4': { kind: 'shop', id: 'fruit', lv: 1 },
+    } }
+    const nb = neighborsOf(t, '2,2')
+    expect(nb.decor).toEqual(['fountain'])
+    expect(nb.shops).toEqual(['fruit'])
+    expect(nb.bonus).toBeCloseTo(0.4)
+  })
+  it('단골: ❤️5부터, 단골은 다시 찾아온다', async () => {
+    const { regularsOf, makeCustomer } = await import('../src/utils/decimalShop.js')
+    expect(regularsOf({ fans: { '🐶': 5, '🐱': 4 } })).toEqual(['🐶'])
+    expect(regularsOf({})).toEqual([])
+    let seen = 0
+    for (let i = 0; i < 300; i++) {
+      const c = makeCustomer(LESSONS[0], SHOPS[0], {}, { regulars: ['🐶'] })
+      if (c.regular) { seen += 1; expect(c.customer.emoji).toBe('🐶') }
+    }
+    expect(seen).toBeGreaterThan(40)
+  })
+  it('줄 예보: 오는 손님이 계산보다 많으면 줄이 길어진다', async () => {
+    const { queueForecast, overflowRisk } = await import('../src/utils/decimalShop.js')
+    expect(queueForecast({ gapSec: 6, avgSolveSec: 20 })).toEqual({ arrive: 10, serve: 3, growing: true })
+    expect(queueForecast({ gapSec: 20, avgSolveSec: 10 }).growing).toBe(false)
+    expect(queueForecast({ gapSec: 10, avgSolveSec: 10, rush: true }).arrive).toBe(12)
+    expect(overflowRisk({ arrivePerMin: 10, share: 0.5, patienceSec: 70, slots: 2 })).toBe(true)
+    expect(overflowRisk({ arrivePerMin: 2, share: 0.2, patienceSec: 70, slots: 3 })).toBe(false)
+  })
+})
