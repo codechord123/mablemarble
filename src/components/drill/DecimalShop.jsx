@@ -124,11 +124,17 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
   const theme = decorTab || (sm === 'main' ? 'nature' : sm)
   useEffect(() => setDecorTab(null), [sk])
   const here = sk ? town.built[sk] : null
+  // 팔기는 두 번 눌러야 (한 번 누르면 '정말 팔까요?'로 바뀐다 — 태블릿에서 확인 창이 안 뜨는 경우가 있어서)
+  const [sellAsk, setSellAsk] = useState(null)
+  useEffect(() => setSellAsk(null), [sk])
   function sell(k) {
     const b = town.built[k]
     const price = sellPrice(b)
-    const name = b.kind === 'shop' ? shopById(b.id).name : decorById(b.id).name
-    if (!window.confirm(`${name}을(를) ${money(price)}G에 팔까요? (들인 돈 ${spentOn(b)}G × ${show(SELL_RATE)})`)) return
+    if (sellAsk !== k) {
+      setSellAsk(k)
+      return
+    }
+    setSellAsk(null)
     sfx.coin()
     onUpdate((t) => {
       const nb = { ...t.built }
@@ -238,12 +244,17 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
               {(() => {
                 const ok = canSell(town, sk)
                 if (inDay) return <p className="mt-2 text-center text-xs font-bold text-slate-400">가게 팔기는 장사가 끝난 뒤 마을에서 할 수 있어요</p>
+                const asking = sellAsk === sk
                 return (
-                  <button type="button" disabled={!ok.ok} onClick={() => sell(sk)}
-                    className="mt-2 w-full rounded-2xl bg-slate-100 py-2.5 text-sm font-black text-slate-600 enabled:hover:bg-rose-50 enabled:hover:text-rose-700 disabled:opacity-50">
-                    💰 가게 팔기 · +{money(sellPrice(here))}G <span className="font-bold">(들인 돈 {spentOn(here)}G × {show(SELL_RATE)})</span>
-                    {!ok.ok && <span className="block text-[11px] font-bold text-rose-600">{ok.why}</span>}
-                  </button>
+                  <>
+                    <button type="button" disabled={!ok.ok} onClick={() => sell(sk)}
+                      className={`mt-2 w-full rounded-2xl py-2.5 text-sm font-black disabled:opacity-50 ${asking ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-600 enabled:hover:bg-rose-50 enabled:hover:text-rose-700'}`}>
+                      {asking ? `정말 팔까요? 한 번 더 누르면 +${money(sellPrice(here))}G` : <>💰 가게 팔기 · +{money(sellPrice(here))}G <span className="font-bold">(들인 돈 {spentOn(here)}G × {show(SELL_RATE)})</span></>}
+                      {!ok.ok && <span className="block text-[11px] font-bold text-rose-600">{ok.why}</span>}
+                    </button>
+                    {asking && ok.warn && <p className="mt-1 rounded-xl bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700">⚠️ {ok.warn}</p>}
+                    {asking && <button type="button" onClick={() => setSellAsk(null)} className="mx-auto mt-1 block text-xs font-bold text-slate-500 underline">안 팔래요</button>}
+                  </>
                 )
               })()}
             </Sheet>
@@ -254,8 +265,8 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
           <Sheet title={`${decorById(here.id).icon} ${decorById(here.id).name}`} onClose={() => setSheet(null)}>
             <p className="text-sm font-bold text-slate-600">마을 인기 +{decorById(here.id).pop}★ 를 주는 장식이에요.</p>
             {nearShops.length > 0 && <p className="mt-1 text-xs font-bold text-amber-800">🌳 2칸 안의 {nearShops.map((x) => x.shop.icon).join('')} 가게에 이웃 효과를 주고 있어요</p>}
-            <GameButton color="gray" className="mt-3 w-full py-2.5" onClick={() => sell(sk)}>
-              💰 팔기 · +{money(sellPrice(here))}G (값 {spentOn(here)}G × {show(SELL_RATE)})
+            <GameButton color={sellAsk === sk ? 'red' : 'gray'} className="mt-3 w-full py-2.5" onClick={() => sell(sk)}>
+              {sellAsk === sk ? `정말 팔까요? 한 번 더 누르면 +${money(sellPrice(here))}G` : `💰 팔기 · +${money(sellPrice(here))}G (값 ${spentOn(here)}G × ${show(SELL_RATE)})`}
             </GameButton>
           </Sheet>
         )}

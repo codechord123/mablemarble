@@ -404,15 +404,19 @@ export function spentOn(b) {
   return n
 }
 export const sellPrice = (b) => norm(mul(D(spentOn(b)), SELL_RATE))
-// 팔면 안 되는 가게: 그 종류(개수로/달아서) 마지막 가게 — 그 차시 장사를 못 하게 되니까
+// 가게는 하나만 남아 있으면 판다. 그 종류(개수로/달아서) 마지막 가게면 그 차시 장사를 못 한다고 알려 준다.
 export function canSell(town, k) {
   const b = town.built[k]
   if (!b) return { ok: false }
   if (b.kind === 'decor') return { ok: true }
+  const all = shopsIn(town)
+  if (all.length <= 1) return { ok: false, why: '가게가 하나는 남아 있어야 장사를 할 수 있어요' }
   const kind = shopById(b.id).kind
-  const same = shopsIn(town).filter((x) => x.shop.kind === kind)
-  if (same.length <= 1) return { ok: false, why: `${kind === 'count' ? '개수로' : '달아서'} 파는 가게가 하나는 있어야 해요` }
-  return { ok: true }
+  const last = all.filter((x) => x.shop.kind === kind).length <= 1
+  return {
+    ok: true,
+    warn: last ? `이 가게를 팔면 ${kind === 'count' ? '개수로 파는 가게(2·3·8차시)' : '달아서 파는 가게(4~7차시)'}가 없어서, 다시 지을 때까지 그 차시 장사를 못 해요` : null,
+  }
 }
 
 // ─── 이웃 효과 (심시티처럼, 가까운 장식·가게가 손님을 끈다) ───

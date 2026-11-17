@@ -258,15 +258,18 @@ describe('큰 지도 · 가게 팔기 · 이웃 효과 · 단골 · 줄 예보',
     expect(unlocked(town, 0, 9)).toBe(false) // 새 땅 c
     expect(unlocked({ ...town, zones: ['a', 'c'] }, 0, 9)).toBe(true)
   })
-  it('가게 팔기: 들인 돈 × 0.5, 그 종류 마지막 가게는 못 판다', async () => {
+  it('가게 팔기: 들인 돈 × 0.5, 가게 하나는 남긴다', async () => {
     const { sellPrice, spentOn, canSell } = await import('../src/utils/decimalShop.js')
     expect(spentOn({ kind: 'shop', id: 'bakery', lv: 3 })).toBe(300 + 180 + 450)
     expect(sellPrice({ kind: 'shop', id: 'bakery', lv: 3 })).toEqual(D(465))
     expect(show(sellPrice({ kind: 'decor', id: 'tree' }))).toBe('7.5')
     const t = emptyTown()
-    expect(canSell(t, '2,2').ok).toBe(false) // 개수로 파는 가게가 하나뿐
+    expect(canSell(t, '2,2')).toMatchObject({ ok: true }) // 처음 마을(가게 2곳)에서도 팔 수 있다
+    expect(canSell(t, '2,2').warn).toMatch(/개수로/) // 그 종류 마지막이면 알려 준다
     const t2 = { ...t, built: { ...t.built, '4,2': { kind: 'shop', id: 'donutshop', lv: 1 } } }
-    expect(canSell(t2, '2,2').ok).toBe(true)
+    expect(canSell(t2, '2,2').warn).toBe(null)
+    const one = { ...t, built: { '2,2': { kind: 'shop', id: 'candyshop', lv: 1 } } }
+    expect(canSell(one, '2,2').ok).toBe(false) // 마지막 한 곳은 못 판다
   })
   it('이웃 효과: 2칸 안 장식·가게만, 최대 +100%', async () => {
     const { neighborsOf } = await import('../src/utils/decimalShop.js')
