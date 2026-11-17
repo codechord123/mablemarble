@@ -11,6 +11,7 @@ import {
   shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
   shopsIn, openShops, makeFreshCustomer, orderKey, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
+  forecastOf, demandOf, demandLevel, DEMAND_LABEL, repOf, repLabel, repChange, THOUGHTS, thoughtFor,
   popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
 import { useAccount, accountApi } from '../../account/store.js'
@@ -293,6 +294,57 @@ function MapTabs({ town, mapView, setMapView, waiting, hideLocked }) {
   )
 }
 
+// 오늘의 소식 — 날씨·수요(심시티 수요 막대처럼)와 평판(입소문)
+function TownNews({ town }) {
+  const [open, setOpen] = useState(false)
+  const fc = forecastOf(town.days)
+  const tomorrow = forecastOf(town.days + 1)
+  const rep = repOf(town)
+  const R = repLabel(rep)
+  const ids = [...new Set(shopsIn(town).map((x) => x.shop.id))]
+  const rows = ids.map((id) => ({ shop: shopById(id), d: demandOf(id, fc) })).sort((a, b) => b.d - a.d)
+  const trend = shopById(fc.trend)
+  const lvColor = { 2: 'text-rose-600', 1: 'text-orange-600', 0: 'text-slate-400', '-1': 'text-sky-600' }
+  return (
+    <div className="mt-2 rounded-2xl bg-white/90 p-2.5 shadow ring-1 ring-sky-900/10">
+      <button type="button" onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2 text-left">
+        <span className="text-2xl">{fc.weather.icon}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-black text-slate-800">오늘 날씨: {fc.weather.name} <span className="font-bold text-slate-500">— {fc.weather.say}</span></span>
+          <span className="block truncate text-xs font-bold text-slate-500">
+            요즘 유행 {trend.icon} {trend.name} · 내일 {tomorrow.weather.icon} {tomorrow.weather.name}
+          </span>
+        </span>
+        <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-black text-amber-800">{R.icon} 평판 {rep}</span>
+        <span className="shrink-0 text-xs font-black text-slate-400">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="mt-2 border-t border-dashed border-slate-200 pt-2">
+          <div className="text-xs font-black text-slate-500">📈 오늘 우리 가게 수요 <span className="font-bold">(▲ 가게로 손님이 몰리고, 처음에 맞히면 팁 +1G)</span></div>
+          <div className="mt-1 grid grid-cols-2 gap-1">
+            {rows.map(({ shop, d }) => {
+              const lv = demandLevel(d)
+              return (
+                <div key={shop.id} className="flex items-center gap-1 rounded-lg bg-slate-50 px-2 py-1 text-xs font-black">
+                  <span>{shop.icon}</span>
+                  <span className="min-w-0 flex-1 truncate text-slate-700">{shop.name}</span>
+                  <span className={lvColor[lv]}>{DEMAND_LABEL[lv]}</span>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-2 text-xs font-black text-slate-500">📣 평판 (입소문)</div>
+          <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-300 to-amber-500" style={{ width: `${rep}%` }} />
+          </div>
+          <div className="mt-1 text-xs font-bold text-slate-600">{R.icon} {R.name} — {R.desc}</div>
+          <div className="text-[11px] font-bold text-slate-400">하루 장사를 마칠 때, 손님 중 처음에 정확히 맞힌 비율이 60%보다 높으면 오르고 낮으면 내려가요.</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── 마을 (장사 전·후) ───
 function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
@@ -352,6 +404,8 @@ function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onRe
             <GameButton color="green" onClick={onPair} className="mt-2 w-full py-3 text-lg">🤝 짝꿍 계산 하러 가기 ({pairDone}/{PAIR_GOAL})</GameButton>
           </div>
         )}
+
+        {!locked && <TownNews town={town} />}
 
         {town.dayInProgress && !locked && (() => {
           const d = town.dayInProgress
@@ -493,7 +547,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     penalty: resume?.penalty || 0,
     rushDone: resume?.rushDone || [],
     used: resume?.used || [], // 오늘 낸 식들
-    stats: resume?.stats ? { ...resume.stats, met: { ...resume.stats.met } } : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {} },
+    stats: resume?.stats
+      ? { ...resume.stats, met: { ...resume.stats.met }, thoughts: { ...(resume.stats.thoughts || {}) } }
+      : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {}, thoughts: {} },
+    bubbles: {}, // 가게 위 손님 생각 { [가게]: { key, text, until } }
   })
   const [, setFrame] = useState(0)
   const [count, setCount] = useState(3) // 3·2·1 영업 시작!
@@ -520,6 +577,14 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   useEffect(() => {
     if (import.meta.env.DEV) window.__shopOrder = active
   }, [active])
+
+  // 손님 생각 말풍선 (가게 위에 3초) + 정산 때 보여 줄 횟수
+  function think(shopKey, key, now) {
+    const s = g.current
+    const text = key === 'weather' ? `${rules.forecast.weather.icon} ${rules.forecast.weather.say}` : THOUGHTS[key].text
+    s.bubbles[shopKey] = { key, text, until: now + 3200 }
+    if (key !== 'weather') s.stats.thoughts[key] = (s.stats.thoughts[key] || 0) + 1
+  }
 
   // 손님은 가게가 있는 지도의 입구에서 들어와 길을 따라 걷는다
   const randomEntrance = (m) => {
@@ -569,7 +634,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         const room = open.filter((x) => (s.queues[x.key]?.length || 0) + s.walkers.filter((w) => w.phase === 'in' && w.shopKey === x.key).length < slotsOf(x.lv))
         if (!room.length) s.nextSpawn = now + 800
         else {
-          const weights = room.map((x) => x.lv)
+          const weights = room.map((x) => x.lv * demandOf(x.shop.id, rules.forecast)) // 수요 ▲ 가게로 손님이 몰린다
           let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
           const target = room.find((x, i) => (roll -= weights[i]) < 0) || room[0]
           const cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used) }) }
@@ -605,6 +670,15 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         } else {
           q.push({ ...w.cust, arrivedAt: now })
           sfx.card?.()
+          // 손님 생각 — 줄·수요·장식·평판·날씨를 보고 한마디
+          const b = town.built[w.shopKey]
+          const m = mapOf(w.shopKey)
+          const th = thoughtFor({
+            queueLen: q.length, slots: slotsOf(b?.lv || 1), demand: demandOf(b?.id, rules.forecast),
+            decorHere: Object.entries(town.built).filter(([k, x]) => x.kind === 'decor' && mapOf(k) === m).length,
+            pop: popularityOf(town), lv: b?.lv || 1, rep: rules.rep, rush: now < s.rushUntil, weather: true,
+          })
+          if (th) think(w.shopKey, th, now)
         }
       }
       // 떠나는 손님 지우기
@@ -614,6 +688,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         const keep = []
         q.forEach((c, i) => {
           const serving = k === selRef.current && i === 0
+          if (!serving && !c.slowThought && now - c.arrivedAt > rules.patience * 600) { // 기다림 60%를 넘으면 한 번
+            c.slowThought = true
+            think(k, 'slow', now)
+          }
           if (!serving && now - c.arrivedAt > rules.patience * 1000) {
             s.stats.lost += 1
             s.penalty += PENALTY.lost
@@ -776,7 +854,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       const lv = town.built[sel]?.lv || 1
       const rush = Date.now() < s.rushUntil
       const boost = Date.now() < (s.tipBoostUntil || 0)
-      const tip = (helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) * (rush ? 2 : 1) * (boost ? 2 : 1)
+      // 수요 ▲ 가게 +1G, 소문난 가게 +1G (처음에 스스로 맞혔을 때만)
+      const bonus = firstTry && !helper ? (demandLevel(demandOf(town.built[sel]?.id, rules.forecast)) >= 1 ? 1 : 0) + rules.repTip : 0
+      const tip = ((helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) + bonus) * (rush ? 2 : 1) * (boost ? 2 : 1)
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.tips = addD(s.stats.tips, D(tip))
@@ -843,16 +923,31 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   const ownedItems = ITEMS.filter((it) => (town.items || {})[it.id])
 
   // 가게 머리 위 — 줄 선 손님과 기다림 고리
+  const bubbleOf = (k, cx, cy, high) => {
+    const b = s.bubbles[k]
+    if (!b || now > b.until) return null
+    const w = Math.min(150, b.text.length * 8.6 + 14)
+    const lv = town.built[k]?.lv || 1
+    const y = high ? cy - 48 - lv * 15 - 30 : cy - 52 - (lv - 1) * 15
+    const bad = THOUGHTS[b.key]?.bad
+    return (
+      <g pointerEvents="none" className="shop-bop">
+        <rect x={cx - w / 2} y={y - 11} width={w} height="17" rx="8.5" fill={bad ? '#fff1f2' : '#fff'} stroke={bad ? '#fda4af' : 'rgba(0,0,0,0.15)'} />
+        <circle cx={cx - 3} cy={y + 9} r="2.4" fill="#fff" stroke="rgba(0,0,0,0.15)" />
+        <text x={cx} y={y + 1.5} textAnchor="middle" fontSize="9" fontWeight="800" fill={bad ? '#be123c' : '#334155'}>{b.text}</text>
+      </g>
+    )
+  }
   const overlay = (k, cx, cy) => {
     const q = queues[k] || []
-    if (!q.length) return null
+    if (!q.length) return bubbleOf(k, cx, cy, false)
     const front = q[0]
     const serving = k === sel
     const frac = serving ? 1 : Math.max(0, 1 - (now - front.arrivedAt) / (rules.patience * 1000))
     const color = frac > 0.6 ? '#22c55e' : frac > 0.25 ? '#f59e0b' : '#ef4444'
     const R = 13
     const C = 2 * Math.PI * R
-    const y = cy - 78
+    const y = cy - 48 - (town.built[k]?.lv || 1) * 15 // 건물 높이(Lv)에 맞춰 위로
     return (
       <g className={serving ? '' : 'town-bob'}>
         <line x1={cx} y1={y + 14} x2={cx} y2={y + 24} stroke="#fff" strokeWidth="2" />
@@ -866,6 +961,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             <text x={cx + 15} y={y - 7} textAnchor="middle" fontSize="9" fontWeight="900" fill="#fff">{q.length}</text>
           </g>
         )}
+        {bubbleOf(k, cx, cy, true)}
       </g>
     )
   }
@@ -1082,6 +1178,32 @@ function Settlement({ result, town, onTown, onAgain }) {
             <span className={`text-3xl font-black tabular-nums ${good ? 'text-emerald-600' : 'text-rose-600'}`}>{good ? '+' : ''}{money(r.profit)}G</span>
           </motion.div>
           <div className="mt-1 text-right text-sm font-black text-slate-500">가진 돈 💰 {money(town.money)}G</div>
+          {result.repAfter != null && (() => {
+            const dlt = result.repAfter - result.repBefore
+            return (
+              <div className="mt-3 flex items-center justify-between rounded-xl bg-amber-50 px-3 py-2 text-sm font-black">
+                <span className="text-amber-900">📣 평판 {result.repBefore} → {result.repAfter}</span>
+                <span className={dlt > 0 ? 'text-emerald-600' : dlt < 0 ? 'text-rose-600' : 'text-slate-400'}>
+                  {dlt > 0 ? `+${dlt} 좋은 소문!` : dlt < 0 ? `${dlt} 계산 실수가 소문났어요` : '그대로'}
+                </span>
+              </div>
+            )
+          })()}
+          {(() => {
+            const top = Object.entries(result.thoughts || {}).sort((a, b) => b[1] - a[1]).slice(0, 3)
+            if (!top.length) return null
+            return (
+              <div className="mt-2 rounded-xl bg-slate-50 px-3 py-2">
+                <div className="text-xs font-black text-slate-500">💭 오늘 손님들이 한 생각</div>
+                {top.map(([k, n]) => (
+                  <div key={k} className="mt-1 text-xs font-bold">
+                    <span className={THOUGHTS[k]?.bad ? 'text-rose-700' : 'text-slate-700'}>“{THOUGHTS[k]?.text}” ×{n}</span>
+                    <span className="block text-[11px] text-slate-500">→ {THOUGHTS[k]?.hint}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
           {result.newQuests.length > 0 && (
             <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-black text-amber-800">🎯 목표 달성! {result.newQuests.map((q) => q.text).join(', ')} — 마을의 🎯 목표에서 상금을 받아요</div>
           )}
@@ -1232,6 +1354,7 @@ export default function DecimalShop({ onBack }) {
       // 판 돈·팁은 이미 들어가 있으니 재료비·유지비만 뺀다
       money: subD(addPaid ? addD(addD(town.money, r.sales), r.tips) : town.money, addD(sheet.material, sheet.upkeep)),
       days: town.days + 1,
+      rep: Math.max(0, Math.min(100, repOf(town) + repChange(r))), // 평판 — 하루를 마칠 때만 바뀐다
       served: town.served + r.served,
       lost: town.lost + r.lost,
       bestStreak: Math.max(town.bestStreak, r.best),
@@ -1243,7 +1366,7 @@ export default function DecimalShop({ onBack }) {
     }
     setTown(persist(next))
     if (sheet.profit.v > 0) setTimeout(() => cheer(3), 900)
-    setResult({ ...r, record, sheet, newQuests: QUESTS.filter((q) => q.done(next) && !before.includes(q.id)) })
+    setResult({ ...r, record, sheet, repBefore: repOf(town), repAfter: next.rep, newQuests: QUESTS.filter((q) => q.done(next) && !before.includes(q.id)) })
     setResume(null)
   }
 

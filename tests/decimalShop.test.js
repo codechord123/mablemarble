@@ -191,3 +191,45 @@ describe('새 지도 · 상점', () => {
     expect(ITEMS.map((x) => x.id)).toEqual(['hourglass', 'megaphone', 'tipcoupon', 'candybasket'])
   })
 })
+
+describe('날씨 수요 · 평판 · 손님 생각', () => {
+  it('날씨와 유행은 날짜로 정해진다 (새로고침해도 같다)', async () => {
+    const { forecastOf } = await import('../src/utils/decimalShop.js')
+    for (let d = 0; d < 30; d++) {
+      expect(forecastOf(d)).toEqual(forecastOf(d))
+    }
+    const kinds = new Set(Array.from({ length: 40 }, (_, d) => forecastOf(d).weather.id))
+    expect(kinds.size).toBeGreaterThanOrEqual(4)
+  })
+  it('수요는 0.5~2.5배, 무더위엔 아이스크림 ▲ · 추위엔 핫초코 ▲', async () => {
+    const { demandOf, demandLevel, WEATHERS, SHOP_TAGS } = await import('../src/utils/decimalShop.js')
+    const hot = { weather: WEATHERS.find((w) => w.id === 'hot'), trend: 'jewel' }
+    const cold = { weather: WEATHERS.find((w) => w.id === 'cold'), trend: 'jewel' }
+    expect(demandLevel(demandOf('iceshop', hot))).toBe(2)
+    expect(demandLevel(demandOf('iceshop', cold))).toBe(-1)
+    expect(demandLevel(demandOf('cafe', cold))).toBe(2)
+    for (const s of SHOPS) {
+      expect(SHOP_TAGS[s.id], s.id).toBeTruthy()
+      for (const w of WEATHERS) {
+        const d = demandOf(s.id, { weather: w, trend: s.id })
+        expect(d).toBeGreaterThanOrEqual(0.5)
+        expect(d).toBeLessThanOrEqual(2.5)
+      }
+    }
+  })
+  it('평판: 처음에 맞힌 비율로 오르내리고, 기록이 없던 마을은 50', async () => {
+    const { repOf, repChange } = await import('../src/utils/decimalShop.js')
+    expect(repOf({})).toBe(50)
+    expect(repChange({ served: 30, first: 30, lost: 0 })).toBe(10)
+    expect(repChange({ served: 30, first: 18, lost: 0 })).toBe(0)
+    expect(repChange({ served: 20, first: 5, lost: 10 })).toBeLessThan(0)
+    expect(repChange({ served: 0, first: 0, lost: 0 })).toBe(0)
+  })
+  it('손님 생각: 줄이 꽉 차면 줄 걱정, 아무 일 없으면 가끔만', async () => {
+    const { thoughtFor } = await import('../src/utils/decimalShop.js')
+    const base = { queueLen: 1, slots: 2, demand: 1, decorHere: 3, pop: 2, lv: 1, rep: 50, rush: false, weather: false }
+    expect(thoughtFor({ ...base, queueLen: 2 })).toBe('line')
+    expect(thoughtFor(base)).toBe(null)
+    expect(thoughtFor({ ...base, rep: 10 }, () => 0)).toBe('rumor')
+  })
+})

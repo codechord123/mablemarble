@@ -379,6 +379,96 @@ export function popularityOf(town) {
 // 가게 유지비 (하루) = 등급 × 레벨
 export const upkeepOf = (town) => shopsIn(town).reduce((s, x) => s + x.shop.tier * x.lv, 0)
 
+// ─── 날씨와 수요 (심시티의 수요 막대처럼) ───
+// 날마다 날씨가 바뀌고, 날씨에 어울리는 가게에 손님이 몰린다. 여기에 '요즘 유행' 가게 하나.
+// 날짜(마을의 days)로 정해지므로 이어 하기·새로고침해도 그날 수요는 같다.
+export const WEATHERS = [
+  { id: 'sunny', icon: '☀️', name: '맑음', say: '나들이 가기 좋은 날', up: { snack: 1.4, fresh: 1.3 } },
+  { id: 'hot', icon: '🥵', name: '무더위', say: '시원한 게 당겨요', up: { cool: 2, warm: 0.5 } },
+  { id: 'rain', icon: '🌧️', name: '비', say: '따뜻한 게 좋아요', up: { warm: 1.6, cool: 0.6, snack: 0.8 } },
+  { id: 'cold', icon: '🥶', name: '추위', say: '몸을 녹이고 싶어요', up: { warm: 2, cool: 0.5 } },
+  { id: 'festival', icon: '🎉', name: '마을 축제', say: '선물·간식이 잘 팔려요', up: { gift: 2, snack: 1.5 } },
+]
+// 가게 성격 (날씨가 고르는 기준)
+export const SHOP_TAGS = {
+  candyshop: ['snack', 'gift'], fruit: ['cool', 'fresh'], donutshop: ['snack'], fabric: ['gift'],
+  bakery: ['warm', 'snack'], farm: ['fresh'], jewel: ['gift'], deli: ['fresh', 'warm'],
+  iceshop: ['cool'], fishmarket: ['fresh'], cafe: ['warm'], winterwear: ['warm'],
+  popcornshop: ['snack'], souvenir: ['gift'],
+}
+function seeded(n) {
+  let t = (n * 2654435761 + 0x9e3779b9) >>> 0
+  return () => {
+    t = (t + 0x6d2b79f5) >>> 0
+    let x = Math.imul(t ^ (t >>> 15), 1 | t)
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296
+  }
+}
+// day번째 날의 날씨·유행 가게
+export function forecastOf(day) {
+  const r = seeded(day + 1)
+  const weather = WEATHERS[Math.floor(r() * WEATHERS.length)]
+  const trend = SHOPS[Math.floor(r() * SHOPS.length)].id
+  return { day, weather, trend }
+}
+// 가게 하나의 오늘 수요 (0.5 ~ 2.5배)
+export function demandOf(shopId, fc) {
+  let d = 1
+  for (const tag of SHOP_TAGS[shopId] || []) d *= fc.weather.up[tag] || 1
+  if (shopId === fc.trend) d *= 1.5
+  return Math.max(0.5, Math.min(2.5, Math.round(d * 100) / 100))
+}
+export const demandLevel = (d) => (d >= 1.8 ? 2 : d >= 1.25 ? 1 : d <= 0.75 ? -1 : 0)
+export const DEMAND_LABEL = { 2: '▲▲ 불티나요', 1: '▲ 잘 팔려요', 0: '— 보통', '-1': '▼ 한산해요' }
+
+// ─── 평판 (입소문) ───
+// 처음에 정확히 계산한 비율이 입소문이 된다. 0~100, 처음엔 50.
+export const repOf = (town) => (town.rep == null ? 50 : town.rep)
+export function repChange({ served, first, lost }) {
+  const total = served + lost
+  if (!total) return 0
+  const acc = first / total
+  return Math.max(-10, Math.min(10, Math.round((acc - 0.6) * 25)))
+}
+export function repLabel(rep) {
+  if (rep >= 80) return { icon: '🌟', name: '소문난 가게', desc: 'VIP가 자주 오고, 모든 손님 팁 +1G' }
+  if (rep >= 60) return { icon: '😊', name: '좋은 소문', desc: 'VIP 손님이 조금 더 와요' }
+  if (rep >= 30) return { icon: '🙂', name: '보통', desc: '처음에 정확히 맞히면 소문이 좋아져요' }
+  return { icon: '😟', name: '나쁜 소문', desc: '손님이 덜 기다려요 — 정확하게 계산해서 소문을 바꿔요' }
+}
+
+// ─── 손님 생각 (롤러코스터 타이쿤의 말풍선처럼) ───
+// 마을 상태를 보고 손님이 한마디 — 정산 때 많이 나온 생각과 고칠 방법을 알려 준다
+export const THOUGHTS = {
+  line: { text: '줄이 너무 길어요 😤', hint: '가게를 Lv업 하면 줄 칸이 늘어요', bad: true },
+  slow: { text: '언제 계산해 주지… ⏳', hint: '오래 기다린 가게부터 · 🍬 사탕 바구니', bad: true },
+  bare: { text: '마을이 좀 썰렁해요 🍂', hint: '이 지도에 장식을 놓아 보세요', bad: true },
+  rumor: { text: '소문이 별로던데… 🤨', hint: '처음에 정확히 맞히면 소문이 좋아져요', bad: true },
+  want: { text: '오늘 딱 이게 필요했어요!', hint: '수요 ▲ 가게는 손님이 몰리고 팁 +1G' },
+  pretty: { text: '마을이 정말 예뻐요 🌷', hint: '장식이 마을 인기를 올려요' },
+  big: { text: '가게가 엄청 크네요! 🏢', hint: 'Lv3 가게는 팁이 많아요' },
+  famous: { text: '소문 듣고 왔어요 🌟', hint: '좋은 소문은 VIP를 불러요' },
+  crowd: { text: '사람이 정말 많네요 🔥', hint: '러시 타임엔 팁 두 배' },
+  weather: { text: '', hint: '' },
+}
+// 손님이 줄에 섰을 때 떠올릴 생각 하나 (없으면 null)
+export function thoughtFor(ctx, rng = Math.random) {
+  const { queueLen, slots, demand, decorHere, pop, lv, rep, rush, weather } = ctx
+  if (queueLen >= slots) return 'line'
+  const pool = []
+  if (demandLevel(demand) >= 1) pool.push('want', 'want')
+  if (decorHere === 0) pool.push('bare')
+  if (pop >= 3.5) pool.push('pretty')
+  if (lv >= 3) pool.push('big')
+  if (rep >= 80) pool.push('famous')
+  if (rep < 30) pool.push('rumor', 'rumor')
+  if (rush) pool.push('crowd')
+  if (weather) pool.push('weather')
+  if (!pool.length || rng() > 0.55) return null
+  return pool[Math.floor(rng() * pool.length)]
+}
+
 // ─── 타임 어택 ───
 // 하루 = 손님 30명(계산 30문제)을 받으면 끝. 시계가 돌고, 틀리면 +5초, 손님을 놓치면 +10초.
 // 10명·20명째에 러시 타임(1분 동안 손님이 두 배 빨리 오고 팁 두 배).
@@ -398,7 +488,9 @@ export function dayRules(lesson, town, relaxed) {
   const two = TWO_PLACE.includes(lesson.type)
   const pop = popularityOf(town)
   const open = openShops(lesson, town).length
-  let patience = (two ? 100 : 70) * (1 + (pop - 1) * 0.08)
+  const rep = repOf(town)
+  // 평판: 좋으면 손님이 조금 더 기다려 주고(최대 +10%), 나쁘면 덜 기다린다
+  let patience = (two ? 100 : 70) * (1 + (pop - 1) * 0.08) * (1 + (rep - 50) / 500)
   let gap = ((two ? 10 : 6) * 0.85 ** town.ads) / Math.max(1, Math.sqrt(open) * 0.8)
   if (relaxed) {
     patience *= 2
@@ -409,8 +501,11 @@ export function dayRules(lesson, town, relaxed) {
     gap, // 새 손님 간격(초) — 러시 타임엔 절반
     goal: GOAL,
     stars: starTimes(lesson, relaxed),
-    vipChance: 0.05 + pop * 0.025 + (town.ads >= 2 ? 0.05 : 0),
+    vipChance: Math.max(0.02, 0.05 + pop * 0.025 + (town.ads >= 2 ? 0.05 : 0) + (rep - 50) / 500),
     upkeep: D(upkeepOf(town)),
+    rep,
+    repTip: rep >= 80 ? 1 : 0, // 소문난 가게: 모든 손님 팁 +1G
+    forecast: forecastOf(town.days),
   }
 }
 export const slotsOf = (lv) => 1 + lv // 가게 앞 줄 칸
@@ -461,6 +556,8 @@ export const QUESTS = [
   { id: 'map1', text: '새 지도 열기', reward: 100, done: (s) => (s.maps || []).length >= 1 },
   { id: 'map3', text: '지도 세 곳 모두 열기', reward: 500, done: (s) => (s.maps || []).length >= 3 },
   { id: 'item1', text: '장사 아이템 써 보기', reward: 20, done: (s) => (s.itemsUsed || 0) >= 1 },
+  { id: 'rep70', text: '평판 70 넘기기 (좋은 소문)', reward: 60, done: (s) => repOf(s) >= 70 },
+  { id: 'rep90', text: '평판 90 넘기기 (소문난 가게)', reward: 200, done: (s) => repOf(s) >= 90 },
   { id: 'star3', text: '아무 차시나 ★★★ 기록 내기', reward: 80, done: (s) => Object.values(s.records || {}).some((r) => r.stars >= 3) },
   { id: 'star3x4', text: '네 차시에서 ★★★ 기록 내기', reward: 200, done: (s) => Object.values(s.records || {}).filter((r) => r.stars >= 3).length >= 4 },
 ]
@@ -484,6 +581,7 @@ export const emptyTown = () => ({
   records: {}, // 차시별 최고 기록 { [type]: { secs, stars } }
   maps: [], // 산 지도 ('beach', 'snow', 'park')
   items: {}, // 장사 아이템 { [id]: 개수 }
+  rep: 50, // 평판 (입소문) 0~100
 })
 export function loadTown(who) {
   try {

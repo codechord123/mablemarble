@@ -7,7 +7,7 @@ import { SRC_W, GROUND_H, BUILDING_H, FLOOR_STEP, UPPER_X, GROUND, roadSrc, shop
 export const TW = 64 // 칸 너비
 export const TH = 32 // 칸 높이
 const OX = (ROWS * TW) / 2
-const OY = 62 // 위쪽 여유 (건물 높이)
+const OY = 84 // 위쪽 여유 (건물 높이)
 export const VIEW_W = ((ROWS + COLS) * TW) / 2
 export const VIEW_H = ((ROWS + COLS) * TH) / 2 + OY + 22 // 땅 타일 두께만큼 아래 여유
 const S = TW / SRC_W // 타일 그림 줄임 비율
