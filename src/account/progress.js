@@ -5,6 +5,7 @@ import { doc, getDoc, setDoc, runTransaction } from 'firebase/firestore'
 import { authOf, dbOf } from './firebase.js'
 import { applyResult, applyStats, emptyBook } from './wrongBook.js'
 import { currentAccount } from './account.js'
+import { safeTown } from '../utils/townGuard.js'
 
 const cache = new Map() // uid → Promise<doc>
 let chain = Promise.resolve() // 쓰기를 한 줄로 (순서 꼬임 방지)
@@ -82,8 +83,9 @@ export function saveDrill(slot, drill) {
 }
 
 // 소수 마을 타이쿤 — 마을 전체(돈·가게·기록·하던 장사)를 계정에 저장해 다른 기기에서도 이어 하게
+// 계정에 이미 더 앞선 기록이 있으면(다른 기기·빈 기기) 덮어쓰지 않고 합친다 — 학생 기록은 뒤로 가지 않는다
 export function saveTown(slot, town) {
-  return update(slot, (cur) => ({ ...cur, town })).catch((e) => {
+  return update(slot, (cur) => ({ ...cur, town: safeTown(town, cur.town) })).catch((e) => {
     console.warn('마을 저장 실패', e)
     return null
   })

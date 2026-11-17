@@ -21,6 +21,7 @@ import { SoundMini, useHideSoundToggle } from '../ui/MuteToggle.jsx'
 import TownMap, { center } from './TownMap.jsx'
 import PairDrill from './PairDrill.jsx'
 import { PAIR_GOAL } from '../../utils/pairCalc.js'
+import { safeTown } from '../../utils/townGuard.js'
 
 const RELAX_KEY = 'boomarble_tycoon_relaxed'
 const STEP_MS = 420 // 손님이 한 칸 걷는 시간
@@ -293,7 +294,7 @@ function MapTabs({ town, mapView, setMapView, waiting, hideLocked }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
+function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -322,6 +323,10 @@ function Town({ town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onS
           <span className="text-sm font-black text-sky-900">{titleOf(town.totalSales)} <Stars n={pop} /></span>
         </div>
         <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
+
+        {syncing && (
+          <div className="mt-2 rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-black text-sky-800 ring-1 ring-sky-200">☁️ 계정에 저장된 마을을 불러오는 중이에요…</div>
+        )}
 
         {teacher && (
           <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-violet-50 px-3 py-2 text-xs font-bold text-violet-800 ring-1 ring-violet-200">
@@ -1161,23 +1166,30 @@ export default function DecimalShop({ onBack }) {
     try { localStorage.setItem(RELAX_KEY, v ? '1' : '0') } catch { /* ignore */ }
   }
 
-  // 로그인한 학생: 계정에 저장된 마을이 더 최근이면 그걸로 (다른 기기에서 하던 것 이어 하기)
+  // 로그인한 학생: 계정에 저장된 마을과 이 기기 마을을 합친다 (다른 기기에서 하던 것 이어 하기).
+  // 예전엔 '더 최근에 저장된 쪽'을 골라서, 새 기기의 빈 마을이 먼저 저장되면 계정의 진짜 기록을 덮어쓸 수 있었다.
+  // 이제는 장사·짝꿍 기록이 더 앞선 쪽을 고른다 (townGuard) — 학생 기록은 뒤로 가지 않는다.
+  const [syncing, setSyncing] = useState(false)
   useEffect(() => {
     const local = loadTown(who)
     setTown(local)
     if (!me) return
     let alive = true
+    setSyncing(true)
     accountApi()
       .then((a) => a.loadProgress(a.ME, { fresh: true }))
       .then((p) => {
         const cloud = p?.town
-        if (alive && cloud && (cloud.savedAt || 0) > (local.savedAt || 0)) {
-          const t = { ...local, ...cloud }
+        if (!alive || !cloud) return
+        const cur = townRef.current
+        const t = safeTown(cur, cloud)
+        if (t !== cur) {
           saveTown(who, t)
           setTown(t)
         }
       })
       .catch(() => {})
+      .finally(() => alive && setSyncing(false))
     return () => {
       alive = false
     }
@@ -1194,30 +1206,22 @@ export default function DecimalShop({ onBack }) {
     setTown((cur) => persist({ ...cur, ...fn(cur) }, cloud))
   }
 
-  // 규칙이 바뀌기 전(두 번 틀리면 손님이 답을 알려 주고 그 문제도 셌다)에 저장된 하던 장사는
-  // 어떤 문제가 그랬는지 알 수 없어서, 처음에 맞힌 문제만 인정한다 (한 번만)
-  useEffect(() => {
-    if ((town.rulesV || 0) >= 2) return
-    update((t) => {
-      const d = t.dayInProgress
-      if (!d) return { rulesV: 2 }
-      const served = Math.min(d.stats.served || 0, d.stats.first || 0)
-      return { rulesV: 2, dayInProgress: { ...d, stats: { ...d.stats, served } } }
-    })
-  }, [town.rulesV]) // eslint-disable-line react-hooks/exhaustive-deps
-
   // 문제별 기록 — 선생님이 학생별로 확인 (r: 1 처음에 맞힘 · 2 힌트 후 맞힘 · 0 세 번 틀려 손님이 감)
   function logProblem(e) {
     update((t) => ({ log: [...(t.log || []), { ...e, t: Date.now() }].slice(-600) }), false)
   }
 
-  // 예전 방식으로 저장된 하던 장사(번 돈을 정산 때 한꺼번에 넣던 때)는 번 돈을 지금 넣어 둔다
-  useEffect(() => {
-    const d = town.dayInProgress
-    if (d && !d.paidLive) update((t) => ({ money: addD(addD(t.money, d.stats.sales), d.stats.tips), dayInProgress: { ...d, paidLive: true } }), false)
-  }, [town.dayInProgress]) // eslint-disable-line react-hooks/exhaustive-deps
+  // 학생 기록은 저절로 바꾸지 않는다 (학생이 이어 하기·정산을 눌렀을 때만).
+  // 예전 방식으로 저장된 하던 장사(번 돈을 정산 때 한꺼번에 넣던 때)는 그때 번 돈을 넣는다.
+  function catchUpPaid(d) {
+    if (!d || d.paidLive) return d
+    const nd = { ...d, paidLive: true }
+    update((t) => ({ money: addD(addD(t.money, d.stats.sales), d.stats.tips), dayInProgress: nd }), false)
+    return nd
+  }
 
-  function finishDay(r, type = lesson?.type) {
+  // addPaid: 예전 방식 하던 장사라 번 돈이 아직 안 들어간 경우
+  function finishDay(r, type = lesson?.type, addPaid = false) {
     const town = townRef.current // 장사 중 판 돈이 계속 들어오므로 지금의 마을로
     const sheet = settle({ sales: r.sales, tips: r.tips, upkeep: r.upkeep })
     const old = type && town.records?.[type]
@@ -1226,7 +1230,7 @@ export default function DecimalShop({ onBack }) {
     const next = {
       ...town,
       // 판 돈·팁은 이미 들어가 있으니 재료비·유지비만 뺀다
-      money: subD(town.money, addD(sheet.material, sheet.upkeep)),
+      money: subD(addPaid ? addD(addD(town.money, r.sales), r.tips) : town.money, addD(sheet.material, sheet.upkeep)),
       days: town.days + 1,
       served: town.served + r.served,
       lost: town.lost + r.lost,
@@ -1274,7 +1278,7 @@ export default function DecimalShop({ onBack }) {
   if (!lesson)
     return (
       <>
-        <Town town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
+        <Town syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
           locked={!unlockedPlay}
           pairDone={pairDone}
           teacher={isTeacher}
@@ -1289,11 +1293,11 @@ export default function DecimalShop({ onBack }) {
             }
             setResume(null); setLesson(l); setResult(null); setDayKey((k) => k + 1)
           }}
-          onResume={(l, d) => { setResume(d); setLesson(l); setResult(null); setDayKey((k) => k + 1) }}
+          onResume={(l, d) => { setResume(catchUpPaid(d)); setLesson(l); setResult(null); setDayKey((k) => k + 1) }}
           onSettleNow={() => {
             const d = town.dayInProgress
             if (!window.confirm(`손님 ${d.stats.served}명까지 받은 것으로 정산하고 끝낼까요? (30명을 못 채워서 기록·별은 없어요)`)) return
-            finishDay({ ...d.stats, upkeep: D(upkeepOf(town)), secs: null }, d.type)
+            finishDay({ ...d.stats, upkeep: D(upkeepOf(town)), secs: null }, d.type, !d.paidLive)
           }} />
         <AnimatePresence>
           {result && <Settlement result={result} town={town} onTown={() => setResult(null)} onAgain={() => setResult(null)} />}
