@@ -11,6 +11,8 @@ export const accountApi = () =>
 
 export const useAccount = create(() => ({ me: null, checking: false, notice: null, noteToast: null }))
 export const clearNoteToast = () => useAccount.setState({ noteToast: null })
+// 개발 서버에서만: 테스트가 로그인 상태를 흉내 낼 수 있게 (배포 빌드에는 없음)
+if (import.meta.env.DEV && typeof window !== 'undefined') window.__account = useAccount
 
 function setMe(me) {
   try {

@@ -399,7 +399,7 @@ function TownNews({ town }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
+function Town({ syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -429,8 +429,14 @@ function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onRe
         </div>
         <p className="text-xs font-bold text-sky-900/70">빈 땅을 눌러 가게·장식을 짓고, 가게를 눌러 키워요 · {town.days}일째 · 하루 유지비 {upkeepOf(town)}G</p>
 
-        {syncing && (
-          <div className="mt-2 rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-black text-sky-800 ring-1 ring-sky-200">☁️ 계정에 저장된 마을을 불러오는 중이에요…</div>
+        {loadingAcct && (
+          <div className="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-800 ring-1 ring-sky-200">☁️ 내 계정의 마을을 불러오는 중이에요… 잠깐만 기다려요</div>
+        )}
+        {syncFailed && !loadingAcct && (
+          <div className="mt-2 flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-black text-amber-800 ring-1 ring-amber-200">
+            <span className="flex-1">⚠️ 계정의 마을을 불러오지 못했어요 (인터넷 확인). 짝꿍 계산·장사 기록이 안 보이면 다시 불러와요</span>
+            <button type="button" onClick={onRetrySync} className="shrink-0 rounded-full bg-amber-500 px-3 py-1 text-white">다시 불러오기</button>
+          </div>
         )}
 
         {teacher && (
@@ -454,6 +460,15 @@ function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onRe
                 </div>
               </div>
             </div>
+            {canImportPair && (
+              <GameButton color="violet" onClick={onImportPair} className="mt-2 w-full py-3">
+                📥 이 기기에서 통과한 짝꿍 계산 기록 가져오기
+                <div className="text-xs font-semibold opacity-90">로그인하기 전에 이 기기에서 50문제를 풀었어요 — 눌러서 내 계정 기록으로</div>
+              </GameButton>
+            )}
+            {!signedIn && (
+              <p className="mt-2 rounded-xl bg-white/80 px-3 py-1.5 text-xs font-bold text-slate-600">💡 전에 <b>로그인해서</b> 풀었다면, 메뉴에서 로그인하면 내 기록이 그대로 불러와져요. (지금은 로그인하지 않은 상태예요)</p>
+            )}
             <GameButton color="green" onClick={onPair} className="mt-2 w-full py-3 text-lg">🤝 짝꿍 계산 하러 가기 ({pairDone}/{PAIR_GOAL})</GameButton>
           </div>
         )}
@@ -507,8 +522,8 @@ function Town({ syncing, town, owner, relaxed, setRelaxed, onBack, onStart, onRe
         )}
 
         <div className="mt-1 grid grid-cols-4 gap-2">
-          <GameButton color={locked ? 'gray' : 'green'} onClick={() => (locked ? onPair() : setSheet({ type: 'lessons' }))} className="col-span-4 py-3.5 text-xl sm:col-span-1 sm:text-base">
-            {locked ? `🔒 장사 (짝꿍 ${pairDone}/${PAIR_GOAL})` : '🌅 장사 시작'}
+          <GameButton color={locked || loadingAcct ? 'gray' : 'green'} disabled={loadingAcct} onClick={() => (locked ? onPair() : setSheet({ type: 'lessons' }))} className="col-span-4 py-3.5 text-xl sm:col-span-1 sm:text-base">
+            {loadingAcct ? '☁️ 불러오는 중…' : locked ? `🔒 장사 (짝꿍 ${pairDone}/${PAIR_GOAL})` : '🌅 장사 시작'}
           </GameButton>
           <GameButton color="orange" onClick={() => onModal('quests')} className="relative py-2.5 text-sm">
             🎯 목표
@@ -1387,7 +1402,10 @@ export default function DecimalShop({ onBack }) {
   const townRef = useRef(town)
   townRef.current = town
   // 짝꿍 계산 50문제를 맞혀야 장사가 열린다 (선생님 계정은 바로)
-  const pairDone = town.pair?.done || 0
+  // 짝꿍 계산 통과 근거: 마을의 짝꿍 기록, 그리고 문제별 기록(처음에 맞힌 짝꿍 문제 수) 중 큰 쪽
+  const pairLog = (town.log || []).filter((e) => e.l === 'pair' && e.r === 1).length
+  const pairDone = Math.max(town.pair?.done || 0, pairLog)
+  const checking = useAccount((s) => s.checking) // 이 기기에 로그인해 둔 계정을 확인하는 중
   const isTeacher = me?.role === 'teacher'
   const [studentView, setStudentView] = useState(false) // 선생님: 학생 화면 미리보기
   const unlockedPlay = (isTeacher && !studentView) || pairDone >= PAIR_GOAL
@@ -1402,13 +1420,23 @@ export default function DecimalShop({ onBack }) {
   // 로그인한 학생: 계정에 저장된 마을과 이 기기 마을을 합친다 (다른 기기에서 하던 것 이어 하기).
   // 예전엔 '더 최근에 저장된 쪽'을 골라서, 새 기기의 빈 마을이 먼저 저장되면 계정의 진짜 기록을 덮어쓸 수 있었다.
   // 이제는 장사·짝꿍 기록이 더 앞선 쪽을 고른다 (townGuard) — 학생 기록은 뒤로 가지 않는다.
-  const [syncing, setSyncing] = useState(false)
+  // 어느 계정의 마을까지 계정 기록과 맞춰 봤나 — 지금 계정과 다르면 아직 불러오는 중
+  const [syncFailed, setSyncFailed] = useState(false)
+  const [syncTry, setSyncTry] = useState(0)
+  const [loadedFor, setLoadedFor] = useState(null)
+  const syncing = !!me && loadedFor !== `${who}#${syncTry}`
   useEffect(() => {
     const local = loadTown(who)
     setTown(local)
     if (!me) return
     let alive = true
-    setSyncing(true)
+    setSyncFailed(false)
+    // 인터넷이 느려 12초 넘게 못 불러오면 '다시 불러오기'를 보여 준다 (불러오는 중에 갇히지 않게)
+    const slow = setTimeout(() => {
+      if (!alive) return
+      setSyncFailed(true)
+      setLoadedFor(`${who}#${syncTry}`)
+    }, 12000)
     accountApi()
       .then((a) => a.loadProgress(a.ME, { fresh: true }))
       .then((p) => {
@@ -1421,12 +1449,26 @@ export default function DecimalShop({ onBack }) {
           setTown(t)
         }
       })
-      .catch(() => {})
-      .finally(() => alive && setSyncing(false))
+      .catch(() => alive && setSyncFailed(true))
+      .finally(() => {
+        clearTimeout(slow)
+        if (alive) setLoadedFor(`${who}#${syncTry}`)
+      })
     return () => {
       alive = false
+      clearTimeout(slow)
     }
-  }, [who]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [who, syncTry]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 계정을 확인·불러오는 동안엔 잠금을 보여 주지 않는다 — 예전엔 이때 '로그인 안 한 이 기기' 마을이 잠깐 보여서
+  // 이미 통과한 학생도 잠금 경고를 보고, 그때 푼 짝꿍 계산은 계정이 아니라 이 기기 쪽에 저장됐다.
+  const loadingAcct = checking || syncing
+  // 로그인한 학생인데 계정엔 통과 기록이 없고, 이 기기(로그인 안 하고 푼 기록)에는 있으면 — 학생이 눌러서 가져온다
+  const devicePair = me && pairDone < PAIR_GOAL ? loadTown('device').pair : null
+  const canImportPair = (devicePair?.done || 0) >= PAIR_GOAL
+  function importPair() {
+    update((t) => ({ pair: { ...(t.pair || {}), ...devicePair, done: Math.max(devicePair.done, t.pair?.done || 0) } }))
+  }
 
   // 저장: 이 기기에는 항상, 계정에는 cloud=true일 때 (장사 중엔 5명마다)
   function persist(n, cloud = true) {
@@ -1514,12 +1556,18 @@ export default function DecimalShop({ onBack }) {
     return (
       <>
         <Town syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
-          locked={!unlockedPlay}
+          locked={!unlockedPlay && !loadingAcct}
+          loadingAcct={loadingAcct}
+          signedIn={!!me}
+          syncFailed={syncFailed}
+          onRetrySync={() => setSyncTry((n) => n + 1)}
+          canImportPair={canImportPair}
+          onImportPair={importPair}
           pairDone={pairDone}
           teacher={isTeacher}
           studentView={studentView}
           onStudentView={() => setStudentView((v) => !v)}
-          onPair={() => setPairOpen(true)}
+          onPair={() => !loadingAcct && setPairOpen(true)}
           onStart={(l) => {
             if (town.dayInProgress) {
               // 하던 장사는 먼저 정산 (번 돈은 이미 들어와 있으니 재료비·유지비를 빼야 한다)
