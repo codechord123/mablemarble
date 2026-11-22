@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { accountApi, useAccount } from '../../account/store.js'
-import { summarize, unitsOf } from '../../account/classStats.js'
+import { summarize, unitsOf, townMissions, PAIR_GOAL } from '../../account/classStats.js'
 import MathText from '../ui/MathText.jsx'
 import GameButton from '../ui/GameButton.jsx'
 import PrintSheet from './PrintSheet.jsx'
@@ -96,6 +96,95 @@ function StudentDetail({ s }) {
   )
 }
 
+// 소수 마을 미션 현황 — 짝꿍 계산 통과, 차시별 미션(손님 30명 받기) 성공을 반 전체로
+function TownMissions({ rows, onStudent }) {
+  const m = townMissions(rows)
+  const [filter, setFilter] = useState('all')
+  if (!m.started) return null
+  const notPassed = m.students.filter((x) => x.t && x.t.pairDone < PAIR_GOAL)
+  const notStarted = m.students.filter((x) => !x.t)
+  const list = filter === 'pair' ? notPassed : filter === 'none' ? notStarted : m.students
+  const cell = (x, type) => {
+    const st = x.t?.starsBy[type]
+    if (st != null) return <span className="text-[11px] tracking-tighter text-amber-500">{'★'.repeat(st)}</span>
+    if (x.t?.inProgressType === type) return <span className="text-xs font-black text-sky-600">▶</span>
+    return <span className="text-slate-300">·</span>
+  }
+  const pctOf = (n) => (m.total ? Math.round((n / m.total) * 100) : 0)
+  return (
+    <section className="mt-5 rounded-2xl bg-sky-50/70 p-3 ring-1 ring-sky-100">
+      <h3 className="font-black text-sky-900">🏘️ 소수 마을 미션 현황</h3>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <div className="rounded-xl bg-white p-2.5">
+          <div className="text-[11px] font-bold text-sky-700">🤝 짝꿍 계산 50문제 통과</div>
+          <div className="text-xl font-black text-sky-950">{m.pairPassed}<span className="text-sm font-bold text-slate-400"> / {m.total}명</span></div>
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-emerald-500" style={{ width: `${pctOf(m.pairPassed)}%` }} /></div>
+        </div>
+        <div className="rounded-xl bg-white p-2.5">
+          <div className="text-[11px] font-bold text-sky-700">🏪 마을을 시작한 학생</div>
+          <div className="text-xl font-black text-sky-950">{m.started}<span className="text-sm font-bold text-slate-400"> / {m.total}명</span></div>
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-sky-500" style={{ width: `${pctOf(m.started)}%` }} /></div>
+        </div>
+      </div>
+      <div className="mt-2 text-[11px] font-black text-sky-800">차시 미션 성공 (손님 30명을 다 받은 학생)</div>
+      <div className="mt-1 grid grid-cols-2 gap-1 sm:grid-cols-4">
+        {m.lessons.map((l) => (
+          <div key={l.type} className="rounded-lg bg-white px-2 py-1.5 text-xs">
+            <div className="flex items-baseline justify-between font-black text-slate-700">
+              <span>{l.name}</span>
+              <span className="text-emerald-700">{l.done}명</span>
+            </div>
+            <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-emerald-400" style={{ width: `${pctOf(l.done)}%` }} /></div>
+            <div className="mt-0.5 text-[10px] font-bold text-slate-400">★★★ {l.stars3}명{l.playing ? ` · 하는 중 ${l.playing}명` : ''}</div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {[['all', `전체 ${m.total}`], ['pair', `짝꿍 아직 ${notPassed.length}`], ['none', `마을 시작 안 함 ${notStarted.length}`]].map(([k, label]) => (
+          <button key={k} type="button" onClick={() => setFilter(k)}
+            className={`rounded-full px-3 py-1 text-xs font-extrabold ${filter === k ? 'bg-sky-700 text-white' : 'bg-white text-sky-800 ring-1 ring-sky-200'}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 overflow-x-auto rounded-xl bg-white ring-1 ring-sky-100">
+        <table className="w-full min-w-[34rem] text-center text-xs">
+          <thead className="bg-sky-100/70 text-[11px] font-black text-sky-900">
+            <tr>
+              <th className="px-2 py-1.5 text-left">이름</th>
+              <th className="px-1">🤝 짝꿍</th>
+              {m.lessons.map((l) => <th key={l.type} className="px-1">{l.name}</th>)}
+              <th className="px-1">장사</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((x) => (
+              <tr key={x.uid} className="border-t border-slate-100">
+                <td className="px-2 py-1.5 text-left">
+                  <button type="button" onClick={() => onStudent(x.uid)} className="max-w-[6rem] truncate font-black text-amber-800 underline decoration-dotted underline-offset-2">{x.name}</button>
+                </td>
+                <td className="px-1">
+                  {!x.t ? <span className="text-slate-300">—</span> : x.t.pairDone >= PAIR_GOAL
+                    ? <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 font-black text-emerald-700">✅</span>
+                    : <span className="font-black tabular-nums text-rose-600">{x.t.pairDone}/50</span>}
+                </td>
+                {m.lessons.map((l) => <td key={l.type} className="px-1">{x.t ? cell(x, l.type) : <span className="text-slate-200">·</span>}</td>)}
+                <td className="px-1 font-bold tabular-nums text-slate-500">{x.t ? `${x.t.days}일` : '—'}</td>
+              </tr>
+            ))}
+            {!list.length && (
+              <tr><td colSpan={m.lessons.length + 3} className="py-3 font-bold text-slate-400">해당하는 학생이 없어요 👍</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-1.5 text-[10px] font-bold text-slate-400">
+        ★ = 그 차시 손님 30명을 다 받은 기록(별은 걸린 시간) · ▶ = 하는 중 · 이름을 누르면 아래에 그 학생 기록이 펼쳐져요 · 학생이 로그인해서 한 기록만 보여요
+      </p>
+    </section>
+  )
+}
+
 // 선생님 — 우리 반 부르마블 통계 (정답률·영역별·많이 틀린 문제·학생별 오답 노트)
 export default function TeacherStats({ onBack, onCheckQuestions }) {
   const me = useAccount((s) => s.me)
@@ -122,6 +211,12 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
     setError(null)
     setLoading(true)
     try {
+      // 개발 서버에서만: 가짜 반 기록으로 화면 확인 (배포 빌드에는 없음)
+      if (import.meta.env.DEV && window.__fakeClassRows) {
+        setRows(window.__fakeClassRows)
+        setLoadedAt(new Date())
+        return
+      }
       const a = await accountApi()
       setRows(await a.loadClassProgress(me.classId))
       setLoadedAt(new Date())
@@ -192,6 +287,8 @@ export default function TeacherStats({ onBack, onCheckQuestions }) {
             ))}
           </div>
         )}
+
+        {rows && rows.length > 0 && <TownMissions rows={rows} onStudent={(uid) => { setUnit(null); showStudent(uid) }} />}
 
         {data && data.totals.students === 0 && (
           <p className="mt-8 text-center font-bold text-amber-800">

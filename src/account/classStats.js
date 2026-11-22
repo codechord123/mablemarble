@@ -51,7 +51,11 @@ export function townSummary(t) {
   const log = t.log || []
   const count = (r, l) => log.filter((e) => e.r === r && (!l || (l === 'pair' ? e.l === 'pair' : e.l !== 'pair'))).length
   return {
-    pairDone: t.pair?.done || 0,
+    // 게임과 같은 기준: 짝꿍 기록과 문제별 기록(처음에 맞힌 짝꿍 문제) 중 큰 쪽
+    pairDone: Math.max(t.pair?.done || 0, log.filter((e) => e.l === 'pair' && e.r === 1).length),
+    starsBy: Object.fromEntries(Object.entries(t.records || {}).map(([l, v]) => [l, v.stars || 0])),
+    inProgressType: t.dayInProgress?.type || null,
+    rep: t.rep == null ? null : t.rep,
     days: t.days || 0,
     records: Object.entries(t.records || {}).map(([l, v]) => ({ lesson: LESSON_NAME[l] || l, secs: v.secs, stars: v.stars })),
     inProgress: t.dayInProgress ? { lesson: LESSON_NAME[t.dayInProgress.type] || t.dayInProgress.type, served: t.dayInProgress.stats?.served || 0 } : null,
@@ -59,6 +63,33 @@ export function townSummary(t) {
     pair: { first: count(1, 'pair'), retry: count(2, 'pair') },
     // 힌트를 봐야 했거나 세 번 틀린 문제 (최근 것부터)
     hard: log.filter((e) => e.r !== 1).slice(-12).reverse().map((e) => ({ lesson: LESSON_NAME[e.l] || e.l, q: e.q, r: e.r, t: e.t })),
+  }
+}
+
+// 소수 마을 미션 현황 — 짝꿍 계산 50문제 통과, 차시별 미션(손님 30명 받기) 성공
+export const TOWN_LESSONS = [['dn1', '2차시'], ['dn2', '3차시'], ['nd1', '4차시'], ['nd2', '5차시'], ['dd1', '6차시'], ['dd2', '7차시'], ['shift', '8차시'], ['mix', '정리']]
+export const PAIR_GOAL = 50
+export function townMissions(rows) {
+  const students = rows
+    .map((r) => ({ uid: r.uid, name: r.name || r.uid, t: townSummary(r.town), updatedAt: r.updatedAt || 0 }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+  const started = students.filter((x) => x.t)
+  const lessons = TOWN_LESSONS.map(([type, name]) => {
+    const done = started.filter((x) => x.t.starsBy[type] != null)
+    return {
+      type,
+      name,
+      done: done.length,
+      stars3: done.filter((x) => x.t.starsBy[type] >= 3).length,
+      playing: started.filter((x) => x.t.inProgressType === type && x.t.starsBy[type] == null).length,
+    }
+  })
+  return {
+    students,
+    total: students.length,
+    started: started.length,
+    pairPassed: started.filter((x) => x.t.pairDone >= PAIR_GOAL).length,
+    lessons,
   }
 }
 
