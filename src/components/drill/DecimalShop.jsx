@@ -843,7 +843,30 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     s.walkers.forEach((w) => { w.next += d })
     Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt += d }))
     servingSince.current += d
+    newOrders()
     setPaused(false)
+  }
+
+  // 멈춘 동안 문제를 종이에 풀고 돌아오지 못하게 — 다시 시작하면 줄 선 손님 주문이 모두 새 문제로 바뀐다.
+  // (손님·기다린 시간은 그대로, 이미 틀린 문제였다면 tries가 남아 있어 '처음에 맞힘'으로 세지 않는다)
+  function newOrders() {
+    const s = g.current
+    for (const [k, q] of Object.entries(s.queues)) {
+      const shop = shopById(townRef.current.built[k]?.id)
+      if (!shop || !q.length) continue
+      s.queues[k] = q.map((c, i) => {
+        if (k === sel && i === 0 && state !== 'ask') return c // 막 계산이 끝난 손님은 그대로
+        const n = makeFreshCustomer(lesson, shop, prices, { vipChance: 0, met: {}, recent: new Set(s.used) })
+        s.used = [...s.used, orderKey(n)]
+        const prefix = c.regular ? '❤️ 또 왔어요! ' : c.vip ? '👑 ' : ''
+        return {
+          ...c,
+          type: n.type, product: n.product, icon: n.icon, item: n.item, unit: n.unit, a: n.a, b: n.b, price: n.price,
+          qty: n.qty, tag: n.tag, answer: n.answer, steps: n.steps, helper: n.helper, say: prefix + n.say,
+        }
+      })
+    }
+    setInput('')
   }
 
   function toggleBuild() {
@@ -1195,7 +1218,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             )}
             {paused && !building && (
               <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/35">
-                <button type="button" onClick={togglePause} className="rounded-2xl bg-white px-6 py-3 text-xl font-black text-slate-800 shadow-xl">⏸ 잠깐 멈춤 · ▶ 계속</button>
+                <div className="text-center">
+                  <button type="button" onClick={togglePause} className="rounded-2xl bg-white px-6 py-3 text-xl font-black text-slate-800 shadow-xl">⏸ 잠깐 멈춤 · ▶ 계속</button>
+                  <div className="mt-2 rounded-xl bg-black/50 px-3 py-1.5 text-xs font-bold text-white">멈춘 동안엔 문제가 가려지고, 다시 시작하면 손님 주문이 새로 바뀌어요</div>
+                </div>
               </div>
             )}
           </div>
@@ -1203,7 +1229,13 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
 
         {/* 계산대 */}
         <div className="mt-1 rounded-[1.4rem] bg-white p-3 shadow-xl lg:mt-11 lg:self-start">
-          {active ? (
+          {active && paused ? (
+            <div className="py-6 text-center">
+              <div className="text-4xl">🙈</div>
+              <div className="mt-1 text-sm font-black text-slate-600">{building ? '짓는 동안엔' : '멈춘 동안엔'} 주문을 가려 둬요</div>
+              <div className="text-xs font-bold text-slate-400">다시 시작하면 손님 주문이 새로 바뀌어요</div>
+            </div>
+          ) : active ? (
             <>
               <div className="flex items-start gap-2">
                 <div className="relative shrink-0 text-5xl leading-none">
