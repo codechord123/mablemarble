@@ -24,15 +24,24 @@ describe('부르마블 · 5-2 4단원 소수의 곱셈', () => {
       ids.add(q.id)
     }
   })
-  it('계산 문제의 정답이 맞다', () => {
+  it('풀이 속 곱셈이 모두 맞고, 단답 정답은 풀이의 마지막 곱과 같다', () => {
     let checked = 0
     for (const q of questions) {
-      const m = q.question.match(/(\d+(?:\.\d+)?) × (\d+(?:\.\d+)?)[을를] 계산하세요/)
-      if (!m) continue
-      expect(q.answer, q.id).toBe(mulStr(m[1], m[2]))
-      checked += 1
+      const eqs = [...`${q.question} ${q.explanation}`.matchAll(/(\d+(?:\.\d+)?) × (\d+(?:\.\d+)?) = (\d+(?:\.\d+)?)/g)]
+      for (const [, a, b, c] of eqs) {
+        expect(mulStr(a, b), `${q.id}: ${a} × ${b}`).toBe(mulStr(c, '1'))
+        checked += 1
+      }
+      if (q.type === 'short_answer' && q.category !== '생활 속 소수의 곱셈') {
+        const last = q.explanation.match(/(\d+(?:\.\d+)?) × (\d+(?:\.\d+)?) = (\d+(?:\.\d+)?)(?!.*×)/)
+        expect(last, q.id).toBeTruthy()
+        expect(q.answer, q.id).toBe(mulStr(last[1], last[2]))
+      }
     }
-    expect(checked).toBeGreaterThan(30)
+    expect(checked).toBeGreaterThan(80)
+  })
+  it('모두 문장제 (단순 계산 문제 없음)', () => {
+    for (const q of questions) expect(q.question, q.id).not.toMatch(/계산하세요|의 값은\?|배는 얼마일까요/)
   })
   it('형식: 난이도 1~3, 객관식 답은 보기 안, 단답은 소수/정수 입력', () => {
     for (const q of questions) {
