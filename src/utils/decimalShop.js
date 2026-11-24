@@ -117,11 +117,24 @@ export const DECOR = [
   { id: 'ferris', icon: '🎡', name: '대관람차', cost: 800, pop: 2, theme: 'park' },
   { id: 'coaster', icon: '🎢', name: '롤러코스터', cost: 1200, pop: 2.6, theme: 'park' },
   { id: 'castle', icon: '🏰', name: '동화 속 성', cost: 2000, pop: 3.5, theme: 'park' },
+  // 새 장식
+  { id: 'cactus', icon: '🌵', name: '선인장', cost: 25, pop: 0.15, theme: 'nature' },
+  { id: 'bamboo', icon: '🎋', name: '대나무', cost: 35, pop: 0.18, theme: 'nature' },
+  { id: 'tent', icon: '⛺', name: '텐트', cost: 70, pop: 0.28, theme: 'nature' },
+  { id: 'kite', icon: '🪁', name: '연 날리기', cost: 30, pop: 0.18, theme: 'town' },
+  { id: 'playground', icon: '🛝', name: '놀이터', cost: 180, pop: 0.6, theme: 'town' },
+  { id: 'rainbow', icon: '🌈', name: '무지개 아치', cost: 300, pop: 0.9, theme: 'town' },
+  { id: 'stadium', icon: '🏟️', name: '경기장', cost: 1500, pop: 3, theme: 'town' },
+  { id: 'flamingo', icon: '🦩', name: '홍학', cost: 60, pop: 0.25, theme: 'beach' },
+  { id: 'whale', icon: '🐋', name: '고래 분수', cost: 350, pop: 1, theme: 'beach' },
+  { id: 'icesculpt', icon: '🧊', name: '얼음 조각', cost: 140, pop: 0.5, theme: 'snow' },
+  { id: 'fireworks', icon: '🎆', name: '불꽃놀이대', cost: 500, pop: 1.3, theme: 'park' },
+  { id: 'rocket', icon: '🚀', name: '로켓 놀이기구', cost: 900, pop: 2.1, theme: 'park' },
 ]
 export const DECOR_THEMES = [
   ['nature', '🌳 자연'], ['town', '🏙️ 거리'], ['beach', '🏖️ 바닷가'], ['snow', '❄️ 겨울'], ['park', '🎡 놀이공원'],
 ]
-export const BIG_DECOR = new Set(['fountain', 'statue', 'tower', 'yacht', 'island', 'snowmtn', 'carousel', 'circus', 'ferris', 'coaster', 'castle'])
+export const BIG_DECOR = new Set(['fountain', 'statue', 'tower', 'yacht', 'island', 'snowmtn', 'carousel', 'circus', 'ferris', 'coaster', 'castle', 'playground', 'rainbow', 'stadium', 'whale', 'fireworks', 'rocket'])
 
 // ─── 장사 아이템 (사 두었다가 장사 중에 쓴다) ───
 export const ITEMS = [
@@ -129,8 +142,25 @@ export const ITEMS = [
   { id: 'megaphone', icon: '📣', name: '확성기', cost: 30, desc: '손님 3명을 바로 불러요' },
   { id: 'tipcoupon', icon: '💝', name: '팁 두 배 쿠폰', cost: 40, desc: '1분 동안 팁이 두 배' },
   { id: 'candybasket', icon: '🍬', name: '사탕 바구니', cost: 35, desc: '줄 선 손님 모두 다시 기분 좋게 (기다림이 처음부터)' },
+  { id: 'magnet', icon: '🧲', name: '동전 자석', cost: 45, desc: '지도에 동전이 쏟아져요 — 눌러서 주워요', event: 'coins' },
+  { id: 'reporter', icon: '📸', name: '기자 초대장', cost: 60, desc: '방송국 취재! 다음 3명을 처음에 맞히면 평판 +1씩', event: 'tv' },
+  { id: 'catsnack', icon: '🐟', name: '고양이 간식', cost: 30, desc: '길고양이가 놀러 와요 — 찾아서 누르면 행운의 10G', event: 'cat' },
 ]
-export const MAX_ITEM = 5
+
+// ─── 장사 중 이벤트 ───
+// 하루에 두세 번 깜짝 이벤트 (러시 타임 10·20명째와 겹치지 않게 6·14·24명째 즈음)
+export const EVENT_AT = [6, 14, 24]
+export const EVENTS = [
+  { id: 'bus', icon: '🚌', name: '관광버스 도착', desc: '40초 동안 손님이 몰려와요 · 처음에 맞히면 팁 +1G', ms: 40000 },
+  { id: 'shower', icon: '🌧️', name: '갑자기 소나기', desc: '줄 선 손님들이 비를 피해 가게 안에서 기다려요 (기다림이 처음부터)', ms: 4000 },
+  { id: 'vip', icon: '👑', name: '깜짝 VIP', desc: '다음 손님은 VIP — 많이 사고 팁도 넉넉해요', ms: 6000 },
+  { id: 'tv', icon: '📸', name: '방송국 취재', desc: '다음 3명을 처음에 맞히면 평판 +1씩', ms: 60000 },
+  { id: 'cat', icon: '🐱', name: '길고양이 등장', desc: '지도 어딘가의 고양이를 찾아 눌러요 — 행운의 10G', ms: 15000 },
+  { id: 'coins', icon: '🪙', name: '동전이 떨어졌다', desc: '지도에 떨어진 동전을 눌러 주워요 (하나에 3G)', ms: 12000 },
+  { id: 'parade', icon: '🎺', name: '축제 퍼레이드', desc: '30초 동안 팁이 두 배', ms: 30000 },
+]
+export const eventById = (id) => EVENTS.find((e) => e.id === id)
+export const MAX_ITEM = 5 // 종류마다
 export const itemById = (id) => ITEMS.find((x) => x.id === id)
 export const decorById = (id) => DECOR.find((d) => d.id === id)
 
@@ -512,11 +542,11 @@ export const DEMAND_LABEL = { 2: '▲▲ 불티나요', 1: '▲ 잘 팔려요', 
 // ─── 평판 (입소문) ───
 // 처음에 정확히 계산한 비율이 입소문이 된다. 0~100, 처음엔 50.
 export const repOf = (town) => (town.rep == null ? 50 : town.rep)
-export function repChange({ served, first, lost }) {
+export function repChange({ served, first, lost, repBonus = 0 }) {
   const total = served + lost
   if (!total) return 0
   const acc = first / total
-  return Math.max(-10, Math.min(10, Math.round((acc - 0.6) * 25)))
+  return Math.max(-10, Math.min(10, Math.round((acc - 0.6) * 25))) + Math.min(5, repBonus) // 📸 방송국 취재 보너스
 }
 export function repLabel(rep) {
   if (rep >= 80) return { icon: '🌟', name: '소문난 가게', desc: 'VIP가 자주 오고, 모든 손님 팁 +1G' }
@@ -647,6 +677,7 @@ export const QUESTS = [
   { id: 'map1', text: '새 지도 열기', reward: 100, done: (s) => (s.maps || []).length >= 1 },
   { id: 'map3', text: '지도 세 곳 모두 열기', reward: 500, done: (s) => (s.maps || []).length >= 3 },
   { id: 'item1', text: '장사 아이템 써 보기', reward: 20, done: (s) => (s.itemsUsed || 0) >= 1 },
+  { id: 'event5', text: '깜짝 이벤트 5번 겪기', reward: 50, done: (s) => (s.eventsSeen || 0) >= 5 },
   { id: 'fan1', text: '단골 손님 만들기 (❤️5)', reward: 40, done: (s) => regularsOf(s).length >= 1 },
   { id: 'fan5', text: '단골 손님 5명', reward: 150, done: (s) => regularsOf(s).length >= 5 },
   { id: 'near50', text: '이웃 효과 +50% 가게 만들기', reward: 80, done: (s) => shopsIn(s).some((x) => neighborsOf(s, x.key).bonus >= 0.5) },

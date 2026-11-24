@@ -182,13 +182,15 @@ describe('새 지도 · 상점', () => {
       }
     }
   })
-  it('장식 30종 · 아이템 4종', async () => {
+  it('장식 30종 넘게 · 아이템과 이벤트', async () => {
     const { DECOR, DECOR_THEMES, ITEMS } = await import('../src/utils/decimalShop.js')
     expect(DECOR.length).toBeGreaterThanOrEqual(30)
     const themes = new Set(DECOR_THEMES.map(([id]) => id))
     DECOR.forEach((d) => expect(themes.has(d.theme), d.id).toBe(true))
     expect(new Set(DECOR.map((d) => d.id)).size).toBe(DECOR.length)
-    expect(ITEMS.map((x) => x.id)).toEqual(['hourglass', 'megaphone', 'tipcoupon', 'candybasket'])
+    expect(ITEMS.map((x) => x.id)).toEqual(['hourglass', 'megaphone', 'tipcoupon', 'candybasket', 'magnet', 'reporter', 'catsnack'])
+    const { EVENTS } = await import('../src/utils/decimalShop.js')
+    ITEMS.filter((x) => x.event).forEach((x) => expect(EVENTS.some((e) => e.id === x.event), x.id).toBe(true))
   })
 })
 
@@ -224,6 +226,8 @@ describe('날씨 수요 · 평판 · 손님 생각', () => {
     expect(repChange({ served: 30, first: 18, lost: 0 })).toBe(0)
     expect(repChange({ served: 20, first: 5, lost: 10 })).toBeLessThan(0)
     expect(repChange({ served: 0, first: 0, lost: 0 })).toBe(0)
+    expect(repChange({ served: 30, first: 18, lost: 0, repBonus: 3 })).toBe(3) // 📸 방송국 취재
+    expect(repChange({ served: 30, first: 18, lost: 0, repBonus: 9 })).toBe(5) // 보너스는 5까지
   })
   it('손님 생각: 줄이 꽉 차면 줄 걱정, 아무 일 없으면 가끔만', async () => {
     const { thoughtFor } = await import('../src/utils/decimalShop.js')

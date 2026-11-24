@@ -12,6 +12,7 @@ import {
   shopsIn, openShops, makeFreshCustomer, orderKey, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
   SELL_RATE, spentOn, sellPrice, canSell, neighborsOf, near, FAN_AT, fansOf, regularsOf, queueForecast, overflowRisk,
+  EVENTS, EVENT_AT, eventById, itemById, ROWS,
   forecastOf, demandOf, demandLevel, DEMAND_LABEL, repOf, repLabel, repChange, THOUGHTS, thoughtFor,
   popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
@@ -641,6 +642,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     rushDone: resume?.rushDone || [],
     used: resume?.used || [], // 오늘 낸 식들
     owed: resume?.owed ? [...resume.owed] : [], // 본 문제 중 아직 못 맞힌 것 — 다시 온다
+    event: null, busUntil: 0, forceVip: 0, tvLeft: 0, pickups: [], // 깜짝 이벤트
     stats: resume?.stats
       ? { ...resume.stats, met: { ...resume.stats.met }, thoughts: { ...(resume.stats.thoughts || {}) }, fans: { ...(resume.stats.fans || {}) } }
       : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {}, thoughts: {}, fans: {} },
@@ -672,6 +674,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   useEffect(() => {
     if (import.meta.env.DEV) window.__shopOrder = active
   }, [active])
+  useEffect(() => {
+    if (import.meta.env.DEV) window.__startEvent = startEvent // 개발 서버에서만: 테스트용
+  })
 
   function owe(c) {
     const o = owedOf(c)
@@ -750,7 +755,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           const weights = pool.map(shopWeight) // 수요 ▲·이웃 효과 큰 가게로 손님이 몰린다
           let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
           const target = pool.find((x, i) => (roll -= weights[i]) < 0) || pool[0]
-          let cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used), regulars }) }
+          const vipChance = s.forceVip ? 1 : rules.vipChance // 👑 깜짝 VIP
+          s.forceVip = 0
+          let cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used), regulars }) }
           const oi = s.owed.findIndex((o) => target.shop.products.includes(o.product))
           if (oi >= 0) {
             const o = s.owed.splice(oi, 1)[0]
@@ -765,9 +772,11 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           if (s.burst > 0) { // 📣 확성기 — 손님 셋이 줄줄이
             s.burst -= 1
             s.nextSpawn = now + 450
-          } else s.nextSpawn = now + (inFlight < 1 ? 1200 : rules.gap * 1000 * rush * (0.7 + Math.random() * 0.6))
+          } else s.nextSpawn = now + (inFlight < 1 ? 1200 : rules.gap * 1000 * rush * (now < s.busUntil ? 0.5 : 1) * (0.7 + Math.random() * 0.6)) // 🚌 관광버스면 두 배 빨리
         }
       }
+      // 이벤트로 떨어진 고양이·동전은 시간이 지나면 사라진다
+      if (s.pickups.length) s.pickups = s.pickups.filter((x) => now < x.until)
       // 걷기
       for (const w of s.walkers) {
         if (now >= w.next && w.i < w.path.length - 1) {
@@ -880,6 +889,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     s.startAt += d
     s.rushUntil = s.rushUntil ? s.rushUntil + d : 0
     s.tipBoostUntil = s.tipBoostUntil ? s.tipBoostUntil + d : 0
+    s.busUntil = s.busUntil ? s.busUntil + d : 0
+    if (s.event) s.event.until += d
+    s.pickups.forEach((x) => { x.until += d })
     s.walkers.forEach((w) => { w.next += d })
     Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt += d }))
     servingSince.current += d
@@ -916,6 +928,53 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     setHelper(false)
   }
 
+  // ─── 깜짝 이벤트 ───
+  function startEvent(id) {
+    const s = g.current
+    const ev = eventById(id)
+    const now = Date.now()
+    s.event = { id, until: now + ev.ms }
+    s.stats.events = [...(s.stats.events || []), id]
+    if (id === 'bus') {
+      s.busUntil = now + ev.ms
+      s.nextSpawn = Math.min(s.nextSpawn, now + 500)
+    } else if (id === 'shower') {
+      Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt = now }))
+      servingSince.current = now
+    } else if (id === 'vip') s.forceVip = 1
+    else if (id === 'tv') s.tvLeft = 3
+    else if (id === 'parade') s.tipBoostUntil = Math.max(now, s.tipBoostUntil || 0) + ev.ms
+    else if (id === 'cat' || id === 'coins') dropPickups(id === 'cat' ? 'cat' : 'coin', id === 'cat' ? 1 : 5, now + ev.ms)
+    setToast(`${ev.icon} ${ev.name}! ${ev.desc}`)
+    sfx.double?.()
+    cheer(2)
+    setFrame((f) => f + 1)
+  }
+  // 지금 보는 지도의 빈 땅·길에 고양이·동전을 떨어뜨린다
+  function dropPickups(kind, n, until) {
+    const t = townRef.current
+    const spots = []
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < ROWS; c++) {
+      const tile = tileAt(r, c, mapView)
+      if (tile && tile !== '~' && tile !== 'I' && !t.built[tkey(r, c, mapView)]) spots.push([r, c])
+    }
+    for (let i = 0; i < n && spots.length; i++) {
+      const [r, c] = spots.splice(Math.floor(Math.random() * spots.length), 1)[0]
+      g.current.pickups.push({ id: `${kind}-${Date.now()}-${i}`, kind, map: mapView, r, c, until })
+    }
+  }
+  function collect(p, el) {
+    if (paused) return
+    const s = g.current
+    s.pickups = s.pickups.filter((x) => x.id !== p.id)
+    const amount = p.kind === 'cat' ? 10 : 3
+    onUpdate((t) => ({ money: addD(t.money, D(amount)) }), false)
+    sfx.coin()
+    flyCoins(el, moneyRef.current, { count: p.kind === 'cat' ? 6 : 2 })
+    if (p.kind === 'cat') { cheer(3); setToast('🐱 야옹~ 고양이를 찾았어요! 행운의 +10G') }
+    setFrame((f) => f + 1)
+  }
+
   // 🛍️ 장사 아이템 쓰기
   function applyItem(id) {
     const s = g.current
@@ -936,7 +995,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt = now }))
       servingSince.current = now
       setToast('🍬 사탕을 나눠 줬어요! 줄 선 손님 모두 기분 좋게 다시 기다려요')
-    }
+    } else if (itemById(id)?.event) startEvent(itemById(id).event) // 🧲📸🐟 이벤트를 바로 부르는 아이템
     sfx.coin()
     onUpdate((t) => ({ items: { ...(t.items || {}), [id]: Math.max(0, ((t.items || {})[id] || 0) - 1) }, itemsUsed: (t.itemsUsed || 0) + 1 }), false)
     setFrame((f) => f + 1)
@@ -974,6 +1033,12 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       setToast('🔥 러시 타임! 1분 동안 손님이 두 배로 몰려와요 · 팁 두 배!')
       cheer(2)
     }
+    // 깜짝 이벤트 — 6·14·24명째 즈음 (4번 중 3번꼴)
+    const evAt = s.stats.evAt || []
+    if (EVENT_AT.includes(n) && !evAt.includes(n)) {
+      s.stats.evAt = [...evAt, n]
+      if (Math.random() < 0.75) setTimeout(() => startEvent(EVENTS[Math.floor(Math.random() * EVENTS.length)].id), 1600)
+    }
     if (n < rules.goal) onSave?.(progressOf(lesson, s, Date.now() - s.startAt), n % 5 === 0)
   }
 
@@ -991,7 +1056,12 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       const rush = Date.now() < s.rushUntil
       const boost = Date.now() < (s.tipBoostUntil || 0)
       // 수요 ▲ 가게 +1G, 소문난 가게 +1G (처음에 스스로 맞혔을 때만)
-      const bonus = firstTry && !helper ? (demandLevel(demandOf(town.built[sel]?.id, rules.forecast)) >= 1 ? 1 : 0) + rules.repTip + (active.regular ? 1 : 0) : 0
+      const bonus = firstTry && !helper ? (demandLevel(demandOf(town.built[sel]?.id, rules.forecast)) >= 1 ? 1 : 0) + rules.repTip + (active.regular ? 1 : 0) + (Date.now() < s.busUntil ? 1 : 0) : 0
+      if (firstTry && !helper && s.tvLeft > 0) { // 📸 방송국 취재 중 처음에 맞히면 평판 +1
+        s.tvLeft -= 1
+        s.stats.repBonus = (s.stats.repBonus || 0) + 1
+        setTimeout(() => setToast(`📸 방송에 나왔어요! 평판 +1 (남은 취재 ${s.tvLeft}명)`), 300)
+      }
       if (firstTry && !helper) fan(active, 1)
       const took = (Date.now() - servingSince.current) / 1000
       s.avgSolve = s.avgSolve ? s.avgSolve * 0.7 + took * 0.3 : took
@@ -1066,7 +1136,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   const openW = open.map((x) => [x.key, shopWeight(x), x])
   const sumW = openW.reduce((a, [, w]) => a + w, 0) || 1
   const riskKeys = new Set(
-    fc.growing
+    fc.growing && s.avgSolve > 0 && sinceStart >= 20
       ? openW.filter(([k, w, x]) => overflowRisk({ arrivePerMin: fc.arrive, share: w / sumW, patienceSec: rules.patience * (1 + nbBonus(k) * 0.3), slots: slotsOf(x.lv) })).map(([k]) => k)
       : [],
   )
@@ -1148,6 +1218,21 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     </g>
   )
 
+  // 고양이·동전 (눌러서 줍는다)
+  const pickupsEl = (
+    <g>
+      {s.pickups.filter((x) => x.map === mapView && now < x.until).map((x) => {
+        const [px, py] = centerRot(x.r, x.c, rot)
+        return (
+          <g key={x.id} className="cursor-pointer town-bob" onClick={(e) => { e.stopPropagation(); collect(x, e.currentTarget) }} role="button" aria-label={x.kind === 'cat' ? '고양이' : '동전'}>
+            <circle cx={px} cy={py - 6} r={x.kind === 'cat' ? 15 : 11} fill="rgba(253,224,71,0.55)" stroke="#facc15" strokeWidth="2" />
+            <text x={px} y={py} textAnchor="middle" fontSize={x.kind === 'cat' ? 20 : 15}>{x.kind === 'cat' ? '🐱' : '🪙'}</text>
+          </g>
+        )
+      })}
+    </g>
+  )
+
   const face = state === 'paid' ? '😍' : state === 'gone' ? '😢' : tries > 0 ? '🤔' : active ? MOOD_FACE[moodOf((now - active.arrivedAt) / 1000, active.pat || rules.patience)] : ''
   const bubble = !active ? '' : state === 'paid' ? (active.vip ? '역시 최고의 가게! 👑' : '고마워요! 또 올게요~') : state === 'gone' ? '음… 다음에 올게요 😢' : tries > 0 ? '어? 계산이 이상한데… 다시 해 주실래요?' : active.say
 
@@ -1192,12 +1277,17 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
                 ))}
               </div>
             )}
+            {s.event && now < s.event.until && (
+              <span className="rounded-full bg-violet-600 px-2 py-0.5 text-xs font-black text-white shop-bop">
+                {eventById(s.event.id).icon} {eventById(s.event.id).name}{s.event.id === 'tv' ? ` · 남은 취재 ${s.tvLeft}명` : ` ${Math.ceil((s.event.until - now) / 1000)}초`}
+              </span>
+            )}
             {boosting && <span className="rounded-full bg-pink-500 px-2 py-0.5 text-xs font-black text-white">💝 팁×2 {Math.ceil((s.tipBoostUntil - now) / 1000)}초</span>}
             {rushing && <span className="rounded-full bg-rose-600 px-2 py-0.5 text-xs font-black text-white town-rush">🔥 러시 타임 {Math.ceil((s.rushUntil - now) / 1000)}초</span>}
             {s.penalty > 0 && <span key={penaltyPop} className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-black text-rose-700 town-shake">벌칙 +{s.penalty}초</span>}
             <Money value={live} refEl={moneyRef} />
           </div>
-          {started && state !== 'done' && (
+          {started && state !== 'done' && s.avgSolve > 0 && sinceStart >= 20 && ( // 한 명은 계산해 봐야 내 속도를 안다
             <div className={`mt-1 rounded-xl px-2.5 py-1 text-[11px] font-black ${fc.growing ? 'bg-orange-100 text-orange-800' : 'bg-emerald-50 text-emerald-800'}`}>
               📊 줄 예보: 1분에 손님 {fc.arrive}명 와요 · 나는 1분에 {fc.serve}명 계산 → {fc.growing ? '줄이 길어져요! ⚠️ 가게는 줄 칸을 늘리거나(Lv업) 빨리 계산' : '여유 있어요 😊'}
             </div>
@@ -1219,7 +1309,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
               closedKeys={closedKeys}
               shopRefs={shopRefs}
               overlay={building ? null : overlay}
-              extra={building ? null : walkers}
+              extra={building ? null : <>{walkers}{pickupsEl}</>}
               range={building && sheet && sheet.r != null && (sheet.m || 'main') === mapView ? { r: sheet.r, c: sheet.c } : null}
             />
             </MapZoom>
@@ -1352,6 +1442,9 @@ function Settlement({ result, town, onTown, onAgain }) {
             </div>
           )}
           <div className="mt-1 text-center text-xs font-bold text-slate-500">손님 {result.served}명 · 놓친 손님 {result.lost}명 · 한 번에 맞힘 {result.first} · VIP {result.vip}</div>
+          {result.events?.length > 0 && (
+            <div className="mt-1 text-center text-xs font-black text-violet-700">🎉 오늘의 이벤트 {result.events.map((id) => eventById(id)?.icon).join(' ')}{result.repBonus ? ` · 📸 평판 보너스 +${Math.min(5, result.repBonus)}` : ''}</div>
+          )}
           <div className="mt-3 space-y-1.5 border-y-2 border-dashed border-slate-200 py-3">
             {rows.map(([k, v, c], i) => (
               <motion.div key={k} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.2 }} className="flex justify-between text-sm font-bold">
@@ -1574,6 +1667,7 @@ export default function DecimalShop({ onBack }) {
       money: subD(addPaid ? addD(addD(town.money, r.sales), r.tips) : town.money, addD(sheet.material, sheet.upkeep)),
       days: town.days + 1,
       rep: Math.max(0, Math.min(100, repOf(town) + repChange(r))), // 평판 — 하루를 마칠 때만 바뀐다
+      eventsSeen: (town.eventsSeen || 0) + (r.events?.length || 0),
       fans: Object.entries(r.fans || {}).reduce((m, [e, n]) => ({ ...m, [e]: Math.max(0, (m[e] || 0) + n) }), fansOf(town)), // 단골 정
       served: town.served + r.served,
       lost: town.lost + r.lost,
