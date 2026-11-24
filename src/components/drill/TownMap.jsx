@@ -16,6 +16,41 @@ const S = TW / SRC_W // 타일 그림 줄임 비율
 export function center(r, c) {
   return [(c - r) * (TW / 2) + OX, (c + r) * (TH / 2) + OY + TH / 2]
 }
+// ─── 지도 돌리기 (90°씩) — 건물 뒤에 가린 땅도 앞으로 오게. 보기 설정만, 학생 기록과 상관없음 ───
+const ROT_KEY = 'boomarble_town_rot'
+let rotNow = (() => {
+  try { return Number(localStorage.getItem(ROT_KEY)) % 4 || 0 } catch { return 0 }
+})()
+const rotSubs = new Set()
+export function setMapRot(v) {
+  rotNow = ((v % 4) + 4) % 4
+  try { localStorage.setItem(ROT_KEY, String(rotNow)) } catch { /* ignore */ }
+  rotSubs.forEach((f) => f(rotNow))
+}
+export function useMapRot() {
+  const [r, setR] = useState(rotNow)
+  useEffect(() => {
+    rotSubs.add(setR)
+    return () => rotSubs.delete(setR)
+  }, [])
+  return r
+}
+const N1 = ROWS - 1
+// 지도 칸(r,c) → 화면 칸, 화면 칸 → 지도 칸
+export function viewRC(r, c, rot) {
+  if (rot === 1) return [c, N1 - r]
+  if (rot === 2) return [N1 - r, N1 - c]
+  if (rot === 3) return [N1 - c, r]
+  return [r, c]
+}
+export function gridRC(dr, dc, rot) {
+  if (rot === 1) return [N1 - dc, dr]
+  if (rot === 2) return [N1 - dr, N1 - dc]
+  if (rot === 3) return [dc, N1 - dr]
+  return [dr, dc]
+}
+export const centerRot = (r, c, rot) => center(...viewRC(r, c, rot))
+
 const diamond = (cx, cy, s = 1) => {
   const w = (TW / 2) * s
   const h = (TH / 2) * s
@@ -109,6 +144,8 @@ export function MapZoom({ children }) {
         <div style={{ width: `${z * 100}%` }}>{children}</div>
       </div>
       <div className="absolute bottom-1 right-1 flex flex-col gap-1">
+        <button type="button" aria-label="지도 돌리기" onClick={() => setMapRot(rotNow + 1)}
+          className="h-8 w-8 rounded-full bg-white/90 text-base font-black text-sky-900 shadow ring-1 ring-sky-900/10">🔄</button>
         {[['＋', Math.min(2.5, z + 0.5), '크게 보기'], ['－', Math.max(1, z - 0.5), '작게 보기']].map(([t, v, l]) => (
           <button key={t} type="button" aria-label={l} onClick={() => set(v)} disabled={v === z}
             className="h-8 w-8 rounded-full bg-white/90 text-lg font-black text-sky-900 shadow ring-1 ring-sky-900/10 disabled:opacity-40">{t}</button>
@@ -120,23 +157,30 @@ export function MapZoom({ children }) {
 
 // range: { r, c } — 그 칸에서 이웃 효과가 닿는 범위(2칸)를 옅게 칠한다
 const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra, range }, ref) {
+  const rot = useMapRot()
   useEffect(preloadTownArt, [])
   const tiles = []
   const objects = []
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
+  // 화면 칸 순서(뒤→앞)로 그리고, 그 칸이 지도의 어느 칸인지 거꾸로 찾는다
+  for (let dr = 0; dr < ROWS; dr++) {
+    for (let dc = 0; dc < COLS; dc++) {
+      const [r, c] = gridRC(dr, dc, rot)
       const t = tileAt(r, c, mapId)
-      const [cx, cy] = center(r, c)
+      const [cx, cy] = center(dr, dc)
       const k = key(r, c, mapId)
       const scenery = t === '~' || t === 'I' // 바다·얼음 — 못 짓는 풍경
       const open = t === 'R' || scenery || unlocked(town, r, c, mapId)
-      const road = (rr, cc) => { const n = tileAt(rr, cc, mapId); return n === null || n === 'R' } // 지도 밖으로 나가는 길도 이어지게
+      // 길 모양은 화면 방향으로 — 화면에서 ↗↘↙↖ 이웃이 길인지 (지도 밖으로 나가는 길도 이어지게)
+      const road = (ddr, ddc) => {
+        if (ddr < 0 || ddc < 0 || ddr > N1 || ddc > N1) return true
+        return tileAt(...gridRC(ddr, ddc, rot), mapId) === 'R'
+      }
       const F = MAP_FILTER[mapId] || {}
       const g = GROUND[landKind(mapId)]
       tiles.push(
         <g key={k} onClick={() => !scenery && onTile?.(r, c)} className={t === 'R' || scenery ? '' : 'cursor-pointer'}>
           {t === 'R' ? (
-            <Tile cx={cx} cy={cy} src={roadSrc(road(r - 1, c), road(r, c + 1), road(r + 1, c), road(r, c - 1))} />
+            <Tile cx={cx} cy={cy} src={roadSrc(road(dr - 1, dc), road(dr, dc + 1), road(dr + 1, dc), road(dr, dc - 1))} />
           ) : scenery ? (
             <Tile cx={cx} cy={cy} src={GROUND.water.src} h={GROUND.water.h} filter={t === 'I' ? 'saturate(0.35) brightness(1.3)' : F.water} />
           ) : (
@@ -151,7 +195,7 @@ const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, sele
       if (!open && mapId === 'main') {
         const sign = SIGN_AT[t] === k
         objects.push({
-          depth: r + c,
+          depth: dr + dc,
           el: (
             <g key={`f${k}`} onClick={() => onTile?.(r, c)} className="cursor-pointer">
               {sign ? (
@@ -171,12 +215,12 @@ const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, sele
       if (!b) continue
       if (b.kind === 'shop') {
         objects.push({
-          depth: r + c,
+          depth: dr + dc,
           el: (
             <Building
               key={k}
-              r={r}
-              c={c}
+              r={dr}
+              c={dc}
               shop={shopById(b.id)}
               lv={b.lv || 1}
               selected={selectedKey === k}
@@ -192,7 +236,7 @@ const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, sele
         const d = decorById(b.id)
         const big = BIG_DECOR.has(d.id)
         objects.push({
-          depth: r + c,
+          depth: dr + dc,
           el: (
             <g key={k} onClick={(e) => { e.stopPropagation(); onTile?.(r, c) }} className="cursor-pointer">
               <ellipse cx={cx} cy={cy + 2} rx={big ? 18 : 11} ry={big ? 8 : 5} fill="rgba(0,0,0,0.15)" />

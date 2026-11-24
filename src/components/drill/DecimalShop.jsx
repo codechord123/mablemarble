@@ -20,7 +20,7 @@ import { sfx } from '../../utils/sounds.js'
 import { cheer, flyCoins } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
 import { SoundMini, useHideSoundToggle } from '../ui/MuteToggle.jsx'
-import TownMap, { center, MapZoom } from './TownMap.jsx'
+import TownMap, { MapZoom, centerRot, viewRC, useMapRot } from './TownMap.jsx'
 import PairDrill from './PairDrill.jsx'
 import { PAIR_GOAL } from '../../utils/pairCalc.js'
 import { safeTown } from '../../utils/townGuard.js'
@@ -592,14 +592,33 @@ function Town({ syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImpo
 
 // ─── 장사하는 하루 ───
 // 이어 하기용 진행 상황 (장사 도중 나가도 저장)
+// ─── 한 번 본 문제는 맞힐 때까지 다시 온다 ───
+// 나갔다 들어오기·멈췄다 켜기·손님 보내기로 어려운 문제를 건너뛰고 쉬운 문제만 고르지 못하게.
+// 화면에 나온(seen) 문제를 못 맞히고 손님이 가면 '갚을 문제(owed)'에 넣었다가 다음 손님 주문으로 다시 낸다 (두 번까지).
+// 돌아온 문제는 맞혀도 팁·'처음에 맞힘'이 없다.
+const ORDER_KEYS = ['type', 'product', 'icon', 'item', 'unit', 'a', 'b', 'price', 'qty', 'tag', 'answer', 'steps', 'helper']
+const MAX_RETURNS = 2
+function orderOf(c) {
+  const o = {}
+  for (const k of ORDER_KEYS) o[k] = c[k]
+  o.say = String(c.say || '').replace(/^(❤️ 또 왔어요! |👑 )/, '')
+  o.returns = (c.returns || 0) + (c.seen ? 1 : 0)
+  return o
+}
+const owedOf = (c) => (c.seen || c.returned ? orderOf(c) : null)
+
 function progressOf(lesson, s, elapsedMs) {
+  // 줄·길 위 손님 중 본 문제·돌아온 문제는 이어 할 때 다시 오게 같이 저장한다
+  const pending = [...Object.values(s.queues).flat(), ...s.walkers.filter((w) => w.phase === 'in').map((w) => w.cust)]
+    .map(owedOf).filter((o) => o && o.returns <= MAX_RETURNS)
   // paidLive: 판 돈은 그때그때 이미 가진 돈에 들어갔다 (정산 때는 재료비·유지비만 뺀다)
-  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, paidLive: true, savedAt: Date.now() }
+  return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, owed: [...(s.owed || []), ...pending], paidLive: true, savedAt: Date.now() }
 }
 
 function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, onUpdate, onLog }) {
   const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
   const regulars = useMemo(() => regularsOf(town), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const rot = useMapRot()
   const nbBonus = (k) => neighborsOf(townRef.current, k).bonus // 이웃 효과 (장사 중 지어도 바로 반영)
   const shopWeight = (x) => x.lv * demandOf(x.shop.id, rules.forecast) * (1 + nbBonus(x.key))
   // 장사 중에도 가게를 짓고 키울 수 있어서, 문 연 가게는 그때그때 마을에서 다시 본다
@@ -621,6 +640,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     penalty: resume?.penalty || 0,
     rushDone: resume?.rushDone || [],
     used: resume?.used || [], // 오늘 낸 식들
+    owed: resume?.owed ? [...resume.owed] : [], // 본 문제 중 아직 못 맞힌 것 — 다시 온다
     stats: resume?.stats
       ? { ...resume.stats, met: { ...resume.stats.met }, thoughts: { ...(resume.stats.thoughts || {}) }, fans: { ...(resume.stats.fans || {}) } }
       : { sales: D(0), tips: D(0), served: 0, lost: 0, vip: 0, first: 0, best: 0, met: {}, thoughts: {}, fans: {} },
@@ -652,6 +672,11 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   useEffect(() => {
     if (import.meta.env.DEV) window.__shopOrder = active
   }, [active])
+
+  function owe(c) {
+    const o = owedOf(c)
+    if (o && o.returns <= MAX_RETURNS) g.current.owed.push(o)
+  }
 
   // 단골 정 — 처음에 정확히 계산해 주면 +1, 놓치면 −1 (하루를 마칠 때 마을에 더한다)
   function fan(cust, d) {
@@ -716,12 +741,21 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         const room = open.filter((x) => (s.queues[x.key]?.length || 0) + s.walkers.filter((w) => w.phase === 'in' && w.shopKey === x.key).length < slotsOf(x.lv))
         if (!room.length) s.nextSpawn = now + 800
         else {
-          const weights = room.map(shopWeight) // 수요 ▲·이웃 효과 큰 가게로 손님이 몰린다
+          // 갚을 문제가 있으면 그 상품을 파는 가게로 먼저 보낸다
+          const owedRoom = s.owed.length ? room.filter((x) => s.owed.some((o) => x.shop.products.includes(o.product))) : []
+          const pool = owedRoom.length ? owedRoom : room
+          const weights = pool.map(shopWeight) // 수요 ▲·이웃 효과 큰 가게로 손님이 몰린다
           let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
-          const target = room.find((x, i) => (roll -= weights[i]) < 0) || room[0]
-          const cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used), regulars }) }
+          const target = pool.find((x, i) => (roll -= weights[i]) < 0) || pool[0]
+          let cust = { ...makeFreshCustomer(lesson, target.shop, prices, { vipChance: rules.vipChance, met: { ...town.met, ...s.stats.met }, recent: new Set(s.used), regulars }) }
+          const oi = s.owed.findIndex((o) => target.shop.products.includes(o.product))
+          if (oi >= 0) {
+            const o = s.owed.splice(oi, 1)[0]
+            cust = { ...cust, ...o, say: (cust.regular ? '❤️ 또 왔어요! ' : cust.vip ? '👑 ' : '') + o.say, returned: true, seen: false }
+          } else {
+            s.used = [...s.used, orderKey(cust)] // 오늘 낸 식은 다시 안 낸다 (30문제 모두 다르게)
+          }
           s.spawnLog = [...(s.spawnLog || []).filter((t) => now - t < 60000), now] // 줄 예보용: 최근 1분에 온 손님
-          s.used = [...s.used, orderKey(cust)] // 오늘 낸 식은 다시 안 낸다 (30문제 모두 다르게)
           s.walkers.push(walkerTo(cust, target.key))
           s.stats.met[cust.customer.emoji] = (s.stats.met[cust.customer.emoji] || 0) + 1
           const rush = now < s.rushUntil ? 0.5 : 1
@@ -748,6 +782,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           s.stats.lost += 1
           s.penalty += PENALTY.lost
           fan(w.cust, -1)
+          owe(w.cust)
           walkerAway(w.cust, w.shopKey, '😤')
           setToast(`😤 ${shopById(town.built[w.shopKey].id).name} 줄이 꽉 차서 ${w.cust.customer.name} 손님이 갔어요 · +${PENALTY.lost}초`)
           sfx.wrong()
@@ -782,6 +817,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           if (!serving && now - c.arrivedAt > (c.pat || rules.patience) * 1000) {
             s.stats.lost += 1
             fan(c, -1)
+            owe(c)
             s.penalty += PENALTY.lost
             walkerAway(c, k, '😤')
             setToast(`😤 ${c.customer.name} 손님이 기다리다 갔어요 · +${PENALTY.lost}초`)
@@ -821,7 +857,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
 
   useEffect(() => {
     servingSince.current = Date.now()
-  }, [active?.id])
+    if (active) active.seen = true // 이 문제를 봤다 — 못 맞히고 가면 다시 온다
+  }, [active?.id]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!toast) return
     const t = setTimeout(() => setToast(null), 2400)
@@ -843,30 +880,14 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     s.walkers.forEach((w) => { w.next += d })
     Object.values(s.queues).forEach((q) => q.forEach((c) => { c.arrivedAt += d }))
     servingSince.current += d
-    newOrders()
+    markPaused()
     setPaused(false)
   }
 
-  // 멈춘 동안 문제를 종이에 풀고 돌아오지 못하게 — 다시 시작하면 줄 선 손님 주문이 모두 새 문제로 바뀐다.
-  // (손님·기다린 시간은 그대로, 이미 틀린 문제였다면 tries가 남아 있어 '처음에 맞힘'으로 세지 않는다)
-  function newOrders() {
-    const s = g.current
-    for (const [k, q] of Object.entries(s.queues)) {
-      const shop = shopById(townRef.current.built[k]?.id)
-      if (!shop || !q.length) continue
-      s.queues[k] = q.map((c, i) => {
-        if (k === sel && i === 0 && state !== 'ask') return c // 막 계산이 끝난 손님은 그대로
-        const n = makeFreshCustomer(lesson, shop, prices, { vipChance: 0, met: {}, recent: new Set(s.used) })
-        s.used = [...s.used, orderKey(n)]
-        const prefix = c.regular ? '❤️ 또 왔어요! ' : c.vip ? '👑 ' : ''
-        return {
-          ...c,
-          type: n.type, product: n.product, icon: n.icon, item: n.item, unit: n.unit, a: n.a, b: n.b, price: n.price,
-          qty: n.qty, tag: n.tag, answer: n.answer, steps: n.steps, helper: n.helper, say: prefix + n.say,
-        }
-      })
-    }
-    setInput('')
+  // 멈춘 동안 문제를 종이에 풀어 오지 못하게 — 문제는 그대로 두되(바꾸면 쉬운 문제 고르기가 된다),
+  // 멈추기 전에 본 문제는 맞혀도 '처음에 맞힘'·팁이 없다.
+  function markPaused() {
+    for (const q of Object.values(g.current.queues)) for (const c of q) if (c.seen) c.pausedOn = true
   }
 
   function toggleBuild() {
@@ -960,7 +981,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     const s = g.current
     const mood = moodOf((Date.now() - active.arrivedAt) / 1000, active.pat || rules.patience)
     if (r === 'correct') {
-      const firstTry = tries === 0
+      // 돌아온 문제·보다가 멈춘 문제는 맞혀도 '처음에 맞힘'·팁이 없다
+      const firstTry = tries === 0 && !active.returned && !active.pausedOn
       const st = firstTry ? streak + 1 : 0
       const lv = town.built[sel]?.lv || 1
       const rush = Date.now() < s.rushUntil
@@ -1004,8 +1026,9 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       onLog?.({ l: lesson.type, q: `${active.price} × ${show(active.b)}`, r: 0 })
       s.stats.lost += 1
       fan(active, -1)
+      owe(active)
       setState('gone')
-      setToast(`😢 세 번 틀려서 ${active.customer.name} 손님이 그냥 갔어요 (30문제에 안 세요)`)
+      setToast(`😢 세 번 틀려서 ${active.customer.name} 손님이 그냥 갔어요 — 이 문제는 나중에 다시 와요`)
       setTimeout(() => done('😢'), 1400)
     }
   }
@@ -1104,8 +1127,11 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     <g pointerEvents="none">
       {s.walkers.filter((w) => (w.map || 'main') === mapView).map((w) => {
         const [r, c] = w.path[Math.min(w.i, w.path.length - 1)]
-        const [x, y] = center(r, c)
-        const flip = w.i > 0 && w.path[w.i - 1] && (w.path[w.i][1] - w.path[w.i - 1][1] < 0 || w.path[w.i][0] - w.path[w.i - 1][0] > 0)
+        const [x, y] = centerRot(r, c, rot)
+        // 걷는 방향(화면 기준)으로 얼굴을 돌린다
+        const prev = w.i > 0 && w.path[w.i - 1] ? viewRC(...w.path[w.i - 1], rot) : null
+        const curV = viewRC(r, c, rot)
+        const flip = prev && (curV[1] - prev[1] < 0 || curV[0] - prev[0] > 0)
         return (
           <g key={w.id} style={{ transform: `translate(${x}px, ${y}px)`, transition: `transform ${STEP_MS}ms linear` }}>
             <ellipse cx="0" cy="2" rx="7" ry="3" fill="rgba(0,0,0,0.18)" />
@@ -1220,7 +1246,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
               <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/35">
                 <div className="text-center">
                   <button type="button" onClick={togglePause} className="rounded-2xl bg-white px-6 py-3 text-xl font-black text-slate-800 shadow-xl">⏸ 잠깐 멈춤 · ▶ 계속</button>
-                  <div className="mt-2 rounded-xl bg-black/50 px-3 py-1.5 text-xs font-bold text-white">멈춘 동안엔 문제가 가려지고, 다시 시작하면 손님 주문이 새로 바뀌어요</div>
+                  <div className="mt-2 rounded-xl bg-black/50 px-3 py-1.5 text-xs font-bold text-white">멈춘 동안엔 문제가 가려져요 · 보던 문제는 맞혀도 팁·'처음에 맞힘'이 없어요</div>
                 </div>
               </div>
             )}
@@ -1233,7 +1259,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             <div className="py-6 text-center">
               <div className="text-4xl">🙈</div>
               <div className="mt-1 text-sm font-black text-slate-600">{building ? '짓는 동안엔' : '멈춘 동안엔'} 주문을 가려 둬요</div>
-              <div className="text-xs font-bold text-slate-400">다시 시작하면 손님 주문이 새로 바뀌어요</div>
+              <div className="text-xs font-bold text-slate-400">보던 문제는 다시 시작해서 맞혀도 팁·'처음에 맞힘'이 없어요</div>
             </div>
           ) : active ? (
             <>
@@ -1248,6 +1274,11 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
                 </div>
                 {streak >= 2 && <span className="shrink-0 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-black text-white combo-flame">🔥 {streak}</span>}
               </div>
+              {(active.returned || active.pausedOn) && (
+                <div className="mt-1 text-center text-[11px] font-black text-violet-600">
+                  {active.returned ? '🔁 아까 못 맞힌 문제가 다시 왔어요' : '⏸ 멈췄던 문제예요'} — 맞혀도 팁·처음에 맞힘 없음
+                </div>
+              )}
               <div className="mt-1 text-center text-xs font-black text-rose-600">🏷️ {active.item} {active.tag}</div>
               <div className="text-center font-black text-slate-800 tabular-nums shop-expr">{active.price} × {show(active.b)} =</div>
               <div className="mx-auto flex max-w-[18rem] items-center gap-2">
