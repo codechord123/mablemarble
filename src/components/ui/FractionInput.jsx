@@ -1,6 +1,7 @@
 // 단답형 답안 입력 — 자연수/분자/분모 칸 + 게임 전용 숫자 키패드.
-// mode: 'integer' | 'fraction' | 'text'
+// mode: 'integer' | 'decimal' | 'fraction' | 'text'
 //   - integer: 답 칸 1개
+//   - decimal: 답 칸 1개 + 소수점(●) 키 (소수의 곱셈 단원)
 //   - fraction: 자연수 + 분자/분모 (자연수를 비우면 진분수/가분수)
 //   - text: 자유 입력 (QuestionModal이 따로 처리)
 //
@@ -20,6 +21,7 @@ export const MIXED_SEPARATOR = /[과와]/
 
 export function detectInputMode(answer) {
   const first = String(answer).split(/[,，]/)[0].trim()
+  if (/^\d*\.\d+$/.test(first)) return 'decimal'
   if (/^\d+\s*[과와]\s*\d+\/\d+$/.test(first)) return 'fraction'
   if (/^\d+\/\d+$/.test(first)) return 'fraction'
   if (/^\d+$/.test(first)) return 'fraction'
@@ -27,7 +29,7 @@ export function detectInputMode(answer) {
 }
 
 // 분수 부품은 3자리, 정수 답(넓이 5400 등)과 자연수 칸은 6자리까지
-const MAX_DIGITS = { int: 6, num: 3, den: 3 }
+const MAX_DIGITS = { int: 6, num: 3, den: 3, dec: 9 }
 
 function Box({ value, active, onSelect, ariaLabel, wide, boxRef }) {
   const widthClass = wide
@@ -85,7 +87,8 @@ function Key({ children, onPress, tone = 'digit', ariaLabel, wide, order = '' })
 export default function FractionInput({ mode, onValueChange, onEnter }) {
   // 입력 순서는 교과서대로 자연수 → 분모 → 분자. (화면 배치는 분자가 위)
   // '다음 칸', Tab·→, 빈 칸에서 지우기로 되돌아가는 순서 모두 이 순서를 따른다.
-  const fields = mode === 'integer' ? ['int'] : ['int', 'den', 'num']
+  const single = mode === 'integer' || mode === 'decimal'
+  const fields = single ? ['int'] : ['int', 'den', 'num']
   const [vals, setVals] = useState({ int: '', num: '', den: '' })
   const [active, setActive] = useState(fields[0])
   const refs = { int: useRef(null), num: useRef(null), den: useRef(null) }
@@ -101,6 +104,9 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
     if (mode === 'integer') {
       assembled = int
       valid = int.length > 0
+    } else if (mode === 'decimal') {
+      assembled = int
+      valid = int.length > 0 && !int.endsWith('.')
     } else if (mode === 'fraction') {
       if (num && den) {
         assembled = int ? `${int}과${num}/${den}` : `${num}/${den}`
@@ -117,13 +123,17 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
   const typeDigit = useCallback((d) => {
     setVals((v) => {
       const cur = v[active]
-      if (cur.length >= MAX_DIGITS[active]) return v
+      if (cur.length >= (mode === 'decimal' ? MAX_DIGITS.dec : MAX_DIGITS[active])) return v
+      if (d === '.') { // 소수점은 한 번만, 맨 앞이면 0.
+        if (mode !== 'decimal' || cur.includes('.')) return v
+        return { ...v, [active]: (cur || '0') + '.' }
+      }
       if (cur === '0') return { ...v, [active]: d } // 앞자리 0은 바꿔 쓴다
       return { ...v, [active]: cur + d }
     })
     sfx.tick()
     popEl(refs[active].current)
-  }, [active]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const backspace = useCallback(() => {
     if (vals[active]) {
@@ -148,6 +158,7 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
     const onKey = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
       if (/^[0-9]$/.test(e.key)) { e.preventDefault(); typeDigit(e.key) }
+      else if (e.key === '.' && mode === 'decimal') { e.preventDefault(); typeDigit('.') }
       else if (e.key === 'Backspace') { e.preventDefault(); backspace() }
       else if (e.key === 'ArrowRight' || (e.key === 'Tab' && !e.shiftKey)) { if (fields.length > 1) { e.preventDefault(); move(1) } }
       else if (e.key === 'ArrowLeft' || (e.key === 'Tab' && e.shiftKey)) { if (fields.length > 1) { e.preventDefault(); move(-1) } }
@@ -155,7 +166,7 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [typeDigit, backspace, move, onEnter, fields.length])
+  }, [typeDigit, backspace, move, onEnter, fields.length, mode])
 
   const pick = (f) => { setActive(f); sfx.select() }
 
@@ -180,6 +191,10 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
             <span className="hidden sm:inline">다음 칸 →</span>
           </span>
         </Key>
+      ) : mode === 'decimal' ? (
+        <Key order="order-12" onPress={() => typeDigit('.')} ariaLabel="소수점">
+          <span className="text-2xl leading-none text-amber-600">●</span>
+        </Key>
       ) : (
         <Key order="order-12" tone="action" onPress={clearAll} ariaLabel="모두 지우기">
           <span className="text-sm sm:text-base leading-none">
@@ -191,11 +206,11 @@ export default function FractionInput({ mode, onValueChange, onEnter }) {
     </div>
   )
 
-  if (mode === 'integer') {
+  if (single) {
     return (
       <div className="flex flex-col items-center">
-        <Box value={vals.int} active wide onSelect={() => {}} ariaLabel="정수 답" boxRef={refs.int} />
-        <Label>답</Label>
+        <Box value={vals.int} active wide onSelect={() => {}} ariaLabel={mode === 'decimal' ? '소수 답' : '정수 답'} boxRef={refs.int} />
+        <Label>{mode === 'decimal' ? '답 (소수점은 ● 키)' : '답'}</Label>
         {keypad}
       </div>
     )

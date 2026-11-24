@@ -8,8 +8,15 @@ import fractionMultiplyQuestions from './fractionMultiplyQuestions.json'
 import multiplicationQuestions from './multiplicationQuestions.json'
 import dialectQuestions from './dialectQuestions.json'
 import congruenceQuestions from './congruenceQuestions.json'
+import decimalMultiplyQuestions from './decimalMultiplyQuestions.json'
 
 export const BUNDLED_SETS = [
+  {
+    id: 'bundled:decimal-multiply-5-2-ch4',
+    name: '🔢 수학 5-2 · 4단원 소수의 곱셈',
+    subject: '수학',
+    questions: decimalMultiplyQuestions,
+  },
   {
     id: 'bundled:congruence-symmetry-5-2-ch3',
     name: '🔷 수학 5-2 · 3단원 합동과 대칭',

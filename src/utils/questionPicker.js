@@ -35,6 +35,9 @@ function expandForms(raw) {
 
   const forms = new Set([str])
 
+  // 소수는 끝자리 0·앞자리 0을 정리한 모양도 같은 답 (2.40 = 2.4, .5 = 0.5, 3.0 = 3)
+  if (/^\d*\.\d*$/.test(str) && /\d/.test(str)) forms.add(String(Number(str)))
+
   // 대분수 → 가분수 자동 추가
   const mixed = str.match(/^(\d+)과(\d+)\/(\d+)$/)
   if (mixed) {

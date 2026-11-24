@@ -1,0 +1,1075 @@
+[
+  {
+    "id": "dm001",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "한 컵에 주스를 0.3 L씩 담았습니다. 4컵에 담은 주스는 모두 몇 L일까요?",
+    "choices": [],
+    "answer": "1.2",
+    "explanation": "소수점을 떼고 3 × 4 = 12. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 0.3 × 4 = 1.2",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm002",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "리본 한 도막이 0.6 m입니다. 5도막을 겹치지 않게 이으면 모두 몇 m일까요?",
+    "choices": [],
+    "answer": "3",
+    "explanation": "소수점을 떼고 6 × 5 = 30. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 0.6 × 5 = 3",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm003",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "사과 한 개의 무게가 1.2 kg인 상자가 3개 있습니다. 상자 3개의 무게는 모두 몇 kg일까요?",
+    "choices": [],
+    "answer": "3.6",
+    "explanation": "소수점을 떼고 12 × 3 = 36. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 1.2 × 3 = 3.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm004",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "하루에 우유를 0.7 L씩 마십니다. 8일 동안 마신 우유는 몇 L일까요?",
+    "choices": [],
+    "answer": "5.6",
+    "explanation": "소수점을 떼고 7 × 8 = 56. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 0.7 × 8 = 5.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm005",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "한 사람이 2.5 km씩 이어 달리기를 합니다. 4명이 달린 거리는 모두 몇 km일까요?",
+    "choices": [],
+    "answer": "10",
+    "explanation": "소수점을 떼고 25 × 4 = 100. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 2.5 × 4 = 10",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm006",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "철사 한 개의 길이가 1.8 m입니다. 철사 6개의 길이는 모두 몇 m일까요?",
+    "choices": [],
+    "answer": "10.8",
+    "explanation": "소수점을 떼고 18 × 6 = 108. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 1.8 × 6 = 10.8",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm007",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "물통 하나에 물이 3.4 L 들어 있습니다. 물통 7개에 든 물은 모두 몇 L일까요?",
+    "choices": [],
+    "answer": "23.8",
+    "explanation": "소수점을 떼고 34 × 7 = 238. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 3.4 × 7 = 23.8",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm008",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "0.9 × 9를 계산하세요.",
+    "choices": [],
+    "answer": "8.1",
+    "explanation": "소수점을 떼고 9 × 9 = 81. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 0.9 × 9 = 8.1",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm009",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "4.6 × 5를 계산하세요.",
+    "choices": [],
+    "answer": "23",
+    "explanation": "소수점을 떼고 46 × 5 = 230. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 4.6 × 5 = 23",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm010",
+    "category": "(소수)×(자연수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "색 테이프를 한 사람에게 0.8 m씩 15명에게 나누어 주었습니다. 나누어 준 색 테이프는 모두 몇 m일까요?",
+    "choices": [],
+    "answer": "12",
+    "explanation": "소수점을 떼고 8 × 15 = 120. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 0.8 × 15 = 12",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm011",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "한 봉지에 0.25 kg씩 담긴 땅콩이 4봉지 있습니다. 땅콩은 모두 몇 kg일까요?",
+    "choices": [],
+    "answer": "1",
+    "explanation": "소수점을 떼고 25 × 4 = 100. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 0.25 × 4 = 1",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm012",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "물감 한 통이 1.35 L입니다. 6통이면 모두 몇 L일까요?",
+    "choices": [],
+    "answer": "8.1",
+    "explanation": "소수점을 떼고 135 × 6 = 810. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 1.35 × 6 = 8.1",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm013",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "0.48 × 5를 계산하세요.",
+    "choices": [],
+    "answer": "2.4",
+    "explanation": "소수점을 떼고 48 × 5 = 240. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 0.48 × 5 = 2.4",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm014",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "2.07 × 8을 계산하세요.",
+    "choices": [],
+    "answer": "16.56",
+    "explanation": "소수점을 떼고 207 × 8 = 1656. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 2.07 × 8 = 16.56",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm015",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "한 병에 0.75 L씩 든 음료수가 12병 있습니다. 음료수는 모두 몇 L일까요?",
+    "choices": [],
+    "answer": "9",
+    "explanation": "소수점을 떼고 75 × 12 = 900. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 0.75 × 12 = 9",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm016",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "가로가 3.16 m인 책상 9개를 한 줄로 붙여 놓았습니다. 전체 길이는 몇 m일까요?",
+    "choices": [],
+    "answer": "28.44",
+    "explanation": "소수점을 떼고 316 × 9 = 2844. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 3.16 × 9 = 28.44",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm017",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "1.25 × 16을 계산하세요.",
+    "choices": [],
+    "answer": "20",
+    "explanation": "소수점을 떼고 125 × 16 = 2000. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 1.25 × 16 = 20",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm018",
+    "category": "(소수)×(자연수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "빵 하나를 만드는 데 밀가루가 0.64 kg 필요합니다. 빵 25개를 만들려면 밀가루가 몇 kg 필요할까요?",
+    "choices": [],
+    "answer": "16",
+    "explanation": "소수점을 떼고 64 × 25 = 1600. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 0.64 × 25 = 16",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm019",
+    "category": "(소수)×(자연수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "1분에 12.5 L씩 물이 나오는 수도로 24분 동안 물을 받았습니다. 받은 물은 몇 L일까요?",
+    "choices": [],
+    "answer": "300",
+    "explanation": "소수점을 떼고 125 × 24 = 3000. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 12.5 × 24 = 300",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm020",
+    "category": "(소수)×(자연수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "한 상자의 무게가 3.75 kg입니다. 같은 상자 36개의 무게는 몇 kg일까요?",
+    "choices": [],
+    "answer": "135",
+    "explanation": "소수점을 떼고 375 × 36 = 13500. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 3.75 × 36 = 135",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm021",
+    "category": "(소수)×(자연수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "0.125 × 8을 계산하세요.",
+    "choices": [],
+    "answer": "1",
+    "explanation": "소수점을 떼고 125 × 8 = 1000. 소수점 아래 자리 수는 3 + 0 = 3자리이므로 0.125 × 8 = 1",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm022",
+    "category": "(소수)×(자연수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "6.08 × 45를 계산하세요.",
+    "choices": [],
+    "answer": "273.6",
+    "explanation": "소수점을 떼고 608 × 45 = 27360. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 6.08 × 45 = 273.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm023",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "6의 0.5배는 얼마일까요?",
+    "choices": [],
+    "answer": "3",
+    "explanation": "소수점을 떼고 6 × 5 = 30. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 6 × 0.5 = 3",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm024",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "길이 8 m인 끈의 0.7만큼을 잘랐습니다. 자른 끈은 몇 m일까요?",
+    "choices": [],
+    "answer": "5.6",
+    "explanation": "소수점을 떼고 8 × 7 = 56. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 8 × 0.7 = 5.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm025",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "5 × 0.9를 계산하세요.",
+    "choices": [],
+    "answer": "4.5",
+    "explanation": "소수점을 떼고 5 × 9 = 45. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 5 × 0.9 = 4.5",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm026",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "학급 문고 책 12권의 0.3만큼을 새 책으로 바꿨습니다. 몇 권을 바꿨을까요?",
+    "choices": [],
+    "answer": "3.6",
+    "explanation": "소수점을 떼고 12 × 3 = 36. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 12 × 0.3 = 3.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm027",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "강아지의 무게는 9 kg이고, 고양이는 강아지 무게의 1.4배입니다. 고양이는 몇 kg일까요?",
+    "choices": [],
+    "answer": "12.6",
+    "explanation": "소수점을 떼고 9 × 14 = 126. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 9 × 1.4 = 12.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm028",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "7 × 2.3을 계산하세요.",
+    "choices": [],
+    "answer": "16.1",
+    "explanation": "소수점을 떼고 7 × 23 = 161. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 7 × 2.3 = 16.1",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm029",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "주스 20 L의 0.6만큼을 마셨습니다. 마신 주스는 몇 L일까요?",
+    "choices": [],
+    "answer": "12",
+    "explanation": "소수점을 떼고 20 × 6 = 120. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 20 × 0.6 = 12",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm030",
+    "category": "(자연수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "15의 0.4배는 얼마일까요?",
+    "choices": [],
+    "answer": "6",
+    "explanation": "소수점을 떼고 15 × 4 = 60. 소수점 아래 자리 수는 0 + 1 = 1자리이므로 15 × 0.4 = 6",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm031",
+    "category": "(자연수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "4 × 0.25를 계산하세요.",
+    "choices": [],
+    "answer": "1",
+    "explanation": "소수점을 떼고 4 × 25 = 100. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 4 × 0.25 = 1",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm032",
+    "category": "(자연수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "운동장 둘레 36 m의 0.75만큼을 뛰었습니다. 뛴 거리는 몇 m일까요?",
+    "choices": [],
+    "answer": "27",
+    "explanation": "소수점을 떼고 36 × 75 = 2700. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 36 × 0.75 = 27",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm033",
+    "category": "(자연수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "작은 구슬 한 개는 8 g이고, 큰 구슬은 작은 구슬 무게의 1.25배입니다. 큰 구슬은 몇 g일까요?",
+    "choices": [],
+    "answer": "10",
+    "explanation": "소수점을 떼고 8 × 125 = 1000. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 8 × 1.25 = 10",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm034",
+    "category": "(자연수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "24 × 0.35를 계산하세요.",
+    "choices": [],
+    "answer": "8.4",
+    "explanation": "소수점을 떼고 24 × 35 = 840. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 24 × 0.35 = 8.4",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm035",
+    "category": "(자연수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "털실 16 m의 2.15배 길이는 몇 m일까요?",
+    "choices": [],
+    "answer": "34.4",
+    "explanation": "소수점을 떼고 16 × 215 = 3440. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 16 × 2.15 = 34.4",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm036",
+    "category": "(자연수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "50의 0.08배는 얼마일까요?",
+    "choices": [],
+    "answer": "4",
+    "explanation": "소수점을 떼고 50 × 8 = 400. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 50 × 0.08 = 4",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm037",
+    "category": "(자연수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "125 × 0.64를 계산하세요.",
+    "choices": [],
+    "answer": "80",
+    "explanation": "소수점을 떼고 125 × 64 = 8000. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 125 × 0.64 = 80",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm038",
+    "category": "(자연수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "탑의 높이가 48 m이고, 새 탑의 높이는 그 3.25배입니다. 새 탑은 몇 m일까요?",
+    "choices": [],
+    "answer": "156",
+    "explanation": "소수점을 떼고 48 × 325 = 15600. 소수점 아래 자리 수는 0 + 2 = 2자리이므로 48 × 3.25 = 156",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm039",
+    "category": "(자연수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "300 × 0.045를 계산하세요.",
+    "choices": [],
+    "answer": "13.5",
+    "explanation": "소수점을 떼고 300 × 45 = 13500. 소수점 아래 자리 수는 0 + 3 = 3자리이므로 300 × 0.045 = 13.5",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm040",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "0.3 × 0.2를 계산하세요.",
+    "choices": [],
+    "answer": "0.06",
+    "explanation": "소수점을 떼고 3 × 2 = 6. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 0.3 × 0.2 = 0.06",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm041",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "가로 0.6 m, 세로 0.4 m인 직사각형의 넓이는 몇 ㎡일까요?",
+    "choices": [],
+    "answer": "0.24",
+    "explanation": "소수점을 떼고 6 × 4 = 24. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 0.6 × 0.4 = 0.24",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm042",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "1.2 × 0.5를 계산하세요.",
+    "choices": [],
+    "answer": "0.6",
+    "explanation": "소수점을 떼고 12 × 5 = 60. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 1.2 × 0.5 = 0.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm043",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "0.8 L의 0.9만큼은 몇 L일까요?",
+    "choices": [],
+    "answer": "0.72",
+    "explanation": "소수점을 떼고 8 × 9 = 72. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 0.8 × 0.9 = 0.72",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm044",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "가로 2.4 m, 세로 1.5 m인 텃밭의 넓이는 몇 ㎡일까요?",
+    "choices": [],
+    "answer": "3.6",
+    "explanation": "소수점을 떼고 24 × 15 = 360. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 2.4 × 1.5 = 3.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm045",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "1.3 × 1.1을 계산하세요.",
+    "choices": [],
+    "answer": "1.43",
+    "explanation": "소수점을 떼고 13 × 11 = 143. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 1.3 × 1.1 = 1.43",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm046",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "한 변이 0.7 m인 정사각형의 넓이는 몇 ㎡일까요?",
+    "choices": [],
+    "answer": "0.49",
+    "explanation": "소수점을 떼고 7 × 7 = 49. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 0.7 × 0.7 = 0.49",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm047",
+    "category": "(소수)×(소수)",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "3.6 kg의 0.5배는 몇 kg일까요?",
+    "choices": [],
+    "answer": "1.8",
+    "explanation": "소수점을 떼고 36 × 5 = 180. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 3.6 × 0.5 = 1.8",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm048",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "0.25 × 0.6을 계산하세요.",
+    "choices": [],
+    "answer": "0.15",
+    "explanation": "소수점을 떼고 25 × 6 = 150. 소수점 아래 자리 수는 2 + 1 = 3자리이므로 0.25 × 0.6 = 0.15",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm049",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "1 m의 무게가 1.25 kg인 쇠막대 0.8 m의 무게는 몇 kg일까요?",
+    "choices": [],
+    "answer": "1",
+    "explanation": "소수점을 떼고 125 × 8 = 1000. 소수점 아래 자리 수는 2 + 1 = 3자리이므로 1.25 × 0.8 = 1",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm050",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "2.35 × 1.4를 계산하세요.",
+    "choices": [],
+    "answer": "3.29",
+    "explanation": "소수점을 떼고 235 × 14 = 3290. 소수점 아래 자리 수는 2 + 1 = 3자리이므로 2.35 × 1.4 = 3.29",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm051",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "0.45 × 0.32를 계산하세요.",
+    "choices": [],
+    "answer": "0.144",
+    "explanation": "소수점을 떼고 45 × 32 = 1440. 소수점 아래 자리 수는 2 + 2 = 4자리이므로 0.45 × 0.32 = 0.144",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm052",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "1 L에 4.2 km를 달리는 장난감 차가 2.15 L로 달릴 수 있는 거리는 몇 km일까요?",
+    "choices": [],
+    "answer": "9.03",
+    "explanation": "소수점을 떼고 42 × 215 = 9030. 소수점 아래 자리 수는 1 + 2 = 3자리이므로 4.2 × 2.15 = 9.03",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm053",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "3.08 × 2.5를 계산하세요.",
+    "choices": [],
+    "answer": "7.7",
+    "explanation": "소수점을 떼고 308 × 25 = 7700. 소수점 아래 자리 수는 2 + 1 = 3자리이므로 3.08 × 2.5 = 7.7",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm054",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "가로 1.6 m, 세로 1.25 m인 게시판의 넓이는 몇 ㎡일까요?",
+    "choices": [],
+    "answer": "2",
+    "explanation": "소수점을 떼고 16 × 125 = 2000. 소수점 아래 자리 수는 1 + 2 = 3자리이므로 1.6 × 1.25 = 2",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm055",
+    "category": "(소수)×(소수)",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "0.12 × 0.5를 계산하세요.",
+    "choices": [],
+    "answer": "0.06",
+    "explanation": "소수점을 떼고 12 × 5 = 60. 소수점 아래 자리 수는 2 + 1 = 3자리이므로 0.12 × 0.5 = 0.06",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm056",
+    "category": "(소수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "12.5 × 0.36을 계산하세요.",
+    "choices": [],
+    "answer": "4.5",
+    "explanation": "소수점을 떼고 125 × 36 = 4500. 소수점 아래 자리 수는 1 + 2 = 3자리이므로 12.5 × 0.36 = 4.5",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm057",
+    "category": "(소수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "1분에 2.75 L씩 물이 나옵니다. 3.2분 동안 나오는 물은 몇 L일까요?",
+    "choices": [],
+    "answer": "8.8",
+    "explanation": "소수점을 떼고 275 × 32 = 8800. 소수점 아래 자리 수는 2 + 1 = 3자리이므로 2.75 × 3.2 = 8.8",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm058",
+    "category": "(소수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "0.125 × 0.8을 계산하세요.",
+    "choices": [],
+    "answer": "0.1",
+    "explanation": "소수점을 떼고 125 × 8 = 1000. 소수점 아래 자리 수는 3 + 1 = 4자리이므로 0.125 × 0.8 = 0.1",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm059",
+    "category": "(소수)×(소수)",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "5.04 × 1.75를 계산하세요.",
+    "choices": [],
+    "answer": "8.82",
+    "explanation": "소수점을 떼고 504 × 175 = 88200. 소수점 아래 자리 수는 2 + 2 = 4자리이므로 5.04 × 1.75 = 8.82",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm060",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "3.75 × 10을 계산하세요.",
+    "choices": [],
+    "answer": "37.5",
+    "explanation": "10을 곱하면 소수점이 오른쪽으로 1칸 옮겨 갑니다. 3.75 × 10 = 37.5",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm061",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "3.75 × 100을 계산하세요.",
+    "choices": [],
+    "answer": "375",
+    "explanation": "100을 곱하면 소수점이 오른쪽으로 2칸 옮겨 갑니다. 3.75 × 100 = 375",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm062",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "3.75 × 1000을 계산하세요.",
+    "choices": [],
+    "answer": "3750",
+    "explanation": "1000을 곱하면 소수점이 오른쪽으로 3칸 옮겨 갑니다. 3.75 × 1000 = 3750",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm063",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "0.468 × 100을 계산하세요.",
+    "choices": [],
+    "answer": "46.8",
+    "explanation": "100을 곱하면 소수점이 오른쪽으로 2칸 옮겨 갑니다. 0.468 × 100 = 46.8",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm064",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "52 × 0.1을 계산하세요.",
+    "choices": [],
+    "answer": "5.2",
+    "explanation": "0.1을 곱하면 소수점이 왼쪽으로 1칸 옮겨 갑니다. 52 × 0.1 = 5.2",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm065",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "52 × 0.01을 계산하세요.",
+    "choices": [],
+    "answer": "0.52",
+    "explanation": "0.01을 곱하면 소수점이 왼쪽으로 2칸 옮겨 갑니다. 52 × 0.01 = 0.52",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm066",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "52 × 0.001을 계산하세요.",
+    "choices": [],
+    "answer": "0.052",
+    "explanation": "0.001을 곱하면 소수점이 왼쪽으로 3칸 옮겨 갑니다. 52 × 0.001 = 0.052",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm067",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "7.2 × 0.01을 계산하세요.",
+    "choices": [],
+    "answer": "0.072",
+    "explanation": "0.01을 곱하면 소수점이 왼쪽으로 2칸 옮겨 갑니다. 7.2 × 0.01 = 0.072",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm068",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "25 × 13 = 325입니다. 이것을 보고 2.5 × 1.3의 값을 구하세요.",
+    "choices": [],
+    "answer": "3.25",
+    "explanation": "2.5는 소수 1자리, 1.3는 소수 1자리이므로 곱은 소수 2자리입니다. 325 → 3.25",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm069",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "25 × 13 = 325입니다. 이것을 보고 0.25 × 1.3의 값을 구하세요.",
+    "choices": [],
+    "answer": "0.325",
+    "explanation": "0.25는 소수 2자리, 1.3는 소수 1자리이므로 곱은 소수 3자리입니다. 325 → 0.325",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm070",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "48 × 6 = 288입니다. 이것을 보고 4.8 × 0.6의 값을 구하세요.",
+    "choices": [],
+    "answer": "2.88",
+    "explanation": "4.8는 소수 1자리, 0.6는 소수 1자리이므로 곱은 소수 2자리입니다. 288 → 2.88",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm071",
+    "category": "곱의 소수점 위치",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "125 × 32 = 4000입니다. 이것을 보고 1.25 × 3.2의 값을 구하세요.",
+    "choices": [],
+    "answer": "4",
+    "explanation": "1.25는 소수 2자리, 3.2는 소수 1자리이므로 곱은 소수 3자리입니다. 4000 → 4",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm072",
+    "category": "곱의 소수점 위치",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "17 × 23 = 391입니다. 이것을 보고 0.17 × 2.3의 값을 구하세요.",
+    "choices": [],
+    "answer": "0.391",
+    "explanation": "0.17는 소수 2자리, 2.3는 소수 1자리이므로 곱은 소수 3자리입니다. 391 → 0.391",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm073",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "4.25 × 100의 값은?",
+    "choices": [
+      "0.425",
+      "42.5",
+      "425",
+      "4250"
+    ],
+    "answer": 2,
+    "explanation": "100을 곱하면 소수점이 오른쪽으로 2칸 옮겨 갑니다. 4.25 → 425"
+  },
+  {
+    "id": "dm074",
+    "category": "곱의 소수점 위치",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "63 × 0.01의 값은?",
+    "choices": [
+      "0.063",
+      "0.63",
+      "6.3",
+      "630"
+    ],
+    "answer": 1,
+    "explanation": "0.01을 곱하면 소수점이 왼쪽으로 2칸 옮겨 갑니다. 63 → 0.63"
+  },
+  {
+    "id": "dm075",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "1.8 × 0.3과 곱이 같은 것은?",
+    "choices": [
+      "18 × 0.3",
+      "0.18 × 3",
+      "18 × 3",
+      "1.8 × 3"
+    ],
+    "answer": 1,
+    "explanation": "1.8 × 0.3 = 0.54, 0.18 × 3 = 0.54. 소수점 아래 자리 수의 합이 같으면 곱의 자리 수도 같습니다."
+  },
+  {
+    "id": "dm076",
+    "category": "곱의 소수점 위치",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "□ 안에 알맞은 수는? 2.36 × □ = 236",
+    "choices": [
+      "10",
+      "100",
+      "1000",
+      "0.01"
+    ],
+    "answer": 1,
+    "explanation": "2.36에서 236이 되려면 소수점이 오른쪽으로 2칸 옮겨 가야 하므로 100을 곱합니다."
+  },
+  {
+    "id": "dm077",
+    "category": "곱의 소수점 위치",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "□ 안에 알맞은 수는? 540 × □ = 0.54",
+    "choices": [
+      "0.1",
+      "0.01",
+      "0.001",
+      "0.0001"
+    ],
+    "answer": 2,
+    "explanation": "540에서 0.54가 되려면 소수점이 왼쪽으로 3칸 옮겨 가야 하므로 0.001을 곱합니다."
+  },
+  {
+    "id": "dm078",
+    "category": "곱의 크기 어림",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "3 × 0.8의 곱은 3보다 클까요, 작을까요?",
+    "choices": [
+      "3보다 크다",
+      "3보다 작다",
+      "3과 같다"
+    ],
+    "answer": 1,
+    "explanation": "1보다 작은 수(0.8)를 곱하면 곱은 처음 수보다 작아집니다. 3 × 0.8 = 2.4"
+  },
+  {
+    "id": "dm079",
+    "category": "곱의 크기 어림",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "5 × 1.2의 곱은 5보다 클까요, 작을까요?",
+    "choices": [
+      "5보다 크다",
+      "5보다 작다",
+      "5와 같다"
+    ],
+    "answer": 0,
+    "explanation": "1보다 큰 수(1.2)를 곱하면 곱은 처음 수보다 커집니다. 5 × 1.2 = 6"
+  },
+  {
+    "id": "dm080",
+    "category": "곱의 크기 어림",
+    "difficulty": 1,
+    "type": "multiple_choice",
+    "question": "4.9 × 3을 어림하면 약 얼마일까요?",
+    "choices": [
+      "약 1.5",
+      "약 15",
+      "약 150",
+      "약 1500"
+    ],
+    "answer": 1,
+    "explanation": "4.9는 약 5이므로 5 × 3 = 15쯤입니다. 실제로 4.9 × 3 = 14.7"
+  },
+  {
+    "id": "dm081",
+    "category": "곱의 크기 어림",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "계산 결과가 가장 큰 것은?",
+    "choices": [
+      "7 × 0.9",
+      "7 × 1.01",
+      "7 × 0.99",
+      "7 × 0.5"
+    ],
+    "answer": 1,
+    "explanation": "1보다 큰 수를 곱해야 7보다 커집니다. 7 × 1.01 = 7.07"
+  },
+  {
+    "id": "dm082",
+    "category": "곱의 크기 어림",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "계산 결과가 가장 작은 것은?",
+    "choices": [
+      "0.5 × 0.5",
+      "0.5 × 5",
+      "5 × 0.05",
+      "0.05 × 0.5"
+    ],
+    "answer": 3,
+    "explanation": "0.25, 2.5, 0.25, 0.025 이므로 0.05 × 0.5 = 0.025가 가장 작습니다."
+  },
+  {
+    "id": "dm083",
+    "category": "곱의 크기 어림",
+    "difficulty": 2,
+    "type": "multiple_choice",
+    "question": "2.98 × 4.1을 어림한 값과 가장 가까운 것은?",
+    "choices": [
+      "1.2",
+      "12",
+      "120",
+      "1200"
+    ],
+    "answer": 1,
+    "explanation": "2.98은 약 3, 4.1은 약 4이므로 3 × 4 = 12쯤입니다. 실제로 12.218"
+  },
+  {
+    "id": "dm084",
+    "category": "곱의 크기 어림",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "소수점을 잘못 찍은 것은?",
+    "choices": [
+      "0.4 × 0.6 = 0.24",
+      "1.5 × 0.3 = 0.45",
+      "2.5 × 0.04 = 0.1",
+      "3.2 × 0.5 = 16"
+    ],
+    "answer": 3,
+    "explanation": "3.2 × 0.5 = 1.6입니다. 1보다 작은 수를 곱했으니 3.2보다 작아야 합니다."
+  },
+  {
+    "id": "dm085",
+    "category": "곱의 크기 어림",
+    "difficulty": 3,
+    "type": "multiple_choice",
+    "question": "어떤 수에 0.6을 곱해야 할 것을 잘못하여 6을 곱했더니 42가 되었습니다. 바르게 계산한 값은?",
+    "choices": [
+      "0.42",
+      "4.2",
+      "7",
+      "25.2"
+    ],
+    "answer": 1,
+    "explanation": "어떤 수 × 6 = 42 이므로 어떤 수는 7. 바르게 계산하면 7 × 0.6 = 4.2"
+  },
+  {
+    "id": "dm086",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 1,
+    "type": "short_answer",
+    "question": "하루에 0.4 L씩 물을 마시는 식물이 있습니다. 3일 동안 마시는 물은 몇 L일까요?",
+    "choices": [],
+    "answer": "1.2",
+    "explanation": "소수점을 떼고 4 × 3 = 12. 소수점 아래 자리 수는 1 + 0 = 1자리이므로 0.4 × 3 = 1.2",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm087",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "한 변이 1.5 m인 정사각형 모양 돗자리의 넓이는 몇 ㎡일까요?",
+    "choices": [],
+    "answer": "2.25",
+    "explanation": "소수점을 떼고 15 × 15 = 225. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 1.5 × 1.5 = 2.25",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm088",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "2.4 m의 0.25만큼 리본을 잘라 썼습니다. 쓴 리본은 몇 m일까요?",
+    "choices": [],
+    "answer": "0.6",
+    "explanation": "소수점을 떼고 24 × 25 = 600. 소수점 아래 자리 수는 1 + 2 = 3자리이므로 2.4 × 0.25 = 0.6",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm089",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 2,
+    "type": "short_answer",
+    "question": "한 개에 0.85 kg인 수박 모형 20개의 무게는 몇 kg일까요?",
+    "choices": [],
+    "answer": "17",
+    "explanation": "소수점을 떼고 85 × 20 = 1700. 소수점 아래 자리 수는 2 + 0 = 2자리이므로 0.85 × 20 = 17",
+    "inputMode": "integer"
+  },
+  {
+    "id": "dm090",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "어떤 자동차는 1분에 3.5 km를 갑니다. 같은 빠르기로 2.4분 동안 가면 몇 km를 갈까요?",
+    "choices": [],
+    "answer": "8.4",
+    "explanation": "소수점을 떼고 35 × 24 = 840. 소수점 아래 자리 수는 1 + 1 = 2자리이므로 3.5 × 2.4 = 8.4",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm091",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "밭 1 ㎡에 비료를 1.2 kg 뿌립니다. 0.75 ㎡에는 몇 kg을 뿌려야 할까요?",
+    "choices": [],
+    "answer": "0.9",
+    "explanation": "소수점을 떼고 12 × 75 = 900. 소수점 아래 자리 수는 1 + 2 = 3자리이므로 1.2 × 0.75 = 0.9",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm092",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "귤 한 상자가 4.2 kg입니다. 귤 3상자의 0.5만큼을 이웃에게 나누어 주었습니다. 나누어 준 귤은 몇 kg일까요?",
+    "choices": [],
+    "answer": "6.3",
+    "explanation": "먼저 4.2 × 3 = 12.6 (kg), 그다음 12.6 × 0.5 = 6.3 (kg)",
+    "inputMode": "decimal"
+  },
+  {
+    "id": "dm093",
+    "category": "생활 속 소수의 곱셈",
+    "difficulty": 3,
+    "type": "short_answer",
+    "question": "가로 3.2 m, 세로 2.5 m인 벽의 0.4만큼에 페인트를 칠했습니다. 칠한 넓이는 몇 ㎡일까요?",
+    "choices": [],
+    "answer": "3.2",
+    "explanation": "벽의 넓이 3.2 × 2.5 = 8 (㎡), 칠한 넓이 8 × 0.4 = 3.2 (㎡)",
+    "inputMode": "decimal"
+  }
+]
