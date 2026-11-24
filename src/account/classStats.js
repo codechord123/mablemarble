@@ -56,6 +56,8 @@ export function townSummary(t) {
     starsBy: Object.fromEntries(Object.entries(t.records || {}).map(([l, v]) => [l, v.stars || 0])),
     inProgressType: t.dayInProgress?.type || null,
     rep: t.rep == null ? null : t.rep,
+    builtCount: Object.keys(t.built || {}).length,
+    zonesCount: (t.zones || []).length + (t.maps || []).length,
     days: t.days || 0,
     records: Object.entries(t.records || {}).map(([l, v]) => ({ lesson: LESSON_NAME[l] || l, secs: v.secs, stars: v.stars })),
     inProgress: t.dayInProgress ? { lesson: LESSON_NAME[t.dayInProgress.type] || t.dayInProgress.type, served: t.dayInProgress.stats?.served || 0 } : null,

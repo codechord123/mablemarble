@@ -155,6 +155,7 @@ function TownMissions({ rows, onStudent }) {
               <th className="px-1">🤝 짝꿍</th>
               {m.lessons.map((l) => <th key={l.type} className="px-1">{l.name}</th>)}
               <th className="px-1">장사</th>
+              <th className="px-1">건물·땅</th>
             </tr>
           </thead>
           <tbody>
@@ -170,16 +171,17 @@ function TownMissions({ rows, onStudent }) {
                 </td>
                 {m.lessons.map((l) => <td key={l.type} className="px-1">{x.t ? cell(x, l.type) : <span className="text-slate-200">·</span>}</td>)}
                 <td className="px-1 font-bold tabular-nums text-slate-500">{x.t ? `${x.t.days}일` : '—'}</td>
+                <td className="px-1 font-bold tabular-nums text-slate-500">{x.t ? `${x.t.builtCount}·${x.t.zonesCount}` : '—'}</td>
               </tr>
             ))}
             {!list.length && (
-              <tr><td colSpan={m.lessons.length + 3} className="py-3 font-bold text-slate-400">해당하는 학생이 없어요 👍</td></tr>
+              <tr><td colSpan={m.lessons.length + 4} className="py-3 font-bold text-slate-400">해당하는 학생이 없어요 👍</td></tr>
             )}
           </tbody>
         </table>
       </div>
       <p className="mt-1.5 text-[10px] font-bold text-slate-400">
-        ★ = 그 차시 손님 30명을 다 받은 기록(별은 걸린 시간) · ▶ = 하는 중 · 이름을 누르면 아래에 그 학생 기록이 펼쳐져요 · 학생이 로그인해서 한 기록만 보여요
+        ★ = 그 차시 손님 30명을 다 받은 기록(별은 걸린 시간) · ▶ = 하는 중 · 건물·땅 = 계정에 저장된 건물·장식 수와 산 땅·지도 수 · 이름을 누르면 아래에 그 학생 기록이 펼쳐져요 · 학생이 로그인해서 한 기록만 보여요
       </p>
     </section>
   )

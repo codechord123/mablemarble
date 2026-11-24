@@ -123,7 +123,7 @@ const ICE = ['✨', '', '', '❄️', '', '', '✨', '']
 
 // 크게 보기 — 지도가 12×12라 휴대폰에선 작다. 확대하면 손가락으로 밀어서 본다 (보기 설정만, 학생 기록과 상관없음)
 const ZOOM_KEY = 'boomarble_town_zoom'
-export function MapZoom({ children }) {
+export function MapZoom({ children, focus = null, focusKey = '' }) {
   const [z, setZ] = useState(() => {
     try {
       const v = Number(localStorage.getItem(ZOOM_KEY))
@@ -132,10 +132,15 @@ export function MapZoom({ children }) {
     return typeof window !== 'undefined' && window.innerWidth < 600 ? 1.5 : 1
   })
   const box = useRef(null)
+  // 확대하면 가운데로, focus(내 건물이 모인 곳, 0~1)가 있으면 거기로 화면을 맞춘다
   useLayoutEffect(() => {
     const el = box.current
-    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
-  }, [z])
+    if (!el) return
+    if (focus) {
+      el.scrollLeft = Math.max(0, focus[0] * el.scrollWidth - el.clientWidth / 2)
+      el.scrollTop = Math.max(0, focus[1] * el.scrollHeight - el.clientHeight / 2)
+    } else el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
+  }, [z, focusKey]) // eslint-disable-line react-hooks/exhaustive-deps
   const set = (v) => {
     setZ(v)
     try { localStorage.setItem(ZOOM_KEY, String(v)) } catch { /* ignore */ }

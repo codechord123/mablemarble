@@ -21,10 +21,11 @@ import { sfx } from '../../utils/sounds.js'
 import { cheer, flyCoins } from '../../utils/fx.js'
 import GameButton from '../ui/GameButton.jsx'
 import { SoundMini, useHideSoundToggle } from '../ui/MuteToggle.jsx'
-import TownMap, { MapZoom, centerRot, viewRC, useMapRot } from './TownMap.jsx'
+import TownMap, { MapZoom, centerRot, viewRC, useMapRot, VIEW_W, VIEW_H } from './TownMap.jsx'
 import PairDrill from './PairDrill.jsx'
 import { PAIR_GOAL } from '../../utils/pairCalc.js'
 import { safeTown } from '../../utils/townGuard.js'
+import { backupTown, listBackups, missingFrom } from '../../utils/townBackup.js'
 import BalloonPop from './BalloonPop.jsx'
 import { MINI_REWARD_PLAYS, miniReward, playsToday, todayKey } from '../../utils/balloonPop.js'
 
@@ -142,7 +143,7 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
     onUpdate((t) => {
       const nb = { ...t.built }
       delete nb[k]
-      return { built: nb, money: addD(t.money, price) }
+      return { built: nb, money: addD(t.money, price), removed: { ...(t.removed || {}), [k]: Date.now() } } // 판 기록 — 다른 기기 마을과 합칠 때 되살아나지 않게
     })
     setSheet(null)
   }
@@ -174,7 +175,7 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
                       can={can(s.cost)}
                       done={builtIds.has(s.id)}
                       locked={locked}
-                      onClick={() => pay(s.cost, (t) => ({ built: { ...t.built, [sk]: { kind: 'shop', id: s.id, lv: 1 } } }), s.tier >= 3)}
+                      onClick={() => pay(s.cost, (t) => ({ built: { ...t.built, [sk]: { kind: 'shop', id: s.id, lv: 1, at: Date.now() } } }), s.tier >= 3)}
                     />
                   )
                 })}
@@ -202,7 +203,7 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
                   key={d.id}
                   type="button"
                   disabled={!can(d.cost)}
-                  onClick={() => pay(d.cost, (t) => ({ built: { ...t.built, [sk]: { kind: 'decor', id: d.id } } }), d.cost >= 300)}
+                  onClick={() => pay(d.cost, (t) => ({ built: { ...t.built, [sk]: { kind: 'decor', id: d.id, at: Date.now() } } }), d.cost >= 300)}
                   className="rounded-2xl bg-slate-50 p-1.5 text-center ring-1 ring-slate-200 enabled:hover:bg-amber-50 disabled:opacity-50"
                 >
                   <div className="text-3xl">{d.icon}</div>
@@ -242,7 +243,7 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
               })()}
               {lv < MAX_LV ? (
                 <GameButton color={can(cost) ? 'green' : 'gray'} disabled={!can(cost)} className="mt-3 w-full py-3"
-                  onClick={() => pay(cost, (t) => ({ built: { ...t.built, [sk]: { ...here, lv: lv + 1 } } }), true)}>
+                  onClick={() => pay(cost, (t) => ({ built: { ...t.built, [sk]: { ...here, lv: lv + 1, at: Date.now() } } }), true)}>
                   ⬆️ Lv.{lv + 1} {LV_NAME[lv + 1]}로 키우기 · {cost}G
                   <div className="text-xs font-semibold opacity-90">줄 {slotsOf(lv + 1)}칸 · 팁 +{lv}G · 손님이 더 오고 마을 인기 ↑{lv + 1 >= 5 ? ' · 금빛 지붕 ✨' : ''}</div>
                 </GameButton>
@@ -334,6 +335,15 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
   )
 }
 
+// 지도를 열면 내 건물이 모인 곳으로 화면을 맞춘다 (지도가 커서 확대하면 건물이 화면 밖에 있을 수 있다)
+function focusOf(town, mapView, rot) {
+  const pts = Object.keys(town.built).filter((k) => mapOf(k) === mapView).map((k) => centerRot(...parseKey(k), rot))
+  if (!pts.length) return null
+  const x = pts.reduce((a, p) => a + p[0], 0) / pts.length
+  const y = pts.reduce((a, p) => a + p[1], 0) / pts.length
+  return [x / VIEW_W, y / VIEW_H]
+}
+
 // 지도 탭 — 시내 + 새 지도들 (안 연 지도는 자물쇠, 장사 중엔 기다리는 손님 수)
 function MapTabs({ town, mapView, setMapView, waiting, hideLocked }) {
   const maps = MAPS.filter((M) => !hideLocked || M.id === 'main' || (town.maps || []).includes(M.id))
@@ -407,7 +417,7 @@ function TownNews({ town }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
+function Town({ who, onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -422,6 +432,8 @@ function Town({ onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync,
   }
   const sk = sheet && sheet.r != null ? tkey(sheet.r, sheet.c, sheet.m || 'main') : null
   const itemList = ITEMS.filter((it) => (town.items || {})[it.id])
+  const rot = useMapRot()
+  const focus = focusOf(town, mapView, rot)
 
   return (
     <div className="min-h-[100dvh] town-bg safe-padded px-3 pt-3 pb-6">
@@ -501,7 +513,7 @@ function Town({ onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync,
 
         <MapTabs town={town} mapView={mapView} setMapView={setMapView} />
         <div className="relative mt-1">
-          <MapZoom>
+          <MapZoom focus={focus} focusKey={`${mapView}-${rot}`}>
             <TownMap town={town} mapId={mapView} onTile={onTile} selectedKey={sk}
               range={sheet && sheet.r != null && (sheet.m || 'main') === mapView ? { r: sheet.r, c: sheet.c } : null} />
           </MapZoom>
@@ -549,10 +561,54 @@ function Town({ onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync,
         <p className="mt-2 text-center text-xs font-bold text-sky-900/60">
           손님 {town.served}명 받음 · 놓친 손님 {town.lost}명 · 총 매출 {money(town.totalSales)}G · 최고 이익 {money(town.bestProfit)}G
         </p>
+        <button type="button" onClick={() => setSheet({ type: 'backup' })} className="mx-auto mt-1 block text-[11px] font-bold text-sky-900/60 underline">🗂️ 마을 백업 · 빠진 건물 되살리기</button>
         <p className="mt-1 text-center text-[10px] font-bold text-sky-900/40">마을 그림: Kenney (kenney.nl, CC0)</p>
       </div>
 
       <AnimatePresence>
+        {sheet?.type === 'backup' && (() => {
+          const list = listBackups(who)
+          return (
+            <Sheet title="🗂️ 마을 백업" onClose={() => setSheet(null)}>
+              <p className="text-xs font-bold text-slate-500">이 기기에 날마다 마을 모습(건물·땅·지도)을 남겨 둬요. 건물이나 땅이 사라졌다면, 그때 백업에서 <b>빠진 것만</b> 되살릴 수 있어요. 지금 있는 건물은 그대로예요.</p>
+              <div className="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-xs font-black text-sky-900">지금: 건물·장식 {Object.keys(town.built).length}개 · 산 땅 {town.zones.length} · 지도 {(town.maps || []).length}</div>
+              {!list.length && <p className="mt-3 text-center text-sm font-bold text-slate-400">아직 백업이 없어요</p>}
+              <div className="mt-2 space-y-1.5">
+                {list.map((b) => {
+                  const miss = missingFrom(town, b)
+                  const n = Object.keys(miss.built).length + miss.zones.length + miss.maps.length
+                  const d = new Date(b.at)
+                  return (
+                    <div key={b.at} className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs ring-1 ring-slate-200">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-black text-slate-700">{d.getMonth() + 1}월 {d.getDate()}일 {d.getHours()}:{String(d.getMinutes()).padStart(2, '0')} · {b.days}일째</div>
+                        <div className="font-bold text-slate-500">건물·장식 {Object.keys(b.built).length}개 · 땅 {b.zones.length} · 지도 {b.maps.length}{n ? ` · 지금 빠진 것 ${n}개` : ' · 빠진 것 없음'}</div>
+                      </div>
+                      <button type="button" disabled={!n} onClick={() => {
+                        const at = Date.now()
+                        onUpdate((t) => {
+                          const m = missingFrom(t, b)
+                          const removed = { ...(t.removed || {}) }
+                          for (const k of Object.keys(m.built)) delete removed[k]
+                          return {
+                            built: { ...t.built, ...Object.fromEntries(Object.entries(m.built).map(([k, v]) => [k, { ...v, at }])) },
+                            zones: [...t.zones, ...m.zones],
+                            maps: [...(t.maps || []), ...m.maps],
+                            removed,
+                          }
+                        })
+                        sfx.victory?.()
+                        cheer(3)
+                        setSheet(null)
+                      }} className="shrink-0 rounded-full bg-emerald-500 px-3 py-1.5 font-black text-white disabled:bg-slate-200 disabled:text-slate-400">되살리기</button>
+                    </div>
+                  )
+                })}
+              </div>
+            </Sheet>
+          )
+        })()}
+
         {sheet?.type === 'lessons' && (
           <Sheet title="🌅 오늘 장사 — 배운 차시 고르기" onClose={() => setSheet(null)} wide>
             <p className="mb-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
@@ -1342,7 +1398,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           {/* 지도 */}
           <MapTabs town={town} mapView={mapView} setMapView={setMapView} waiting={waitingByMap} hideLocked={!building} />
           <div className="relative mt-1">
-            <MapZoom>
+            <MapZoom focus={focusOf(town, mapView, rot)} focusKey={`${mapView}-${rot}`}>
             <TownMap
               town={town}
               mapId={mapView}
@@ -1636,6 +1692,7 @@ export default function DecimalShop({ onBack }) {
   useEffect(() => {
     const local = loadTown(who)
     setTown(local)
+    backupTown(who, local) // 이 기기 마을 모습을 백업 (날마다·바뀔 때마다)
     if (!me) return
     let alive = true
     setSyncFailed(false)
@@ -1655,6 +1712,7 @@ export default function DecimalShop({ onBack }) {
         if (t !== cur) {
           saveTown(who, t)
           setTown(t)
+          backupTown(who, t)
         }
       })
       .catch(() => alive && setSyncFailed(true))
@@ -1728,6 +1786,7 @@ export default function DecimalShop({ onBack }) {
       dayInProgress: null,
     }
     setTown(persist(next))
+    backupTown(who, next)
     if (sheet.profit.v > 0) setTimeout(() => cheer(3), 900)
     setResult({ ...r, record, sheet, repBefore: repOf(town), repAfter: next.rep, newQuests: QUESTS.filter((q) => q.done(next) && !before.includes(q.id)) })
     setResume(null)
@@ -1783,7 +1842,7 @@ export default function DecimalShop({ onBack }) {
   if (!lesson)
     return (
       <>
-        <Town onMini={() => setMiniOpen(true)} syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
+        <Town who={who} onMini={() => setMiniOpen(true)} syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
           locked={!unlockedPlay && !loadingAcct}
           loadingAcct={loadingAcct}
           signedIn={!!me}

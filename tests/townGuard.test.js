@@ -43,3 +43,36 @@ describe('학생 마을 기록 지키기', () => {
     expect(safeTown(real, undefined)).toBe(real)
   })
 })
+
+describe('다른 기기에서 지은 건물·산 땅도 지킨다', () => {
+  const shop = (id, at, lv = 1) => ({ kind: 'shop', id, lv, at })
+  it('장사가 더 앞선 기기 마을이어도, 다른 기기에서 지은 건물·땅이 남는다', () => {
+    const a = { days: 3, served: 90, zones: ['a', 'b'], maps: ['beach'], built: { '2,2': shop('candyshop', 0), '1,1': { kind: 'decor', id: 'tree', at: 500 }, 'beach:1,1': shop('iceshop', 600) } }
+    const b = { days: 4, served: 120, zones: ['a'], built: { '2,2': shop('candyshop', 0), '4,2': shop('donutshop', 700) } }
+    const t = safeTown(b, a)
+    expect(Object.keys(t.built).sort()).toEqual(['1,1', '2,2', '4,2', 'beach:1,1'])
+    expect(t.zones.sort()).toEqual(['a', 'b'])
+    expect(t.maps).toEqual(['beach'])
+    expect(t.days).toBe(4)
+  })
+  it('같은 칸은 더 나중에 키운 쪽', () => {
+    const a = { days: 3, served: 90, built: { '2,2': shop('candyshop', 900, 3) } }
+    const b = { days: 4, served: 120, built: { '2,2': shop('candyshop', 100, 1) } }
+    expect(safeTown(b, a).built['2,2'].lv).toBe(3)
+  })
+  it('판 가게는 다시 살아나지 않는다 (판 뒤 다시 지으면 남는다)', () => {
+    const saved = { days: 3, served: 90, built: { '2,2': shop('candyshop', 0), '4,2': shop('donutshop', 100) } }
+    const sold = { days: 3, served: 90, built: { '4,2': shop('donutshop', 100) }, removed: { '2,2': 1000 } }
+    expect(Object.keys(safeTown(sold, saved).built)).toEqual(['4,2'])
+    const rebuilt = { ...sold, built: { ...sold.built, '2,2': shop('flowershop', 2000) } }
+    expect(safeTown(rebuilt, saved).built['2,2'].id).toBe('flowershop')
+  })
+  it('차시 기록은 더 빠른 것, 받은 목표는 양쪽 모두', () => {
+    const a = { days: 3, served: 90, records: { dn1: { secs: 300, stars: 3 } }, claimed: ['first'] }
+    const b = { days: 4, served: 120, records: { dn1: { secs: 500, stars: 2 }, dn2: { secs: 700, stars: 2 } }, claimed: ['tree'] }
+    const t = safeTown(b, a)
+    expect(t.records.dn1.secs).toBe(300)
+    expect(t.records.dn2.secs).toBe(700)
+    expect(t.claimed.sort()).toEqual(['first', 'tree'])
+  })
+})
