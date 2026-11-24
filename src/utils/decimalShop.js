@@ -137,35 +137,42 @@ export const decorById = (id) => DECOR.find((d) => d.id === id)
 // ─── 마을 지도 (여러 장) ───
 // R 길 · . 지을 수 있는 땅 · a/b 사야 쓰는 땅(시내) · ~ 바다 · I 얼음 호수 (지을 수 없는 풍경)
 // 칸 이름: 시내는 'r,c', 다른 지도는 '지도:r,c' (예: 'beach:2,3')
-// 지도는 12×12. 처음 8×8(왼쪽 위)은 예전 그대로 — 학생들이 지어 둔 가게 자리가 바뀌지 않게 오른쪽·아래로만 넓혔다.
+// 지도는 16×16. 예전 칸(8×8, 12×12)은 왼쪽 위에 그대로 — 학생들이 지어 둔 가게 자리가 바뀌지 않게 오른쪽·아래로만 넓혔다.
 export const MAP = [
-  'bbbRbbbbcccc',
-  'b..R..bbcccc',
-  'a..R...acccc',
-  'RRRRRRRRRRRR',
-  'a..R...acRcc',
-  'aa.R..aacRcc',
-  'aaaRaaaacRcc',
-  'aaaRaaaacRcc',
-  'dddRdddddRdd',
-  'RRRRRRRRRRRR',
-  'dddRdddddRdd',
-  'dddRdddddRdd',
+  'bbbRbbbbcccceRee',
+  'b..R..bbcccceRee',
+  'a..R...acccceRee',
+  'RRRRRRRRRRRRRRRR',
+  'a..R...acRcceRee',
+  'aa.R..aacRcceRee',
+  'aaaRaaaacRcceRee',
+  'aaaRaaaacRcceRee',
+  'dddRdddddRddeRee',
+  'RRRRRRRRRRRRRRRR',
+  'dddRdddddRddeRee',
+  'dddRdddddRddeRee',
+  'fffRfffffRfffRff',
+  'RRRRRRRRRRRRRRRR',
+  'fffRfffffRfffRff',
+  'fffRfffffRfffRff',
 ]
 export const MAPS = [
   { id: 'main', icon: '🏙️', name: '시내', cost: 0, desc: '처음 마을', layout: MAP,
     colors: { land: ['#86d98f', '#7ccf86'], road: ['#d6d3d1', '#cfcac6'], locked: ['#5f9a69', '#578f61'] } },
   { id: 'beach', icon: '🏖️', name: '바닷가 마을', cost: 600, desc: '파도 소리 들리는 모래사장 마을. 아이스크림 가게와 수산시장을 지을 수 있어요.',
-    layout: ['..R..~~~~~~~', '..R...~~~~~~', 'RRRRR..~~~~~', '..R.R..~~~..', '..R.R....R..', 'RRRRRR...R..',
-      '~~..R....R..', '~~~.R..~.R..', '~~~.R....R..', '~~..RRRRRRRR', '~...R....R..', '~~..R....R~~'],
+    layout: ['..R..~~~~~~~~~~~', '..R...~~~~~~~~~~', 'RRRRR..~~~~~~~~~', '..R.R..~~~.....~', '..R.R....R...R..', 'RRRRRR...R...R..',
+      '~~..R....R...R..', '~~~.R..~.R...R..', '~~~.R....R...R..', '~~..RRRRRRRRRRRR', '~...R....R...R..', '~~..R....R~~.R..',
+      '~~..R....R...R..', '~...R....R...R..', 'RRRRRRRRRRRRRRRR', '~~..R....R...R~~'],
     colors: { land: ['#fde68a', '#fcd97a'], road: ['#e7d3b0', '#dcc7a0'], water: ['#38bdf8', '#2fb0ee'] } },
   { id: 'snow', icon: '❄️', name: '눈꽃 마을', cost: 1500, desc: '얼음 호수가 있는 하얀 마을. 핫초코 카페와 겨울옷 가게를 지을 수 있어요.',
-    layout: ['...R........', '.IIR.....II.', '.IIR..II.II.', '...R..II....', 'RRRRRRRRRRRR', '...R.....R..',
-      '..IR.....R..', '...R.....R..', '...R..II.R..', 'RRRRRRRRRRRR', '..IR.....R..', '...R.....R..'],
+    layout: ['...R..........R.', '.IIR.....II.I.R.', '.IIR..II.II.I.R.', '...R..II......R.', 'RRRRRRRRRRRRRRRR', '...R.....R....R.',
+      '..IR.....R....R.', '...R.....R....R.', '...R..II.R..I.R.', 'RRRRRRRRRRRRRRRR', '..IR.....R....R.', '...R.....R....R.',
+      '...R.....R....R.', 'RRRRRRRRRRRRRRRR', '..IR..II.R....R.', '...R.....R....R.'],
     colors: { land: ['#f1f5f9', '#e6edf5'], road: ['#cbd5e1', '#c3cedb'], water: ['#a5f3fc', '#99e9f4'] } },
   { id: 'park', icon: '🎡', name: '놀이공원', cost: 3000, desc: '빙글빙글 길이 도는 놀이공원. 팝콘 가게와 기념품 가게를 지을 수 있어요.',
-    layout: ['............', '.RRRRRR.....', '.R....R.....', 'RR....RRRRR.', '.R....R...R.', '.R....R...R.',
-      '.RRRRRR...R.', '....R.....R.', '....RRRRRRR.', '....R.....R.', '....R.....R.', '....R.....R.'],
+    layout: ['..............R.', '.RRRRRR.......R.', '.R....R.......R.', 'RR....RRRRR...R.', '.R....R...R...R.', '.R....R...R...R.',
+      '.RRRRRR...R...R.', '....R.....R...R.', '....RRRRRRR...R.', '....R.....R...R.', '....R.....R...R.', '....R.....R...R.',
+      '....R.....R...R.', '....R.....R...R.', 'RRRRRRRRRRRRRRRR', '....R.....R...R.'],
     colors: { land: ['#fbcfe8', '#f9c2e0'], road: ['#ddd6fe', '#d3cbfb'] } },
 ]
 export const mapById = (id) => MAPS.find((m) => m.id === id) || MAPS[0]
@@ -174,6 +181,7 @@ export const COLS = MAP[0].length
 export const ZONES = {
   a: { name: '마을 바깥 땅', cost: 150 }, b: { name: '북쪽 언덕', cost: 400 },
   c: { name: '동쪽 새 동네', cost: 700 }, d: { name: '남쪽 큰길 동네', cost: 1000 },
+  e: { name: '해 뜨는 언덕', cost: 1300 }, f: { name: '강 건너 신도시', cost: 1800 },
 }
 export const tileAt = (r, c, m = 'main') => {
   const L = mapById(m).layout

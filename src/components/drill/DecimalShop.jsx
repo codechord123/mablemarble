@@ -694,21 +694,24 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
   }
 
   // 손님은 가게가 있는 지도의 입구에서 들어와 길을 따라 걷는다
-  const randomEntrance = (m) => {
+  // 지도가 커서 — 가게에서 가까운 입구 두 곳 중 하나로 (너무 멀리 돌아오지 않게)
+  const randomEntrance = (m, near) => {
     const E = entrancesOf(m)
-    return E[Math.floor(Math.random() * E.length)]
+    const d = (e) => Math.abs(e[0] - near[0]) + Math.abs(e[1] - near[1])
+    const close = near ? [...E].sort((a, b) => d(a) - d(b)).slice(0, 2) : E
+    return close[Math.floor(Math.random() * close.length)]
   }
   function walkerTo(cust, shopKey) {
     const m = mapOf(shopKey)
     const [r, c] = parseKey(shopKey)
     const dest = frontRoad(r, c, m)
-    return { id: cust.id, cust, shopKey, map: m, path: roadPath(randomEntrance(m), dest, m), i: 0, next: Date.now() + STEP_MS, phase: 'in' }
+    return { id: cust.id, cust, shopKey, map: m, path: roadPath(randomEntrance(m, dest), dest, m), i: 0, next: Date.now() + STEP_MS, phase: 'in' }
   }
   function walkerAway(cust, shopKey, face) {
     const m = mapOf(shopKey)
     const [r, c] = parseKey(shopKey)
     const start = frontRoad(r, c, m)
-    g.current.walkers.push({ id: `${cust.id}-out`, cust, shopKey, map: m, path: roadPath(start, randomEntrance(m), m), i: 0, next: Date.now() + STEP_MS, phase: 'out', face })
+    g.current.walkers.push({ id: `${cust.id}-out`, cust, shopKey, map: m, path: roadPath(start, randomEntrance(m, start), m), i: 0, next: Date.now() + STEP_MS, phase: 'out', face })
   }
 
   // 3·2·1 — 끝나면 시계 시작 (이어 하기면 그때까지 쓴 시간부터)

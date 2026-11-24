@@ -242,12 +242,20 @@ describe('큰 지도 · 가게 팔기 · 이웃 효과 · 단골 · 줄 예보',
     snow: ['...R....', '.IIR....', '.IIR..II', '...R..II', 'RRRRRRRR', '...R....', '..IR....', '...R....'],
     park: ['........', '.RRRRRR.', '.R....R.', 'RR....RR', '.R....R.', '.R....R.', '.RRRRRR.', '....R...'],
   }
-  it('넓힌 지도도 처음 8×8 칸은 예전과 똑같다', async () => {
+  // 12×12로 넓혔던 지도 (두 번째 넓히기 전)
+  const PREV12 = {
+    main: ['bbbRbbbbcccc', 'b..R..bbcccc', 'a..R...acccc', 'RRRRRRRRRRRR', 'a..R...acRcc', 'aa.R..aacRcc', 'aaaRaaaacRcc', 'aaaRaaaacRcc', 'dddRdddddRdd', 'RRRRRRRRRRRR', 'dddRdddddRdd', 'dddRdddddRdd'],
+    beach: ['..R..~~~~~~~', '..R...~~~~~~', 'RRRRR..~~~~~', '..R.R..~~~..', '..R.R....R..', 'RRRRRR...R..', '~~..R....R..', '~~~.R..~.R..', '~~~.R....R..', '~~..RRRRRRRR', '~...R....R..', '~~..R....R~~'],
+    snow: ['...R........', '.IIR.....II.', '.IIR..II.II.', '...R..II....', 'RRRRRRRRRRRR', '...R.....R..', '..IR.....R..', '...R.....R..', '...R..II.R..', 'RRRRRRRRRRRR', '..IR.....R..', '...R.....R..'],
+    park: ['............', '.RRRRRR.....', '.R....R.....', 'RR....RRRRR.', '.R....R...R.', '.R....R...R.', '.RRRRRR...R.', '....R.....R.', '....RRRRRRR.', '....R.....R.', '....R.....R.', '....R.....R.'],
+  }
+  it('넓힌 지도도 예전 칸(8×8, 12×12)은 똑같다 — 지어 둔 가게 자리가 그대로', async () => {
     const { MAPS } = await import('../src/utils/decimalShop.js')
     for (const M of MAPS) {
-      expect(M.layout, M.id).toHaveLength(12)
-      M.layout.forEach((row) => expect(row).toHaveLength(12))
+      expect(M.layout, M.id).toHaveLength(16)
+      M.layout.forEach((row) => expect(row).toHaveLength(16))
       OLD[M.id].forEach((row, r) => expect(M.layout[r].slice(0, 8), `${M.id} ${r}`).toBe(row))
+      PREV12[M.id].forEach((row, r) => expect(M.layout[r].slice(0, 12), `${M.id} ${r}`).toBe(row))
     }
   })
   it('예전에 지은 가게·산 땅은 그대로 쓸 수 있다', () => {
