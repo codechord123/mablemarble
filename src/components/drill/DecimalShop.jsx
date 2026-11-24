@@ -7,8 +7,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { grade, show, D } from '../../utils/decimalGame.js'
 import {
-  SHOPS, DECOR, DECOR_THEMES, ITEMS, MAX_ITEM, MAPS, mapById, mapOf, entrancesOf, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, UPGRADE_COST, COST_RATE,
-  shopById, productById, decorById, tileAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
+  SHOPS, DECOR, DECOR_THEMES, ITEMS, MAX_ITEM, MAPS, mapById, mapOf, entrancesOf, ZONES, ADS, LESSONS, CUSTOMERS, QUESTS, MAX_LV, LV_NAME, UPGRADE_COST, COST_RATE,
+  shopById, productById, decorById, tileAt, isRoad as isRoadAt, unlocked, roadSide, frontRoad, roadPath, key as tkey, parseKey,
   shopsIn, openShops, makeFreshCustomer, orderKey, dayRules, slotsOf, moodOf, MOOD_FACE, tipFor, settle,
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
   SELL_RATE, spentOn, sellPrice, canSell, neighborsOf, near, FAN_AT, fansOf, regularsOf, queueForecast, overflowRisk,
@@ -219,11 +219,16 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
           const lv = here.lv || 1
           const cost = UPGRADE_COST(s, lv)
           return (
-            <Sheet title={`${s.icon} ${s.name} · Lv.${lv}`} onClose={() => setSheet(null)}>
+            <Sheet title={`${s.icon} ${s.name} · Lv.${lv} ${LV_NAME[lv]}`} onClose={() => setSheet(null)}>
               <div className="rounded-2xl p-3" style={{ background: `linear-gradient(135deg, ${s.color[1]}, ${s.color[2]})` }}>
                 <div className="text-sm font-black text-slate-800">파는 물건: {s.products.map((id) => `${productById(id).icon} ${productById(id).name}`).join(', ')}</div>
                 <div className="mt-1 text-xs font-bold text-slate-600">{s.tier}등급 · {s.kind === 'count' ? '개수로 팔아요 (2·3·8차시)' : '달아서 팔아요 (4~8차시)'}</div>
                 <div className="mt-1 text-xs font-bold text-slate-600">가게 앞 줄 {slotsOf(lv)}칸 · 팁 +{lv - 1}G · 하루 유지비 {s.tier * lv}G</div>
+                <div className="mt-1.5 flex gap-1">
+                  {Array.from({ length: MAX_LV }, (_, i) => (
+                    <span key={i} className={`h-2 flex-1 rounded-full ${i < lv ? 'bg-amber-500' : 'bg-white/70'}`} title={LV_NAME[i + 1]} />
+                  ))}
+                </div>
               </div>
               {(() => {
                 const nb = neighborsOf(town, sk)
@@ -238,8 +243,8 @@ function BuildSheets({ town, sheet, setSheet, onUpdate, inDay }) {
               {lv < MAX_LV ? (
                 <GameButton color={can(cost) ? 'green' : 'gray'} disabled={!can(cost)} className="mt-3 w-full py-3"
                   onClick={() => pay(cost, (t) => ({ built: { ...t.built, [sk]: { ...here, lv: lv + 1 } } }), true)}>
-                  ⬆️ Lv.{lv + 1}로 키우기 · {cost}G
-                  <div className="text-xs font-semibold opacity-90">줄 {slotsOf(lv + 1)}칸 · 팁 +{lv}G · 건물이 커지고 마을 인기 ↑</div>
+                  ⬆️ Lv.{lv + 1} {LV_NAME[lv + 1]}로 키우기 · {cost}G
+                  <div className="text-xs font-semibold opacity-90">줄 {slotsOf(lv + 1)}칸 · 팁 +{lv}G · 손님이 더 오고 마을 인기 ↑{lv + 1 >= 5 ? ' · 금빛 지붕 ✨' : ''}</div>
                 </GameButton>
               ) : (
                 <div className="mt-3 rounded-xl bg-amber-50 py-3 text-center font-black text-amber-700">🏆 최고 레벨이에요!</div>
@@ -1155,7 +1160,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
     if (!b || now > b.until) return null
     const w = Math.min(150, b.text.length * 8.6 + 14)
     const lv = town.built[k]?.lv || 1
-    const y = high ? cy - 48 - lv * 15 - 30 : cy - 52 - (lv - 1) * 15
+    const h = Math.min(4, lv)
+    const y = high ? cy - 48 - h * 15 - 30 : cy - 52 - (h - 1) * 15
     const bad = THOUGHTS[b.key]?.bad
     return (
       <g pointerEvents="none" className="shop-bop">
@@ -1172,16 +1178,52 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         <text x={cx + 25} y={cy - 12.5} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">⚠️줄</text>
       </g>
     ) : null
+  // 가게 앞 길에 한 줄로 선 손님들 (실제 타이쿤처럼) — 맨 앞이 문 쪽, 발밑 막대는 남은 기다림.
+  // 건물과 같이 앞뒤 순서대로 그려서 앞 건물에 가리면 가린다 (TownMap people)
+  const people = []
+  for (const [k, q] of Object.entries(queues)) {
+    if (!q.length || mapOf(k) !== mapView) continue
+    const [r, c] = parseKey(k)
+    const F = frontRoad(r, c, mapOf(k))
+    if (!F) continue
+    const d = [F[0] - r, F[1] - c] // 가게 → 길 방향
+    let a = [d[1], -d[0]] // 길을 따라가는 방향 — 길이 이어지는 쪽으로
+    if (!isRoadAt(F[0] + a[0], F[1] + a[1], mapOf(k))) a = [-a[0], -a[1]]
+    q.forEach((cu, i) => {
+      const serving = i === 0 && k === sel
+      const frac = serving ? 1 : Math.max(0, 1 - (now - cu.arrivedAt) / ((cu.pat || rules.patience) * 1000))
+      const col = frac > 0.6 ? '#22c55e' : frac > 0.25 ? '#f59e0b' : '#ef4444'
+      people.push({
+        id: cu.id,
+        r: F[0] - d[0] * 0.28 + a[0] * i * 0.36,
+        c: F[1] - d[1] * 0.28 + a[1] * i * 0.36,
+        render: (x, y) => (
+          <>
+            {serving && <ellipse cx={x} cy={y + 2} rx="9" ry="4" fill="rgba(250,204,21,0.7)" />}
+            <ellipse cx={x} cy={y + 2} rx="6" ry="2.6" fill="rgba(0,0,0,0.2)" />
+            <text x={x} y={y - 1} textAnchor="middle" fontSize={i === 0 ? 19 : 16}>{cu.customer.emoji}</text>
+            {cu.vip && <text x={x - 4} y={y - 16} fontSize="8">👑</text>}
+            {cu.regular && <text x={x + 3} y={y - 14} fontSize="7">❤️</text>}
+            <rect x={x - 7} y={y + 4} width="14" height="2.6" rx="1.3" fill="rgba(255,255,255,0.85)" />
+            <rect x={x - 7} y={y + 4} width={14 * frac} height="2.6" rx="1.3" fill={col} />
+          </>
+        ),
+      })
+    })
+  }
   const overlay = (k, cx, cy) => {
     const q = queues[k] || []
     if (!q.length) return <>{riskBadge(k, cx, cy)}{bubbleOf(k, cx, cy, false)}</>
+    return ringOf(k, q, cx, cy)
+  }
+  const ringOf = (k, q, cx, cy) => {
     const front = q[0]
     const serving = k === sel
     const frac = serving ? 1 : Math.max(0, 1 - (now - front.arrivedAt) / ((front.pat || rules.patience) * 1000))
     const color = frac > 0.6 ? '#22c55e' : frac > 0.25 ? '#f59e0b' : '#ef4444'
     const R = 13
     const C = 2 * Math.PI * R
-    const y = cy - 48 - (town.built[k]?.lv || 1) * 15 // 건물 높이(Lv)에 맞춰 위로
+    const y = cy - 48 - Math.min(4, town.built[k]?.lv || 1) * 15 // 건물 높이(Lv)에 맞춰 위로
     return (
       <g className={serving ? '' : 'town-bob'}>
         <line x1={cx} y1={y + 14} x2={cx} y2={y + 24} stroke="#fff" strokeWidth="2" />
@@ -1316,6 +1358,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
               overlay={building ? null : overlay}
               extra={building ? null : <>{walkers}{pickupsEl}</>}
               range={building && sheet && sheet.r != null && (sheet.m || 'main') === mapView ? { r: sheet.r, c: sheet.c } : null}
+              people={building ? null : people}
             />
             </MapZoom>
             {building && (

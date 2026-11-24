@@ -58,6 +58,23 @@ export const PRODUCTS = [
   { id: 'hotdog', icon: '🌭', name: '핫도그', unit: '개', kind: 'count', tier: 3 },
   { id: 'teddy', icon: '🧸', name: '곰 인형', unit: '개', kind: 'count', tier: 4 },
   { id: 'keyring', icon: '🔑', name: '열쇠고리', unit: '개', kind: 'count', tier: 4 },
+  // 시내 새 가게들
+  { id: 'tulip', icon: '🌷', name: '튤립', unit: '송이', kind: 'count', tier: 1 },
+  { id: 'bouquet', icon: '💐', name: '꽃다발', unit: '개', kind: 'count', tier: 1 },
+  { id: 'ojuice', icon: '🍊', name: '오렌지 주스', unit: 'L', kind: 'measure', tier: 1 },
+  { id: 'lemonade', icon: '🍋', name: '레몬에이드', unit: 'L', kind: 'measure', tier: 1 },
+  { id: 'pencil', icon: '✏️', name: '연필', unit: '자루', kind: 'count', tier: 2 },
+  { id: 'notebook', icon: '📒', name: '공책', unit: '권', kind: 'count', tier: 2 },
+  { id: 'rice', icon: '🍚', name: '쌀', unit: 'kg', kind: 'measure', tier: 2 },
+  { id: 'beans', icon: '🫘', name: '콩', unit: 'kg', kind: 'measure', tier: 2 },
+  { id: 'pizza', icon: '🍕', name: '피자 조각', unit: '조각', kind: 'count', tier: 3 },
+  { id: 'burger', icon: '🍔', name: '햄버거', unit: '개', kind: 'count', tier: 3 },
+  { id: 'choco', icon: '🍫', name: '초콜릿', unit: 'kg', kind: 'measure', tier: 3 },
+  { id: 'peanut', icon: '🥜', name: '땅콩', unit: 'kg', kind: 'measure', tier: 3 },
+  { id: 'robot', icon: '🤖', name: '로봇 장난감', unit: '개', kind: 'count', tier: 4 },
+  { id: 'console', icon: '🎮', name: '게임기', unit: '대', kind: 'count', tier: 4 },
+  { id: 'paint', icon: '🎨', name: '물감', unit: 'L', kind: 'measure', tier: 4 },
+  { id: 'canvas', icon: '🖼️', name: '캔버스 천', unit: 'm', kind: 'measure', tier: 4 },
 ]
 export const productById = (id) => PRODUCTS.find((p) => p.id === id)
 
@@ -72,6 +89,15 @@ export const SHOPS = [
   { id: 'farm', icon: '🐄', name: '목장 가게', kind: 'measure', tier: 3, cost: 300, products: ['milk', 'honey'], color: ['#38bdf8', '#e0f2fe', '#bae6fd'] },
   { id: 'jewel', icon: '💎', name: '보석상', kind: 'count', tier: 4, cost: 700, products: ['ring', 'gift'], color: ['#6366f1', '#e0e7ff', '#c7d2fe'] },
   { id: 'deli', icon: '🥩', name: '고급 식품점', kind: 'measure', tier: 4, cost: 700, products: ['beef', 'cheese'], color: ['#ef4444', '#fee2e2', '#fecaca'] },
+  // 시내 새 가게
+  { id: 'flowershop', icon: '🌷', name: '꽃집', kind: 'count', tier: 1, cost: 40, products: ['tulip', 'bouquet'], color: ['#f9a8d4', '#fce7f3', '#fbcfe8'] },
+  { id: 'juicebar', icon: '🍊', name: '주스 가게', kind: 'measure', tier: 1, cost: 40, products: ['ojuice', 'lemonade'], color: ['#fb923c', '#ffedd5', '#fed7aa'] },
+  { id: 'stationery', icon: '✏️', name: '문구점', kind: 'count', tier: 2, cost: 120, products: ['pencil', 'notebook'], color: ['#facc15', '#fef9c3', '#fef08a'] },
+  { id: 'ricestore', icon: '🍚', name: '쌀가게', kind: 'measure', tier: 2, cost: 120, products: ['rice', 'beans'], color: ['#a3e635', '#ecfccb', '#d9f99d'] },
+  { id: 'pizzeria', icon: '🍕', name: '피자집', kind: 'count', tier: 3, cost: 300, products: ['pizza', 'burger'], color: ['#ef4444', '#fee2e2', '#fecaca'] },
+  { id: 'chocolatier', icon: '🍫', name: '초콜릿 공방', kind: 'measure', tier: 3, cost: 300, products: ['choco', 'peanut'], color: ['#92400e', '#fef3c7', '#fde68a'] },
+  { id: 'toyshop', icon: '🤖', name: '장난감 가게', kind: 'count', tier: 4, cost: 700, products: ['robot', 'console'], color: ['#3b82f6', '#dbeafe', '#bfdbfe'] },
+  { id: 'artshop', icon: '🎨', name: '화방', kind: 'measure', tier: 4, cost: 700, products: ['paint', 'canvas'], color: ['#8b5cf6', '#ede9fe', '#ddd6fe'] },
   // 새 지도에서만 지을 수 있는 가게 (map)
   { id: 'iceshop', icon: '🍦', name: '아이스크림 가게', kind: 'count', tier: 2, cost: 160, map: 'beach', products: ['icecream', 'bingsu'], color: ['#22d3ee', '#cffafe', '#a5f3fc'] },
   { id: 'fishmarket', icon: '🐟', name: '수산시장', kind: 'measure', tier: 3, cost: 350, map: 'beach', products: ['shrimp', 'squid'], color: ['#0ea5e9', '#e0f2fe', '#bae6fd'] },
@@ -81,8 +107,12 @@ export const SHOPS = [
   { id: 'souvenir', icon: '🧸', name: '기념품 가게', kind: 'count', tier: 4, cost: 900, map: 'park', products: ['teddy', 'keyring'], color: ['#a855f7', '#f3e8ff', '#e9d5ff'] },
 ]
 export const shopById = (id) => SHOPS.find((s) => s.id === id)
-export const UPGRADE_COST = (shop, lv) => shop.tier * (lv === 1 ? 60 : 150) // Lv1→2, Lv2→3
-export const MAX_LV = 3
+// 키우기 비용 (Lv1→2, 2→3은 예전 그대로 — 이미 키운 가게의 판 값이 바뀌지 않게)
+const UP_STEP = { 1: 60, 2: 150, 3: 300, 4: 600 }
+export const UPGRADE_COST = (shop, lv) => shop.tier * (UP_STEP[lv] || 600)
+export const MAX_LV = 5
+// 레벨 이름 — 레벨이 오르면 줄 칸·팁·손님(가게 무게)·마을 인기가 오른다
+export const LV_NAME = { 1: '작은 가게', 2: '동네 가게', 3: '인기 가게', 4: '큰 상점', 5: '⭐ 명물 가게' }
 
 // ─── 장식 ───
 // theme: 어울리는 지도(보여 주는 순서용 — 어느 지도에나 놓을 수 있다)
@@ -508,6 +538,8 @@ export const WEATHERS = [
 ]
 // 가게 성격 (날씨가 고르는 기준)
 export const SHOP_TAGS = {
+  flowershop: ['gift'], juicebar: ['cool', 'fresh'], stationery: ['gift'], ricestore: ['fresh'],
+  pizzeria: ['snack', 'warm'], chocolatier: ['snack', 'gift'], toyshop: ['gift'], artshop: ['gift'],
   candyshop: ['snack', 'gift'], fruit: ['cool', 'fresh'], donutshop: ['snack'], fabric: ['gift'],
   bakery: ['warm', 'snack'], farm: ['fresh'], jewel: ['gift'], deli: ['fresh', 'warm'],
   iceshop: ['cool'], fishmarket: ['fresh'], cafe: ['warm'], winterwear: ['warm'],
@@ -672,8 +704,10 @@ export const QUESTS = [
   { id: 'earn1000', text: '총 매출 1000G', reward: 100, done: (s) => gte(s.totalSales, D(1000)) },
   { id: 'pop4', text: '마을 인기 ★4 만들기', reward: 120, done: (s) => popularityOf(s) >= 4 },
   { id: 'tier4', text: '4등급 가게 짓기', reward: 150, done: (s) => shopsIn(s).some((x) => x.shop.tier >= 4) },
-  { id: 'all', text: '시내 가게 8곳 모두 짓기', reward: 300, done: (s) => shopsIn(s).filter((x) => !x.shop.map).length >= 8 },
-  { id: 'all14', text: '가게 14곳 모두 짓기', reward: 800, done: (s) => countShops(s) >= SHOPS.length },
+  { id: 'all', text: '시내 가게 8곳 짓기', reward: 300, done: (s) => shopsIn(s).filter((x) => !x.shop.map).length >= 8 },
+  { id: 'all14', text: `가게 ${SHOPS.length}곳 모두 짓기`, reward: 1200, done: (s) => countShops(s) >= SHOPS.length },
+  { id: 'lv4', text: '가게 하나를 Lv.4 큰 상점으로', reward: 120, done: (s) => shopsIn(s).some((x) => x.lv >= 4) },
+  { id: 'lv5', text: '⭐ 명물 가게(Lv.5) 만들기', reward: 300, done: (s) => shopsIn(s).some((x) => x.lv >= 5) },
   { id: 'map1', text: '새 지도 열기', reward: 100, done: (s) => (s.maps || []).length >= 1 },
   { id: 'map3', text: '지도 세 곳 모두 열기', reward: 500, done: (s) => (s.maps || []).length >= 3 },
   { id: 'item1', text: '장사 아이템 써 보기', reward: 20, done: (s) => (s.itemsUsed || 0) >= 1 },

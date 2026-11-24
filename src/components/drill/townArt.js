@@ -47,11 +47,19 @@ const SHOP_ART = {
   winterwear: [4, 54, 83],
   popcornshop: [12, 51, 69],
   souvenir: [117, 48, 82],
+  flowershop: [20, 53, 82],
+  juicebar: [26, 51, 65],
+  stationery: [14, 43, 62],
+  ricestore: [22, 44, 70],
+  pizzeria: [92, 52, 69],
+  chocolatier: [101, 47, 62],
+  toyshop: [41, 54, 74],
+  artshop: [106, 55, 81],
 }
 export function shopArt(id, lv = 1) {
   const [base, floor, roof] = SHOP_ART[id] || SHOP_ART.candyshop
-  // Lv1: 가게 + 지붕 · Lv2: 위층 1 + 지붕 · Lv3: 위층 2 + 지붕
-  return { base: bld(base), floors: Array.from({ length: Math.max(0, lv - 1) }, () => bld(floor)), roof: bld(roof) }
+  // Lv1: 가게 + 지붕 · Lv2~4: 위층 1~3 · Lv5: 위층 3 + 금빛 지붕(명물 가게)
+  return { base: bld(base), floors: Array.from({ length: Math.min(3, Math.max(0, lv - 1)) }, () => bld(floor)), roof: bld(roof), gold: lv >= 5 }
 }
 
 // 지도마다 땅 색 (같은 풀 타일에 색 필터)

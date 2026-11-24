@@ -7,7 +7,7 @@ import { SRC_W, GROUND_H, BUILDING_H, FLOOR_STEP, UPPER_X, GROUND, roadSrc, shop
 export const TW = 64 // 칸 너비
 export const TH = 32 // 칸 높이
 const OX = (ROWS * TW) / 2
-const OY = 84 // 위쪽 여유 (건물 높이)
+const OY = 130 // 위쪽 여유 (건물 높이 — Lv.5까지)
 export const VIEW_W = ((ROWS + COLS) * TW) / 2
 export const VIEW_H = ((ROWS + COLS) * TH) / 2 + OY + 22 // 땅 타일 두께만큼 아래 여유
 const S = TW / SRC_W // 타일 그림 줄임 비율
@@ -83,7 +83,9 @@ function Building({ r, c, shop, lv, selected, closed, onClick, refEl, children }
       {art.floors.map((src, i) => (
         <image key={i} href={src} x={ux} y={floorTops[i]} width={99 * S} height={85 * S} />
       ))}
-      <image href={art.roof} x={ux} y={roofTop} width={99 * S} height={60 * S} />
+      <image href={art.roof} x={ux} y={roofTop} width={99 * S} height={60 * S}
+        style={art.gold ? { filter: 'sepia(1) saturate(5) hue-rotate(-8deg) brightness(1.2)' } : undefined} />
+      {art.gold && <text x={cx - 18} y={roofTop + 4} fontSize="11" className="town-bob">✨</text>}
       {selected && <polygon points={diamond(cx, cy, 1)} fill="rgba(250,204,21,0.18)" stroke="#facc15" strokeWidth="3" className="town-pulse" />}
       {/* 간판 */}
       <g>
@@ -92,8 +94,8 @@ function Building({ r, c, shop, lv, selected, closed, onClick, refEl, children }
       </g>
       {lv > 1 && (
         <g>
-          <rect x={cx + 9} y={roofTop - 14} width="20" height="11" rx="5" fill="#f59e0b" />
-          <text x={cx + 19} y={roofTop - 5.5} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">Lv{lv}</text>
+          <rect x={cx + 9} y={roofTop - 14} width={lv >= 5 ? 26 : 20} height="11" rx="5" fill={lv >= 5 ? '#b45309' : '#f59e0b'} />
+          <text x={cx + (lv >= 5 ? 22 : 19)} y={roofTop - 5.5} textAnchor="middle" fontSize="8" fontWeight="900" fill="#fff">{lv >= 5 ? 'Lv5⭐' : `Lv${lv}`}</text>
         </g>
       )}
       {closed && <text x={cx} y={cy + 4} textAnchor="middle" fontSize="11">😴</text>}
@@ -156,7 +158,8 @@ export function MapZoom({ children }) {
 }
 
 // range: { r, c } — 그 칸에서 이웃 효과가 닿는 범위(2칸)를 옅게 칠한다
-const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra, range }, ref) {
+// people: 가게 앞에 줄 선 손님 [{ id, r, c(지도 칸, 소수 가능), render(x, y) }] — 건물과 같이 앞뒤 순서대로 그린다
+const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, selectedKey, closedKeys, shopRefs, overlay, extra, range, people }, ref) {
   const rot = useMapRot()
   useEffect(preloadTownArt, [])
   const tiles = []
@@ -246,6 +249,11 @@ const TownMap = forwardRef(function TownMap({ town, mapId = 'main', onTile, sele
         })
       }
     }
+  }
+  for (const p of people || []) {
+    const [vr, vc] = viewRC(p.r, p.c, rot)
+    const [x, y] = center(vr, vc)
+    objects.push({ depth: vr + vc + 0.01, el: <g key={`p${p.id}`} pointerEvents="none">{p.render(x, y)}</g> })
   }
   objects.sort((a, b) => a.depth - b.depth)
   return (
