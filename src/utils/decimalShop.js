@@ -677,6 +677,7 @@ export const QUESTS = [
   { id: 'map1', text: '새 지도 열기', reward: 100, done: (s) => (s.maps || []).length >= 1 },
   { id: 'map3', text: '지도 세 곳 모두 열기', reward: 500, done: (s) => (s.maps || []).length >= 3 },
   { id: 'item1', text: '장사 아이템 써 보기', reward: 20, done: (s) => (s.itemsUsed || 0) >= 1 },
+  { id: 'mini10', text: '🎈 풍선 10개 이상 터뜨리기', reward: 40, done: (s) => (s.mini?.best || 0) >= 10 },
   { id: 'event5', text: '깜짝 이벤트 5번 겪기', reward: 50, done: (s) => (s.eventsSeen || 0) >= 5 },
   { id: 'fan1', text: '단골 손님 만들기 (❤️5)', reward: 40, done: (s) => regularsOf(s).length >= 1 },
   { id: 'fan5', text: '단골 손님 5명', reward: 150, done: (s) => regularsOf(s).length >= 5 },

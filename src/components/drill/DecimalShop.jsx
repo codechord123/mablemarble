@@ -25,6 +25,8 @@ import TownMap, { MapZoom, centerRot, viewRC, useMapRot } from './TownMap.jsx'
 import PairDrill from './PairDrill.jsx'
 import { PAIR_GOAL } from '../../utils/pairCalc.js'
 import { safeTown } from '../../utils/townGuard.js'
+import BalloonPop from './BalloonPop.jsx'
+import { MINI_REWARD_PLAYS, miniReward, playsToday, todayKey } from '../../utils/balloonPop.js'
 
 const RELAX_KEY = 'boomarble_tycoon_relaxed'
 const STEP_MS = 330 // 손님이 한 칸 걷는 시간 (지도가 커져서 조금 빠르게)
@@ -400,7 +402,7 @@ function TownNews({ town }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
+function Town({ onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -532,6 +534,9 @@ function Town({ syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImpo
           </GameButton>
           <GameButton color="blue" onClick={() => onModal('book')} className="py-2.5 text-sm">📖 도감 {Object.keys(town.met).length}</GameButton>
           <GameButton color="violet" onClick={() => setSheet({ type: 'store' })} className="py-2.5 text-sm">🛍️ 상점</GameButton>
+          <GameButton color="pink" onClick={onMini} className="col-span-4 py-2.5 text-sm sm:col-span-1">
+            🎈 미니게임 <span className="font-semibold opacity-90">소수점 풍선 터뜨리기</span>
+          </GameButton>
         </div>
         {!locked && (
           <button type="button" onClick={onPair} className="mx-auto mt-2 block text-xs font-black text-teal-700 underline">🤝 짝꿍 계산 더 연습하기</button>
@@ -1558,6 +1563,7 @@ export default function DecimalShop({ onBack }) {
   const [result, setResult] = useState(null)
   const [modal, setModal] = useState(null)
   const [pairOpen, setPairOpen] = useState(false) // 🤝 짝꿍 계산 훈련 화면
+  const [miniOpen, setMiniOpen] = useState(false) // 🎈 미니게임
   const townRef = useRef(town)
   townRef.current = town
   // 짝꿍 계산 50문제를 맞혀야 장사가 열린다 (선생님 계정은 바로)
@@ -1697,6 +1703,25 @@ export default function DecimalShop({ onBack }) {
     </AnimatePresence>
   )
 
+  // 🎈 미니게임 — 하루 3판까지 보상 (맞힌 개수 × 2G, 최대 40G), 그다음은 연습
+  if (miniOpen)
+    return (
+      <BalloonPop
+        best={town.mini?.best || 0}
+        rewardLeft={Math.max(0, MINI_REWARD_PLAYS - playsToday(town.mini))}
+        onExit={() => setMiniOpen(false)}
+        onFinish={(score) => {
+          const today = todayKey()
+          const reward = playsToday(townRef.current.mini, today) < MINI_REWARD_PLAYS ? miniReward(score) : 0
+          update((x) => ({
+            money: reward ? addD(x.money, D(reward)) : x.money,
+            mini: { best: Math.max(x.mini?.best || 0, score), day: today, plays: playsToday(x.mini, today) + 1 },
+          }))
+          return { reward }
+        }}
+      />
+    )
+
   if (pairOpen)
     return (
       <PairDrill
@@ -1715,7 +1740,7 @@ export default function DecimalShop({ onBack }) {
   if (!lesson)
     return (
       <>
-        <Town syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
+        <Town onMini={() => setMiniOpen(true)} syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
           locked={!unlockedPlay && !loadingAcct}
           loadingAcct={loadingAcct}
           signedIn={!!me}
