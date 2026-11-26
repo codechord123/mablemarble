@@ -13,6 +13,7 @@ import {
   PENALTY, RUSH_AT, RUSH_MS, starsFor, clock,
   SELL_RATE, spentOn, sellPrice, canSell, neighborsOf, near, FAN_AT, fansOf, regularsOf, queueForecast, overflowRisk,
   EVENTS, EVENT_AT, eventById, itemById, ROWS,
+  RUDE_PATIENCE, RUDE_TIP, complaintOf, COMPLAIN_AT,
   forecastOf, demandOf, demandLevel, DEMAND_LABEL, repOf, repLabel, repChange, THOUGHTS, thoughtFor,
   popularityOf, upkeepOf, titleOf, addD, subD, gte, money, loadTown, saveTown,
 } from '../../utils/decimalShop.js'
@@ -30,6 +31,7 @@ import BalloonPop from './BalloonPop.jsx'
 import { MINI_REWARD_PLAYS, miniReward, playsToday, todayKey } from '../../utils/balloonPop.js'
 
 const RELAX_KEY = 'boomarble_tycoon_relaxed'
+const COMPLAIN_KEY = 'boomarble_tycoon_complain' // 😠 컴플레인 배상 켜기 (기본 켬)
 const STEP_MS = 330 // 손님이 한 칸 걷는 시간 (지도가 커져서 조금 빠르게)
 
 const Stars = ({ n }) => (
@@ -417,7 +419,7 @@ function TownNews({ town }) {
 }
 
 // ─── 마을 (장사 전·후) ───
-function Town({ who, onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
+function Town({ complain, setComplain, who, onMini, syncing, loadingAcct, signedIn, syncFailed, onRetrySync, canImportPair, onImportPair, town, owner, relaxed, setRelaxed, onBack, onStart, onResume, onSettleNow, onUpdate, onModal, locked, pairDone, onPair, teacher, studentView, onStudentView }) {
   const [sheet, setSheet] = useState(null) // { type: 'lot'|'shop'|'decor'|'zone'|'lessons'|'ads', r, c }
   const pop = popularityOf(town)
   const can = (c) => gte(town.money, D(c))
@@ -621,6 +623,10 @@ function Town({ who, onMini, syncing, loadingAcct, signedIn, syncFailed, onRetry
               <input type="checkbox" checked={relaxed} onChange={(e) => setRelaxed(e.target.checked)} className="h-4 w-4 accent-sky-600" />
               🐢 느긋 모드 <span className="font-bold text-sky-700/80">손님이 두 배 오래 기다리고 천천히 와요</span>
             </label>
+            <label className="mb-2 flex cursor-pointer items-center gap-2 rounded-xl bg-rose-50 px-3 py-2 text-sm font-black text-rose-900">
+              <input type="checkbox" checked={complain} onChange={(e) => setComplain(e.target.checked)} className="h-4 w-4 accent-rose-600" />
+              😠 컴플레인 배상 <span className="font-bold text-rose-700/80">너무 오래 기다린 손님은 배상금(주문 × 0.1, 진상 × 0.2)을 받아 가요</span>
+            </label>
             <div className="grid gap-1.5 sm:grid-cols-2">
               {LESSONS.map((l) => {
                 const open = openShops(l, town)
@@ -668,7 +674,7 @@ const MAX_RETURNS = 2
 function orderOf(c) {
   const o = {}
   for (const k of ORDER_KEYS) o[k] = c[k]
-  o.say = String(c.say || '').replace(/^(❤️ 또 왔어요! |👑 )/, '')
+  o.say = String(c.say || '').replace(/^(❤️ 또 왔어요! |👑 |😤 빨리요! )/, '')
   o.returns = (c.returns || 0) + (c.seen ? 1 : 0)
   return o
 }
@@ -682,7 +688,7 @@ function progressOf(lesson, s, elapsedMs) {
   return { type: lesson.type, stats: s.stats, elapsedMs, penalty: s.penalty, rushDone: s.rushDone, used: s.used, owed: [...(s.owed || []), ...pending], paidLive: true, savedAt: Date.now() }
 }
 
-function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, onUpdate, onLog }) {
+function Day({ lesson, town, owner, relaxed, complain = true, resume, onFinish, onQuit, onSave, onUpdate, onLog }) {
   const rules = useMemo(() => dayRules(lesson, town, relaxed), []) // eslint-disable-line react-hooks/exhaustive-deps
   const regulars = useMemo(() => regularsOf(town), []) // eslint-disable-line react-hooks/exhaustive-deps
   const rot = useMapRot()
@@ -827,7 +833,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
           const oi = s.owed.findIndex((o) => target.shop.products.includes(o.product))
           if (oi >= 0) {
             const o = s.owed.splice(oi, 1)[0]
-            cust = { ...cust, ...o, say: (cust.regular ? '❤️ 또 왔어요! ' : cust.vip ? '👑 ' : '') + o.say, returned: true, seen: false }
+            cust = { ...cust, ...o, say: (cust.regular ? '❤️ 또 왔어요! ' : cust.vip ? '👑 ' : cust.rude ? '😤 빨리요! ' : '') + o.say, returned: true, seen: false }
           } else {
             s.used = [...s.used, orderKey(cust)] // 오늘 낸 식은 다시 안 낸다 (30문제 모두 다르게)
           }
@@ -867,7 +873,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         } else {
           const nb = nbBonus(w.shopKey)
           // 기다려 주는 시간: 이웃 효과 최대 +30%, 단골 +20%
-          q.push({ ...w.cust, arrivedAt: now, pat: rules.patience * (1 + nb * 0.3) * (w.cust.regular ? 1.2 : 1) })
+          q.push({ ...w.cust, arrivedAt: now, pat: rules.patience * (1 + nb * 0.3) * (w.cust.regular ? 1.2 : 1) * (w.cust.rude ? RUDE_PATIENCE : 1) }) // 😤 진상은 절반쯤만 기다린다
           sfx.card?.()
           // 손님 생각 — 줄·수요·장식·평판·날씨를 보고 한마디
           const b = town.built[w.shopKey]
@@ -878,7 +884,8 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             pop: popularityOf(town), lv: b?.lv || 1, rep: rules.rep, rush: now < s.rushUntil, weather: true,
             regular: w.cust.regular, nearBonus: nb,
           })
-          if (th) think(w.shopKey, th, now)
+          if (w.cust.rude) think(w.shopKey, 'rude', now)
+          else if (th) think(w.shopKey, th, now)
         }
       }
       // 떠나는 손님 지우기
@@ -896,9 +903,10 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             s.stats.lost += 1
             fan(c, -1)
             owe(c)
-            s.penalty += PENALTY.lost
+            const extra = c.rude ? 5 : 0 // 진상 손님을 놓치면 벌칙이 더 크다
+            s.penalty += PENALTY.lost + extra
             walkerAway(c, k, '😤')
-            setToast(`😤 ${c.customer.name} 손님이 기다리다 갔어요 · +${PENALTY.lost}초`)
+            setToast(c.rude ? `😤 진상 손님 ${c.customer.name}이(가) 화내며 갔어요 · +${PENALTY.lost + extra}초` : `😤 ${c.customer.name} 손님이 기다리다 갔어요 · +${PENALTY.lost}초`)
             sfx.wrong()
           } else keep.push(c)
         })
@@ -1131,13 +1139,26 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
       if (firstTry && !helper) fan(active, 1)
       const took = (Date.now() - servingSince.current) / 1000
       s.avgSolve = s.avgSolve ? s.avgSolve * 0.7 + took * 0.3 : took
-      const tip = ((helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) + bonus) * (rush ? 2 : 1) * (boost ? 2 : 1)
+      // 😠 컴플레인 — 너무 오래 기다리게 했으면 배상금(주문 금액 × 0.1, 진상 × 0.2)을 물고 팁도 없다
+      const waited = (Date.now() - active.arrivedAt) / 1000
+      const comp = complain ? complaintOf({ waited, pat: active.pat || rules.patience, rude: active.rude, answer: active.answer }) : null
+      const rudeBonus = !comp && active.rude && firstTry && !helper ? RUDE_TIP : 0
+      const tip = comp ? 0 : ((helper ? 0 : tipFor({ firstTry, mood, vip: active.vip, streak: st, lv })) + bonus + rudeBonus) * (rush ? 2 : 1) * (boost ? 2 : 1)
+      if (comp) {
+        s.stats.complaints = (s.stats.complaints || 0) + 1
+        s.stats.comp = addD(s.stats.comp || D(0), comp.amount)
+        think(sel, 'complain', Date.now())
+        setTimeout(() => setToast(`😠 너무 오래 걸렸다고 컴플레인! 배상금 = ${show(active.answer)}G × ${show(comp.rate)} = ${show(comp.amount)}G`), 250)
+      } else if (rudeBonus) setTimeout(() => setToast(`😤→😊 진상 손님도 빨리 계산해서 만족! 팁 +${RUDE_TIP}G`), 250)
       setStreak(st)
       s.stats.sales = addD(s.stats.sales, active.answer)
       s.stats.tips = addD(s.stats.tips, D(tip))
       onLog?.({ l: lesson.type, q: `${active.price} × ${show(active.b)}`, r: firstTry ? 1 : 2 })
       const paid = addD(active.answer, D(tip))
-      onUpdate((t) => ({ money: addD(t.money, paid) }), false) // 판 돈은 바로 내 돈 — 장사 중에도 지을 수 있게
+      onUpdate((t) => {
+        const after = addD(t.money, paid)
+        return { money: comp ? (gte(after, comp.amount) ? subD(after, comp.amount) : D(0)) : after } // 배상금은 바로 낸다
+      }, false) // 판 돈은 바로 내 돈 — 장사 중에도 지을 수 있게
       s.stats.served += 1
       s.stats.first += firstTry ? 1 : 0
       s.stats.vip += active.vip ? 1 : 0
@@ -1260,6 +1281,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
             <text x={x} y={y - 1} textAnchor="middle" fontSize={i === 0 ? 19 : 16}>{cu.customer.emoji}</text>
             {cu.vip && <text x={x - 4} y={y - 16} fontSize="8">👑</text>}
             {cu.regular && <text x={x + 3} y={y - 14} fontSize="7">❤️</text>}
+            {cu.rude && <text x={x + 4} y={y - 13} fontSize="8">😤</text>}
             <rect x={x - 7} y={y + 4} width="14" height="2.6" rx="1.3" fill="rgba(255,255,255,0.85)" />
             <rect x={x - 7} y={y + 4} width={14 * frac} height="2.6" rx="1.3" fill={col} />
           </>
@@ -1288,6 +1310,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
         <text x={cx} y={y + 6} textAnchor="middle" fontSize="16">{front.customer.emoji}</text>
         {front.vip && <text x={cx - 12} y={y - 10} fontSize="11">👑</text>}
         {front.regular && <text x={cx + 8} y={y + 14} fontSize="10">❤️</text>}
+        {front.rude && <text x={cx - 20} y={y + 14} fontSize="11">😤</text>}
         {riskBadge(k, cx, cy)}
         {q.length > 1 && (
           <g>
@@ -1471,6 +1494,7 @@ function Day({ lesson, town, owner, relaxed, resume, onFinish, onQuit, onSave, o
                 </div>
                 {streak >= 2 && <span className="shrink-0 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-black text-white combo-flame">🔥 {streak}</span>}
               </div>
+              {active.rude && <div className="mt-1 text-center text-[11px] font-black text-rose-600">😤 진상 손님 — 빨리 계산해요! 늦으면 배상금 × 0.2</div>}
               {(active.returned || active.pausedOn) && (
                 <div className="mt-1 text-center text-[11px] font-black text-violet-600">
                   {active.returned ? '🔁 아까 못 맞힌 문제가 다시 왔어요' : '⏸ 멈췄던 문제예요'} — 맞혀도 팁·처음에 맞힘 없음
@@ -1524,6 +1548,7 @@ function Settlement({ result, town, onTown, onAgain }) {
     ['💝 팁', `+${money(r.tips)}G`, 'text-slate-800'],
     [`📦 재료비 (매출 × ${show(COST_RATE)})`, `−${money(r.material)}G`, 'text-rose-600'],
     ['🔧 가게 유지비', `−${money(r.upkeep)}G`, 'text-rose-600'],
+    ...(r.comp && r.comp.v ? [[`😠 컴플레인 배상 (${result.complaints || 0}건)`, `−${money(r.comp)}G`, 'text-rose-600']] : []),
   ]
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/60 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -1673,6 +1698,13 @@ export default function DecimalShop({ onBack }) {
   const isTeacher = me?.role === 'teacher'
   const [studentView, setStudentView] = useState(false) // 선생님: 학생 화면 미리보기
   const unlockedPlay = (isTeacher && !studentView) || pairDone >= PAIR_GOAL
+  const [complain, setComplainState] = useState(() => {
+    try { return localStorage.getItem(COMPLAIN_KEY) !== '0' } catch { return true }
+  })
+  const setComplain = (v) => {
+    setComplainState(v)
+    try { localStorage.setItem(COMPLAIN_KEY, v ? '1' : '0') } catch { /* ignore */ }
+  }
   const [relaxed, setRelaxedState] = useState(() => {
     try { return localStorage.getItem(RELAX_KEY) === '1' } catch { return false }
   })
@@ -1764,7 +1796,7 @@ export default function DecimalShop({ onBack }) {
   // addPaid: 예전 방식 하던 장사라 번 돈이 아직 안 들어간 경우
   function finishDay(r, type = lesson?.type, addPaid = false) {
     const town = townRef.current // 장사 중 판 돈이 계속 들어오므로 지금의 마을로
-    const sheet = settle({ sales: r.sales, tips: r.tips, upkeep: r.upkeep })
+    const sheet = settle({ sales: r.sales, tips: r.tips, upkeep: r.upkeep, comp: r.comp || D(0) }) // 배상금은 장사 중에 이미 냈다
     const old = type && town.records?.[type]
     const record = r.secs != null && type && (!old || r.secs < old.secs)
     const before = QUESTS.filter((q) => q.done(town)).map((q) => q.id)
@@ -1842,7 +1874,7 @@ export default function DecimalShop({ onBack }) {
   if (!lesson)
     return (
       <>
-        <Town who={who} onMini={() => setMiniOpen(true)} syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
+        <Town complain={complain} setComplain={setComplain} who={who} onMini={() => setMiniOpen(true)} syncing={syncing} town={town} owner={owner} relaxed={relaxed} setRelaxed={setRelaxed} onBack={onBack} onUpdate={update} onModal={setModal}
           locked={!unlockedPlay && !loadingAcct}
           loadingAcct={loadingAcct}
           signedIn={!!me}
@@ -1878,7 +1910,7 @@ export default function DecimalShop({ onBack }) {
 
   return (
     <>
-      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} resume={resume} onFinish={finishDay} onUpdate={update} onLog={logProblem}
+      <Day key={dayKey} lesson={lesson} town={town} owner={owner} relaxed={relaxed} complain={complain} resume={resume} onFinish={finishDay} onUpdate={update} onLog={logProblem}
         onSave={(progress, cloud) => update(() => ({ dayInProgress: progress }), cloud)}
         onQuit={(progress) => {
           // 나가도 하던 장사는 저장 — 마을에서 '이어서 장사'

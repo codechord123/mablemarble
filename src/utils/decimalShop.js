@@ -399,7 +399,7 @@ export function makeFreshCustomer(lesson, shop, prices, opts = {}) {
   return c
 }
 
-export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChance = 0.1, met = {}, regulars = [] } = {}) {
+export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChance = 0.1, met = {}, regulars = [], rudeChance } = {}) {
   const pr = productById(pick(rng, shop.products))
   const type = lesson.type === 'mix' ? pick(rng, TYPES_FOR[pr.kind]) : lesson.type
   const vip = rng() < vipChance
@@ -419,6 +419,7 @@ export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChanc
   if (cust[2] && rng() < 0.6) cust = pick(rng, CUSTOMERS.filter((c) => !c[2]))
   if (regulars.length && rng() < 0.3) cust = CUSTOMERS.find((c) => c[0] === pick(rng, regulars)) || cust // 단골이 다시 찾아온다
   const regular = regulars.includes(cust[0])
+  const rude = !vip && !regular && rng() < (rudeChance ?? RUDE_CHANCE) // 😤 진상 손님
   const qty = `${show(b)}${pr.unit}`
   uid += 1
   return {
@@ -439,7 +440,8 @@ export function makeCustomer(lesson, shop, prices, { rng = Math.random, vipChanc
     customer: { emoji: cust[0], name: cust[1], rare: !!cust[2] },
     regular,
     vip,
-    say: (regular ? '❤️ 또 왔어요! ' : vip ? '👑 ' : '') + pick(rng, SAY)(pr.name, qty),
+    rude,
+    say: (regular ? '❤️ 또 왔어요! ' : vip ? '👑 ' : rude ? '😤 빨리요! ' : '') + pick(rng, SAY)(pr.name, qty),
   }
 }
 
@@ -600,6 +602,8 @@ export const THOUGHTS = {
   famous: { text: '소문 듣고 왔어요 🌟', hint: '좋은 소문은 VIP를 불러요' },
   crowd: { text: '사람이 정말 많네요 🔥', hint: '러시 타임엔 팁 두 배' },
   regular: { text: '단골집이라 또 왔어요 ❤️', hint: '처음에 정확히 계산해 주면 단골이 생겨요' },
+  rude: { text: '빨리 해 주세요! 😤', hint: '진상 손님은 먼저 계산해요 — 기다려 주는 시간이 짧아요', bad: true },
+  complain: { text: '너무 오래 걸렸잖아요! 😠', hint: '오래 기다린 가게부터 계산하면 배상금을 안 물어요', bad: true },
   nice: { text: '가게 주변이 예뻐서 왔어요 🌳', hint: '가게 2칸 안에 장식을 놓으면 손님이 더 와요' },
   weather: { text: '', hint: '' },
 }
@@ -679,11 +683,25 @@ export function tipFor({ firstTry, mood, vip, streak, lv = 1 }) {
 }
 
 // 정산 — 재료비 = 매출 × 0.5 (소수의 곱셈!), 가게 유지비
-export const COST_RATE = D(5, 1)
-export function settle({ sales, tips, upkeep }) {
+// 재료비 = 매출 × 0.3 (예전 0.5는 너무 많이 들어서 줄였다 — 앞으로 정산하는 날부터)
+export const COST_RATE = D(3, 1)
+export function settle({ sales, tips, upkeep, comp = D(0) }) {
   const material = norm(mul(sales, COST_RATE))
-  const profit = subD(addD(sales, tips), addD(material, upkeep))
-  return { sales, tips, material, upkeep, profit }
+  const profit = subD(addD(sales, tips), addD(addD(material, upkeep), comp))
+  return { sales, tips, material, upkeep, comp, profit }
+}
+
+// ─── 😤 진상 손님 · 😠 컴플레인 배상 ───
+// 진상 손님: 기다려 주는 시간이 절반쯤, 처음에 맞혀 주면 팁 +2G, 놓치면 벌칙 +5초 더
+export const RUDE_PATIENCE = 0.55
+export const RUDE_TIP = 2
+export const RUDE_CHANCE = 0.12
+// 계산이 끝났을 때 너무 오래 기다렸으면(일반: 기다림의 75%, 진상: 50%) 컴플레인 — 배상금 = 주문 금액 × 0.1 (진상 × 0.2)
+export const COMPLAIN_AT = { normal: 0.75, rude: 0.5 }
+export function complaintOf({ waited, pat, rude = false, answer }) {
+  if (!(waited / pat >= (rude ? COMPLAIN_AT.rude : COMPLAIN_AT.normal))) return null
+  const rate = rude ? D(2, 1) : D(1, 1)
+  return { rate, amount: norm(mul(answer, rate)) }
 }
 
 // ─── 목표 ───

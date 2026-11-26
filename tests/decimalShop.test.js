@@ -76,10 +76,28 @@ describe('돈·정산·규칙', () => {
     expect(show(subD(D(1), D(25, 1)))).toBe('-1.5')
     expect(gte(D(3), D(299, 2))).toBe(true)
   })
-  it('정산: 매출 + 팁 − 매출×0.5 − 유지비', () => {
+  it('정산: 매출 + 팁 − 매출×0.3 − 유지비 − 배상금', () => {
     const r = settle({ sales: D(1237, 1), tips: D(9), upkeep: D(2) })
-    expect(show(r.material)).toBe('61.85')
-    expect(show(r.profit)).toBe('68.85')
+    expect(show(r.material)).toBe('37.11')
+    expect(show(r.profit)).toBe('93.59')
+    expect(show(settle({ sales: D(1237, 1), tips: D(9), upkeep: D(2), comp: D(55, 1) }).profit)).toBe('88.09')
+  })
+  it('😠 컴플레인: 일반은 기다림 75%, 진상은 50%부터 · 배상금 = 주문 × 0.1 (진상 × 0.2)', async () => {
+    const { complaintOf } = await import('../src/utils/decimalShop.js')
+    expect(complaintOf({ waited: 50, pat: 70, answer: D(396, 1) })).toBe(null)
+    expect(show(complaintOf({ waited: 53, pat: 70, answer: D(396, 1) }).amount)).toBe('3.96')
+    expect(complaintOf({ waited: 20, pat: 40, rude: true, answer: D(25) }).amount).toEqual(D(5))
+    expect(complaintOf({ waited: 19, pat: 40, rude: true, answer: D(25) })).toBe(null)
+  })
+  it('😤 진상 손님은 가끔 (VIP·단골은 아님)', async () => {
+    const { makeCustomer } = await import('../src/utils/decimalShop.js')
+    let rude = 0
+    for (let i = 0; i < 500; i++) {
+      const c = makeCustomer(LESSONS[0], SHOPS[0], {})
+      if (c.rude) { rude += 1; expect(c.vip).toBe(false); expect(c.say.startsWith('😤')).toBe(true) }
+    }
+    expect(rude).toBeGreaterThan(20)
+    expect(rude).toBeLessThan(120)
   })
   it('팁', () => {
     const base = { firstTry: true, mood: 'happy', vip: false, streak: 1, lv: 1 }
